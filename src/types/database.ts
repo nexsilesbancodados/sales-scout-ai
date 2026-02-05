@@ -68,6 +68,13 @@ export interface UserSettings {
   daily_report_enabled: boolean;
   // Security
   hunter_api_token: string;
+  // Automation & Security Settings
+  daily_message_limit: number;
+  message_interval_seconds: number;
+  auto_start_hour: number;
+  auto_end_hour: number;
+  auto_prospecting_enabled: boolean;
+  blacklist: string[];
   // Timestamps
   created_at: string;
   updated_at: string;

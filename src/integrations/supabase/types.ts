@@ -154,6 +154,7 @@ export type Database = {
         Row: {
           address: string | null
           analyzed_needs: Json | null
+          best_contact_hour: number | null
           business_name: string
           conversation_summary: string | null
           created_at: string
@@ -166,10 +167,15 @@ export type Database = {
           location: string | null
           next_follow_up_at: string | null
           niche: string | null
+          notes: string | null
           pain_points: string[] | null
           phone: string
+          quality_score: number | null
+          rating: number | null
+          reviews_count: number | null
           source: string | null
           stage: string
+          tags: string[] | null
           temperature: string | null
           updated_at: string
           user_id: string
@@ -178,6 +184,7 @@ export type Database = {
         Insert: {
           address?: string | null
           analyzed_needs?: Json | null
+          best_contact_hour?: number | null
           business_name: string
           conversation_summary?: string | null
           created_at?: string
@@ -190,10 +197,15 @@ export type Database = {
           location?: string | null
           next_follow_up_at?: string | null
           niche?: string | null
+          notes?: string | null
           pain_points?: string[] | null
           phone: string
+          quality_score?: number | null
+          rating?: number | null
+          reviews_count?: number | null
           source?: string | null
           stage?: string
+          tags?: string[] | null
           temperature?: string | null
           updated_at?: string
           user_id: string
@@ -202,6 +214,7 @@ export type Database = {
         Update: {
           address?: string | null
           analyzed_needs?: Json | null
+          best_contact_hour?: number | null
           business_name?: string
           conversation_summary?: string | null
           created_at?: string
@@ -214,10 +227,15 @@ export type Database = {
           location?: string | null
           next_follow_up_at?: string | null
           niche?: string | null
+          notes?: string | null
           pain_points?: string[] | null
           phone?: string
+          quality_score?: number | null
+          rating?: number | null
+          reviews_count?: number | null
           source?: string | null
           stage?: string
+          tags?: string[] | null
           temperature?: string | null
           updated_at?: string
           user_id?: string
@@ -278,6 +296,48 @@ export type Database = {
           },
         ]
       }
+      message_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          niche: string
+          response_rate: number | null
+          updated_at: string
+          usage_count: number | null
+          user_id: string
+          variables: string[] | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          niche: string
+          response_rate?: number | null
+          updated_at?: string
+          usage_count?: number | null
+          user_id: string
+          variables?: string[] | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          niche?: string
+          response_rate?: number | null
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -308,14 +368,61 @@ export type Database = {
         }
         Relationships: []
       }
+      prospecting_stats: {
+        Row: {
+          created_at: string
+          date: string
+          day_of_week: number | null
+          hour_of_day: number | null
+          id: string
+          location: string | null
+          messages_sent: number | null
+          niche: string
+          positive_responses: number | null
+          responses_received: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          day_of_week?: number | null
+          hour_of_day?: number | null
+          id?: string
+          location?: string | null
+          messages_sent?: number | null
+          niche: string
+          positive_responses?: number | null
+          responses_received?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          day_of_week?: number | null
+          hour_of_day?: number | null
+          id?: string
+          location?: string | null
+          messages_sent?: number | null
+          niche?: string
+          positive_responses?: number | null
+          responses_received?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           agent_name: string | null
           agent_persona: string | null
           agent_type: string | null
+          auto_end_hour: number | null
+          auto_prospecting_enabled: boolean | null
+          auto_start_hour: number | null
+          blacklist: string[] | null
           closing_style: string | null
           communication_style: string | null
           created_at: string
+          daily_message_limit: number | null
           daily_report_enabled: boolean | null
           email_notifications: boolean | null
           emoji_usage: string | null
@@ -324,6 +431,7 @@ export type Database = {
           hunter_api_token: string | null
           id: string
           knowledge_base: string | null
+          message_interval_seconds: number | null
           message_variations: Json | null
           objection_handling: string | null
           personality_traits: Json | null
@@ -343,9 +451,14 @@ export type Database = {
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
+          auto_end_hour?: number | null
+          auto_prospecting_enabled?: boolean | null
+          auto_start_hour?: number | null
+          blacklist?: string[] | null
           closing_style?: string | null
           communication_style?: string | null
           created_at?: string
+          daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
@@ -354,6 +467,7 @@ export type Database = {
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
+          message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
           personality_traits?: Json | null
@@ -373,9 +487,14 @@ export type Database = {
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
+          auto_end_hour?: number | null
+          auto_prospecting_enabled?: boolean | null
+          auto_start_hour?: number | null
+          blacklist?: string[] | null
           closing_style?: string | null
           communication_style?: string | null
           created_at?: string
+          daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
@@ -384,6 +503,7 @@ export type Database = {
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
+          message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
           personality_traits?: Json | null
