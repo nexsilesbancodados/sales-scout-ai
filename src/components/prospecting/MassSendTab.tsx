@@ -116,7 +116,14 @@ export function MassSendTab() {
 
     try {
       let sent = 0;
-      const intervalMs = (settings?.message_interval_seconds || 60) * 1000;
+      const baseIntervalMs = (settings?.message_interval_seconds || 60) * 1000;
+      
+      // Function to generate random interval (50% to 150% of base interval)
+      const getRandomInterval = () => {
+        const minInterval = baseIntervalMs * 0.5;
+        const maxInterval = baseIntervalMs * 1.5;
+        return Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+      };
       
       for (let i = 0; i < selectedLeads.length; i++) {
         const leadId = selectedLeads[i];
@@ -161,9 +168,11 @@ export function MassSendTab() {
             .eq('id', lead.id);
         }
 
-        // Wait between messages (respect rate limiting)
+        // Wait random interval between messages (avoid robotic pattern detection)
         if (i < selectedLeads.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, intervalMs));
+          const randomInterval = getRandomInterval();
+          console.log(`Waiting ${Math.round(randomInterval / 1000)}s before next message...`);
+          await new Promise(resolve => setTimeout(resolve, randomInterval));
         }
       }
 
@@ -378,7 +387,7 @@ export function MassSendTab() {
 
               {settings?.message_interval_seconds && settings.message_interval_seconds > 0 && (
                 <p className="text-xs text-center text-muted-foreground">
-                  Intervalo de {settings.message_interval_seconds}s entre mensagens para evitar bloqueios
+                  Intervalo aleatório de {Math.round(settings.message_interval_seconds * 0.5)}s a {Math.round(settings.message_interval_seconds * 1.5)}s entre mensagens para parecer humano
                 </p>
               )}
             </div>
