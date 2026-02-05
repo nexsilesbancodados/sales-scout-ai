@@ -10,6 +10,7 @@ import { ThemeProvider } from "next-themes";
 // Pages
 import AuthPage from "./pages/Auth";
 import DashboardPage from "./pages/Dashboard";
+import ProspectingPage from "./pages/Prospecting";
 import LeadsPage from "./pages/Leads";
 import FunnelPage from "./pages/Funnel";
 import ConversationsPage from "./pages/Conversations";
@@ -39,6 +40,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/prospecting"
+                element={
+                  <ProtectedRoute>
+                    <ProspectingPage />
                   </ProtectedRoute>
                 }
               />
