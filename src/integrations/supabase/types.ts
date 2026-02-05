@@ -14,13 +14,312 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+          sender_type: string
+          sent_at: string
+          status: string | null
+          whatsapp_message_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          sender_type: string
+          sent_at?: string
+          status?: string | null
+          whatsapp_message_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          sender_type?: string
+          sent_at?: string
+          status?: string | null
+          whatsapp_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          address: string | null
+          analyzed_needs: Json | null
+          business_name: string
+          conversation_summary: string | null
+          created_at: string
+          email: string | null
+          follow_up_count: number | null
+          google_maps_url: string | null
+          id: string
+          last_contact_at: string | null
+          last_response_at: string | null
+          location: string | null
+          next_follow_up_at: string | null
+          niche: string | null
+          pain_points: string[] | null
+          phone: string
+          source: string | null
+          stage: string
+          temperature: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          analyzed_needs?: Json | null
+          business_name: string
+          conversation_summary?: string | null
+          created_at?: string
+          email?: string | null
+          follow_up_count?: number | null
+          google_maps_url?: string | null
+          id?: string
+          last_contact_at?: string | null
+          last_response_at?: string | null
+          location?: string | null
+          next_follow_up_at?: string | null
+          niche?: string | null
+          pain_points?: string[] | null
+          phone: string
+          source?: string | null
+          stage?: string
+          temperature?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          analyzed_needs?: Json | null
+          business_name?: string
+          conversation_summary?: string | null
+          created_at?: string
+          email?: string | null
+          follow_up_count?: number | null
+          google_maps_url?: string | null
+          id?: string
+          last_contact_at?: string | null
+          last_response_at?: string | null
+          location?: string | null
+          next_follow_up_at?: string | null
+          niche?: string | null
+          pain_points?: string[] | null
+          phone?: string
+          source?: string | null
+          stage?: string
+          temperature?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          lead_id: string
+          meeting_link: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id: string
+          meeting_link?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lead_id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          agent_name: string | null
+          agent_persona: string | null
+          created_at: string
+          daily_report_enabled: boolean | null
+          email_notifications: boolean | null
+          hunter_api_token: string | null
+          id: string
+          knowledge_base: string | null
+          message_variations: Json | null
+          services_offered: string[] | null
+          target_locations: string[] | null
+          target_niches: string[] | null
+          updated_at: string
+          user_id: string
+          webhook_events: string[] | null
+          webhook_url: string | null
+          whatsapp_connected: boolean | null
+          whatsapp_instance_id: string | null
+        }
+        Insert: {
+          agent_name?: string | null
+          agent_persona?: string | null
+          created_at?: string
+          daily_report_enabled?: boolean | null
+          email_notifications?: boolean | null
+          hunter_api_token?: string | null
+          id?: string
+          knowledge_base?: string | null
+          message_variations?: Json | null
+          services_offered?: string[] | null
+          target_locations?: string[] | null
+          target_niches?: string[] | null
+          updated_at?: string
+          user_id: string
+          webhook_events?: string[] | null
+          webhook_url?: string | null
+          whatsapp_connected?: boolean | null
+          whatsapp_instance_id?: string | null
+        }
+        Update: {
+          agent_name?: string | null
+          agent_persona?: string | null
+          created_at?: string
+          daily_report_enabled?: boolean | null
+          email_notifications?: boolean | null
+          hunter_api_token?: string | null
+          id?: string
+          knowledge_base?: string | null
+          message_variations?: Json | null
+          services_offered?: string[] | null
+          target_locations?: string[] | null
+          target_niches?: string[] | null
+          updated_at?: string
+          user_id?: string
+          webhook_events?: string[] | null
+          webhook_url?: string | null
+          whatsapp_connected?: boolean | null
+          whatsapp_instance_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_lead_owner: { Args: { p_lead_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

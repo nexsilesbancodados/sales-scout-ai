@@ -1,0 +1,180 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/lib/auth';
+import { Lead, LeadStage, LeadTemperature } from '@/types/database';
+import { useToast } from '@/hooks/use-toast';
+
+export function useLeads(filters?: {
+  stage?: LeadStage;
+  temperature?: LeadTemperature;
+  search?: string;
+}) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: leads, isLoading, error } = useQuery({
+    queryKey: ['leads', user?.id, filters],
+    queryFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      let query = supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (filters?.stage) {
+        query = query.eq('stage', filters.stage);
+      }
+      if (filters?.temperature) {
+        query = query.eq('temperature', filters.temperature);
+      }
+      if (filters?.search) {
+        query = query.or(`business_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Lead[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const createLead = useMutation({
+    mutationFn: async (lead: Omit<Lead, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('leads')
+        .insert({ ...lead, user_id: user.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Lead;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads', user?.id] });
+      toast({
+        title: 'Lead criado',
+        description: 'O lead foi adicionado com sucesso.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao criar lead',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const updateLead = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Lead> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('leads')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Lead;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads', user?.id] });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao atualizar lead',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const deleteLead = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads', user?.id] });
+      toast({
+        title: 'Lead excluído',
+        description: 'O lead foi removido com sucesso.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao excluir lead',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const deleteLeads = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads', user?.id] });
+      toast({
+        title: 'Leads excluídos',
+        description: 'Os leads foram removidos com sucesso.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao excluir leads',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return {
+    leads: leads || [],
+    isLoading,
+    error,
+    createLead: createLead.mutate,
+    updateLead: updateLead.mutate,
+    deleteLead: deleteLead.mutate,
+    deleteLeads: deleteLeads.mutate,
+    isCreating: createLead.isPending,
+    isUpdating: updateLead.isPending,
+    isDeleting: deleteLead.isPending || deleteLeads.isPending,
+  };
+}
+
+export function useLead(leadId: string | null) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['lead', leadId],
+    queryFn: async () => {
+      if (!leadId) throw new Error('Lead ID required');
+
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('id', leadId)
+        .single();
+
+      if (error) throw error;
+      return data as Lead;
+    },
+    enabled: !!leadId && !!user?.id,
+  });
+}
