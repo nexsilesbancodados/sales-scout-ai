@@ -233,8 +233,53 @@ Responda APENAS com a mensagem, sem explicações.`,
 
       createdLeads.push(lead);
 
-      // TODO: Send WhatsApp message via integration
-      console.log(`Would send WhatsApp to ${leadData.phone}: ${firstMessage}`);
+      // Send WhatsApp message via Evolution API
+      if (settings.whatsapp_connected && settings.whatsapp_instance_id) {
+        try {
+          const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
+          const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
+
+          if (EVOLUTION_API_URL && EVOLUTION_API_KEY) {
+            // Format phone number
+            let formattedPhone = leadData.phone.replace(/\D/g, "");
+            if (!formattedPhone.startsWith("55") && formattedPhone.length <= 11) {
+              formattedPhone = "55" + formattedPhone;
+            }
+
+            const sendResponse = await fetch(
+              `${EVOLUTION_API_URL}/message/sendText/${settings.whatsapp_instance_id}`,
+              {
+                method: "POST",
+                headers: {
+                  "apikey": EVOLUTION_API_KEY,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  number: formattedPhone,
+                  text: firstMessage,
+                }),
+              }
+            );
+
+            if (sendResponse.ok) {
+              console.log(`WhatsApp message sent to ${leadData.phone}`);
+              
+              // Update message status
+              await supabase
+                .from("chat_messages")
+                .update({ status: "delivered" })
+                .eq("lead_id", lead.id)
+                .eq("sender_type", "agent");
+            } else {
+              console.error(`Failed to send WhatsApp to ${leadData.phone}`);
+            }
+          }
+        } catch (whatsappError) {
+          console.error("WhatsApp send error:", whatsappError);
+        }
+      } else {
+        console.log(`WhatsApp not connected - would send to ${leadData.phone}: ${firstMessage.substring(0, 50)}...`);
+      }
 
       // Trigger webhook if configured
       if (settings.webhook_url) {
