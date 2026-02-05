@@ -54,6 +54,9 @@ Deno.serve(async (req) => {
     if (action === "create_instance") {
       console.log(`Creating instance: ${instanceName}`);
       
+      // Get webhook URL for this instance
+      const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
+      
       const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
         method: "POST",
         headers: {
@@ -64,6 +67,31 @@ Deno.serve(async (req) => {
           instanceName,
           qrcode: true,
           integration: "WHATSAPP-BAILEYS",
+          webhook: {
+            url: webhookUrl,
+            byEvents: false,
+            base64: false,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            events: [
+              "MESSAGES_UPSERT",
+              "CONNECTION_UPDATE",
+              "QRCODE_UPDATED",
+            ],
+          },
+          websocket: {
+            enabled: false,
+          },
+          rabbitmq: {
+            enabled: false,
+          },
+          sqs: {
+            enabled: false,
+          },
+          chatwoot: {
+            enabled: false,
+          },
         }),
       });
 
@@ -71,7 +99,9 @@ Deno.serve(async (req) => {
         const errorData = await createResponse.text();
         console.error("Evolution create error:", errorData);
         
-        if (errorData.includes("already") || errorData.includes("exists")) {
+        // If instance already exists, try to get QR code
+        if (errorData.includes("already") || errorData.includes("exists") || errorData.includes("Instance already")) {
+          console.log("Instance exists, fetching QR code...");
           const connectResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
             method: "GET",
             headers: { "apikey": EVOLUTION_API_KEY },
@@ -79,17 +109,33 @@ Deno.serve(async (req) => {
           
           if (connectResponse.ok) {
             const connectData = await connectResponse.json();
+            
+            // Update webhook for existing instance
+            await fetch(`${EVOLUTION_API_URL}/webhook/set/${instanceName}`, {
+              method: "POST",
+              headers: {
+                "apikey": EVOLUTION_API_KEY,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                url: webhookUrl,
+                byEvents: false,
+                base64: false,
+                events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+              }),
+            });
+            
             return new Response(JSON.stringify(connectData), {
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
         }
         
-        throw new Error("Failed to create WhatsApp instance");
+        throw new Error(`Failed to create WhatsApp instance: ${errorData}`);
       }
 
       const instanceData = await createResponse.json();
-      console.log("Instance created:", instanceData);
+      console.log("Instance created successfully:", JSON.stringify(instanceData));
 
       await supabaseService
         .from("user_settings")
