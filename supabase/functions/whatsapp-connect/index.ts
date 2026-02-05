@@ -1,12 +1,11 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -45,12 +44,14 @@ serve(async (req) => {
     }
 
     const { action } = await req.json();
-
-    // Use user ID as instance name (sanitized)
     const instanceName = `prospecte_${user.id.replace(/-/g, "_")}`;
 
+    const supabaseService = createClient(
+      supabaseUrl,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     if (action === "create_instance") {
-      // Create a new Evolution API instance for this user
       console.log(`Creating instance: ${instanceName}`);
       
       const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
@@ -70,7 +71,6 @@ serve(async (req) => {
         const errorData = await createResponse.text();
         console.error("Evolution create error:", errorData);
         
-        // If instance already exists, try to connect
         if (errorData.includes("already") || errorData.includes("exists")) {
           const connectResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
             method: "GET",
@@ -91,12 +91,6 @@ serve(async (req) => {
       const instanceData = await createResponse.json();
       console.log("Instance created:", instanceData);
 
-      // Save instance ID to user settings
-      const supabaseService = createClient(
-        supabaseUrl,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
-
       await supabaseService
         .from("user_settings")
         .update({ whatsapp_instance_id: instanceName })
@@ -108,7 +102,6 @@ serve(async (req) => {
     }
 
     if (action === "get_qrcode") {
-      // Get QR code for the instance
       console.log(`Getting QR code for: ${instanceName}`);
       
       const qrResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
@@ -129,7 +122,6 @@ serve(async (req) => {
     }
 
     if (action === "check_status") {
-      // Check connection status
       console.log(`Checking status for: ${instanceName}`);
       
       const statusResponse = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
@@ -146,12 +138,6 @@ serve(async (req) => {
 
       const statusData = await statusResponse.json();
       const isConnected = statusData.instance?.state === "open";
-
-      // Update user settings
-      const supabaseService = createClient(
-        supabaseUrl,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
 
       await supabaseService
         .from("user_settings")
@@ -171,19 +157,12 @@ serve(async (req) => {
     }
 
     if (action === "disconnect") {
-      // Logout from WhatsApp
       console.log(`Disconnecting: ${instanceName}`);
       
       await fetch(`${EVOLUTION_API_URL}/instance/logout/${instanceName}`, {
         method: "DELETE",
         headers: { "apikey": EVOLUTION_API_KEY },
       });
-
-      // Update user settings
-      const supabaseService = createClient(
-        supabaseUrl,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
 
       await supabaseService
         .from("user_settings")
