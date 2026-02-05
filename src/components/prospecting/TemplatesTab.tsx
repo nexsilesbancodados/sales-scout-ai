@@ -36,7 +36,7 @@ const NICHES = Object.keys(DEFAULT_TEMPLATES);
 
 export function TemplatesTab() {
   const { templates, isLoading, createTemplate, updateTemplate, deleteTemplate, initializeDefaultTemplates, isCreating } = useTemplates();
-  const [selectedNiche, setSelectedNiche] = useState<string>('');
+  const [selectedNiche, setSelectedNiche] = useState<string>('all');
   const [isNewTemplateOpen, setIsNewTemplateOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<MessageTemplate | null>(null);
   
@@ -48,7 +48,7 @@ export function TemplatesTab() {
     is_default: false,
   });
 
-  const filteredTemplates = selectedNiche 
+  const filteredTemplates = selectedNiche && selectedNiche !== 'all'
     ? templates.filter(t => t.niche === selectedNiche)
     : templates;
 
@@ -135,7 +135,7 @@ export function TemplatesTab() {
                 <SelectValue placeholder="Filtrar por nicho" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os nichos</SelectItem>
+                <SelectItem value="all">Todos os nichos</SelectItem>
                 {NICHES.map((niche) => (
                   <SelectItem key={niche} value={niche}>
                     {niche}
