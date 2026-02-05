@@ -1,24 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
-import { UserSettings, MessageVariation } from '@/types/database';
+import { UserSettings, PersonalityTrait } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { Json } from '@/integrations/supabase/types';
 
-// Helper to safely parse message variations from JSON
-function parseMessageVariations(data: Json | null): MessageVariation[] {
-  if (!data) return [];
+// Helper to safely parse arrays from JSON
+function parseJsonArray<T>(data: Json | null, defaultValue: T[] = []): T[] {
+  if (!data) return defaultValue;
   if (Array.isArray(data)) {
-    return data as unknown as MessageVariation[];
+    return data as unknown as T[];
   }
-  return [];
+  return defaultValue;
 }
 
 // Helper to convert UserSettings to database format
 function toDbFormat(updates: Partial<UserSettings>): Record<string, unknown> {
   const dbUpdates: Record<string, unknown> = { ...updates };
-  if (updates.message_variations) {
+  if (updates.message_variations !== undefined) {
     dbUpdates.message_variations = updates.message_variations as unknown as Json;
+  }
+  if (updates.personality_traits !== undefined) {
+    dbUpdates.personality_traits = updates.personality_traits as unknown as Json;
   }
   return dbUpdates;
 }
@@ -27,7 +30,18 @@ function toDbFormat(updates: Partial<UserSettings>): Record<string, unknown> {
 function fromDbFormat(data: Record<string, unknown>): UserSettings {
   return {
     ...data,
-    message_variations: parseMessageVariations(data.message_variations as Json),
+    message_variations: parseJsonArray(data.message_variations as Json),
+    personality_traits: parseJsonArray<PersonalityTrait>(data.personality_traits as Json),
+    // Ensure all new fields have defaults
+    agent_type: (data.agent_type as string) || 'consultivo',
+    communication_style: (data.communication_style as string) || 'formal',
+    response_length: (data.response_length as string) || 'medio',
+    emoji_usage: (data.emoji_usage as string) || 'moderado',
+    objection_handling: (data.objection_handling as string) || 'suave',
+    closing_style: (data.closing_style as string) || 'consultivo',
+    follow_up_tone: (data.follow_up_tone as string) || 'amigavel',
+    greeting_style: (data.greeting_style as string) || 'padrao',
+    value_proposition_focus: (data.value_proposition_focus as string) || 'beneficios',
   } as UserSettings;
 }
 

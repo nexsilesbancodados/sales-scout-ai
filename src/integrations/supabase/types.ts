@@ -255,18 +255,28 @@ export type Database = {
         Row: {
           agent_name: string | null
           agent_persona: string | null
+          agent_type: string | null
+          closing_style: string | null
+          communication_style: string | null
           created_at: string
           daily_report_enabled: boolean | null
           email_notifications: boolean | null
+          emoji_usage: string | null
+          follow_up_tone: string | null
+          greeting_style: string | null
           hunter_api_token: string | null
           id: string
           knowledge_base: string | null
           message_variations: Json | null
+          objection_handling: string | null
+          personality_traits: Json | null
+          response_length: string | null
           services_offered: string[] | null
           target_locations: string[] | null
           target_niches: string[] | null
           updated_at: string
           user_id: string
+          value_proposition_focus: string | null
           webhook_events: string[] | null
           webhook_url: string | null
           whatsapp_connected: boolean | null
@@ -275,18 +285,28 @@ export type Database = {
         Insert: {
           agent_name?: string | null
           agent_persona?: string | null
+          agent_type?: string | null
+          closing_style?: string | null
+          communication_style?: string | null
           created_at?: string
           daily_report_enabled?: boolean | null
           email_notifications?: boolean | null
+          emoji_usage?: string | null
+          follow_up_tone?: string | null
+          greeting_style?: string | null
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
           message_variations?: Json | null
+          objection_handling?: string | null
+          personality_traits?: Json | null
+          response_length?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null
           updated_at?: string
           user_id: string
+          value_proposition_focus?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
           whatsapp_connected?: boolean | null
@@ -295,18 +315,28 @@ export type Database = {
         Update: {
           agent_name?: string | null
           agent_persona?: string | null
+          agent_type?: string | null
+          closing_style?: string | null
+          communication_style?: string | null
           created_at?: string
           daily_report_enabled?: boolean | null
           email_notifications?: boolean | null
+          emoji_usage?: string | null
+          follow_up_tone?: string | null
+          greeting_style?: string | null
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
           message_variations?: Json | null
+          objection_handling?: string | null
+          personality_traits?: Json | null
+          response_length?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null
           updated_at?: string
           user_id?: string
+          value_proposition_focus?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
           whatsapp_connected?: boolean | null

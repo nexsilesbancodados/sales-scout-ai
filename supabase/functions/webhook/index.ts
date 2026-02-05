@@ -6,6 +6,98 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Build personality prompt based on settings
+function buildPersonalityPrompt(settings: any): string {
+  const agentTypeDescriptions: Record<string, string> = {
+    consultivo: "Você é um consultor que busca entender profundamente as necessidades antes de propor soluções.",
+    agressivo: "Você é direto e focado em fechar negócios rapidamente, criando senso de urgência.",
+    amigavel: "Você prioriza construir relacionamento e confiança antes de falar de negócios.",
+    tecnico: "Você foca em detalhes técnicos, especificações e demonstra expertise profunda.",
+    empatico: "Você se coloca no lugar do cliente, demonstrando compreensão genuína das dores.",
+  };
+
+  const communicationDescriptions: Record<string, string> = {
+    formal: "Use linguagem profissional e respeitosa, evitando gírias.",
+    casual: "Use tom descontraído e informal, como um colega de trabalho.",
+    profissional: "Equilibre formalidade com acessibilidade.",
+    descontraido: "Seja muito informal, como se fosse um amigo próximo.",
+  };
+
+  const lengthDescriptions: Record<string, string> = {
+    curto: "Responda em 1-2 frases objetivas.",
+    medio: "Responda em 2-3 parágrafos balanceados.",
+    longo: "Dê explicações detalhadas quando necessário.",
+  };
+
+  const emojiDescriptions: Record<string, string> = {
+    nenhum: "Não use emojis.",
+    minimo: "Use apenas um emoji no final da mensagem quando apropriado.",
+    moderado: "Use alguns emojis para dar tom amigável.",
+    frequente: "Use emojis frequentemente para expressividade.",
+  };
+
+  const objectionDescriptions: Record<string, string> = {
+    suave: "Quando houver objeção, aceite gentilmente e ofereça alternativas.",
+    assertivo: "Contorne objeções com argumentos sólidos e dados.",
+    persistente: "Não desista facilmente, explore todas as possibilidades.",
+  };
+
+  const closingDescriptions: Record<string, string> = {
+    consultivo: "Sugira o próximo passo quando fizer sentido naturalmente.",
+    direto: "Peça a venda ou reunião diretamente.",
+    urgencia: "Crie senso de urgência com prazos ou disponibilidade limitada.",
+    beneficio: "Foque nos ganhos que o cliente terá antes de propor fechamento.",
+  };
+
+  const greetingDescriptions: Record<string, string> = {
+    padrao: "Cumprimente de forma padrão: 'Olá, tudo bem?'",
+    personalizado: "Mencione o nome da empresa ou detalhe específico.",
+    criativo: "Use uma abordagem criativa e diferenciada.",
+    minimalista: "Vá direto ao assunto com saudação mínima.",
+  };
+
+  const valueDescriptions: Record<string, string> = {
+    beneficios: "Destaque os benefícios práticos que o cliente terá.",
+    resultados: "Use números, métricas e cases de sucesso.",
+    economia: "Foque em ROI, economia de tempo e redução de custos.",
+    exclusividade: "Destaque diferenciais únicos e exclusivos.",
+  };
+
+  // Get active personality traits
+  const traits = (settings.personality_traits || [])
+    .filter((t: any) => t.enabled)
+    .map((t: any) => t.name)
+    .join(", ");
+
+  return `
+## TIPO DE AGENTE
+${agentTypeDescriptions[settings.agent_type] || agentTypeDescriptions.consultivo}
+
+## ESTILO DE COMUNICAÇÃO
+${communicationDescriptions[settings.communication_style] || communicationDescriptions.formal}
+
+## TAMANHO DAS RESPOSTAS
+${lengthDescriptions[settings.response_length] || lengthDescriptions.medio}
+
+## USO DE EMOJIS
+${emojiDescriptions[settings.emoji_usage] || emojiDescriptions.moderado}
+
+## TRATAMENTO DE OBJEÇÕES
+${objectionDescriptions[settings.objection_handling] || objectionDescriptions.suave}
+
+## ESTILO DE FECHAMENTO
+${closingDescriptions[settings.closing_style] || closingDescriptions.consultivo}
+
+## SAUDAÇÃO
+${greetingDescriptions[settings.greeting_style] || greetingDescriptions.padrao}
+
+## PROPOSTA DE VALOR
+${valueDescriptions[settings.value_proposition_focus] || valueDescriptions.beneficios}
+
+${traits ? `## TRAÇOS DE PERSONALIDADE ATIVOS\n${traits}` : ""}
+`.trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -15,7 +107,6 @@ serve(async (req) => {
     const body = await req.json();
     console.log("Webhook received:", JSON.stringify(body));
 
-    // Expected payload from WhatsApp integration
     const { phone, message, instance_id } = body;
 
     if (!phone || !message) {
@@ -32,7 +123,7 @@ serve(async (req) => {
     // Find lead by phone number
     const { data: lead, error: leadError } = await supabase
       .from("leads")
-      .select("*, user_settings:user_id(user_settings(*))")
+      .select("*")
       .eq("phone", phone)
       .single();
 
@@ -46,7 +137,7 @@ serve(async (req) => {
 
     const userId = lead.user_id;
 
-    // Get user settings
+    // Get user settings with all personality configurations
     const { data: settings, error: settingsError } = await supabase
       .from("user_settings")
       .select("*")
@@ -89,38 +180,44 @@ serve(async (req) => {
       content: msg.content,
     }));
 
-    // Generate response using AI with function calling
+    // Generate response using AI with advanced personality
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    const systemPrompt = `Você é ${settings.agent_name}, um consultor de vendas especializado.
+    // Build dynamic personality prompt
+    const personalityPrompt = buildPersonalityPrompt(settings);
+
+    const systemPrompt = `Você é ${settings.agent_name}, um agente de vendas inteligente.
+
 ${settings.agent_persona}
 
-INFORMAÇÕES DO LEAD:
+${personalityPrompt}
+
+## INFORMAÇÕES DO LEAD
 - Empresa: ${lead.business_name}
 - Nicho: ${lead.niche || "Não especificado"}
 - Localização: ${lead.location || "Não especificada"}
 - Estágio no Funil: ${lead.stage}
+- Temperatura: ${lead.temperature}
 
-SERVIÇOS QUE VOCÊ OFERECE:
+## SERVIÇOS OFERECIDOS
 ${(settings.services_offered || []).join(", ")}
 
-BASE DE CONHECIMENTO:
+## BASE DE CONHECIMENTO
 ${settings.knowledge_base || "Não definida"}
 
-OBJETIVO PRINCIPAL:
-Seu objetivo é agendar uma reunião com o lead. Seja conversacional, responda às objeções e guie a conversa para marcar um horário.
+## OBJETIVO PRINCIPAL
+Seu objetivo é agendar uma reunião com o lead. Use sua personalidade configurada para guiar a conversa naturalmente.
 
 Se o lead concordar com uma data e hora para reunião, use a função scheduleMeeting.
-Se o lead parecer interessado mas ainda não definiu data, sugira horários específicos.
 
-REGRAS:
-1. Seja natural e humano, não robótico
-2. Responda de forma concisa (máximo 3 parágrafos)
-3. Sempre termine com uma pergunta ou próximo passo claro
-4. Não seja insistente demais, respeite o tempo do lead`;
+## REGRAS IMPORTANTES
+1. Siga rigorosamente o estilo de personalidade configurado
+2. Mantenha consistência com mensagens anteriores
+3. Adapte-se às respostas do lead
+4. Seja autêntico e não robótico`;
 
     const aiResponse = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -175,6 +272,20 @@ REGRAS:
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
       console.error("AI API error:", errorText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (aiResponse.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "AI credits exhausted. Please add more credits." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       throw new Error("Failed to generate response");
     }
 
@@ -269,8 +380,7 @@ REGRAS:
     // Analyze sentiment in background
     analyzeSentiment(lead.id, supabase, LOVABLE_API_KEY);
 
-    // TODO: Send WhatsApp response via integration
-    console.log(`Would send WhatsApp to ${phone}: ${responseMessage}`);
+    console.log(`Response generated for ${phone}: ${responseMessage.substring(0, 100)}...`);
 
     return new Response(
       JSON.stringify({
