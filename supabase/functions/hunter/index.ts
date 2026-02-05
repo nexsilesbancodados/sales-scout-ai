@@ -1,0 +1,246 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // Verify Bearer token
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Find user by hunter_api_token
+    const { data: settings, error: settingsError } = await supabase
+      .from("user_settings")
+      .select("*")
+      .eq("hunter_api_token", token)
+      .single();
+
+    if (settingsError || !settings) {
+      console.error("Invalid token or user not found:", settingsError);
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = settings.user_id;
+    console.log(`Hunter agent started for user: ${userId}`);
+
+    // Check if user has WhatsApp connected (skip for now, will implement later)
+    // if (!settings.whatsapp_connected) {
+    //   return new Response(JSON.stringify({ error: "WhatsApp not connected" }), {
+    //     status: 400,
+    //     headers: { ...corsHeaders, "Content-Type": "application/json" },
+    //   });
+    // }
+
+    // Get target niches and locations
+    const niches = settings.target_niches || [];
+    const locations = settings.target_locations || [];
+
+    if (niches.length === 0 || locations.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No niches or locations configured" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // TODO: Integrate with Google Maps API to search for businesses
+    // For now, we'll simulate the process
+    const mockLeads = [
+      {
+        business_name: `${niches[0]} Exemplo`,
+        phone: "+5511999999999",
+        niche: niches[0],
+        location: locations[0],
+        address: `Rua Exemplo, 123 - ${locations[0]}`,
+        google_maps_url: "https://maps.google.com/?q=example",
+      },
+    ];
+
+    // Generate first message using AI
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY not configured");
+    }
+
+    const messageVariations = settings.message_variations || [];
+    let firstMessage: string;
+
+    if (messageVariations.length > 0) {
+      // Use A/B test variation
+      const randomVariation =
+        messageVariations[Math.floor(Math.random() * messageVariations.length)];
+      firstMessage = randomVariation.template || randomVariation;
+    } else {
+      // Generate message with AI
+      const aiResponse = await fetch(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-3-flash-preview",
+            messages: [
+              {
+                role: "system",
+                content: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
+${settings.agent_persona}
+
+Seu objetivo é criar uma primeira mensagem de prospecção que:
+1. Seja pessoal e não pareça automática
+2. Identifique uma dor comum do nicho
+3. Ofereça uma solução de forma sutil
+4. Termine com uma pergunta aberta para engajar
+
+Serviços oferecidos: ${(settings.services_offered || []).join(", ")}
+Base de conhecimento: ${settings.knowledge_base || ""}
+
+Responda APENAS com a mensagem, sem explicações.`,
+              },
+              {
+                role: "user",
+                content: `Crie uma mensagem de primeiro contato para uma empresa do nicho "${mockLeads[0].niche}" localizada em "${mockLeads[0].location}". O nome da empresa é "${mockLeads[0].business_name}".`,
+              },
+            ],
+          }),
+        }
+      );
+
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text();
+        console.error("AI API error:", errorText);
+        throw new Error("Failed to generate message");
+      }
+
+      const aiData = await aiResponse.json();
+      firstMessage = aiData.choices?.[0]?.message?.content || "";
+    }
+
+    // Create leads and log messages
+    const createdLeads = [];
+    for (const leadData of mockLeads) {
+      // Check if lead already exists
+      const { data: existingLead } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("phone", leadData.phone)
+        .single();
+
+      if (existingLead) {
+        console.log(`Lead already exists: ${leadData.phone}`);
+        continue;
+      }
+
+      // Create lead
+      const { data: lead, error: leadError } = await supabase
+        .from("leads")
+        .insert({
+          user_id: userId,
+          business_name: leadData.business_name,
+          phone: leadData.phone,
+          niche: leadData.niche,
+          location: leadData.location,
+          address: leadData.address,
+          google_maps_url: leadData.google_maps_url,
+          stage: "Contato",
+          temperature: "morno",
+          source: "google_maps",
+          last_contact_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (leadError) {
+        console.error("Error creating lead:", leadError);
+        continue;
+      }
+
+      // Log first message
+      await supabase.from("chat_messages").insert({
+        lead_id: lead.id,
+        sender_type: "agent",
+        content: firstMessage,
+        status: "sent",
+      });
+
+      // Log activity
+      await supabase.from("activity_log").insert({
+        user_id: userId,
+        lead_id: lead.id,
+        activity_type: "lead_created",
+        description: `Novo lead prospectado: ${leadData.business_name}`,
+        metadata: { source: "hunter_agent" },
+      });
+
+      createdLeads.push(lead);
+
+      // TODO: Send WhatsApp message via integration
+      console.log(`Would send WhatsApp to ${leadData.phone}: ${firstMessage}`);
+
+      // Trigger webhook if configured
+      if (settings.webhook_url) {
+        try {
+          await fetch(settings.webhook_url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event: "lead_contacted",
+              lead,
+              message: firstMessage,
+              timestamp: new Date().toISOString(),
+            }),
+          });
+        } catch (webhookError) {
+          console.error("Webhook error:", webhookError);
+        }
+      }
+    }
+
+    console.log(`Hunter agent completed. Created ${createdLeads.length} leads.`);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        leads_created: createdLeads.length,
+        leads: createdLeads,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Hunter agent error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message || "Internal server error" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+});
