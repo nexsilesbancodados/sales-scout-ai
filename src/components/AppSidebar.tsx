@@ -35,6 +35,7 @@ import {
 
 const menuItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Prospecção', icon: Target, path: '/prospecting' },
   { title: 'Leads', icon: Users, path: '/leads' },
   { title: 'Funil', icon: Kanban, path: '/funnel' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },

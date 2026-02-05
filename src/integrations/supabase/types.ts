@@ -52,6 +52,63 @@ export type Database = {
           },
         ]
       }
+      campaigns: {
+        Row: {
+          campaign_type: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          leads_contacted: number | null
+          leads_found: number | null
+          leads_responded: number | null
+          locations: string[] | null
+          message_template: string | null
+          name: string
+          niches: string[] | null
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_type?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          leads_contacted?: number | null
+          leads_found?: number | null
+          leads_responded?: number | null
+          locations?: string[] | null
+          message_template?: string | null
+          name: string
+          niches?: string[] | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_type?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          leads_contacted?: number | null
+          leads_found?: number | null
+          leads_responded?: number | null
+          locations?: string[] | null
+          message_template?: string | null
+          name?: string
+          niches?: string[] | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
