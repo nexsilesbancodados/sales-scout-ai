@@ -309,6 +309,132 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
       });
     }
 
+    // Action: Search leads (using SerpAPI placeholder - returns mock for now)
+    if (action === "search_leads") {
+      const { niche, location } = data;
+      
+      const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
+      if (!SERPAPI_API_KEY) {
+        return new Response(JSON.stringify({ error: "SERPAPI not configured", leads: [] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      try {
+        const searchQuery = `${niche} em ${location}`;
+        const serpResponse = await fetch(
+          `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br`
+        );
+
+        if (!serpResponse.ok) {
+          console.error("SerpAPI error:", await serpResponse.text());
+          return new Response(JSON.stringify({ leads: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const serpData = await serpResponse.json();
+        const localResults = serpData.local_results || [];
+
+        const leads = localResults.slice(0, 10).map((result: any) => ({
+          business_name: result.title || "Empresa",
+          phone: result.phone || null,
+          address: result.address || null,
+          rating: result.rating || null,
+          reviews_count: result.reviews || null,
+          website: result.website || null,
+        }));
+
+        return new Response(JSON.stringify({ leads }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        console.error("Search error:", error);
+        return new Response(JSON.stringify({ leads: [] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Action: Analyze lead pain points and generate personalized message
+    if (action === "analyze_and_personalize") {
+      const { lead, agentSettings } = data;
+
+      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content: `Você é um especialista em análise de negócios e vendas consultivas no Brasil.
+
+Analise o negócio fornecido e:
+1. Identifique 2-4 dores/problemas comuns que esse tipo de negócio enfrenta
+2. Crie uma mensagem de primeiro contato altamente personalizada que:
+   - Mencione a empresa pelo nome
+   - Identifique uma dor específica do nicho
+   - Ofereça uma solução relevante de forma sutil
+   - Termine com uma pergunta aberta
+
+Considere:
+- Nicho: ${lead.niche}
+- Localização: ${lead.location}
+- Avaliação: ${lead.rating ? `${lead.rating} estrelas` : "não disponível"}
+- Quantidade de reviews: ${lead.reviews_count || 0}
+- Tem website: ${lead.website ? "Sim" : "Não"}
+
+Serviços oferecidos pelo vendedor: ${(agentSettings?.services_offered || []).join(", ")}
+Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
+Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
+
+Responda em JSON com:
+{
+  "painPoints": ["dor1", "dor2", ...],
+  "message": "mensagem personalizada"
+}`,
+            },
+            {
+              role: "user",
+              content: `Analise e crie uma mensagem para: ${lead.business_name}`,
+            },
+          ],
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        console.error("AI error:", await aiResponse.text());
+        return new Response(JSON.stringify({ 
+          painPoints: ["Falta de presença digital", "Dificuldade em captar clientes"],
+          message: `Olá! Vi que a ${lead.business_name} atua no segmento de ${lead.niche}. Posso ajudar a aumentar sua visibilidade online?`
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const aiData = await aiResponse.json();
+      const content = aiData.choices?.[0]?.message?.content || "{}";
+
+      try {
+        const parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, ""));
+        return new Response(JSON.stringify(parsed), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ 
+          painPoints: ["Falta de presença digital"],
+          message: `Olá! Vi que a ${lead.business_name} atua no segmento de ${lead.niche}. Tenho uma solução que pode ajudar. Posso te contar mais?`
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     return new Response(JSON.stringify({ error: "Invalid action" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -3,6 +3,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProspectingDashboard } from '@/components/prospecting/ProspectingDashboard';
 import { CampaignsTab } from '@/components/prospecting/CampaignsTab';
 import { MassSendTab } from '@/components/prospecting/MassSendTab';
+import { CaptureAndSendTab } from '@/components/prospecting/CaptureAndSendTab';
 import { ImportTab } from '@/components/prospecting/ImportTab';
 import { TemplatesTab } from '@/components/prospecting/TemplatesTab';
 import { SettingsTab } from '@/components/prospecting/SettingsTab';
@@ -26,16 +27,17 @@ import {
   Settings,
   Brain,
   Plus,
+  Target,
 } from 'lucide-react';
 
 export default function ProspectingPage() {
-  const [activeTab, setActiveTab] = useState('campaigns');
+  const [activeTab, setActiveTab] = useState('capture');
   const [isNewCampaignOpen, setIsNewCampaignOpen] = useState(false);
 
   return (
     <DashboardLayout
       title="Prospecção"
-      description="Gerencie suas campanhas de prospecção automática e manual"
+      description="Capture leads, analise dores e dispare mensagens personalizadas"
       actions={
         <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
           <DialogTrigger asChild>
@@ -60,7 +62,11 @@ export default function ProspectingPage() {
       <ProspectingDashboard />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 mt-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="capture" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">Capturar</span>
+          </TabsTrigger>
           <TabsTrigger value="campaigns" className="flex items-center gap-2">
             <Rocket className="h-4 w-4" />
             <span className="hidden sm:inline">Campanhas</span>
@@ -86,6 +92,10 @@ export default function ProspectingPage() {
             <span className="hidden sm:inline">Config</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="capture">
+          <CaptureAndSendTab />
+        </TabsContent>
 
         <TabsContent value="campaigns">
           <CampaignsTab />
