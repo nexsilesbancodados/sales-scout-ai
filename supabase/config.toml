@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.whatsapp-send]
 verify_jwt = false
+
+[functions.ai-prospecting]
+verify_jwt = false
