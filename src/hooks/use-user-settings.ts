@@ -50,7 +50,7 @@ export function useUserSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: settings, isLoading, error } = useQuery({
+  const { data: settings, isLoading, error, refetch } = useQuery({
     queryKey: ['user-settings', user?.id],
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -101,6 +101,7 @@ export function useUserSettings() {
     settings,
     isLoading,
     error,
+    refetch,
     updateSettings: updateSettings.mutate,
     isUpdating: updateSettings.isPending,
   };

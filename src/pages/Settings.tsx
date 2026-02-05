@@ -11,9 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
+import { WhatsAppConnection } from '@/components/WhatsAppConnection';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -42,12 +42,10 @@ import {
   Target,
   Bell,
   Webhook,
-  QrCode,
   Plus,
   X,
   Loader2,
   Check,
-  AlertCircle,
   Brain,
   Sparkles,
   Settings2,
@@ -479,61 +477,7 @@ export default function SettingsPage() {
 
         {/* WhatsApp Tab */}
         <TabsContent value="whatsapp">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Conexão WhatsApp
-              </CardTitle>
-              <CardDescription>
-                Conecte seu WhatsApp para enviar e receber mensagens
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-lg border">
-                <div className="flex items-center gap-4">
-                  {settings?.whatsapp_connected ? (
-                    <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">
-                      <Check className="h-6 w-6 text-success" />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                      <AlertCircle className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-medium">
-                      {settings?.whatsapp_connected ? 'WhatsApp Conectado' : 'WhatsApp Desconectado'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {settings?.whatsapp_connected
-                        ? 'Seu agente pode enviar e receber mensagens'
-                        : 'Escaneie o QR Code para conectar'}
-                    </p>
-                  </div>
-                </div>
-                <Badge variant={settings?.whatsapp_connected ? 'default' : 'secondary'}>
-                  {settings?.whatsapp_connected ? 'Online' : 'Offline'}
-                </Badge>
-              </div>
-
-              {!settings?.whatsapp_connected && (
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
-                  <div className="w-48 h-48 bg-muted rounded-lg flex items-center justify-center mb-4">
-                    <QrCode className="h-24 w-24 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm text-muted-foreground text-center">
-                    A integração com WhatsApp será implementada em breve.
-                    <br />
-                    Você receberá um QR Code para escanear com seu celular.
-                  </p>
-                  <Button className="mt-4" disabled>
-                    Gerar QR Code
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <WhatsAppConnection />
         </TabsContent>
 
         {/* Prospecting Tab */}

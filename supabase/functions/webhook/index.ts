@@ -377,6 +377,52 @@ Se o lead concordar com uma data e hora para reunião, use a função scheduleMe
       .update({ last_contact_at: new Date().toISOString() })
       .eq("id", lead.id);
 
+    // Send response via WhatsApp
+    if (settings.whatsapp_connected && settings.whatsapp_instance_id) {
+      try {
+        const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
+        const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
+
+        if (EVOLUTION_API_URL && EVOLUTION_API_KEY) {
+          let formattedPhone = phone.replace(/\D/g, "");
+          if (!formattedPhone.startsWith("55") && formattedPhone.length <= 11) {
+            formattedPhone = "55" + formattedPhone;
+          }
+
+          const sendResponse = await fetch(
+            `${EVOLUTION_API_URL}/message/sendText/${settings.whatsapp_instance_id}`,
+            {
+              method: "POST",
+              headers: {
+                "apikey": EVOLUTION_API_KEY,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                number: formattedPhone,
+                text: responseMessage,
+              }),
+            }
+          );
+
+          if (sendResponse.ok) {
+            console.log(`WhatsApp response sent to ${phone}`);
+            
+            // Update message status to delivered
+            await supabase
+              .from("chat_messages")
+              .update({ status: "delivered" })
+              .eq("lead_id", lead.id)
+              .eq("content", responseMessage)
+              .eq("sender_type", "agent");
+          } else {
+            console.error(`Failed to send WhatsApp response to ${phone}`);
+          }
+        }
+      } catch (whatsappError) {
+        console.error("WhatsApp send error:", whatsappError);
+      }
+    }
+
     // Analyze sentiment in background
     analyzeSentiment(lead.id, supabase, LOVABLE_API_KEY);
 
