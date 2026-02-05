@@ -67,18 +67,50 @@ serve(async (req) => {
       );
     }
 
-    // TODO: Integrate with Google Maps API to search for businesses
-    // For now, we'll simulate the process
-    const mockLeads = [
-      {
-        business_name: `${niches[0]} Exemplo`,
-        phone: "+5511999999999",
-        niche: niches[0],
-        location: locations[0],
-        address: `Rua Exemplo, 123 - ${locations[0]}`,
-        google_maps_url: "https://maps.google.com/?q=example",
-      },
-    ];
+    // Search for businesses using SerpAPI (Google Maps search)
+    const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
+    if (!SERPAPI_API_KEY) {
+      throw new Error("SERPAPI_API_KEY not configured");
+    }
+
+    const searchQuery = `${niches[0]} em ${locations[0]}`;
+    console.log(`Searching SerpAPI for: ${searchQuery}`);
+
+    const serpResponse = await fetch(
+      `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br`
+    );
+
+    if (!serpResponse.ok) {
+      const errorText = await serpResponse.text();
+      console.error("SerpAPI error:", errorText);
+      throw new Error("Failed to search businesses with SerpAPI");
+    }
+
+    const serpData = await serpResponse.json();
+    const localResults = serpData.local_results || [];
+
+    console.log(`Found ${localResults.length} businesses from SerpAPI`);
+
+    // Map SerpAPI results to our lead format
+    const foundLeads = localResults.slice(0, 5).map((result: any) => ({
+      business_name: result.title || "Empresa",
+      phone: result.phone || null,
+      niche: niches[0],
+      location: locations[0],
+      address: result.address || null,
+      google_maps_url: result.place_id 
+        ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+        : result.gps_coordinates 
+          ? `https://www.google.com/maps?q=${result.gps_coordinates.latitude},${result.gps_coordinates.longitude}`
+          : null,
+      website: result.website || null,
+      rating: result.rating || null,
+      reviews: result.reviews || null,
+    }));
+
+    // Filter leads that have phone numbers
+    const leadsWithPhone = foundLeads.filter((lead: any) => lead.phone);
+    console.log(`${leadsWithPhone.length} leads have phone numbers`);
 
     // Generate first message using AI
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -125,7 +157,7 @@ Responda APENAS com a mensagem, sem explicações.`,
               },
               {
                 role: "user",
-                content: `Crie uma mensagem de primeiro contato para uma empresa do nicho "${mockLeads[0].niche}" localizada em "${mockLeads[0].location}". O nome da empresa é "${mockLeads[0].business_name}".`,
+                content: `Crie uma mensagem de primeiro contato para uma empresa do nicho "${niches[0]}" localizada em "${locations[0]}".`,
               },
             ],
           }),
@@ -144,7 +176,7 @@ Responda APENAS com a mensagem, sem explicações.`,
 
     // Create leads and log messages
     const createdLeads = [];
-    for (const leadData of mockLeads) {
+    for (const leadData of leadsWithPhone) {
       // Check if lead already exists
       const { data: existingLead } = await supabase
         .from("leads")
