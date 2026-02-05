@@ -1,12 +1,11 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -44,14 +43,6 @@ serve(async (req) => {
 
     const userId = settings.user_id;
     console.log(`Hunter agent started for user: ${userId}`);
-
-    // Check if user has WhatsApp connected (skip for now, will implement later)
-    // if (!settings.whatsapp_connected) {
-    //   return new Response(JSON.stringify({ error: "WhatsApp not connected" }), {
-    //     status: 400,
-    //     headers: { ...corsHeaders, "Content-Type": "application/json" },
-    //   });
-    // }
 
     // Get target niches and locations
     const niches = settings.target_niches || [];

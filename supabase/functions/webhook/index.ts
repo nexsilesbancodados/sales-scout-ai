@@ -1,5 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -98,7 +97,7 @@ ${traits ? `## TRAÇOS DE PERSONALIDADE ATIVOS\n${traits}` : ""}
 `.trim();
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -502,10 +501,8 @@ Responda APENAS com o JSON, sem markdown.`,
             conversation_summary: analysis.summary,
           })
           .eq("id", leadId);
-          
-        console.log(`Sentiment analyzed for lead ${leadId}:`, analysis);
       } catch (parseError) {
-        console.error("Failed to parse sentiment:", parseError);
+        console.error("Failed to parse sentiment analysis:", parseError);
       }
     }
   } catch (error) {
