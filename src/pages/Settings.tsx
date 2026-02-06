@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
 import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
 import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
+import { TeamSettings } from '@/components/settings/TeamSettings';
+import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -53,6 +55,8 @@ import {
   Settings2,
   Shield,
   Key,
+  Users,
+  Download,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -221,7 +225,7 @@ export default function SettingsPage() {
       description="Personalize seu agente de prospecção com IA avançada"
     >
       <Tabs defaultValue="antiblock" className="space-y-6">
-        <TabsList className="grid grid-cols-8 w-full max-w-4xl">
+        <TabsList className="flex flex-wrap w-full max-w-5xl gap-1">
           <TabsTrigger value="apikeys" className="gap-1">
             <Key className="h-4 w-4" />
             <span className="hidden sm:inline">APIs</span>
@@ -253,6 +257,14 @@ export default function SettingsPage() {
           <TabsTrigger value="integrations" className="gap-1">
             <Webhook className="h-4 w-4" />
             <span className="hidden sm:inline">Integrações</span>
+          </TabsTrigger>
+          <TabsTrigger value="team" className="gap-1">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Equipe</span>
+          </TabsTrigger>
+          <TabsTrigger value="reports" className="gap-1">
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Relatórios</span>
           </TabsTrigger>
         </TabsList>
 
@@ -698,6 +710,16 @@ export default function SettingsPage() {
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Team Tab */}
+        <TabsContent value="team">
+          <TeamSettings />
+        </TabsContent>
+
+        {/* Reports Tab */}
+        <TabsContent value="reports">
+          <ReportExportSettings />
         </TabsContent>
       </Tabs>
     </DashboardLayout>
