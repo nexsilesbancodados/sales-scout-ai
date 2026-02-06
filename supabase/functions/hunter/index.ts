@@ -59,9 +59,16 @@ Deno.serve(async (req) => {
     }
 
     // Search for businesses using SerpAPI (Google Maps search)
-    const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
+    // Use user's own API key if available, otherwise fall back to global
+    const SERPAPI_API_KEY = settings.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
     if (!SERPAPI_API_KEY) {
-      throw new Error("SERPAPI_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "SerpAPI não configurada. Configure sua chave em Configurações > APIs." }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const searchQuery = `${niches[0]} em ${locations[0]}`;
@@ -103,10 +110,18 @@ Deno.serve(async (req) => {
     const leadsWithPhone = foundLeads.filter((lead: any) => lead.phone);
     console.log(`${leadsWithPhone.length} leads have phone numbers`);
 
-    // Generate first message using AI
+    // Generate first message using AI (user's Gemini key or fallback to Lovable)
+    const GEMINI_API_KEY = settings.gemini_api_key;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+    
+    if (!GEMINI_API_KEY && !LOVABLE_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "Nenhuma API de IA configurada. Configure sua chave Gemini em Configurações > APIs." }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const messageVariations = settings.message_variations || [];
@@ -118,21 +133,61 @@ Deno.serve(async (req) => {
         messageVariations[Math.floor(Math.random() * messageVariations.length)];
       firstMessage = randomVariation.template || randomVariation;
     } else {
-      // Generate message with AI
-      const aiResponse = await fetch(
-        "https://ai.gateway.lovable.dev/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
-            messages: [
-              {
-                role: "system",
-                content: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
+      // Generate message with AI - prefer user's Gemini, fallback to Lovable
+      let aiResponse;
+      
+      if (GEMINI_API_KEY) {
+        // Use user's Gemini API key
+        aiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
+${settings.agent_persona}
+
+Seu objetivo é criar uma primeira mensagem de prospecção que:
+1. Seja pessoal e não pareça automática
+2. Identifique uma dor comum do nicho
+3. Ofereça uma solução de forma sutil
+4. Termine com uma pergunta aberta para engajar
+
+Serviços oferecidos: ${(settings.services_offered || []).join(", ")}
+Base de conhecimento: ${settings.knowledge_base || ""}
+
+Crie uma mensagem de primeiro contato para uma empresa do nicho "${niches[0]}" localizada em "${locations[0]}".
+Responda APENAS com a mensagem, sem explicações.`
+                }]
+              }]
+            }),
+          }
+        );
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json();
+          firstMessage = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        }
+      }
+      
+      // Fallback to Lovable AI if Gemini failed or not configured
+      if (!firstMessage && LOVABLE_API_KEY) {
+        aiResponse = await fetch(
+          "https://ai.gateway.lovable.dev/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemini-3-flash-preview",
+              messages: [
+                {
+                  role: "system",
+                  content: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
 ${settings.agent_persona}
 
 Seu objetivo é criar uma primeira mensagem de prospecção que:
@@ -145,24 +200,25 @@ Serviços oferecidos: ${(settings.services_offered || []).join(", ")}
 Base de conhecimento: ${settings.knowledge_base || ""}
 
 Responda APENAS com a mensagem, sem explicações.`,
-              },
-              {
-                role: "user",
-                content: `Crie uma mensagem de primeiro contato para uma empresa do nicho "${niches[0]}" localizada em "${locations[0]}".`,
-              },
-            ],
-          }),
+                },
+                {
+                  role: "user",
+                  content: `Crie uma mensagem de primeiro contato para uma empresa do nicho "${niches[0]}" localizada em "${locations[0]}".`,
+                },
+              ],
+            }),
+          }
+        );
+
+        if (!aiResponse.ok) {
+          const errorText = await aiResponse.text();
+          console.error("AI API error:", errorText);
+          throw new Error("Failed to generate message");
         }
-      );
 
-      if (!aiResponse.ok) {
-        const errorText = await aiResponse.text();
-        console.error("AI API error:", errorText);
-        throw new Error("Failed to generate message");
+        const aiData = await aiResponse.json();
+        firstMessage = aiData.choices?.[0]?.message?.content || "";
       }
-
-      const aiData = await aiResponse.json();
-      firstMessage = aiData.choices?.[0]?.message?.content || "";
     }
 
     // Create leads and log messages
