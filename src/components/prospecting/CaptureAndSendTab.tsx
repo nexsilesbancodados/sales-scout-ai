@@ -50,6 +50,7 @@ import {
   Users,
   Zap,
   Settings2,
+  Plus,
 } from 'lucide-react';
 
 const NICHES = [
@@ -1057,28 +1058,89 @@ export function CaptureAndSendTab() {
               <Building2 className="h-4 w-4" />
               Nichos
             </CardTitle>
+            <CardDescription>Selecione ou digite nichos personalizados</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {NICHES.map((niche) => (
-                <Badge
-                  key={niche}
-                  variant={selectedNiches.includes(niche) ? 'default' : 'outline'}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    if (!isProcessing) {
-                      setSelectedNiches(prev =>
-                        prev.includes(niche)
-                          ? prev.filter(n => n !== niche)
-                          : [...prev, niche]
-                      );
+          <CardContent className="space-y-3">
+            {/* Custom input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Digite um nicho personalizado..."
+                disabled={isProcessing}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const value = (e.target as HTMLInputElement).value.trim();
+                    if (value && !selectedNiches.includes(value)) {
+                      setSelectedNiches(prev => [...prev, value]);
+                      (e.target as HTMLInputElement).value = '';
                     }
-                  }}
-                >
-                  {niche}
-                </Badge>
-              ))}
+                  }
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isProcessing}
+                onClick={(e) => {
+                  const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                  const value = input.value.trim();
+                  if (value && !selectedNiches.includes(value)) {
+                    setSelectedNiches(prev => [...prev, value]);
+                    input.value = '';
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
+
+            {/* Selected niches */}
+            {selectedNiches.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-2 rounded-lg bg-muted/50">
+                {selectedNiches.map((niche) => (
+                  <Badge
+                    key={niche}
+                    variant="default"
+                    className="cursor-pointer gap-1"
+                    onClick={() => {
+                      if (!isProcessing) {
+                        setSelectedNiches(prev => prev.filter(n => n !== niche));
+                      }
+                    }}
+                  >
+                    {niche}
+                    <XCircle className="h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Suggestions */}
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-full justify-between">
+                  <span className="text-muted-foreground text-xs">Sugestões populares</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {NICHES.filter(n => !selectedNiches.includes(n)).map((niche) => (
+                    <Badge
+                      key={niche}
+                      variant="outline"
+                      className="cursor-pointer text-xs"
+                      onClick={() => {
+                        if (!isProcessing) {
+                          setSelectedNiches(prev => [...prev, niche]);
+                        }
+                      }}
+                    >
+                      + {niche}
+                    </Badge>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </CardContent>
         </Card>
 
@@ -1088,28 +1150,89 @@ export function CaptureAndSendTab() {
               <MapPin className="h-4 w-4" />
               Locais
             </CardTitle>
+            <CardDescription>Selecione ou digite locais personalizados</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {LOCATIONS.map((location) => (
-                <Badge
-                  key={location}
-                  variant={selectedLocations.includes(location) ? 'default' : 'outline'}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    if (!isProcessing) {
-                      setSelectedLocations(prev =>
-                        prev.includes(location)
-                          ? prev.filter(l => l !== location)
-                          : [...prev, location]
-                      );
+          <CardContent className="space-y-3">
+            {/* Custom input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Digite uma cidade ou região..."
+                disabled={isProcessing}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const value = (e.target as HTMLInputElement).value.trim();
+                    if (value && !selectedLocations.includes(value)) {
+                      setSelectedLocations(prev => [...prev, value]);
+                      (e.target as HTMLInputElement).value = '';
                     }
-                  }}
-                >
-                  {location}
-                </Badge>
-              ))}
+                  }
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isProcessing}
+                onClick={(e) => {
+                  const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                  const value = input.value.trim();
+                  if (value && !selectedLocations.includes(value)) {
+                    setSelectedLocations(prev => [...prev, value]);
+                    input.value = '';
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
+
+            {/* Selected locations */}
+            {selectedLocations.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-2 rounded-lg bg-muted/50">
+                {selectedLocations.map((location) => (
+                  <Badge
+                    key={location}
+                    variant="default"
+                    className="cursor-pointer gap-1"
+                    onClick={() => {
+                      if (!isProcessing) {
+                        setSelectedLocations(prev => prev.filter(l => l !== location));
+                      }
+                    }}
+                  >
+                    {location}
+                    <XCircle className="h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Suggestions */}
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-full justify-between">
+                  <span className="text-muted-foreground text-xs">Cidades populares</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {LOCATIONS.filter(l => !selectedLocations.includes(l)).map((location) => (
+                    <Badge
+                      key={location}
+                      variant="outline"
+                      className="cursor-pointer text-xs"
+                      onClick={() => {
+                        if (!isProcessing) {
+                          setSelectedLocations(prev => [...prev, location]);
+                        }
+                      }}
+                    >
+                      + {location}
+                    </Badge>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </CardContent>
         </Card>
       </div>
