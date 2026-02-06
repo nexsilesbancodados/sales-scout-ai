@@ -204,96 +204,74 @@ Deno.serve(async (req) => {
       
       const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
       
-      // First, delete any existing instance to start fresh
-      console.log("Deleting existing instance if any...");
-      try {
-        await fetch(`${EVOLUTION_API_URL}/instance/delete/${instanceName}`, {
-          method: "DELETE",
-          headers: { "apikey": EVOLUTION_API_KEY },
-        });
-        // Wait for deletion to complete
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      } catch (e) {
-        console.log("Delete failed (instance may not exist):", e);
-      }
-
-      // Create a fresh instance with qrcode:false to prepare for pairing code
-      console.log("Creating fresh instance for pairing code...");
-      const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
-        method: "POST",
-        headers: {
-          "apikey": EVOLUTION_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          instanceName,
-          qrcode: false, // Important: set to false for pairing code
-          number: formattedPhone, // Include phone number during creation
-          integration: "WHATSAPP-BAILEYS",
-          webhook: {
-            url: webhookUrl,
-            byEvents: false,
-            base64: false,
-            events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
-          },
-        }),
+      // Check if instance exists
+      const statusCheck = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
+        method: "GET",
+        headers: { "apikey": EVOLUTION_API_KEY },
       });
 
-      const createData = await createResponse.json();
-      console.log("Create response:", JSON.stringify(createData).substring(0, 800));
-      
-      // Check if pairing code is in creation response
-      let pairingCode = createData.pairingCode || createData.pairing_code;
-      
-      if (!pairingCode) {
-        // Try the requestCode endpoint (Evolution API v2)
-        console.log("Trying requestCode endpoint...");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const requestCodeResponse = await fetch(
-          `${EVOLUTION_API_URL}/instance/${instanceName}/requestCode`,
-          {
-            method: "POST",
-            headers: {
-              "apikey": EVOLUTION_API_KEY,
-              "Content-Type": "application/json",
+      let pairingCode: string | null = null;
+
+      if (!statusCheck.ok) {
+        // Instance doesn't exist, create it
+        console.log("Instance doesn't exist, creating fresh instance...");
+        const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
+          method: "POST",
+          headers: {
+            "apikey": EVOLUTION_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            instanceName,
+            qrcode: true,
+            integration: "WHATSAPP-BAILEYS",
+            webhook: {
+              url: webhookUrl,
+              byEvents: false,
+              base64: false,
+              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
             },
-            body: JSON.stringify({ phone: formattedPhone }),
-          }
-        );
+          }),
+        });
 
-        if (requestCodeResponse.ok) {
-          const codeData = await requestCodeResponse.json();
-          console.log("RequestCode response:", JSON.stringify(codeData));
-          pairingCode = codeData.pairingCode || codeData.code || codeData.pairing_code;
-        } else {
-          console.log("RequestCode endpoint failed, trying connect with number...");
-          // Fallback to connect endpoint with number param
-          const connectUrl = `${EVOLUTION_API_URL}/instance/connect/${instanceName}?number=${formattedPhone}`;
-          const connectResponse = await fetch(connectUrl, {
-            method: "GET",
-            headers: { "apikey": EVOLUTION_API_KEY },
-          });
-
-          if (connectResponse.ok) {
-            const connectData = await connectResponse.json();
-            console.log("Connect response:", JSON.stringify(connectData).substring(0, 500));
-            pairingCode = connectData.pairingCode || connectData.pairing_code;
-          }
+        if (createResponse.ok) {
+          await supabaseService
+            .from("user_settings")
+            .update({ whatsapp_instance_id: instanceName })
+            .eq("user_id", user.id);
         }
+        
+        // Wait for instance to be ready
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
+      // Try to get pairing code via connect endpoint with number
+      console.log("Trying connect endpoint with phone number...");
+      const connectUrl = `${EVOLUTION_API_URL}/instance/connect/${instanceName}?number=${formattedPhone}`;
+      const connectResponse = await fetch(connectUrl, {
+        method: "GET",
+        headers: { "apikey": EVOLUTION_API_KEY },
+      });
+
+      if (connectResponse.ok) {
+        const connectData = await connectResponse.json();
+        console.log("Connect with number response:", JSON.stringify(connectData).substring(0, 500));
+        pairingCode = connectData.pairingCode || connectData.pairing_code;
       }
       
       if (!pairingCode) {
-        console.error("Could not obtain pairing code from any endpoint");
-        throw new Error("Código de pareamento não disponível. Sua versão da Evolution API pode não suportar este recurso. Use QR Code.");
+        console.log("Pairing code not available via connect, returning error with suggestion");
+        // Return a more helpful error suggesting QR code
+        return new Response(JSON.stringify({
+          error: "Código de pareamento não disponível",
+          suggestion: "use_qr_code",
+          message: "Sua versão da Evolution API pode não suportar pairing code. Use o QR Code para conectar.",
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
-      // Update user settings with instance ID
-      await supabaseService
-        .from("user_settings")
-        .update({ whatsapp_instance_id: instanceName })
-        .eq("user_id", user.id);
-      
       return new Response(JSON.stringify({
         pairingCode,
         phoneNumber: formattedPhone,
