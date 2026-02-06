@@ -202,73 +202,9 @@ Deno.serve(async (req) => {
       }
       console.log(`Getting pairing code for: ${instanceName}, phone: ${formattedPhone}`);
       
-      // First check if instance exists
-      const statusResponse = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
-        method: "GET",
-        headers: { "apikey": EVOLUTION_API_KEY },
-      });
-
-      if (!statusResponse.ok) {
-        // Instance doesn't exist, create it first with the phone number
-        console.log("Instance doesn't exist, creating with phone number...");
-        const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
-        const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
-          method: "POST",
-          headers: {
-            "apikey": EVOLUTION_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            instanceName,
-            number: formattedPhone,
-            qrcode: false,
-            integration: "WHATSAPP-BAILEYS",
-            webhook: {
-              url: webhookUrl,
-              byEvents: false,
-              base64: false,
-              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
-            },
-          }),
-        });
-
-        if (createResponse.ok) {
-          const createData = await createResponse.json();
-          console.log("Instance created with pairing code:", JSON.stringify(createData).substring(0, 500));
-          
-          // Check if pairing code is in creation response
-          const pairingCode = createData.pairingCode || createData.pairing_code;
-          if (pairingCode) {
-            await supabaseService
-              .from("user_settings")
-              .update({ whatsapp_instance_id: instanceName })
-              .eq("user_id", user.id);
-            
-            return new Response(JSON.stringify({
-              pairingCode,
-              phoneNumber: formattedPhone,
-            }), {
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-        }
-      }
-
-      // Instance exists, need to reconnect with phone number to get pairing code
-      // First delete the existing instance and recreate with phone
-      console.log("Recreating instance with phone number...");
-      
-      // Delete existing instance
-      await fetch(`${EVOLUTION_API_URL}/instance/delete/${instanceName}`, {
-        method: "DELETE",
-        headers: { "apikey": EVOLUTION_API_KEY },
-      });
-
-      // Wait a moment for deletion
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Create new instance with phone number for pairing code
       const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
+      
+      // Try to create instance first (will fail if exists, which is OK)
       const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
         method: "POST",
         headers: {
@@ -277,8 +213,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           instanceName,
-          number: formattedPhone,
-          qrcode: false,
+          qrcode: true, // Need this to enable pairing
           integration: "WHATSAPP-BAILEYS",
           webhook: {
             url: webhookUrl,
@@ -288,28 +223,50 @@ Deno.serve(async (req) => {
           },
         }),
       });
-
-      if (!createResponse.ok) {
-        const errorText = await createResponse.text();
-        console.error("Failed to create instance with phone:", errorText);
-        throw new Error("Failed to generate pairing code");
+      
+      if (createResponse.ok) {
+        console.log("Instance created, updating user settings...");
+        await supabaseService
+          .from("user_settings")
+          .update({ whatsapp_instance_id: instanceName })
+          .eq("user_id", user.id);
+      } else {
+        const errText = await createResponse.text();
+        console.log("Instance creation response:", errText);
       }
 
-      const createData = await createResponse.json();
-      console.log("Instance created response:", JSON.stringify(createData).substring(0, 500));
+      // Wait a moment for instance to be ready
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Now call the connect endpoint with number query param to get pairing code
+      const connectUrl = `${EVOLUTION_API_URL}/instance/connect/${instanceName}?number=${formattedPhone}`;
+      console.log(`Calling connect endpoint: ${connectUrl}`);
       
-      const pairingCode = createData.pairingCode || createData.pairing_code;
+      const connectResponse = await fetch(connectUrl, {
+        method: "GET",
+        headers: { "apikey": EVOLUTION_API_KEY },
+      });
+
+      if (!connectResponse.ok) {
+        const errorText = await connectResponse.text();
+        console.error("Connect response error:", errorText);
+        throw new Error("Failed to get pairing code from Evolution API");
+      }
+
+      const connectData = await connectResponse.json();
+      console.log("Connect response:", JSON.stringify(connectData).substring(0, 800));
+      
+      // Extract pairing code from response - Evolution API v2 format
+      const pairingCode = connectData.pairingCode || 
+                         connectData.pairing_code || 
+                         connectData.code?.pairingCode ||
+                         connectData.instance?.pairingCode;
       
       if (!pairingCode) {
-        console.error("No pairing code in response:", createData);
-        throw new Error("Pairing code not available. Try QR Code instead.");
+        console.error("No pairing code in connect response. Full response:", JSON.stringify(connectData));
+        // If no pairing code, it might be that the phone format is wrong or API doesn't support it
+        throw new Error("Código de pareamento não disponível. Verifique o número ou use QR Code.");
       }
-      
-      // Update user settings with instance ID
-      await supabaseService
-        .from("user_settings")
-        .update({ whatsapp_instance_id: instanceName })
-        .eq("user_id", user.id);
       
       return new Response(JSON.stringify({
         pairingCode,
