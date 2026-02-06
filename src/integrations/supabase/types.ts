@@ -427,6 +427,7 @@ export type Database = {
           email_notifications: boolean | null
           emoji_usage: string | null
           follow_up_tone: string | null
+          gemini_api_key: string | null
           greeting_style: string | null
           hunter_api_token: string | null
           id: string
@@ -436,6 +437,7 @@ export type Database = {
           objection_handling: string | null
           personality_traits: Json | null
           response_length: string | null
+          serpapi_api_key: string | null
           services_offered: string[] | null
           target_locations: string[] | null
           target_niches: string[] | null
@@ -463,6 +465,7 @@ export type Database = {
           email_notifications?: boolean | null
           emoji_usage?: string | null
           follow_up_tone?: string | null
+          gemini_api_key?: string | null
           greeting_style?: string | null
           hunter_api_token?: string | null
           id?: string
@@ -472,6 +475,7 @@ export type Database = {
           objection_handling?: string | null
           personality_traits?: Json | null
           response_length?: string | null
+          serpapi_api_key?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null
@@ -499,6 +503,7 @@ export type Database = {
           email_notifications?: boolean | null
           emoji_usage?: string | null
           follow_up_tone?: string | null
+          gemini_api_key?: string | null
           greeting_style?: string | null
           hunter_api_token?: string | null
           id?: string
@@ -508,6 +513,7 @@ export type Database = {
           objection_handling?: string | null
           personality_traits?: Json | null
           response_length?: string | null
+          serpapi_api_key?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null

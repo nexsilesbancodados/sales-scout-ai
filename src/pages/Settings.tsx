@@ -15,6 +15,7 @@ import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
 import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
+import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -51,6 +52,7 @@ import {
   Sparkles,
   Settings2,
   Shield,
+  Key,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -219,7 +221,11 @@ export default function SettingsPage() {
       description="Personalize seu agente de prospecção com IA avançada"
     >
       <Tabs defaultValue="antiblock" className="space-y-6">
-        <TabsList className="grid grid-cols-7 w-full max-w-4xl">
+        <TabsList className="grid grid-cols-8 w-full max-w-4xl">
+          <TabsTrigger value="apikeys" className="gap-1">
+            <Key className="h-4 w-4" />
+            <span className="hidden sm:inline">APIs</span>
+          </TabsTrigger>
           <TabsTrigger value="antiblock" className="gap-1">
             <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">Anti-Bloqueio</span>
@@ -249,6 +255,11 @@ export default function SettingsPage() {
             <span className="hidden sm:inline">Integrações</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* API Keys Tab - NEW */}
+        <TabsContent value="apikeys">
+          <ApiKeysSettings />
+        </TabsContent>
 
         {/* Anti-Block Tab - NEW */}
         <TabsContent value="antiblock">

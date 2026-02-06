@@ -34,13 +34,65 @@ Deno.serve(async (req) => {
     }
 
     const { action, data } = await req.json();
+    
+    // Get user settings to retrieve their API keys
+    const { data: userSettings } = await supabase
+      .from("user_settings")
+      .select("gemini_api_key, serpapi_api_key")
+      .eq("user_id", user.id)
+      .single();
+
+    const GEMINI_API_KEY = userSettings?.gemini_api_key;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "AI not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Helper function to call AI (prefers user's Gemini, falls back to Lovable)
+    async function callAI(systemPrompt: string, userPrompt: string) {
+      if (GEMINI_API_KEY) {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }]
+              }]
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        }
+      }
+
+      // Fallback to Lovable AI
+      if (!LOVABLE_API_KEY) {
+        throw new Error("Nenhuma API de IA configurada. Configure sua chave Gemini em Configurações > APIs.");
+      }
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("AI API error");
+      }
+
+      const aiData = await response.json();
+      return aiData.choices?.[0]?.message?.content || "";
     }
 
     // Action: Calculate lead quality score
@@ -84,18 +136,7 @@ Deno.serve(async (req) => {
     if (action === "suggest_improvements") {
       const { template, responseRate, niche } = data;
 
-      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            {
-              role: "system",
-              content: `Você é um especialista em copywriting para prospecção via WhatsApp no Brasil.
+      const systemPrompt = `Você é um especialista em copywriting para prospecção via WhatsApp no Brasil.
               
 Analise o template fornecido e sugira melhorias específicas para aumentar a taxa de resposta.
 Considere:
@@ -105,33 +146,27 @@ Considere:
 - Comprimento ideal (não muito longo)
 - Gatilhos mentais sutis
 
-Responda em português brasileiro com sugestões práticas e um template melhorado.`,
-            },
-            {
-              role: "user",
-              content: `Nicho: ${niche}
+Responda em português brasileiro com sugestões práticas e um template melhorado.`;
+
+      const userPrompt = `Nicho: ${niche}
 Taxa de resposta atual: ${responseRate}%
 
 Template atual:
 ${template}
 
-Por favor, analise e sugira melhorias.`,
-            },
-          ],
-        }),
-      });
+Por favor, analise e sugira melhorias.`;
 
-      if (!aiResponse.ok) {
-        console.error("AI API error:", await aiResponse.text());
-        throw new Error("Failed to get AI suggestions");
+      try {
+        const suggestions = await callAI(systemPrompt, userPrompt);
+        return new Response(JSON.stringify({ suggestions }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-
-      const aiData = await aiResponse.json();
-      const suggestions = aiData.choices?.[0]?.message?.content || "";
-
-      return new Response(JSON.stringify({ suggestions }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
     }
 
     // Action: Get best time recommendation
@@ -313,9 +348,14 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
     if (action === "search_leads") {
       const { niche, location, maxResults = 100 } = data;
       
-      const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
+      // Use user's SerpAPI key if available
+      const SERPAPI_API_KEY = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
       if (!SERPAPI_API_KEY) {
-        return new Response(JSON.stringify({ error: "SERPAPI not configured", leads: [] }), {
+        return new Response(JSON.stringify({ 
+          error: "SerpAPI não configurada. Configure sua chave em Configurações > APIs.", 
+          leads: [] 
+        }), {
+          status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }

@@ -68,6 +68,9 @@ export interface UserSettings {
   daily_report_enabled: boolean;
   // Security
   hunter_api_token: string;
+  // User's own API keys
+  gemini_api_key: string | null;
+  serpapi_api_key: string | null;
   // Automation & Security Settings
   daily_message_limit: number;
   message_interval_seconds: number;
