@@ -529,11 +529,11 @@ export function CaptureAndSendTab() {
         addLog(`Buscando "${niche}" em "${location}"...`);
 
         try {
-          // Call our edge function to search
+          // Call our edge function to search with higher limit
           const response = await supabase.functions.invoke('ai-prospecting', {
             body: {
               action: 'search_leads',
-              data: { niche, location, maxResults: 100 },
+              data: { niche, location, maxResults: 500 },
             },
           });
 

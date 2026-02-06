@@ -528,153 +528,109 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
         });
       }
 
-      // For small searches (less than 100 leads), do it synchronously
-      if (maxResults <= 100) {
-        // Quick synchronous search for small requests
-        const allLeads: any[] = [];
-        const seenPhones = new Set<string>();
-        const seenNames = new Set<string>();
+      // Always do synchronous search with expanded coverage
+      const allLeads: any[] = [];
+      const seenPhones = new Set<string>();
+      const seenNames = new Set<string>();
 
-        const SUBNICHES: Record<string, string[]> = {
-          "Restaurantes": ["restaurante", "restaurantes"],
-          "Salões de Beleza": ["salão de beleza", "cabeleireiro"],
-          "Academias": ["academia", "fitness"],
-          "Clínicas Médicas": ["clínica médica", "médico"],
-          "Clínicas Odontológicas": ["dentista", "odontologia"],
-          "Escritórios de Advocacia": ["advogado", "advocacia"],
-          "Imobiliárias": ["imobiliária", "corretor"],
-          "Pet Shops": ["pet shop", "veterinário"],
-          "Oficinas Mecânicas": ["oficina mecânica", "mecânico"],
-          "Escolas e Cursos": ["escola", "curso"],
-          "Lojas de Roupas": ["loja de roupas", "boutique"],
-          "Farmácias": ["farmácia", "drogaria"],
-          "Hotéis e Pousadas": ["hotel", "pousada"],
-          "Estúdios de Tatuagem": ["tatuagem", "tattoo"],
-          "Barbearias": ["barbearia", "barbeiro"],
-          "Floriculturas": ["floricultura", "flores"],
-          "Padarias": ["padaria", "panificadora"],
-          "Pizzarias": ["pizzaria", "pizza"],
-          "Hamburguerias": ["hamburgueria", "burger"],
-          "Cafeterias": ["cafeteria", "café"],
-        };
+      // Extended subniches for better coverage
+      const SUBNICHES: Record<string, string[]> = {
+        "Restaurantes": ["restaurante", "restaurantes", "comida", "lanchonete", "self-service", "rodízio", "buffet", "churrascaria", "pizzaria", "hamburgueria"],
+        "Salões de Beleza": ["salão de beleza", "cabeleireiro", "cabelo", "manicure", "esmalteria", "estética", "maquiagem", "sobrancelha", "depilação"],
+        "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "personal trainer", "ginástica"],
+        "Clínicas Médicas": ["clínica médica", "consultório médico", "médico", "centro médico", "dermatologista", "cardiologista", "ortopedista"],
+        "Clínicas Odontológicas": ["dentista", "odontologia", "clínica odontológica", "ortodontista", "implante dentário"],
+        "Escritórios de Advocacia": ["advogado", "advocacia", "escritório de advocacia", "advogados", "escritório jurídico", "consultoria jurídica"],
+        "Imobiliárias": ["imobiliária", "corretor de imóveis", "imóveis", "casas à venda", "apartamentos"],
+        "Pet Shops": ["pet shop", "petshop", "veterinário", "banho e tosa", "clínica veterinária", "ração"],
+        "Oficinas Mecânicas": ["oficina mecânica", "mecânico", "auto center", "funilaria", "elétrica automotiva"],
+        "Escolas e Cursos": ["escola", "curso", "escola de idiomas", "inglês", "escola de música", "informática"],
+        "Lojas de Roupas": ["loja de roupas", "boutique", "moda", "vestuário", "loja feminina", "loja masculina"],
+        "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação"],
+        "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "resort"],
+        "Estúdios de Tatuagem": ["tatuagem", "tattoo", "tatuador", "piercing"],
+        "Barbearias": ["barbearia", "barbeiro", "barber shop"],
+        "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais"],
+        "Padarias": ["padaria", "panificadora", "confeitaria", "bolos"],
+        "Pizzarias": ["pizzaria", "pizza", "delivery pizza"],
+        "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete"],
+        "Cafeterias": ["cafeteria", "café", "coffee shop", "confeitaria"],
+      };
 
-        const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
-        const limitedSearchTerms = searchTerms.slice(0, 2);
+      const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
+      // Use more search terms (up to 8) for better coverage
+      const limitedSearchTerms = searchTerms.slice(0, 8);
 
-        console.log(`Synchronous search for ${niche} in ${location} (max: ${maxResults})`);
+      console.log(`Enhanced search for ${niche} in ${location} with ${limitedSearchTerms.length} terms (max: ${maxResults})`);
 
-        for (const searchTerm of limitedSearchTerms) {
+      for (const searchTerm of limitedSearchTerms) {
+        if (allLeads.length >= maxResults) break;
+
+        // Search up to 5 pages (100 results per term)
+        for (let start = 0; start < 100; start += 20) {
           if (allLeads.length >= maxResults) break;
 
-          for (let start = 0; start < 40; start += 20) {
-            if (allLeads.length >= maxResults) break;
+          const searchQuery = `${searchTerm} em ${location}`;
+          
+          try {
+            const serpResponse = await fetch(
+              `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
+            );
 
-            const searchQuery = `${searchTerm} em ${location}`;
-            
-            try {
-              const serpResponse = await fetch(
-                `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
-              );
-
-              if (!serpResponse.ok) continue;
-
-              const serpData = await serpResponse.json();
-              const localResults = serpData.local_results || [];
-              
-              if (localResults.length === 0) break;
-
-              for (const result of localResults) {
-                if (!result.phone) continue;
-                
-                const normalizedPhone = result.phone.replace(/\D/g, "");
-                if (seenPhones.has(normalizedPhone)) continue;
-                
-                const normalizedName = (result.title || "").toLowerCase().trim();
-                if (seenNames.has(normalizedName)) continue;
-
-                seenPhones.add(normalizedPhone);
-                seenNames.add(normalizedName);
-
-                allLeads.push({
-                  business_name: result.title || "Empresa",
-                  phone: result.phone,
-                  address: result.address || null,
-                  rating: result.rating || null,
-                  reviews_count: result.reviews || null,
-                  website: result.website || null,
-                  google_maps_url: result.place_id 
-                    ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                    : null,
-                  place_id: result.place_id || null,
-                  type: result.type || null,
-                  subtype: searchTerm,
-                });
-              }
-
-              await new Promise(r => setTimeout(r, 100));
-            } catch (error) {
-              console.error(`Search error for ${searchTerm}:`, error);
+            if (!serpResponse.ok) {
+              console.log(`SerpAPI returned ${serpResponse.status} for ${searchQuery}`);
+              continue;
             }
+
+            const serpData = await serpResponse.json();
+            const localResults = serpData.local_results || [];
+            
+            console.log(`Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
+            
+            if (localResults.length === 0) break;
+
+            for (const result of localResults) {
+              if (!result.phone) continue;
+              
+              const normalizedPhone = result.phone.replace(/\D/g, "");
+              if (seenPhones.has(normalizedPhone)) continue;
+              
+              const normalizedName = (result.title || "").toLowerCase().trim();
+              if (seenNames.has(normalizedName)) continue;
+
+              seenPhones.add(normalizedPhone);
+              seenNames.add(normalizedName);
+
+              allLeads.push({
+                business_name: result.title || "Empresa",
+                phone: result.phone,
+                address: result.address || null,
+                rating: result.rating || null,
+                reviews_count: result.reviews || null,
+                website: result.website || null,
+                google_maps_url: result.place_id 
+                  ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                  : null,
+                place_id: result.place_id || null,
+                type: result.type || null,
+                subtype: searchTerm,
+              });
+            }
+
+            // Small delay to respect rate limits
+            await new Promise(r => setTimeout(r, 80));
+          } catch (error) {
+            console.error(`Search error for ${searchTerm}:`, error);
           }
         }
-
-        return new Response(JSON.stringify({ 
-          leads: allLeads,
-          total: allLeads.length,
-          searchTermsUsed: limitedSearchTerms,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
       }
 
-      // For larger searches, use background processing
-      const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
-      
-      // Create a background job
-      const { data: job, error: jobError } = await serviceClient
-        .from("background_jobs")
-        .insert({
-          user_id: user.id,
-          job_type: "prospecting",
-          status: "pending",
-          priority: 5,
-          payload: { niche, location, maxResults },
-          total_items: maxResults,
-          processed_items: 0,
-        })
-        .select()
-        .single();
+      console.log(`Total unique leads found: ${allLeads.length}`);
 
-      if (jobError) {
-        console.error("Error creating job:", jobError);
-        return new Response(JSON.stringify({ error: "Failed to create processing job" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      console.log(`Created background job ${job.id} for search`);
-
-      // Start background processing using EdgeRuntime.waitUntil
-      // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
-      EdgeRuntime.waitUntil(
-        processSearchLeadsInBackground(
-          supabaseUrl,
-          supabaseServiceKey,
-          job.id,
-          user.id,
-          niche,
-          location,
-          maxResults,
-          SERPAPI_API_KEY
-        )
-      );
-
-      // Return immediately with job ID
       return new Response(JSON.stringify({ 
-        job_id: job.id,
-        status: "processing",
-        message: "Busca iniciada em segundo plano. Acompanhe o progresso.",
+        leads: allLeads,
+        total: allLeads.length,
+        searchTermsUsed: limitedSearchTerms,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
