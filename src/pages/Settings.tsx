@@ -18,6 +18,7 @@ import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
 import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
+import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -597,46 +598,50 @@ export default function SettingsPage() {
 
         {/* Notifications Tab */}
         <TabsContent value="notifications">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Preferências de Notificação
-              </CardTitle>
-              <CardDescription>
-                Configure como você quer ser notificado
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Notificações por E-mail</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receba alertas quando leads responderem
-                  </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <NotificationSettings />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Notificações por E-mail
+                </CardTitle>
+                <CardDescription>
+                  Configure alertas por email
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Alertas de Leads</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receba alertas quando leads responderem
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings?.email_notifications}
+                    onCheckedChange={handleToggleNotifications}
+                  />
                 </div>
-                <Switch
-                  checked={settings?.email_notifications}
-                  onCheckedChange={handleToggleNotifications}
-                />
-              </div>
 
-              <Separator />
+                <Separator />
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Relatório Diário</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receba um resumo das atividades do dia
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Relatório Diário</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receba um resumo das atividades do dia
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings?.daily_report_enabled}
+                    onCheckedChange={handleToggleDailyReport}
+                  />
                 </div>
-                <Switch
-                  checked={settings?.daily_report_enabled}
-                  onCheckedChange={handleToggleDailyReport}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Integrations Tab */}

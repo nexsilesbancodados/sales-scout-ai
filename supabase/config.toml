@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.job-processor]
 verify_jwt = false
+
+[functions.cron-tasks]
+verify_jwt = false

@@ -285,6 +285,8 @@ export type Database = {
           instagram_url: string | null
           last_contact_at: string | null
           last_response_at: string | null
+          last_scored_at: string | null
+          lead_score: number | null
           linkedin_url: string | null
           location: string | null
           next_follow_up_at: string | null
@@ -295,6 +297,7 @@ export type Database = {
           quality_score: number | null
           rating: number | null
           reviews_count: number | null
+          score_factors: Json | null
           source: string | null
           stage: string
           tags: string[] | null
@@ -328,6 +331,8 @@ export type Database = {
           instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
+          last_scored_at?: string | null
+          lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
           next_follow_up_at?: string | null
@@ -338,6 +343,7 @@ export type Database = {
           quality_score?: number | null
           rating?: number | null
           reviews_count?: number | null
+          score_factors?: Json | null
           source?: string | null
           stage?: string
           tags?: string[] | null
@@ -371,6 +377,8 @@ export type Database = {
           instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
+          last_scored_at?: string | null
+          lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
           next_follow_up_at?: string | null
@@ -381,6 +389,7 @@ export type Database = {
           quality_score?: number | null
           rating?: number | null
           reviews_count?: number | null
+          score_factors?: Json | null
           source?: string | null
           stage?: string
           tags?: string[] | null
@@ -847,6 +856,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_lead_score: { Args: { p_lead_id: string }; Returns: number }
       is_lead_owner: { Args: { p_lead_id: string }; Returns: boolean }
       recover_stale_jobs: { Args: never; Returns: number }
     }
