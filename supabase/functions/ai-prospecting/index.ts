@@ -5,6 +5,173 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Background processing function for search_leads
+async function processSearchLeadsInBackground(
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  jobId: string,
+  userId: string,
+  niche: string,
+  location: string,
+  maxResults: number,
+  serpApiKey: string
+) {
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  try {
+    // Update job status to running
+    await supabase
+      .from("background_jobs")
+      .update({ status: "running", started_at: new Date().toISOString() })
+      .eq("id", jobId);
+
+    // Define subniches for each main niche to expand search coverage
+    const SUBNICHES: Record<string, string[]> = {
+      "Restaurantes": ["restaurante", "restaurantes", "comida", "gastronomia", "self-service", "rodízio", "buffet", "lanchonete", "cantina", "bistrô", "comida caseira", "comida japonesa", "comida italiana", "comida mexicana", "comida árabe", "comida chinesa", "churrascaria", "seafood", "frutos do mar"],
+      "Salões de Beleza": ["salão de beleza", "salão", "cabeleireiro", "cabeleireira", "cabelo", "hair stylist", "manicure", "pedicure", "esmalteria", "nail designer", "alongamento de unhas", "maquiagem", "maquiador", "estética", "centro de estética", "sobrancelha", "design de sobrancelhas", "depilação", "massagem"],
+      "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "funcional", "treino", "personal trainer", "ginástica", "spinning", "natação", "artes marciais", "luta", "boxe", "muay thai", "jiu jitsu", "karate"],
+      "Clínicas Médicas": ["clínica médica", "clínica", "consultório médico", "médico", "centro médico", "policlínica", "clínica geral", "dermatologista", "cardiologista", "ortopedista", "ginecologista", "pediatra", "oftalmologista", "neurologista", "psiquiatra", "endocrinologista"],
+      "Clínicas Odontológicas": ["clínica odontológica", "dentista", "odontologia", "consultório dentário", "ortodontista", "implante dentário", "clareamento dental", "prótese dentária", "endodontia", "periodontia", "odontopediatra", "cirurgião dentista"],
+      "Escritórios de Advocacia": ["escritório de advocacia", "advogado", "advocacia", "advogados", "escritório jurídico", "consultoria jurídica", "advogado trabalhista", "advogado criminal", "advogado civil", "advogado família", "advogado empresarial", "advogado imobiliário"],
+      "Imobiliárias": ["imobiliária", "imobiliárias", "corretor de imóveis", "corretor", "imóveis", "venda de imóveis", "aluguel de imóveis", "locação", "casas à venda", "apartamentos", "empreendimentos"],
+      "Pet Shops": ["pet shop", "petshop", "loja de animais", "banho e tosa", "clínica veterinária", "veterinário", "ração", "acessórios pet", "hotel para pets", "creche para cães", "adestramento", "dog walker"],
+      "Oficinas Mecânicas": ["oficina mecânica", "mecânica", "mecânico", "auto center", "autocenter", "funilaria", "pintura automotiva", "elétrica automotiva", "troca de óleo", "alinhamento", "balanceamento", "suspensão", "freios", "ar condicionado automotivo"],
+      "Escolas e Cursos": ["escola", "curso", "cursos", "escola de idiomas", "inglês", "espanhol", "escola de música", "aula de música", "escola de dança", "informática", "curso técnico", "preparatório", "vestibular", "reforço escolar", "educação infantil"],
+      "Lojas de Roupas": ["loja de roupas", "roupas", "moda", "boutique", "vestuário", "confecção", "loja feminina", "loja masculina", "moda feminina", "moda masculina", "moda infantil", "loja de calçados", "sapatos", "acessórios", "bolsas"],
+      "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação", "medicamentos", "perfumaria", "dermocosméticos"],
+      "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "motel", "resort", "hostel", "albergue", "flat", "apart hotel", "airbnb", "chalé"],
+      "Estúdios de Tatuagem": ["estúdio de tatuagem", "tatuagem", "tattoo", "tatuador", "piercing", "body piercing", "micropigmentação"],
+      "Barbearias": ["barbearia", "barbeiro", "barber shop", "barba", "corte masculino", "cabelo masculino"],
+      "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais", "buquê", "decoração floral", "plantas", "jardim", "paisagismo"],
+      "Padarias": ["padaria", "panificadora", "pão", "confeitaria", "bolos", "tortas", "doces", "salgados", "café da manhã"],
+      "Pizzarias": ["pizzaria", "pizza", "delivery pizza", "rodízio de pizza", "pizza artesanal"],
+      "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete", "fast food", "smash burger", "artesanal"],
+      "Cafeterias": ["cafeteria", "café", "coffee shop", "expresso", "cappuccino", "latte", "brunch", "confeitaria"],
+    };
+
+    const allLeads: any[] = [];
+    const seenPhones = new Set<string>();
+    const seenNames = new Set<string>();
+
+    // Get subniches for this niche, or use the niche itself
+    const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
+    
+    // Limit search terms to avoid timeout (5 terms max for background)
+    const limitedSearchTerms = searchTerms.slice(0, 5);
+    
+    console.log(`[Job ${jobId}] Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location} (max: ${maxResults})`);
+
+    let processedTerms = 0;
+    const totalTerms = limitedSearchTerms.length;
+
+    for (const searchTerm of limitedSearchTerms) {
+      // Stop if we have enough leads
+      if (allLeads.length >= maxResults) break;
+
+      // Search with limited pagination (3 pages per term to avoid timeout)
+      for (let start = 0; start < 60; start += 20) {
+        if (allLeads.length >= maxResults) break;
+
+        const searchQuery = `${searchTerm} em ${location}`;
+        console.log(`[Job ${jobId}] Searching: "${searchQuery}" (start: ${start})`);
+        
+        try {
+          const serpResponse = await fetch(
+            `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
+          );
+
+          if (!serpResponse.ok) {
+            console.error(`[Job ${jobId}] SerpAPI error:`, await serpResponse.text());
+            continue;
+          }
+
+          const serpData = await serpResponse.json();
+          const localResults = serpData.local_results || [];
+          
+          if (localResults.length === 0) break;
+
+          console.log(`[Job ${jobId}] Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
+
+          for (const result of localResults) {
+            if (!result.phone) continue;
+            
+            const normalizedPhone = result.phone.replace(/\D/g, "");
+            if (seenPhones.has(normalizedPhone)) continue;
+            
+            const normalizedName = (result.title || "").toLowerCase().trim();
+            if (seenNames.has(normalizedName)) continue;
+
+            seenPhones.add(normalizedPhone);
+            seenNames.add(normalizedName);
+
+            allLeads.push({
+              business_name: result.title || "Empresa",
+              phone: result.phone,
+              address: result.address || null,
+              rating: result.rating || null,
+              reviews_count: result.reviews || null,
+              website: result.website || null,
+              google_maps_url: result.place_id 
+                ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                : null,
+              place_id: result.place_id || null,
+              type: result.type || null,
+              subtype: searchTerm,
+            });
+          }
+
+          // Small delay to respect rate limits
+          await new Promise(r => setTimeout(r, 150));
+        } catch (error) {
+          console.error(`[Job ${jobId}] Search error for ${searchTerm}:`, error);
+        }
+      }
+
+      processedTerms++;
+      
+      // Update job progress
+      const progress = Math.round((processedTerms / totalTerms) * 100);
+      await supabase
+        .from("background_jobs")
+        .update({ 
+          processed_items: allLeads.length,
+          current_index: processedTerms,
+          last_heartbeat_at: new Date().toISOString(),
+        })
+        .eq("id", jobId);
+    }
+
+    console.log(`[Job ${jobId}] Total unique leads found: ${allLeads.length}`);
+
+    // Update job as completed with results
+    await supabase
+      .from("background_jobs")
+      .update({ 
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        processed_items: allLeads.length,
+        result: { 
+          leads: allLeads,
+          total: allLeads.length,
+          searchTermsUsed: limitedSearchTerms,
+        },
+      })
+      .eq("id", jobId);
+
+  } catch (error: any) {
+    console.error(`[Job ${jobId}] Background processing failed:`, error);
+    
+    await supabase
+      .from("background_jobs")
+      .update({ 
+        status: "failed",
+        error_message: error.message || "Unknown error",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", jobId);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,6 +188,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -344,9 +512,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
       });
     }
 
-    // Action: Search leads with subniches and pagination for maximum coverage
+    // Action: Search leads - NOW WITH BACKGROUND PROCESSING
     if (action === "search_leads") {
-      const { niche, location, maxResults = 5000 } = data;
+      const { niche, location, maxResults = 200 } = data;
       
       // Use user's SerpAPI key if available
       const SERPAPI_API_KEY = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
@@ -360,111 +528,95 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
         });
       }
 
-      // Define subniches for each main niche to expand search coverage
-      const SUBNICHES: Record<string, string[]> = {
-        "Restaurantes": ["restaurante", "restaurantes", "comida", "gastronomia", "self-service", "rodízio", "buffet", "lanchonete", "cantina", "bistrô", "comida caseira", "comida japonesa", "comida italiana", "comida mexicana", "comida árabe", "comida chinesa", "churrascaria", "seafood", "frutos do mar"],
-        "Salões de Beleza": ["salão de beleza", "salão", "cabeleireiro", "cabeleireira", "cabelo", "hair stylist", "manicure", "pedicure", "esmalteria", "nail designer", "alongamento de unhas", "maquiagem", "maquiador", "estética", "centro de estética", "sobrancelha", "design de sobrancelhas", "depilação", "massagem"],
-        "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "funcional", "treino", "personal trainer", "ginástica", "spinning", "natação", "artes marciais", "luta", "boxe", "muay thai", "jiu jitsu", "karate"],
-        "Clínicas Médicas": ["clínica médica", "clínica", "consultório médico", "médico", "centro médico", "policlínica", "clínica geral", "dermatologista", "cardiologista", "ortopedista", "ginecologista", "pediatra", "oftalmologista", "neurologista", "psiquiatra", "endocrinologista"],
-        "Clínicas Odontológicas": ["clínica odontológica", "dentista", "odontologia", "consultório dentário", "ortodontista", "implante dentário", "clareamento dental", "prótese dentária", "endodontia", "periodontia", "odontopediatra", "cirurgião dentista"],
-        "Escritórios de Advocacia": ["escritório de advocacia", "advogado", "advocacia", "advogados", "escritório jurídico", "consultoria jurídica", "advogado trabalhista", "advogado criminal", "advogado civil", "advogado família", "advogado empresarial", "advogado imobiliário"],
-        "Imobiliárias": ["imobiliária", "imobiliárias", "corretor de imóveis", "corretor", "imóveis", "venda de imóveis", "aluguel de imóveis", "locação", "casas à venda", "apartamentos", "empreendimentos"],
-        "Pet Shops": ["pet shop", "petshop", "loja de animais", "banho e tosa", "clínica veterinária", "veterinário", "ração", "acessórios pet", "hotel para pets", "creche para cães", "adestramento", "dog walker"],
-        "Oficinas Mecânicas": ["oficina mecânica", "mecânica", "mecânico", "auto center", "autocenter", "funilaria", "pintura automotiva", "elétrica automotiva", "troca de óleo", "alinhamento", "balanceamento", "suspensão", "freios", "ar condicionado automotivo"],
-        "Escolas e Cursos": ["escola", "curso", "cursos", "escola de idiomas", "inglês", "espanhol", "escola de música", "aula de música", "escola de dança", "informática", "curso técnico", "preparatório", "vestibular", "reforço escolar", "educação infantil"],
-        "Lojas de Roupas": ["loja de roupas", "roupas", "moda", "boutique", "vestuário", "confecção", "loja feminina", "loja masculina", "moda feminina", "moda masculina", "moda infantil", "loja de calçados", "sapatos", "acessórios", "bolsas"],
-        "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação", "medicamentos", "perfumaria", "dermocosméticos"],
-        "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "motel", "resort", "hostel", "albergue", "flat", "apart hotel", "airbnb", "chalé"],
-        "Estúdios de Tatuagem": ["estúdio de tatuagem", "tatuagem", "tattoo", "tatuador", "piercing", "body piercing", "micropigmentação"],
-        "Barbearias": ["barbearia", "barbeiro", "barber shop", "barba", "corte masculino", "cabelo masculino"],
-        "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais", "buquê", "decoração floral", "plantas", "jardim", "paisagismo"],
-        "Padarias": ["padaria", "panificadora", "pão", "confeitaria", "bolos", "tortas", "doces", "salgados", "café da manhã"],
-        "Pizzarias": ["pizzaria", "pizza", "delivery pizza", "rodízio de pizza", "pizza artesanal"],
-        "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete", "fast food", "smash burger", "artesanal"],
-        "Cafeterias": ["cafeteria", "café", "coffee shop", "expresso", "cappuccino", "latte", "brunch", "confeitaria"],
-      };
+      // For small searches (less than 100 leads), do it synchronously
+      if (maxResults <= 100) {
+        // Quick synchronous search for small requests
+        const allLeads: any[] = [];
+        const seenPhones = new Set<string>();
+        const seenNames = new Set<string>();
 
-      const allLeads: any[] = [];
-      const seenPhones = new Set<string>();
-      const seenNames = new Set<string>();
+        const SUBNICHES: Record<string, string[]> = {
+          "Restaurantes": ["restaurante", "restaurantes"],
+          "Salões de Beleza": ["salão de beleza", "cabeleireiro"],
+          "Academias": ["academia", "fitness"],
+          "Clínicas Médicas": ["clínica médica", "médico"],
+          "Clínicas Odontológicas": ["dentista", "odontologia"],
+          "Escritórios de Advocacia": ["advogado", "advocacia"],
+          "Imobiliárias": ["imobiliária", "corretor"],
+          "Pet Shops": ["pet shop", "veterinário"],
+          "Oficinas Mecânicas": ["oficina mecânica", "mecânico"],
+          "Escolas e Cursos": ["escola", "curso"],
+          "Lojas de Roupas": ["loja de roupas", "boutique"],
+          "Farmácias": ["farmácia", "drogaria"],
+          "Hotéis e Pousadas": ["hotel", "pousada"],
+          "Estúdios de Tatuagem": ["tatuagem", "tattoo"],
+          "Barbearias": ["barbearia", "barbeiro"],
+          "Floriculturas": ["floricultura", "flores"],
+          "Padarias": ["padaria", "panificadora"],
+          "Pizzarias": ["pizzaria", "pizza"],
+          "Hamburguerias": ["hamburgueria", "burger"],
+          "Cafeterias": ["cafeteria", "café"],
+        };
 
-      // Get subniches for this niche, or use the niche itself
-      const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
-      
-      // Use ALL search terms for maximum coverage (up to 20 variations)
-      const limitedSearchTerms = searchTerms.slice(0, 20);
-      
-      console.log(`Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location} (max: ${maxResults})`);
+        const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
+        const limitedSearchTerms = searchTerms.slice(0, 2);
 
-      try {
+        console.log(`Synchronous search for ${niche} in ${location} (max: ${maxResults})`);
+
         for (const searchTerm of limitedSearchTerms) {
-          // Stop if we have enough leads
           if (allLeads.length >= maxResults) break;
 
-          // Search with extended pagination (page 0, 20, 40, ... up to 200 = 10 pages x 20 results = up to 200 per term)
-          // This allows finding up to 4000 leads (20 terms x 200 leads each)
-          for (let start = 0; start < 200; start += 20) {
+          for (let start = 0; start < 40; start += 20) {
             if (allLeads.length >= maxResults) break;
 
             const searchQuery = `${searchTerm} em ${location}`;
-            console.log(`Searching: "${searchQuery}" (start: ${start})`);
             
-            const serpResponse = await fetch(
-              `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
-            );
+            try {
+              const serpResponse = await fetch(
+                `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
+              );
 
-            if (!serpResponse.ok) {
-              console.error("SerpAPI error:", await serpResponse.text());
-              continue;
-            }
+              if (!serpResponse.ok) continue;
 
-            const serpData = await serpResponse.json();
-            const localResults = serpData.local_results || [];
-            
-            if (localResults.length === 0) {
-              // No more results for this term
-              break;
-            }
-
-            console.log(`Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
-
-            for (const result of localResults) {
-              // Skip if no phone
-              if (!result.phone) continue;
+              const serpData = await serpResponse.json();
+              const localResults = serpData.local_results || [];
               
-              // Normalize phone for deduplication
-              const normalizedPhone = result.phone.replace(/\D/g, "");
-              if (seenPhones.has(normalizedPhone)) continue;
-              
-              // Check for duplicate business names (fuzzy)
-              const normalizedName = (result.title || "").toLowerCase().trim();
-              if (seenNames.has(normalizedName)) continue;
+              if (localResults.length === 0) break;
 
-              seenPhones.add(normalizedPhone);
-              seenNames.add(normalizedName);
+              for (const result of localResults) {
+                if (!result.phone) continue;
+                
+                const normalizedPhone = result.phone.replace(/\D/g, "");
+                if (seenPhones.has(normalizedPhone)) continue;
+                
+                const normalizedName = (result.title || "").toLowerCase().trim();
+                if (seenNames.has(normalizedName)) continue;
 
-              allLeads.push({
-                business_name: result.title || "Empresa",
-                phone: result.phone,
-                address: result.address || null,
-                rating: result.rating || null,
-                reviews_count: result.reviews || null,
-                website: result.website || null,
-                google_maps_url: result.place_id 
-                  ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                  : null,
-                place_id: result.place_id || null,
-                type: result.type || null,
-                subtype: searchTerm,
-              });
+                seenPhones.add(normalizedPhone);
+                seenNames.add(normalizedName);
+
+                allLeads.push({
+                  business_name: result.title || "Empresa",
+                  phone: result.phone,
+                  address: result.address || null,
+                  rating: result.rating || null,
+                  reviews_count: result.reviews || null,
+                  website: result.website || null,
+                  google_maps_url: result.place_id 
+                    ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                    : null,
+                  place_id: result.place_id || null,
+                  type: result.type || null,
+                  subtype: searchTerm,
+                });
+              }
+
+              await new Promise(r => setTimeout(r, 100));
+            } catch (error) {
+              console.error(`Search error for ${searchTerm}:`, error);
             }
-
-            // Small delay to respect rate limits
-            await new Promise(r => setTimeout(r, 200));
           }
         }
-
-        console.log(`Total unique leads found: ${allLeads.length}`);
 
         return new Response(JSON.stringify({ 
           leads: allLeads,
@@ -473,12 +625,88 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (error) {
-        console.error("Search error:", error);
-        return new Response(JSON.stringify({ leads: [], error: error.message }), {
+      }
+
+      // For larger searches, use background processing
+      const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+      
+      // Create a background job
+      const { data: job, error: jobError } = await serviceClient
+        .from("background_jobs")
+        .insert({
+          user_id: user.id,
+          job_type: "prospecting",
+          status: "pending",
+          priority: 5,
+          payload: { niche, location, maxResults },
+          total_items: maxResults,
+          processed_items: 0,
+        })
+        .select()
+        .single();
+
+      if (jobError) {
+        console.error("Error creating job:", jobError);
+        return new Response(JSON.stringify({ error: "Failed to create processing job" }), {
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      console.log(`Created background job ${job.id} for search`);
+
+      // Start background processing using EdgeRuntime.waitUntil
+      // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
+      EdgeRuntime.waitUntil(
+        processSearchLeadsInBackground(
+          supabaseUrl,
+          supabaseServiceKey,
+          job.id,
+          user.id,
+          niche,
+          location,
+          maxResults,
+          SERPAPI_API_KEY
+        )
+      );
+
+      // Return immediately with job ID
+      return new Response(JSON.stringify({ 
+        job_id: job.id,
+        status: "processing",
+        message: "Busca iniciada em segundo plano. Acompanhe o progresso.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Action: Check job status
+    if (action === "check_job_status") {
+      const { job_id } = data;
+      
+      const { data: job, error } = await supabase
+        .from("background_jobs")
+        .select("*")
+        .eq("id", job_id)
+        .single();
+
+      if (error || !job) {
+        return new Response(JSON.stringify({ error: "Job not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        job_id: job.id,
+        status: job.status,
+        processed_items: job.processed_items,
+        total_items: job.total_items,
+        result: job.result,
+        error_message: job.error_message,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Action: Analyze lead pain points and generate personalized message
@@ -552,192 +780,136 @@ Responda em JSON com:
         });
       } catch {
         return new Response(JSON.stringify({ 
-          painPoints: ["Falta de presença digital"],
-          message: `Olá! Vi que a ${lead.business_name} atua no segmento de ${lead.niche}. Tenho uma solução que pode ajudar. Posso te contar mais?`
+          painPoints: ["Falta de presença digital", "Dificuldade em captar clientes"],
+          message: `Olá! Vi que a ${lead.business_name} atua no segmento de ${lead.niche}. Posso ajudar a aumentar sua visibilidade online?`
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
     }
 
-    // Action: Analyze website with Firecrawl and identify pain points
-    if (action === "analyze_website") {
-      const { url, business_name, niche } = data;
-      
-      const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
-      if (!FIRECRAWL_API_KEY) {
-        // Fallback to basic analysis without website content
-        const fallbackAnalysis = await callAI(
-          "Você é um especialista em análise de negócios e identificação de dores empresariais.",
-          `Analise o negócio "${business_name}" do nicho "${niche || 'não especificado'}" e identifique:
-1. 3-5 dores/problemas comuns que esse tipo de negócio enfrenta
-2. Oportunidades de melhoria
-3. Uma abordagem de prospecção personalizada
+    // Action: Batch analyze multiple leads
+    if (action === "batch_analyze") {
+      const { leads, agentSettings, prospectingType } = data;
+
+      const results = await Promise.all(
+        leads.slice(0, 5).map(async (lead: any) => {
+          try {
+            const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: "google/gemini-3-flash-preview",
+                response_format: { type: "json_object" },
+                messages: [
+                  {
+                    role: "system",
+                    content: `Você é um especialista em vendas B2B no Brasil.
+
+Crie uma mensagem de prospecção para o negócio abaixo.
+
+Estilo: ${prospectingType?.settings?.messageStyle || "Profissional e direto"}
+Tom: ${prospectingType?.settings?.tone || "moderado"}
+
+Serviços oferecidos: ${(agentSettings?.services_offered || []).join(", ")}
+
+Responda em JSON: {"painPoints": ["dor1"], "message": "mensagem curta"}`,
+                  },
+                  {
+                    role: "user",
+                    content: `Empresa: ${lead.business_name}, Nicho: ${lead.niche}, Rating: ${lead.rating || "N/A"}`,
+                  },
+                ],
+              }),
+            });
+
+            if (!aiResponse.ok) {
+              return {
+                leadId: lead.id,
+                painPoints: ["Falta de presença digital"],
+                message: `Olá! Vi que a ${lead.business_name} pode crescer mais. Posso ajudar?`,
+              };
+            }
+
+            const aiData = await aiResponse.json();
+            const content = aiData.choices?.[0]?.message?.content || "{}";
+            const parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, ""));
+
+            return {
+              leadId: lead.id,
+              painPoints: parsed.painPoints || ["Falta de presença digital"],
+              message: parsed.message || `Olá! Posso ajudar a ${lead.business_name}?`,
+            };
+          } catch {
+            return {
+              leadId: lead.id,
+              painPoints: ["Falta de presença digital"],
+              message: `Olá! Vi que a ${lead.business_name} pode crescer mais. Posso ajudar?`,
+            };
+          }
+        })
+      );
+
+      return new Response(JSON.stringify({ results }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Action: Generate A/B test variants
+    if (action === "generate_ab_variants") {
+      const { baseTemplate, niche, testType } = data;
+
+      const systemPrompt = `Você é um especialista em copywriting e testes A/B para prospecção via WhatsApp.
+
+Crie ${testType === "opening" ? "3 variações de abertura" : testType === "cta" ? "3 variações de call-to-action" : "3 variações completas"} para o template base.
+
+Cada variante deve:
+- Manter a essência da mensagem
+- Testar um elemento específico diferente
+- Ser adequada ao nicho ${niche}
 
 Responda em JSON:
 {
-  "painPoints": ["dor1", "dor2", ...],
-  "opportunities": ["oportunidade1", ...],
-  "approach": "sugestão de abordagem",
-  "summary": "resumo em 1-2 frases"
-}`
-        );
-        
-        try {
-          const parsed = JSON.parse(fallbackAnalysis.replace(/```json\n?|\n?```/g, ""));
-          return new Response(JSON.stringify({ 
-            success: true,
-            ...parsed,
-            source: "ai_inference"
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        } catch {
-          return new Response(JSON.stringify({ 
-            success: true,
-            painPoints: ["Falta de presença digital", "Dificuldade em captar clientes", "Processos manuais"],
-            opportunities: ["Marketing digital", "Automação"],
-            approach: "Abordagem consultiva focada em resultados",
-            summary: `${business_name} pode se beneficiar de soluções digitais.`,
-            source: "fallback"
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
-
-      // Use Firecrawl to scrape the website
-      console.log(`Scraping website: ${url}`);
-      
-      let formattedUrl = url.trim();
-      if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-        formattedUrl = `https://${formattedUrl}`;
-      }
+  "variants": [
+    {"name": "Variant A", "content": "...", "hypothesis": "..."},
+    {"name": "Variant B", "content": "...", "hypothesis": "..."},
+    {"name": "Variant C", "content": "...", "hypothesis": "..."}
+  ]
+}`;
 
       try {
-        const scrapeResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${FIRECRAWL_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: formattedUrl,
-            formats: ['markdown'],
-            onlyMainContent: true,
-          }),
+        const aiText = await callAI(systemPrompt, baseTemplate);
+        const parsed = JSON.parse(aiText.replace(/```json\n?|\n?```/g, ""));
+        
+        return new Response(JSON.stringify(parsed), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-
-        const scrapeData = await scrapeResponse.json();
-        
-        if (!scrapeResponse.ok || !scrapeData.success) {
-          console.error('Firecrawl error:', scrapeData);
-          // Fallback to basic analysis
-          throw new Error('Firecrawl failed');
-        }
-
-        const websiteContent = scrapeData.data?.markdown || scrapeData.markdown || '';
-        const metadata = scrapeData.data?.metadata || scrapeData.metadata || {};
-
-        console.log(`Scraped ${websiteContent.length} characters from ${url}`);
-
-        // Now analyze with AI
-        const analysis = await callAI(
-          `Você é um especialista em análise de negócios e prospecção B2B. Analise o conteúdo do website da empresa e identifique oportunidades de venda.`,
-          `Empresa: ${business_name}
-Nicho: ${niche || 'não especificado'}
-Website: ${url}
-Título: ${metadata.title || 'N/A'}
-Descrição: ${metadata.description || 'N/A'}
-
-Conteúdo do site (resumido):
-${websiteContent.slice(0, 4000)}
-
-Analise e responda em JSON:
-{
-  "painPoints": ["dor identificada 1", "dor identificada 2", ...],
-  "opportunities": ["oportunidade 1", "oportunidade 2", ...],
-  "currentServices": ["serviços que a empresa oferece"],
-  "websiteAnalysis": {
-    "hasModernDesign": true/false,
-    "hasMobileVersion": true/false,
-    "hasWhatsApp": true/false,
-    "hasOnlineStore": true/false,
-    "hasBlog": true/false,
-    "socialMedia": ["instagram", "facebook", ...]
-  },
-  "approach": "sugestão de como abordar este lead",
-  "personalizedMessage": "mensagem personalizada baseada na análise",
-  "summary": "resumo executivo em 2-3 frases"
-}`
-        );
-
-        try {
-          const parsed = JSON.parse(analysis.replace(/```json\n?|\n?```/g, ""));
-          return new Response(JSON.stringify({ 
-            success: true,
-            ...parsed,
-            source: "firecrawl_analysis",
-            websiteTitle: metadata.title,
-            websiteDescription: metadata.description,
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        } catch (parseError) {
-          console.error('Failed to parse AI response:', parseError);
-          return new Response(JSON.stringify({ 
-            success: true,
-            painPoints: ["Website precisa de melhorias", "Falta de presença digital forte"],
-            opportunities: ["Redesign", "SEO", "Marketing digital"],
-            approach: "Abordagem consultiva mostrando melhorias específicas",
-            summary: `Análise do site ${url} realizada com sucesso.`,
-            source: "firecrawl_partial"
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      } catch (scrapeError) {
-        console.error('Scrape failed:', scrapeError);
-        // Fallback to AI-only analysis
-        const fallbackAnalysis = await callAI(
-          "Você é um especialista em análise de negócios.",
-          `Analise o negócio "${business_name}" do nicho "${niche}" e sugira dores comuns e abordagem de prospecção. Responda em JSON com: painPoints, opportunities, approach, summary`
-        );
-        
-        try {
-          const parsed = JSON.parse(fallbackAnalysis.replace(/```json\n?|\n?```/g, ""));
-          return new Response(JSON.stringify({ 
-            success: true,
-            ...parsed,
-            source: "ai_inference"
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        } catch {
-          return new Response(JSON.stringify({ 
-            success: true,
-            painPoints: ["Falta de presença digital"],
-            opportunities: ["Marketing digital"],
-            approach: "Abordagem consultiva",
-            summary: `${business_name} pode se beneficiar de soluções digitais.`,
-            source: "fallback"
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+      } catch (error: any) {
+        return new Response(JSON.stringify({ 
+          variants: [
+            { name: "Variant A", content: baseTemplate, hypothesis: "Controle" },
+          ],
+          error: error.message 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
-    return new Response(JSON.stringify({ error: "Invalid action" }), {
+    // Default error response
+    return new Response(JSON.stringify({ error: "Unknown action: " + action }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
-    console.error("AI Prospecting error:", error);
-    return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  } catch (error: any) {
+    console.error("Edge function error:", error);
+    return new Response(JSON.stringify({ error: error.message || "Internal server error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
