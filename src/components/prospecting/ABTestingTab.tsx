@@ -70,13 +70,7 @@ export function ABTestingTab() {
   const { templates } = useTemplates();
   const [tests, setTests] = useState<ABTest[]>([]);
   const [isCreating, setIsCreating] = useState(false);
-  const [newTest, setNewTest] = useState({
-    name: '',
-    niche: '',
-    variantA: '',
-    variantB: '',
-    minSampleSize: 50,
-  });
+  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
 
   const runningTests = tests.filter(t => t.status === 'running');
   const completedTests = tests.filter(t => t.status === 'completed');
@@ -101,35 +95,62 @@ export function ABTestingTab() {
     return Math.min(89, Math.round(zScore * 30));
   };
 
+  const toggleTemplateSelection = (templateId: string) => {
+    setSelectedTemplates(prev => {
+      if (prev.includes(templateId)) {
+        return prev.filter(id => id !== templateId);
+      }
+      if (prev.length >= 2) {
+        toast({
+          title: 'Máximo de 2 templates',
+          description: 'Selecione apenas 2 templates para comparar.',
+          variant: 'destructive',
+        });
+        return prev;
+      }
+      return [...prev, templateId];
+    });
+  };
+
   const handleCreateTest = () => {
-    if (!newTest.name || !newTest.niche || !newTest.variantA || !newTest.variantB) {
+    if (selectedTemplates.length !== 2) {
       toast({
-        title: 'Campos obrigatórios',
-        description: 'Preencha todos os campos para criar o teste.',
+        title: 'Selecione 2 templates',
+        description: 'Escolha exatamente 2 templates para criar o teste A/B.',
         variant: 'destructive',
       });
       return;
     }
 
+    const templateA = templates?.find(t => t.id === selectedTemplates[0]);
+    const templateB = templates?.find(t => t.id === selectedTemplates[1]);
+
+    if (!templateA || !templateB) return;
+
+    // Auto-generate test name and settings
+    const niche = templateA.niche === templateB.niche ? templateA.niche : 'Múltiplos';
+    const testName = `Teste: ${templateA.name} vs ${templateB.name}`;
+
     const test: ABTest = {
       id: Date.now().toString(),
-      name: newTest.name,
-      niche: newTest.niche,
-      status: 'draft',
+      name: testName,
+      niche: niche,
+      status: 'running', // Auto-start
       variants: [
-        { id: 'a', name: 'Variante A', content: newTest.variantA, sent: 0, responses: 0, conversions: 0 },
-        { id: 'b', name: 'Variante B', content: newTest.variantB, sent: 0, responses: 0, conversions: 0 },
+        { id: 'a', name: templateA.name, content: templateA.content, sent: 0, responses: 0, conversions: 0 },
+        { id: 'b', name: templateB.name, content: templateB.content, sent: 0, responses: 0, conversions: 0 },
       ],
-      minSampleSize: newTest.minSampleSize,
+      minSampleSize: 50, // Default
+      startedAt: new Date().toISOString(),
     };
 
     setTests(prev => [test, ...prev]);
-    setNewTest({ name: '', niche: '', variantA: '', variantB: '', minSampleSize: 50 });
+    setSelectedTemplates([]);
     setIsCreating(false);
     
     toast({
-      title: 'Teste criado!',
-      description: 'Inicie o teste quando estiver pronto.',
+      title: 'Teste A/B iniciado!',
+      description: 'As mensagens serão distribuídas automaticamente entre os templates.',
     });
   };
 
@@ -184,89 +205,92 @@ export function ABTestingTab() {
               Novo Teste
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Criar Novo Teste A/B</DialogTitle>
               <DialogDescription>
-                Compare duas variações de mensagem para descobrir qual tem melhor performance.
+                Selecione 2 templates para comparar. O teste será iniciado automaticamente.
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Nome do Teste</Label>
-                  <Input 
-                    placeholder="Ex: Teste Abordagem Inicial"
-                    value={newTest.name}
-                    onChange={e => setNewTest(prev => ({ ...prev, name: e.target.value }))}
-                  />
+              <div className="flex items-center justify-between">
+                <Label className="text-base">Selecione 2 Templates</Label>
+                <Badge variant={selectedTemplates.length === 2 ? 'default' : 'secondary'}>
+                  {selectedTemplates.length}/2 selecionados
+                </Badge>
+              </div>
+
+              {(!templates || templates.length === 0) ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum template disponível.</p>
+                  <p className="text-sm">Crie templates na aba "Templates" primeiro.</p>
                 </div>
-                <div className="space-y-2">
-                  <Label>Nicho</Label>
-                  <Select 
-                    value={newTest.niche} 
-                    onValueChange={v => setNewTest(prev => ({ ...prev, niche: v }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o nicho" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Restaurantes">Restaurantes</SelectItem>
-                      <SelectItem value="Salões de Beleza">Salões de Beleza</SelectItem>
-                      <SelectItem value="Academias">Academias</SelectItem>
-                      <SelectItem value="Clínicas">Clínicas</SelectItem>
-                      <SelectItem value="Imobiliárias">Imobiliárias</SelectItem>
-                      <SelectItem value="Geral">Geral</SelectItem>
-                    </SelectContent>
-                  </Select>
+              ) : (
+                <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2">
+                  {templates.map(template => {
+                    const isSelected = selectedTemplates.includes(template.id);
+                    return (
+                      <div
+                        key={template.id}
+                        onClick={() => toggleTemplateSelection(template.id)}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-muted hover:border-muted-foreground/30'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/30'
+                            }`}>
+                              {isSelected && <CheckCircle2 className="h-3 w-3 text-primary-foreground" />}
+                            </div>
+                            <span className="font-medium">{template.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{template.niche}</Badge>
+                            {template.response_rate && template.response_rate > 0 && (
+                              <Badge variant="secondary">
+                                {template.response_rate.toFixed(1)}% resposta
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {template.content}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2">
-                <Label>Variante A</Label>
-                <Textarea 
-                  placeholder="Digite a primeira versão da mensagem..."
-                  value={newTest.variantA}
-                  onChange={e => setNewTest(prev => ({ ...prev, variantA: e.target.value }))}
-                  rows={4}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use {'{empresa}'}, {'{nicho}'}, {'{cidade}'} para personalização
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Variante B</Label>
-                <Textarea 
-                  placeholder="Digite a segunda versão da mensagem..."
-                  value={newTest.variantB}
-                  onChange={e => setNewTest(prev => ({ ...prev, variantB: e.target.value }))}
-                  rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tamanho Mínimo da Amostra (por variante)</Label>
-                <Input 
-                  type="number"
-                  min={20}
-                  max={500}
-                  value={newTest.minSampleSize}
-                  onChange={e => setNewTest(prev => ({ ...prev, minSampleSize: parseInt(e.target.value) || 50 }))}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Mínimo de envios por variante para resultados estatisticamente significativos
-                </p>
-              </div>
+              {selectedTemplates.length === 2 && (
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FlaskConical className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-primary">Configuração Automática</span>
+                  </div>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Distribuição 50/50 entre as variantes</li>
+                    <li>• Amostra mínima: 50 envios por variante</li>
+                    <li>• Análise estatística em tempo real</li>
+                    <li>• O teste será iniciado automaticamente</li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreating(false)}>
+              <Button variant="outline" onClick={() => { setIsCreating(false); setSelectedTemplates([]); }}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreateTest}>
-                Criar Teste
+              <Button onClick={handleCreateTest} disabled={selectedTemplates.length !== 2}>
+                <Play className="h-4 w-4 mr-2" />
+                Iniciar Teste
               </Button>
             </DialogFooter>
           </DialogContent>
