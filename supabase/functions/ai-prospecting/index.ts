@@ -309,9 +309,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
       });
     }
 
-    // Action: Search leads (using SerpAPI placeholder - returns mock for now)
+    // Action: Search leads with subniches and pagination for maximum coverage
     if (action === "search_leads") {
-      const { niche, location } = data;
+      const { niche, location, maxResults = 100 } = data;
       
       const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
       if (!SERPAPI_API_KEY) {
@@ -320,37 +320,121 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
         });
       }
 
-      try {
-        const searchQuery = `${niche} em ${location}`;
-        const serpResponse = await fetch(
-          `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br`
-        );
+      // Define subniches for each main niche to expand search coverage
+      const SUBNICHES: Record<string, string[]> = {
+        "Restaurantes": ["restaurante", "restaurantes", "comida", "gastronomia", "self-service", "rodízio", "buffet", "lanchonete", "cantina", "bistrô", "comida caseira", "comida japonesa", "comida italiana", "comida mexicana", "comida árabe", "comida chinesa", "churrascaria", "seafood", "frutos do mar"],
+        "Salões de Beleza": ["salão de beleza", "salão", "cabeleireiro", "cabeleireira", "cabelo", "hair stylist", "manicure", "pedicure", "esmalteria", "nail designer", "alongamento de unhas", "maquiagem", "maquiador", "estética", "centro de estética", "sobrancelha", "design de sobrancelhas", "depilação", "massagem"],
+        "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "funcional", "treino", "personal trainer", "ginástica", "spinning", "natação", "artes marciais", "luta", "boxe", "muay thai", "jiu jitsu", "karate"],
+        "Clínicas Médicas": ["clínica médica", "clínica", "consultório médico", "médico", "centro médico", "policlínica", "clínica geral", "dermatologista", "cardiologista", "ortopedista", "ginecologista", "pediatra", "oftalmologista", "neurologista", "psiquiatra", "endocrinologista"],
+        "Clínicas Odontológicas": ["clínica odontológica", "dentista", "odontologia", "consultório dentário", "ortodontista", "implante dentário", "clareamento dental", "prótese dentária", "endodontia", "periodontia", "odontopediatra", "cirurgião dentista"],
+        "Escritórios de Advocacia": ["escritório de advocacia", "advogado", "advocacia", "advogados", "escritório jurídico", "consultoria jurídica", "advogado trabalhista", "advogado criminal", "advogado civil", "advogado família", "advogado empresarial", "advogado imobiliário"],
+        "Imobiliárias": ["imobiliária", "imobiliárias", "corretor de imóveis", "corretor", "imóveis", "venda de imóveis", "aluguel de imóveis", "locação", "casas à venda", "apartamentos", "empreendimentos"],
+        "Pet Shops": ["pet shop", "petshop", "loja de animais", "banho e tosa", "clínica veterinária", "veterinário", "ração", "acessórios pet", "hotel para pets", "creche para cães", "adestramento", "dog walker"],
+        "Oficinas Mecânicas": ["oficina mecânica", "mecânica", "mecânico", "auto center", "autocenter", "funilaria", "pintura automotiva", "elétrica automotiva", "troca de óleo", "alinhamento", "balanceamento", "suspensão", "freios", "ar condicionado automotivo"],
+        "Escolas e Cursos": ["escola", "curso", "cursos", "escola de idiomas", "inglês", "espanhol", "escola de música", "aula de música", "escola de dança", "informática", "curso técnico", "preparatório", "vestibular", "reforço escolar", "educação infantil"],
+        "Lojas de Roupas": ["loja de roupas", "roupas", "moda", "boutique", "vestuário", "confecção", "loja feminina", "loja masculina", "moda feminina", "moda masculina", "moda infantil", "loja de calçados", "sapatos", "acessórios", "bolsas"],
+        "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação", "medicamentos", "perfumaria", "dermocosméticos"],
+        "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "motel", "resort", "hostel", "albergue", "flat", "apart hotel", "airbnb", "chalé"],
+        "Estúdios de Tatuagem": ["estúdio de tatuagem", "tatuagem", "tattoo", "tatuador", "piercing", "body piercing", "micropigmentação"],
+        "Barbearias": ["barbearia", "barbeiro", "barber shop", "barba", "corte masculino", "cabelo masculino"],
+        "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais", "buquê", "decoração floral", "plantas", "jardim", "paisagismo"],
+        "Padarias": ["padaria", "panificadora", "pão", "confeitaria", "bolos", "tortas", "doces", "salgados", "café da manhã"],
+        "Pizzarias": ["pizzaria", "pizza", "delivery pizza", "rodízio de pizza", "pizza artesanal"],
+        "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete", "fast food", "smash burger", "artesanal"],
+        "Cafeterias": ["cafeteria", "café", "coffee shop", "expresso", "cappuccino", "latte", "brunch", "confeitaria"],
+      };
 
-        if (!serpResponse.ok) {
-          console.error("SerpAPI error:", await serpResponse.text());
-          return new Response(JSON.stringify({ leads: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+      const allLeads: any[] = [];
+      const seenPhones = new Set<string>();
+      const seenNames = new Set<string>();
+
+      // Get subniches for this niche, or use the niche itself
+      const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
+      
+      // Limit search terms to avoid too many API calls (max 5 variations)
+      const limitedSearchTerms = searchTerms.slice(0, 5);
+      
+      console.log(`Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location}`);
+
+      try {
+        for (const searchTerm of limitedSearchTerms) {
+          // Stop if we have enough leads
+          if (allLeads.length >= maxResults) break;
+
+          // Search with pagination (page 0, 20, 40, 60 = 4 pages x 20 results = up to 80 per term)
+          for (let start = 0; start < 60; start += 20) {
+            if (allLeads.length >= maxResults) break;
+
+            const searchQuery = `${searchTerm} em ${location}`;
+            console.log(`Searching: "${searchQuery}" (start: ${start})`);
+            
+            const serpResponse = await fetch(
+              `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
+            );
+
+            if (!serpResponse.ok) {
+              console.error("SerpAPI error:", await serpResponse.text());
+              continue;
+            }
+
+            const serpData = await serpResponse.json();
+            const localResults = serpData.local_results || [];
+            
+            if (localResults.length === 0) {
+              // No more results for this term
+              break;
+            }
+
+            console.log(`Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
+
+            for (const result of localResults) {
+              // Skip if no phone
+              if (!result.phone) continue;
+              
+              // Normalize phone for deduplication
+              const normalizedPhone = result.phone.replace(/\D/g, "");
+              if (seenPhones.has(normalizedPhone)) continue;
+              
+              // Check for duplicate business names (fuzzy)
+              const normalizedName = (result.title || "").toLowerCase().trim();
+              if (seenNames.has(normalizedName)) continue;
+
+              seenPhones.add(normalizedPhone);
+              seenNames.add(normalizedName);
+
+              allLeads.push({
+                business_name: result.title || "Empresa",
+                phone: result.phone,
+                address: result.address || null,
+                rating: result.rating || null,
+                reviews_count: result.reviews || null,
+                website: result.website || null,
+                google_maps_url: result.place_id 
+                  ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                  : null,
+                place_id: result.place_id || null,
+                type: result.type || null,
+                subtype: searchTerm,
+              });
+            }
+
+            // Small delay to respect rate limits
+            await new Promise(r => setTimeout(r, 200));
+          }
         }
 
-        const serpData = await serpResponse.json();
-        const localResults = serpData.local_results || [];
+        console.log(`Total unique leads found: ${allLeads.length}`);
 
-        const leads = localResults.slice(0, 10).map((result: any) => ({
-          business_name: result.title || "Empresa",
-          phone: result.phone || null,
-          address: result.address || null,
-          rating: result.rating || null,
-          reviews_count: result.reviews || null,
-          website: result.website || null,
-        }));
-
-        return new Response(JSON.stringify({ leads }), {
+        return new Response(JSON.stringify({ 
+          leads: allLeads,
+          total: allLeads.length,
+          searchTermsUsed: limitedSearchTerms,
+        }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (error) {
         console.error("Search error:", error);
-        return new Response(JSON.stringify({ leads: [] }), {
+        return new Response(JSON.stringify({ leads: [], error: error.message }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }

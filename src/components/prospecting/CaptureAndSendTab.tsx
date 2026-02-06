@@ -88,6 +88,8 @@ interface CapturedLead {
   painPoints?: string[];
   suggestedMessage?: string;
   status: 'pending' | 'sending' | 'sent' | 'failed';
+  subtype?: string; // Subnicho usado na busca
+  google_maps_url?: string;
 }
 
 type ProcessStatus = 'idle' | 'capturing' | 'analyzing' | 'sending' | 'paused' | 'completed' | 'stopped';
@@ -179,18 +181,28 @@ export function CaptureAndSendTab() {
           }
 
           const leads = response.data?.leads || [];
-          addLog(`Encontrados ${leads.length} leads em ${location}`);
+          const searchTermsUsed = response.data?.searchTermsUsed || [];
+          
+          addLog(`🎯 Encontrados ${leads.length} leads únicos em ${location}`);
+          if (searchTermsUsed.length > 0) {
+            addLog(`   → Buscou variações: ${searchTermsUsed.slice(0, 3).join(', ')}${searchTermsUsed.length > 3 ? '...' : ''}`);
+          }
 
           // Toast notification for each batch of leads found
           if (leads.length > 0) {
             toast({
               title: `🎯 ${leads.length} leads encontrados!`,
-              description: `${niche} em ${location}`,
+              description: `${niche} em ${location} (incluindo subnichos)`,
             });
           }
 
           for (const lead of leads) {
             if (lead.phone) {
+              // Check if phone already exists in our list
+              const normalizedPhone = lead.phone.replace(/\D/g, '');
+              const exists = allLeads.some(l => l.phone.replace(/\D/g, '') === normalizedPhone);
+              if (exists) continue;
+
               allLeads.push({
                 id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 business_name: lead.business_name || lead.title || 'Empresa',
@@ -201,6 +213,8 @@ export function CaptureAndSendTab() {
                 website: lead.website,
                 niche,
                 location,
+                subtype: lead.subtype || niche,
+                google_maps_url: lead.google_maps_url,
                 status: 'pending',
               });
             }
@@ -211,22 +225,29 @@ export function CaptureAndSendTab() {
           addLog(`Erro: ${error.message}`);
         }
 
-        // Small delay between searches to avoid rate limiting
-        await sleep(1000);
+        // Small delay between searches
+        await sleep(500);
       }
     }
 
-    addLog(`Captura concluída: ${allLeads.length} leads encontrados`);
+    // Remove duplicates by phone (final pass)
+    const uniqueLeads = allLeads.filter((lead, index, self) => {
+      const normalizedPhone = lead.phone.replace(/\D/g, '');
+      return index === self.findIndex(l => l.phone.replace(/\D/g, '') === normalizedPhone);
+    });
+
+    setCapturedLeads(uniqueLeads);
+    addLog(`✅ Captura concluída: ${uniqueLeads.length} leads únicos encontrados`);
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
     
-    // Final summary toast
+    // Final summary toast with more details
     toast({
-      title: allLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
-      description: allLeads.length > 0 
-        ? `${allLeads.length} leads capturados. Selecione e analise para gerar mensagens.`
+      title: uniqueLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
+      description: uniqueLeads.length > 0 
+        ? `${uniqueLeads.length} leads únicos capturados de ${selectedNiches.length} nichos × ${selectedLocations.length} locais.`
         : 'Tente outras combinações de nichos e locais.',
-      variant: allLeads.length > 0 ? 'default' : 'destructive',
+      variant: uniqueLeads.length > 0 ? 'default' : 'destructive',
     });
   };
 
@@ -690,9 +711,17 @@ export function CaptureAndSendTab() {
                             </>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
                           <Badge variant="secondary" className="text-xs">{lead.niche}</Badge>
+                          {lead.subtype && lead.subtype !== lead.niche && (
+                            <Badge variant="outline" className="text-xs bg-accent/20">{lead.subtype}</Badge>
+                          )}
                           <Badge variant="outline" className="text-xs">{lead.location}</Badge>
+                          {lead.google_maps_url && (
+                            <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                              Ver no Maps
+                            </a>
+                          )}
                         </div>
                         
                         {lead.painPoints && lead.painPoints.length > 0 && (
