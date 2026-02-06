@@ -65,6 +65,8 @@ export default function ProspectingPage() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('capture');
   const [isNewCampaignOpen, setIsNewCampaignOpen] = useState(false);
+  const [prefilledNiches, setPrefilledNiches] = useState<string[]>([]);
+  const [prefilledLocations, setPrefilledLocations] = useState<string[]>([]);
 
   // Handle URL param for tab navigation
   useEffect(() => {
@@ -73,6 +75,13 @@ export default function ProspectingPage() {
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  // Handle reprospectar from history
+  const handleReprospectFromHistory = (niches: string[], locations: string[]) => {
+    setPrefilledNiches(niches);
+    setPrefilledLocations(locations);
+    setActiveTab('capture');
+  };
 
   return (
     <DashboardLayout
@@ -130,7 +139,14 @@ export default function ProspectingPage() {
 
         <div className="mt-6">
           <TabsContent value="capture" className="animate-fade-in m-0">
-            <CaptureAndSendTab />
+            <CaptureAndSendTab 
+              prefilledNiches={prefilledNiches}
+              prefilledLocations={prefilledLocations}
+              onPrefilledConsumed={() => {
+                setPrefilledNiches([]);
+                setPrefilledLocations([]);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="web-search" className="animate-fade-in m-0">
@@ -138,7 +154,7 @@ export default function ProspectingPage() {
           </TabsContent>
 
           <TabsContent value="history" className="animate-fade-in m-0">
-            <ProspectingHistoryTab />
+            <ProspectingHistoryTab onReprospect={handleReprospectFromHistory} />
           </TabsContent>
 
           <TabsContent value="campaigns" className="animate-fade-in m-0">
