@@ -93,6 +93,94 @@ const LOCATIONS = [
   'Natal, RN',
 ];
 
+interface ProspectingType {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  settings: {
+    tone: 'sutil' | 'moderado' | 'direto' | 'agressivo';
+    urgency: 'baixa' | 'media' | 'alta';
+    followUpIntensity: 'leve' | 'moderada' | 'intensa';
+    messageStyle: string;
+  };
+}
+
+const PROSPECTING_TYPES: ProspectingType[] = [
+  {
+    id: 'sutil',
+    name: 'Prospecção Sutil',
+    description: 'Abordagem suave focada em criar relacionamento antes de vender',
+    icon: '🤝',
+    settings: {
+      tone: 'sutil',
+      urgency: 'baixa',
+      followUpIntensity: 'leve',
+      messageStyle: 'Inicie com elogios genuínos, faça perguntas abertas, evite mencionar vendas diretamente',
+    },
+  },
+  {
+    id: 'consultivo',
+    name: 'Prospecção Consultiva',
+    description: 'Posiciona-se como consultor que oferece soluções para problemas específicos',
+    icon: '💡',
+    settings: {
+      tone: 'moderado',
+      urgency: 'media',
+      followUpIntensity: 'moderada',
+      messageStyle: 'Identifique dores do negócio, ofereça insights gratuitos, sugira uma conversa para diagnóstico',
+    },
+  },
+  {
+    id: 'direto',
+    name: 'Prospecção Direta',
+    description: 'Vai direto ao ponto apresentando sua proposta de valor',
+    icon: '🎯',
+    settings: {
+      tone: 'direto',
+      urgency: 'media',
+      followUpIntensity: 'moderada',
+      messageStyle: 'Apresente sua oferta claramente, destaque benefícios principais, inclua call-to-action direto',
+    },
+  },
+  {
+    id: 'agressiva',
+    name: 'Prospecção Agressiva',
+    description: 'Abordagem de alta pressão com senso de urgência e escassez',
+    icon: '🔥',
+    settings: {
+      tone: 'agressivo',
+      urgency: 'alta',
+      followUpIntensity: 'intensa',
+      messageStyle: 'Use gatilhos de escassez e urgência, ofereça bônus por tempo limitado, follow-up frequente',
+    },
+  },
+  {
+    id: 'educativa',
+    name: 'Prospecção Educativa',
+    description: 'Compartilha conteúdo de valor para estabelecer autoridade',
+    icon: '📚',
+    settings: {
+      tone: 'sutil',
+      urgency: 'baixa',
+      followUpIntensity: 'leve',
+      messageStyle: 'Envie dicas úteis, compartilhe cases de sucesso, eduque antes de vender',
+    },
+  },
+  {
+    id: 'social-proof',
+    name: 'Prova Social',
+    description: 'Foca em mostrar resultados de outros clientes do mesmo nicho',
+    icon: '⭐',
+    settings: {
+      tone: 'moderado',
+      urgency: 'media',
+      followUpIntensity: 'moderada',
+      messageStyle: 'Mencione clientes similares, compartilhe resultados e números, use depoimentos',
+    },
+  },
+];
+
 interface CaptureFilters {
   enabled: boolean;
   noWebsite: boolean;
@@ -144,6 +232,7 @@ export function CaptureAndSendTab() {
   
   const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedProspectingType, setSelectedProspectingType] = useState<ProspectingType>(PROSPECTING_TYPES[1]); // Default: Consultivo
   const [capturedLeads, setCapturedLeads] = useState<CapturedLead[]>([]);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [processStatus, setProcessStatus] = useState<ProcessStatus>('idle');
@@ -523,7 +612,7 @@ export function CaptureAndSendTab() {
     isStoppedRef.current = false;
 
     const leadsToAnalyze = capturedLeads.filter(l => selectedLeadIds.includes(l.id));
-    addLog(`Analisando ${leadsToAnalyze.length} leads e gerando mensagens personalizadas...`);
+    addLog(`Analisando ${leadsToAnalyze.length} leads com abordagem "${selectedProspectingType.name}"...`);
 
     for (let i = 0; i < leadsToAnalyze.length; i++) {
       if (isStoppedRef.current) {
@@ -544,7 +633,7 @@ export function CaptureAndSendTab() {
       });
 
       try {
-        addLog(`Analisando dores de ${lead.business_name} (${lead.niche})...`);
+        addLog(`${selectedProspectingType.icon} Gerando mensagem ${selectedProspectingType.name.toLowerCase()} para ${lead.business_name}...`);
 
         const response = await supabase.functions.invoke('ai-prospecting', {
           body: {
@@ -564,6 +653,13 @@ export function CaptureAndSendTab() {
                 services_offered: settings?.services_offered,
                 communication_style: settings?.communication_style,
                 emoji_usage: settings?.emoji_usage,
+              },
+              prospectingType: {
+                id: selectedProspectingType.id,
+                name: selectedProspectingType.name,
+                tone: selectedProspectingType.settings.tone,
+                urgency: selectedProspectingType.settings.urgency,
+                messageStyle: selectedProspectingType.settings.messageStyle,
               },
             },
           },
@@ -904,6 +1000,54 @@ export function CaptureAndSendTab() {
           {settings?.auto_start_hour || 9}h-{settings?.auto_end_hour || 18}h
         </div>
       </div>
+
+      {/* Prospecting Type Selector */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Tipo de Prospecção
+          </CardTitle>
+          <CardDescription>
+            Escolha a abordagem que será usada na geração das mensagens
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {PROSPECTING_TYPES.map((type) => (
+              <div
+                key={type.id}
+                onClick={() => !isProcessing && setSelectedProspectingType(type)}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  selectedProspectingType.id === type.id
+                    ? 'border-primary bg-primary/5'
+                    : 'border-muted hover:border-muted-foreground/30'
+                } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{type.icon}</span>
+                  <span className="font-medium">{type.name}</span>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {type.description}
+                </p>
+                {selectedProspectingType.id === type.id && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-xs">
+                        {type.settings.tone}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        urgência: {type.settings.urgency}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Configuration */}
       <div className="grid gap-4 md:grid-cols-2">
