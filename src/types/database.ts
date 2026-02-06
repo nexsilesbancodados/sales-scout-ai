@@ -111,6 +111,11 @@ export interface Lead {
   last_response_at: string | null;
   follow_up_count: number;
   next_follow_up_at: string | null;
+  quality_score: number | null;
+  rating: number | null;
+  reviews_count: number | null;
+  best_contact_hour: number | null;
+  tags: string[] | null;
   created_at: string;
   updated_at: string;
 }

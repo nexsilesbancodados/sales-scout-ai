@@ -128,9 +128,11 @@ interface CapturedLead {
   location: string;
   painPoints?: string[];
   suggestedMessage?: string;
-  status: 'pending' | 'sending' | 'sent' | 'failed';
+  status: 'pending' | 'sending' | 'sent' | 'failed' | 'duplicate';
   subtype?: string;
   google_maps_url?: string;
+  qualityScore?: number;
+  isDuplicate?: boolean;
 }
 
 type ProcessStatus = 'idle' | 'capturing' | 'analyzing' | 'sending' | 'paused' | 'completed' | 'stopped';
@@ -265,6 +267,76 @@ export function CaptureAndSendTab() {
     return shuffled;
   };
 
+  // Calculate quality score for a lead (0-100)
+  const calculateQualityScore = (lead: CapturedLead): number => {
+    let score = 50; // Base score
+
+    // Rating bonus (0-20 points)
+    if (lead.rating) {
+      if (lead.rating >= 4.5) score += 20;
+      else if (lead.rating >= 4.0) score += 15;
+      else if (lead.rating >= 3.5) score += 10;
+      else if (lead.rating >= 3.0) score += 5;
+    }
+
+    // Reviews bonus (0-15 points)
+    if (lead.reviews_count) {
+      if (lead.reviews_count >= 100) score += 15;
+      else if (lead.reviews_count >= 50) score += 12;
+      else if (lead.reviews_count >= 20) score += 8;
+      else if (lead.reviews_count >= 5) score += 4;
+    }
+
+    // No website = potential client (+10 points)
+    if (!lead.website) score += 10;
+
+    // Has address (+5 points)
+    if (lead.address) score += 5;
+
+    // Has email (+5 points)
+    if (lead.email) score += 5;
+
+    // WhatsApp ready phone (+5 points)
+    const phone = lead.phone?.replace(/\D/g, '') || '';
+    const isMobile = phone.length >= 10 && (phone.startsWith('55') || /^[1-9][1-9]9/.test(phone));
+    if (isMobile) score += 5;
+
+    return Math.min(100, Math.max(0, score));
+  };
+
+  // Check for duplicates in database
+  const checkDuplicatesInDatabase = async (leads: CapturedLead[]): Promise<CapturedLead[]> => {
+    if (!user?.id || leads.length === 0) return leads;
+
+    try {
+      // Get all existing phone numbers from database
+      const { data: existingLeads } = await supabase
+        .from('leads')
+        .select('phone')
+        .eq('user_id', user.id);
+
+      if (!existingLeads || existingLeads.length === 0) return leads;
+
+      const existingPhones = new Set(
+        existingLeads.map(l => l.phone.replace(/\D/g, ''))
+      );
+
+      // Mark duplicates
+      return leads.map(lead => {
+        const normalizedPhone = lead.phone.replace(/\D/g, '');
+        const isDuplicate = existingPhones.has(normalizedPhone);
+        return {
+          ...lead,
+          isDuplicate,
+          status: isDuplicate ? 'duplicate' as const : lead.status,
+        };
+      });
+    } catch (error) {
+      console.error('Error checking duplicates:', error);
+      return leads;
+    }
+  };
+
   const handleCapture = async () => {
     if (selectedNiches.length === 0 || selectedLocations.length === 0) {
       toast({
@@ -381,13 +453,39 @@ export function CaptureAndSendTab() {
     const filteredLeads = uniqueLeads.filter(applyFilters);
     const filteredCount = uniqueLeads.length - filteredLeads.length;
 
-    setCapturedLeads(filteredLeads);
+    // Check for duplicates in database and calculate quality scores
+    addLog('🔍 Verificando duplicatas no banco de dados...');
+    const leadsWithDuplicateCheck = await checkDuplicatesInDatabase(filteredLeads);
+    
+    // Calculate quality scores
+    const leadsWithScores = leadsWithDuplicateCheck.map(lead => ({
+      ...lead,
+      qualityScore: calculateQualityScore(lead),
+    }));
+
+    // Sort by quality score (highest first), duplicates last
+    const sortedLeads = leadsWithScores.sort((a, b) => {
+      if (a.isDuplicate && !b.isDuplicate) return 1;
+      if (!a.isDuplicate && b.isDuplicate) return -1;
+      return (b.qualityScore || 0) - (a.qualityScore || 0);
+    });
+
+    const duplicateCount = sortedLeads.filter(l => l.isDuplicate).length;
+    const newLeadsCount = sortedLeads.length - duplicateCount;
+    
+    setCapturedLeads(sortedLeads);
     
     if (filters.enabled && filteredCount > 0) {
-      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos, ${filteredLeads.length} passaram nos filtros`);
+      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos, ${sortedLeads.length} passaram nos filtros`);
     }
     
-    addLog(`✅ Captura concluída: ${filteredLeads.length} leads únicos encontrados`);
+    if (duplicateCount > 0) {
+      addLog(`⚠️ ${duplicateCount} leads já existem no banco (marcados como duplicados)`);
+    }
+    
+    addLog(`✅ Captura concluída: ${newLeadsCount} leads novos + ${duplicateCount} duplicados`);
+    addLog(`📊 Scores de qualidade calculados (média: ${Math.round(sortedLeads.reduce((sum, l) => sum + (l.qualityScore || 0), 0) / sortedLeads.length || 0)})`);
+    
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
     
@@ -395,13 +493,18 @@ export function CaptureAndSendTab() {
     const filterInfo = filters.enabled && filteredCount > 0 
       ? ` (${filteredCount} removidos por filtros)`
       : '';
+    const duplicateInfo = duplicateCount > 0 
+      ? `, ${duplicateCount} já existentes`
+      : '';
     
     toast({
-      title: filteredLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
-      description: filteredLeads.length > 0 
-        ? `${filteredLeads.length} leads únicos capturados de ${selectedNiches.length} nichos × ${selectedLocations.length} locais.${filterInfo}`
-        : 'Tente outras combinações de nichos e locais ou ajuste os filtros.',
-      variant: filteredLeads.length > 0 ? 'default' : 'destructive',
+      title: newLeadsCount > 0 ? '✅ Captura concluída!' : duplicateCount > 0 ? '⚠️ Apenas duplicados encontrados' : '⚠️ Nenhum lead encontrado',
+      description: newLeadsCount > 0 
+        ? `${newLeadsCount} leads novos capturados${duplicateInfo}.${filterInfo}`
+        : duplicateCount > 0 
+          ? 'Todos os leads encontrados já existem no seu banco de dados.'
+          : 'Tente outras combinações de nichos e locais ou ajuste os filtros.',
+      variant: newLeadsCount > 0 ? 'default' : 'destructive',
     });
   };
 
@@ -748,9 +851,26 @@ export function CaptureAndSendTab() {
         return <CheckCircle2 className="h-4 w-4 text-primary" />;
       case 'failed':
         return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'duplicate':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
         return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
+  };
+
+  // Get quality score color
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-500';
+    if (score >= 60) return 'text-primary';
+    if (score >= 40) return 'text-yellow-500';
+    return 'text-muted-foreground';
+  };
+
+  const getScoreBadge = (score: number) => {
+    if (score >= 80) return { label: 'Excelente', variant: 'default' as const };
+    if (score >= 60) return { label: 'Bom', variant: 'secondary' as const };
+    if (score >= 40) return { label: 'Regular', variant: 'outline' as const };
+    return { label: 'Baixo', variant: 'outline' as const };
   };
 
   const isProcessing = ['capturing', 'analyzing', 'sending'].includes(processStatus);
@@ -1234,7 +1354,8 @@ export function CaptureAndSendTab() {
             <CardDescription>
               {selectedLeadIds.length} selecionados • 
               {capturedLeads.filter(l => l.status === 'sent').length} enviados •
-              {capturedLeads.filter(l => l.status === 'failed').length} falharam
+              {capturedLeads.filter(l => l.status === 'failed').length} falharam •
+              {capturedLeads.filter(l => l.isDuplicate).length} duplicados
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1244,21 +1365,36 @@ export function CaptureAndSendTab() {
                   <div
                     key={lead.id}
                     className={`p-3 rounded-lg border transition-colors ${
-                      selectedLeadIds.includes(lead.id)
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-muted/50'
+                      lead.isDuplicate 
+                        ? 'border-yellow-500/50 bg-yellow-500/5 opacity-70'
+                        : selectedLeadIds.includes(lead.id)
+                          ? 'border-primary bg-primary/5'
+                          : 'hover:bg-muted/50'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <Checkbox
                         checked={selectedLeadIds.includes(lead.id)}
                         onCheckedChange={() => toggleLeadSelection(lead.id)}
-                        disabled={lead.status === 'sent'}
+                        disabled={lead.status === 'sent' || lead.isDuplicate}
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="font-medium truncate">{lead.business_name}</p>
                           {getStatusIcon(lead.status)}
+                          {lead.qualityScore !== undefined && (
+                            <Badge 
+                              variant={getScoreBadge(lead.qualityScore).variant}
+                              className={`text-xs ${getScoreColor(lead.qualityScore)}`}
+                            >
+                              {lead.qualityScore}pts
+                            </Badge>
+                          )}
+                          {lead.isDuplicate && (
+                            <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-600 dark:text-yellow-400">
+                              Já existe
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                           <Phone className="h-3 w-3" />
