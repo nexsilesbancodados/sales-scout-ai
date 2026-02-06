@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProspectingDashboard } from '@/components/prospecting/ProspectingDashboard';
 import { CampaignsTab } from '@/components/prospecting/CampaignsTab';
@@ -31,31 +32,50 @@ import {
 } from 'lucide-react';
 
 export default function ProspectingPage() {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('capture');
   const [isNewCampaignOpen, setIsNewCampaignOpen] = useState(false);
+
+  // Handle URL param for tab navigation
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'ai-insights', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   return (
     <DashboardLayout
       title="Prospecção"
       description="Capture leads, analise dores e dispare mensagens personalizadas"
       actions={
-        <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
-          <DialogTrigger asChild>
-            <Button className="gradient-primary">
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Campanha
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Criar Nova Campanha</DialogTitle>
-              <DialogDescription>
-                Configure sua campanha de prospecção
-              </DialogDescription>
-            </DialogHeader>
-            <NewCampaignForm onSuccess={() => setIsNewCampaignOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button
+            size="lg"
+            className="gradient-primary shadow-lg hover:shadow-xl transition-shadow"
+            onClick={() => setActiveTab('capture')}
+          >
+            <Target className="h-5 w-5 mr-2" />
+            Capturar Leads
+          </Button>
+          <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Campanha
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Criar Nova Campanha</DialogTitle>
+                <DialogDescription>
+                  Configure sua campanha de prospecção
+                </DialogDescription>
+              </DialogHeader>
+              <NewCampaignForm onSuccess={() => setIsNewCampaignOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       }
     >
       {/* Stats Dashboard */}

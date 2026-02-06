@@ -31,11 +31,13 @@ import {
   Settings,
   LogOut,
   ChevronUp,
+  Zap,
 } from 'lucide-react';
 
 const menuItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { title: 'Prospecção', icon: Target, path: '/prospecting' },
+  { title: 'Capturar Leads', icon: Zap, path: '/prospecting?tab=capture', highlight: true },
   { title: 'Leads', icon: Users, path: '/leads' },
   { title: 'Funil', icon: Kanban, path: '/funnel' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
@@ -80,11 +82,15 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     asChild
-                    isActive={location.pathname === item.path}
-                    className="transition-colors"
+                    isActive={location.pathname === item.path || location.pathname + location.search === item.path}
+                    className={`transition-colors ${
+                      item.highlight 
+                        ? 'bg-primary/10 text-primary hover:bg-primary/20 font-medium' 
+                        : ''
+                    }`}
                   >
                     <Link to={item.path}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className={`h-4 w-4 ${item.highlight ? 'text-primary' : ''}`} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

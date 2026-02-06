@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import {
   Target,
   Clock,
   Loader2,
+  Zap,
+  ArrowRight,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -46,6 +49,31 @@ export default function DashboardPage() {
       title="Dashboard"
       description="Visão geral da sua prospecção automatizada"
     >
+      {/* Quick Action: Capture Leads */}
+      <Card className="mb-6 gradient-primary text-primary-foreground animate-fade-in overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        <CardContent className="flex items-center justify-between py-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-white/20">
+              <Zap className="h-8 w-8" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold">Capturar Leads Agora</h3>
+              <p className="text-primary-foreground/80">
+                Encontre novos clientes no Google Maps e dispare mensagens personalizadas
+              </p>
+            </div>
+          </div>
+          <Button asChild size="lg" variant="secondary" className="shadow-lg">
+            <Link to="/prospecting?tab=capture">
+              <Target className="h-5 w-5 mr-2" />
+              Iniciar Captura
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Metrics Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card className="animate-fade-in">
