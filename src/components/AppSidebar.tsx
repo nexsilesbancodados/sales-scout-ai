@@ -36,6 +36,7 @@ import {
   Zap,
   BookOpen,
 } from 'lucide-react';
+import logoImage from '@/assets/logo.png';
 
 // Menu item type
 interface MenuItem {
@@ -118,10 +119,7 @@ export function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="p-4">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
-            <Target className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-bold text-gradient">Prospecte</span>
+          <img src={logoImage} alt="Prospecte" className="h-10 w-auto" />
         </Link>
       </SidebarHeader>
 
