@@ -149,20 +149,35 @@ export function WhatsAppConnection() {
           description: 'Digite o código no seu WhatsApp para conectar.',
         });
       } else {
+        // If no pairing code, switch to QR Code tab
+        setConnectMethod('qr');
         toast({
-          title: 'Código não gerado',
-          description: 'Não foi possível gerar o código. Tente via QR Code.',
+          title: 'Código não disponível',
+          description: 'Sua versão da API não suporta pareamento. Use o QR Code.',
           variant: 'destructive',
         });
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao gerar código';
       console.error('Phone connect error:', error);
-      toast({
-        title: 'Erro ao conectar',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      
+      // Check if it's a suggestion to use QR code
+      if (errorMessage.includes('QR Code') || errorMessage.includes('pareamento')) {
+        setConnectMethod('qr');
+        toast({
+          title: 'Use o QR Code',
+          description: 'O pareamento por número não está disponível. Use o QR Code para conectar.',
+          variant: 'default',
+        });
+        // Automatically try to generate QR code
+        handleConnect();
+      } else {
+        toast({
+          title: 'Erro ao conectar',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
