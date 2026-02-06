@@ -158,29 +158,56 @@ Deno.serve(async (req) => {
     if (action === "get_qrcode") {
       console.log(`Getting QR code for: ${instanceName}`);
       
-      const qrResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
-        method: "GET",
-        headers: { "apikey": EVOLUTION_API_KEY },
-      });
+      // Try up to 3 times with delays to wait for QR generation
+      let qrData: { base64?: string; code?: string; pairingCode?: string; count?: number } = { count: 0 };
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (attempts < maxAttempts) {
+        attempts++;
+        console.log(`QR code attempt ${attempts}/${maxAttempts}`);
+        
+        const qrResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
+          method: "GET",
+          headers: { "apikey": EVOLUTION_API_KEY },
+        });
 
-      if (!qrResponse.ok) {
-        const errorText = await qrResponse.text();
-        console.error("QR code error:", errorText);
-        throw new Error("Failed to get QR code");
+        if (!qrResponse.ok) {
+          const errorText = await qrResponse.text();
+          console.error("QR code error:", errorText);
+          throw new Error("Failed to get QR code");
+        }
+
+        qrData = await qrResponse.json();
+        console.log(`QR Response attempt ${attempts}:`, JSON.stringify(qrData).substring(0, 300));
+        
+        // Check if we got the base64 QR code
+        const base64Check = qrData.base64 || (qrData as Record<string, unknown>).qrcode?.base64;
+        if (base64Check) {
+          console.log("QR code received successfully");
+          break;
+        }
+        
+        // Wait before retry (increasing delay)
+        if (attempts < maxAttempts) {
+          const delay = attempts * 2000; // 2s, 4s
+          console.log(`No QR code yet, waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
-
-      const qrData = await qrResponse.json();
-      console.log("QR Response keys:", Object.keys(qrData));
-      console.log("QR Data:", JSON.stringify(qrData).substring(0, 500));
       
       // Evolution API returns QR in different formats depending on version
-      // Try to extract base64 from various possible locations
-      const base64 = qrData.base64 || qrData.qrcode?.base64 || qrData.code;
-      const pairingCode = qrData.pairingCode || qrData.pairing_code;
+      const base64 = qrData.base64 || (qrData as Record<string, unknown>).qrcode?.base64 || qrData.code;
+      const pairingCode = qrData.pairingCode || (qrData as Record<string, unknown>).pairing_code;
+      
+      if (!base64) {
+        console.error("Could not obtain QR code after retries. Response:", JSON.stringify(qrData));
+        throw new Error("QR Code não disponível. A instância pode estar inicializando. Tente novamente em alguns segundos.");
+      }
       
       return new Response(JSON.stringify({
         base64,
-        code: qrData.code || qrData.qrcode?.code,
+        code: qrData.code || (qrData as Record<string, unknown>).qrcode?.code,
         pairingCode,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
