@@ -65,67 +65,10 @@ interface ABTest {
   minSampleSize: number;
 }
 
-const SAMPLE_TESTS: ABTest[] = [
-  {
-    id: '1',
-    name: 'Teste Abordagem Inicial - Restaurantes',
-    niche: 'Restaurantes',
-    status: 'running',
-    variants: [
-      {
-        id: 'a',
-        name: 'Variante A - Direto',
-        content: 'Olá {empresa}! Sou consultor de marketing digital e posso ajudar a aumentar seus pedidos online. Posso te mostrar como?',
-        sent: 45,
-        responses: 12,
-        conversions: 3,
-      },
-      {
-        id: 'b',
-        name: 'Variante B - Pergunta',
-        content: 'Olá {empresa}! Vocês já pensaram em aumentar os pedidos pelo delivery? Tenho algumas ideias que funcionaram com outros restaurantes da região.',
-        sent: 43,
-        responses: 18,
-        conversions: 5,
-      },
-    ],
-    startedAt: '2024-01-15T10:00:00Z',
-    minSampleSize: 100,
-  },
-  {
-    id: '2',
-    name: 'CTA Comparativo - Salões',
-    niche: 'Salões de Beleza',
-    status: 'completed',
-    variants: [
-      {
-        id: 'a',
-        name: 'Variante A - Agendar Reunião',
-        content: 'Oi {empresa}! Trabalho com marketing para salões e vi potencial no seu negócio. Que tal uma conversa rápida de 10 min para mostrar como podemos ajudar?',
-        sent: 100,
-        responses: 28,
-        conversions: 7,
-      },
-      {
-        id: 'b',
-        name: 'Variante B - Ver Resultados',
-        content: 'Oi {empresa}! Ajudamos salões a dobrar os agendamentos. Quer ver os resultados de clientes como você?',
-        sent: 100,
-        responses: 35,
-        conversions: 11,
-      },
-    ],
-    startedAt: '2024-01-10T10:00:00Z',
-    completedAt: '2024-01-14T18:00:00Z',
-    winnerId: 'b',
-    minSampleSize: 100,
-  },
-];
-
 export function ABTestingTab() {
   const { toast } = useToast();
   const { templates } = useTemplates();
-  const [tests, setTests] = useState<ABTest[]>(SAMPLE_TESTS);
+  const [tests, setTests] = useState<ABTest[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newTest, setNewTest] = useState({
     name: '',
