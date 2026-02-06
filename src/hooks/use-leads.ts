@@ -144,10 +144,13 @@ export function useLeads(filters?: {
     },
   });
 
+  const refetch = () => queryClient.invalidateQueries({ queryKey: ['leads', user?.id] });
+
   return {
     leads: leads || [],
     isLoading,
     error,
+    refetch,
     createLead: createLead.mutate,
     updateLead: updateLead.mutate,
     deleteLead: deleteLead.mutate,
