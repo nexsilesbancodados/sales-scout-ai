@@ -3,6 +3,12 @@ project_id = "oeztpxyprifabkvysroh"
 [functions.hunter]
 verify_jwt = false
 
+[functions.email-finder]
+verify_jwt = false
+
+[functions.scheduled-prospecting]
+verify_jwt = false
+
 [functions.webhook]
 verify_jwt = false
 

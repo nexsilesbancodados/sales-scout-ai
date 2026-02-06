@@ -11,6 +11,9 @@ import { SettingsTab } from '@/components/prospecting/SettingsTab';
 import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
 import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
 import { FollowUpManager } from '@/components/followup/FollowUpManager';
+import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
+import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
+import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -33,6 +36,8 @@ import {
   Target,
   RefreshCw,
   FlaskConical,
+  Calendar,
+  Mail,
 } from 'lucide-react';
 
 export default function ProspectingPage() {
@@ -43,7 +48,7 @@ export default function ProspectingPage() {
   // Handle URL param for tab navigation
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
+    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'sequences', 'scheduled', 'email-finder', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -86,7 +91,7 @@ export default function ProspectingPage() {
       <ProspectingDashboard />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 mt-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="flex flex-wrap gap-1 h-auto p-1">
           <TabsTrigger value="capture" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">Capturar</span>
@@ -99,9 +104,21 @@ export default function ProspectingPage() {
             <Send className="h-4 w-4" />
             <span className="hidden sm:inline">Disparo</span>
           </TabsTrigger>
+          <TabsTrigger value="scheduled" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Agendado</span>
+          </TabsTrigger>
           <TabsTrigger value="follow-up" className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
             <span className="hidden sm:inline">Follow-up</span>
+          </TabsTrigger>
+          <TabsTrigger value="sequences" className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            <span className="hidden sm:inline">Sequências</span>
+          </TabsTrigger>
+          <TabsTrigger value="email-finder" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            <span className="hidden sm:inline">Emails</span>
           </TabsTrigger>
           <TabsTrigger value="ab-testing" className="flex items-center gap-2">
             <FlaskConical className="h-4 w-4" />
@@ -137,8 +154,20 @@ export default function ProspectingPage() {
           <MassSendTab />
         </TabsContent>
 
+        <TabsContent value="scheduled">
+          <ScheduledProspectingTab />
+        </TabsContent>
+
         <TabsContent value="follow-up">
           <FollowUpManager />
+        </TabsContent>
+
+        <TabsContent value="sequences">
+          <FollowUpSequencesTab />
+        </TabsContent>
+
+        <TabsContent value="email-finder">
+          <EmailFinderTab />
         </TabsContent>
 
         <TabsContent value="templates">
