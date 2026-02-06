@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLeads } from '@/hooks/use-leads';
 import { Lead, LeadStage, LeadTemperature } from '@/types/database';
+import { ImportExportLeads } from '@/components/leads/ImportExportLeads';
 import {
   Search,
   Plus,
@@ -100,10 +101,13 @@ export default function LeadsPage() {
       title="Leads"
       description="Gerencie todos os seus leads de prospecção"
       actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Lead
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportExportLeads />
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Lead
+          </Button>
+        </div>
       }
     >
       <Card>
