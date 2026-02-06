@@ -535,6 +535,69 @@ export type Database = {
         }
         Relationships: []
       }
+      prospecting_history: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          leads_data: Json | null
+          location: string | null
+          niche: string | null
+          session_type: string
+          started_at: string
+          status: string
+          total_duplicates: number | null
+          total_errors: number | null
+          total_found: number | null
+          total_pending: number | null
+          total_saved: number | null
+          total_sent: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          leads_data?: Json | null
+          location?: string | null
+          niche?: string | null
+          session_type?: string
+          started_at?: string
+          status?: string
+          total_duplicates?: number | null
+          total_errors?: number | null
+          total_found?: number | null
+          total_pending?: number | null
+          total_saved?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          leads_data?: Json | null
+          location?: string | null
+          niche?: string | null
+          session_type?: string
+          started_at?: string
+          status?: string
+          total_duplicates?: number | null
+          total_errors?: number | null
+          total_found?: number | null
+          total_pending?: number | null
+          total_saved?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       prospecting_stats: {
         Row: {
           created_at: string

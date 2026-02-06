@@ -15,6 +15,7 @@ import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProsp
 import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
 import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
 import { WebSearchTab } from '@/components/prospecting/WebSearchTab';
+import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -40,11 +41,13 @@ import {
   Calendar,
   Mail,
   Globe,
+  History,
 } from 'lucide-react';
 
 const tabs = [
   { id: 'capture', icon: Target, label: 'Maps' },
   { id: 'web-search', icon: Globe, label: 'Web' },
+  { id: 'history', icon: History, label: 'Histórico' },
   { id: 'campaigns', icon: Rocket, label: 'Campanhas' },
   { id: 'mass-send', icon: Send, label: 'Disparo' },
   { id: 'scheduled', icon: Calendar, label: 'Agendado' },
@@ -132,6 +135,10 @@ export default function ProspectingPage() {
 
           <TabsContent value="web-search" className="animate-fade-in m-0">
             <WebSearchTab />
+          </TabsContent>
+
+          <TabsContent value="history" className="animate-fade-in m-0">
+            <ProspectingHistoryTab />
           </TabsContent>
 
           <TabsContent value="campaigns" className="animate-fade-in m-0">
