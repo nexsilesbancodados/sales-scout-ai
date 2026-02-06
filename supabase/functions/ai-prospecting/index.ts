@@ -559,6 +559,174 @@ Responda em JSON com:
       }
     }
 
+    // Action: Analyze website with Firecrawl and identify pain points
+    if (action === "analyze_website") {
+      const { url, business_name, niche } = data;
+      
+      const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+      if (!FIRECRAWL_API_KEY) {
+        // Fallback to basic analysis without website content
+        const fallbackAnalysis = await callAI(
+          "Você é um especialista em análise de negócios e identificação de dores empresariais.",
+          `Analise o negócio "${business_name}" do nicho "${niche || 'não especificado'}" e identifique:
+1. 3-5 dores/problemas comuns que esse tipo de negócio enfrenta
+2. Oportunidades de melhoria
+3. Uma abordagem de prospecção personalizada
+
+Responda em JSON:
+{
+  "painPoints": ["dor1", "dor2", ...],
+  "opportunities": ["oportunidade1", ...],
+  "approach": "sugestão de abordagem",
+  "summary": "resumo em 1-2 frases"
+}`
+        );
+        
+        try {
+          const parsed = JSON.parse(fallbackAnalysis.replace(/```json\n?|\n?```/g, ""));
+          return new Response(JSON.stringify({ 
+            success: true,
+            ...parsed,
+            source: "ai_inference"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch {
+          return new Response(JSON.stringify({ 
+            success: true,
+            painPoints: ["Falta de presença digital", "Dificuldade em captar clientes", "Processos manuais"],
+            opportunities: ["Marketing digital", "Automação"],
+            approach: "Abordagem consultiva focada em resultados",
+            summary: `${business_name} pode se beneficiar de soluções digitais.`,
+            source: "fallback"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      // Use Firecrawl to scrape the website
+      console.log(`Scraping website: ${url}`);
+      
+      let formattedUrl = url.trim();
+      if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+        formattedUrl = `https://${formattedUrl}`;
+      }
+
+      try {
+        const scrapeResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${FIRECRAWL_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: formattedUrl,
+            formats: ['markdown'],
+            onlyMainContent: true,
+          }),
+        });
+
+        const scrapeData = await scrapeResponse.json();
+        
+        if (!scrapeResponse.ok || !scrapeData.success) {
+          console.error('Firecrawl error:', scrapeData);
+          // Fallback to basic analysis
+          throw new Error('Firecrawl failed');
+        }
+
+        const websiteContent = scrapeData.data?.markdown || scrapeData.markdown || '';
+        const metadata = scrapeData.data?.metadata || scrapeData.metadata || {};
+
+        console.log(`Scraped ${websiteContent.length} characters from ${url}`);
+
+        // Now analyze with AI
+        const analysis = await callAI(
+          `Você é um especialista em análise de negócios e prospecção B2B. Analise o conteúdo do website da empresa e identifique oportunidades de venda.`,
+          `Empresa: ${business_name}
+Nicho: ${niche || 'não especificado'}
+Website: ${url}
+Título: ${metadata.title || 'N/A'}
+Descrição: ${metadata.description || 'N/A'}
+
+Conteúdo do site (resumido):
+${websiteContent.slice(0, 4000)}
+
+Analise e responda em JSON:
+{
+  "painPoints": ["dor identificada 1", "dor identificada 2", ...],
+  "opportunities": ["oportunidade 1", "oportunidade 2", ...],
+  "currentServices": ["serviços que a empresa oferece"],
+  "websiteAnalysis": {
+    "hasModernDesign": true/false,
+    "hasMobileVersion": true/false,
+    "hasWhatsApp": true/false,
+    "hasOnlineStore": true/false,
+    "hasBlog": true/false,
+    "socialMedia": ["instagram", "facebook", ...]
+  },
+  "approach": "sugestão de como abordar este lead",
+  "personalizedMessage": "mensagem personalizada baseada na análise",
+  "summary": "resumo executivo em 2-3 frases"
+}`
+        );
+
+        try {
+          const parsed = JSON.parse(analysis.replace(/```json\n?|\n?```/g, ""));
+          return new Response(JSON.stringify({ 
+            success: true,
+            ...parsed,
+            source: "firecrawl_analysis",
+            websiteTitle: metadata.title,
+            websiteDescription: metadata.description,
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch (parseError) {
+          console.error('Failed to parse AI response:', parseError);
+          return new Response(JSON.stringify({ 
+            success: true,
+            painPoints: ["Website precisa de melhorias", "Falta de presença digital forte"],
+            opportunities: ["Redesign", "SEO", "Marketing digital"],
+            approach: "Abordagem consultiva mostrando melhorias específicas",
+            summary: `Análise do site ${url} realizada com sucesso.`,
+            source: "firecrawl_partial"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } catch (scrapeError) {
+        console.error('Scrape failed:', scrapeError);
+        // Fallback to AI-only analysis
+        const fallbackAnalysis = await callAI(
+          "Você é um especialista em análise de negócios.",
+          `Analise o negócio "${business_name}" do nicho "${niche}" e sugira dores comuns e abordagem de prospecção. Responda em JSON com: painPoints, opportunities, approach, summary`
+        );
+        
+        try {
+          const parsed = JSON.parse(fallbackAnalysis.replace(/```json\n?|\n?```/g, ""));
+          return new Response(JSON.stringify({ 
+            success: true,
+            ...parsed,
+            source: "ai_inference"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch {
+          return new Response(JSON.stringify({ 
+            success: true,
+            painPoints: ["Falta de presença digital"],
+            opportunities: ["Marketing digital"],
+            approach: "Abordagem consultiva",
+            summary: `${business_name} pode se beneficiar de soluções digitais.`,
+            source: "fallback"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ error: "Invalid action" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
