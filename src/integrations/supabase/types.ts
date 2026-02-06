@@ -52,6 +52,78 @@ export type Database = {
           },
         ]
       }
+      background_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_index: number | null
+          error_message: string | null
+          failed_items: number | null
+          id: string
+          job_type: string
+          last_error_at: string | null
+          last_heartbeat_at: string | null
+          max_retries: number | null
+          payload: Json
+          priority: number
+          processed_items: number | null
+          result: Json | null
+          retry_count: number | null
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          total_items: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_index?: number | null
+          error_message?: string | null
+          failed_items?: number | null
+          id?: string
+          job_type: string
+          last_error_at?: string | null
+          last_heartbeat_at?: string | null
+          max_retries?: number | null
+          payload?: Json
+          priority?: number
+          processed_items?: number | null
+          result?: Json | null
+          retry_count?: number | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          total_items?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_index?: number | null
+          error_message?: string | null
+          failed_items?: number | null
+          id?: string
+          job_type?: string
+          last_error_at?: string | null
+          last_heartbeat_at?: string | null
+          max_retries?: number | null
+          payload?: Json
+          priority?: number
+          processed_items?: number | null
+          result?: Json | null
+          retry_count?: number | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          total_items?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           campaign_type: string
@@ -776,6 +848,7 @@ export type Database = {
     }
     Functions: {
       is_lead_owner: { Args: { p_lead_id: string }; Returns: boolean }
+      recover_stale_jobs: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never

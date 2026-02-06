@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.export-data]
 verify_jwt = false
+
+[functions.job-processor]
+verify_jwt = false
