@@ -43,6 +43,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   useProspectingHistory,
   ProspectingHistory,
@@ -75,11 +76,18 @@ import {
   Copy,
   BarChart3,
   List,
+  Play,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
-export function ProspectingHistoryTab() {
+interface ProspectingHistoryTabProps {
+  onReprospect?: (niches: string[], locations: string[]) => void;
+}
+
+export function ProspectingHistoryTab({ onReprospect }: ProspectingHistoryTabProps) {
   const { toast } = useToast();
   const {
     history,
@@ -95,6 +103,62 @@ export function ProspectingHistoryTab() {
   const [selectedSession, setSelectedSession] = useState<ProspectingHistory | null>(null);
   const [filters, setFilters] = useState<HistoryFilters>(DEFAULT_FILTERS);
   const [activeView, setActiveView] = useState<'list' | 'metrics'>('list');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Toggle selection of a session
+  const toggleSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // Select all filtered sessions
+  const selectAll = () => {
+    const allIds = filteredHistory.map((s) => s.id);
+    setSelectedIds(new Set(allIds));
+  };
+
+  // Clear selection
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  // Handle reprospectar action
+  const handleReprospect = () => {
+    const selectedSessions = filteredHistory.filter((s) => selectedIds.has(s.id));
+    const niches = [...new Set(selectedSessions.map((s) => s.niche).filter(Boolean) as string[])];
+    const locations = [...new Set(selectedSessions.map((s) => s.location).filter(Boolean) as string[])];
+
+    if (niches.length === 0 && locations.length === 0) {
+      toast({
+        title: 'Dados insuficientes',
+        description: 'As sessões selecionadas não possuem nichos ou localizações.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (onReprospect) {
+      onReprospect(niches, locations);
+      toast({
+        title: '✓ Dados carregados',
+        description: `${niches.length} nicho(s) e ${locations.length} local(is) enviados para a aba Maps.`,
+      });
+      clearSelection();
+    } else {
+      toast({
+        title: 'Nichos e Locais selecionados',
+        description: `${niches.join(', ')} em ${locations.join(', ')}`,
+      });
+    }
+  };
 
   // Apply filters to history
   const filteredHistory = useMemo(() => {
@@ -358,47 +422,89 @@ export function ProspectingHistoryTab() {
       {activeView === 'list' && (
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <History className="h-5 w-5" />
-                  Histórico de Prospecção
-                  {filteredHistory.length !== history.length && (
-                    <Badge variant="secondary">
-                      {filteredHistory.length} de {history.length}
-                    </Badge>
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  Todas as sessões de captura e envio de leads
-                </CardDescription>
-              </div>
-              {history.length > 0 && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-destructive">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Limpar Tudo
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Limpar todo o histórico?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Todo o histórico de prospecção será excluído permanentemente.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => clearAllHistory()}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    Histórico de Prospecção
+                    {filteredHistory.length !== history.length && (
+                      <Badge variant="secondary">
+                        {filteredHistory.length} de {history.length}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Todas as sessões de captura e envio de leads
+                  </CardDescription>
+                </div>
+                {history.length > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="text-destructive">
+                        <Trash2 className="h-4 w-4 mr-2" />
                         Limpar Tudo
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Limpar todo o histórico?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Todo o histórico de prospecção será excluído permanentemente.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => clearAllHistory()}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Limpar Tudo
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+
+              {/* Selection Actions Bar */}
+              {filteredHistory.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={selectedIds.size === filteredHistory.length ? clearSelection : selectAll}
+                    className="gap-2"
+                  >
+                    {selectedIds.size === filteredHistory.length ? (
+                      <>
+                        <Square className="h-4 w-4" />
+                        Desmarcar Todos
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="h-4 w-4" />
+                        Selecionar Todos ({filteredHistory.length})
+                      </>
+                    )}
+                  </Button>
+
+                  {selectedIds.size > 0 && (
+                    <>
+                      <Badge variant="secondary" className="px-3 py-1">
+                        {selectedIds.size} selecionado{selectedIds.size > 1 ? 's' : ''}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        onClick={handleReprospect}
+                        className="gap-2"
+                      >
+                        <Play className="h-4 w-4" />
+                        Reprospectar Selecionados
+                      </Button>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </CardHeader>
@@ -432,6 +538,11 @@ export function ProspectingHistoryTab() {
                           <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between p-4 hover:bg-muted/50 cursor-pointer transition-colors">
                               <div className="flex items-center gap-4">
+                                <Checkbox
+                                  checked={selectedIds.has(session.id)}
+                                  onClick={(e) => toggleSelection(session.id, e)}
+                                  className="data-[state=checked]:bg-primary"
+                                />
                                 <div className="p-2 rounded-lg bg-muted">
                                   <Icon className="h-4 w-4" />
                                 </div>

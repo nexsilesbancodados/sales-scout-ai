@@ -228,7 +228,17 @@ interface CapturedLead {
 
 type ProcessStatus = 'idle' | 'capturing' | 'analyzing' | 'sending' | 'paused' | 'completed' | 'stopped';
 
-export function CaptureAndSendTab() {
+interface CaptureAndSendTabProps {
+  prefilledNiches?: string[];
+  prefilledLocations?: string[];
+  onPrefilledConsumed?: () => void;
+}
+
+export function CaptureAndSendTab({ 
+  prefilledNiches = [], 
+  prefilledLocations = [],
+  onPrefilledConsumed 
+}: CaptureAndSendTabProps) {
   const { settings } = useUserSettings();
   const { createSession, updateSession } = useProspectingHistory();
   const { user } = useAuth();
@@ -249,6 +259,23 @@ export function CaptureAndSendTab() {
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
+
+  // Handle prefilled data from history reprospectar
+  useEffect(() => {
+    if (prefilledNiches.length > 0 || prefilledLocations.length > 0) {
+      if (prefilledNiches.length > 0) {
+        setSelectedNiches(prefilledNiches);
+      }
+      if (prefilledLocations.length > 0) {
+        setSelectedLocations(prefilledLocations);
+      }
+      onPrefilledConsumed?.();
+      toast({
+        title: '✓ Dados carregados do histórico',
+        description: `${prefilledNiches.length} nicho(s) e ${prefilledLocations.length} local(is) prontos para captura.`,
+      });
+    }
+  }, [prefilledNiches, prefilledLocations, onPrefilledConsumed, toast]);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString('pt-BR');
