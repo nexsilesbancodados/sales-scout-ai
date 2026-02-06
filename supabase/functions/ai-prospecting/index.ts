@@ -346,7 +346,7 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
 
     // Action: Search leads with subniches and pagination for maximum coverage
     if (action === "search_leads") {
-      const { niche, location, maxResults = 100 } = data;
+      const { niche, location, maxResults = 5000 } = data;
       
       // Use user's SerpAPI key if available
       const SERPAPI_API_KEY = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
@@ -391,18 +391,19 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
       // Get subniches for this niche, or use the niche itself
       const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
       
-      // Limit search terms to avoid too many API calls (max 5 variations)
-      const limitedSearchTerms = searchTerms.slice(0, 5);
+      // Use ALL search terms for maximum coverage (up to 20 variations)
+      const limitedSearchTerms = searchTerms.slice(0, 20);
       
-      console.log(`Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location}`);
+      console.log(`Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location} (max: ${maxResults})`);
 
       try {
         for (const searchTerm of limitedSearchTerms) {
           // Stop if we have enough leads
           if (allLeads.length >= maxResults) break;
 
-          // Search with pagination (page 0, 20, 40, 60 = 4 pages x 20 results = up to 80 per term)
-          for (let start = 0; start < 60; start += 20) {
+          // Search with extended pagination (page 0, 20, 40, ... up to 200 = 10 pages x 20 results = up to 200 per term)
+          // This allows finding up to 4000 leads (20 terms x 200 leads each)
+          for (let start = 0; start < 200; start += 20) {
             if (allLeads.length >= maxResults) break;
 
             const searchQuery = `${searchTerm} em ${location}`;
