@@ -193,6 +193,7 @@ export type Database = {
         Row: {
           address: string | null
           analyzed_needs: Json | null
+          assigned_to: string | null
           best_contact_hour: number | null
           business_name: string
           company_description: string | null
@@ -225,6 +226,7 @@ export type Database = {
           source: string | null
           stage: string
           tags: string[] | null
+          team_id: string | null
           temperature: string | null
           twitter_url: string | null
           updated_at: string
@@ -234,6 +236,7 @@ export type Database = {
         Insert: {
           address?: string | null
           analyzed_needs?: Json | null
+          assigned_to?: string | null
           best_contact_hour?: number | null
           business_name: string
           company_description?: string | null
@@ -266,6 +269,7 @@ export type Database = {
           source?: string | null
           stage?: string
           tags?: string[] | null
+          team_id?: string | null
           temperature?: string | null
           twitter_url?: string | null
           updated_at?: string
@@ -275,6 +279,7 @@ export type Database = {
         Update: {
           address?: string | null
           analyzed_needs?: Json | null
+          assigned_to?: string | null
           best_contact_hour?: number | null
           business_name?: string
           company_description?: string | null
@@ -307,13 +312,22 @@ export type Database = {
           source?: string | null
           stage?: string
           tags?: string[] | null
+          team_id?: string | null
           temperature?: string | null
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meetings: {
         Row: {
@@ -533,6 +547,109 @@ export type Database = {
           total_leads_captured?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      team_invites: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string
+          status: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: string
+          status?: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          status?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invites_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          joined_at: string
+          role: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string
+          role?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string
+          role?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
