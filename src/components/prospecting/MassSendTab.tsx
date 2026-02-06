@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
+import { useBackgroundJobs } from '@/hooks/use-background-jobs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -15,6 +16,7 @@ import {
   Loader2,
   Sparkles,
   AlertCircle,
+  Activity,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -22,14 +24,17 @@ export function MassSendTab() {
   const { leads } = useLeads();
   const { settings } = useUserSettings();
   const { toast } = useToast();
+  const { createJob, activeJobs, isCreating } = useBackgroundJobs();
   
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [massMessage, setMassMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
   const [useAIPersonalization, setUseAIPersonalization] = useState(true);
   const [previewLead, setPreviewLead] = useState<string | null>(null);
   const [previewMessage, setPreviewMessage] = useState<string>('');
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+
+  // Check if there's an active mass_send job
+  const hasActiveMassSend = activeJobs.some(j => j.job_type === 'mass_send');
 
   const generatePersonalizedMessage = async (lead: any, baseMessage: string): Promise<string> => {
     try {
@@ -112,88 +117,43 @@ export function MassSendTab() {
       return;
     }
 
-    setIsSending(true);
-
-    try {
-      let sent = 0;
-      const baseIntervalMs = (settings?.message_interval_seconds || 60) * 1000;
-      
-      // Function to generate random interval (50% to 150% of base interval)
-      const getRandomInterval = () => {
-        const minInterval = baseIntervalMs * 0.5;
-        const maxInterval = baseIntervalMs * 1.5;
-        return Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+    // Prepare leads data for the job
+    const selectedLeadsData = selectedLeads.map(id => {
+      const lead = leads.find(l => l.id === id);
+      return {
+        id: lead?.id,
+        phone: lead?.phone,
+        business_name: lead?.business_name,
+        niche: lead?.niche,
+        location: lead?.location,
+        rating: lead?.rating,
+        reviews_count: lead?.reviews_count,
       };
-      
-      for (let i = 0; i < selectedLeads.length; i++) {
-        const leadId = selectedLeads[i];
-        const lead = leads.find(l => l.id === leadId);
-        if (!lead) continue;
+    }).filter(l => l.id);
 
-        // Generate personalized message for this lead
-        let personalizedMessage = massMessage;
-        if (useAIPersonalization) {
-          personalizedMessage = await generatePersonalizedMessage(lead, massMessage);
-        } else {
-          // Simple variable replacement
-          personalizedMessage = massMessage
-            .replace(/\{empresa\}/gi, lead.business_name)
-            .replace(/\{nicho\}/gi, lead.niche || 'seu segmento')
-            .replace(/\{cidade\}/gi, lead.location || 'sua região');
-        }
+    // Create background job for mass sending
+    createJob({
+      job_type: 'mass_send',
+      total_items: selectedLeadsData.length,
+      priority: 7, // Higher priority for user-initiated tasks
+      payload: {
+        leads: selectedLeadsData,
+        message_template: massMessage,
+        use_ai_personalization: useAIPersonalization,
+        agent_settings: {
+          agent_name: settings?.agent_name,
+          agent_persona: settings?.agent_persona,
+          communication_style: settings?.communication_style,
+          emoji_usage: settings?.emoji_usage,
+        },
+      },
+    });
 
-        const response = await supabase.functions.invoke('whatsapp-send', {
-          body: {
-            phone: lead.phone,
-            message: personalizedMessage,
-            instance_id: settings?.whatsapp_instance_id,
-          },
-        });
-
-        if (!response.error) {
-          sent++;
-          
-          // Save message to chat history
-          await supabase.from('chat_messages').insert({
-            lead_id: lead.id,
-            sender_type: 'agent',
-            content: personalizedMessage,
-            status: 'sent',
-          });
-
-          // Update lead's last contact
-          await supabase
-            .from('leads')
-            .update({ last_contact_at: new Date().toISOString() })
-            .eq('id', lead.id);
-        }
-
-        // Wait random interval between messages (avoid robotic pattern detection)
-        if (i < selectedLeads.length - 1) {
-          const randomInterval = getRandomInterval();
-          console.log(`Waiting ${Math.round(randomInterval / 1000)}s before next message...`);
-          await new Promise(resolve => setTimeout(resolve, randomInterval));
-        }
-      }
-
-      toast({
-        title: 'Mensagens enviadas',
-        description: `${sent} de ${selectedLeads.length} mensagens enviadas com sucesso!`,
-      });
-
-      setSelectedLeads([]);
-      setMassMessage('');
-      setPreviewMessage('');
-      setPreviewLead(null);
-    } catch (error: any) {
-      toast({
-        title: 'Erro no envio',
-        description: error.message || 'Erro ao enviar mensagens',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSending(false);
-    }
+    // Clear selections
+    setSelectedLeads([]);
+    setMassMessage('');
+    setPreviewMessage('');
+    setPreviewLead(null);
   };
 
   // Group leads by niche for better organization
@@ -206,6 +166,19 @@ export function MassSendTab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* Active job indicator */}
+      {hasActiveMassSend && (
+        <div className="lg:col-span-2">
+          <Alert className="border-primary/50 bg-primary/5">
+            <Activity className="h-4 w-4 animate-pulse" />
+            <AlertDescription>
+              Há um envio em massa em andamento. Você pode acompanhar o progresso no botão "Tarefas" no topo da página.
+              Você pode fechar ou recarregar a página - o envio continuará em segundo plano.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Selecionar Leads</CardTitle>
@@ -374,20 +347,26 @@ export function MassSendTab() {
               <Button
                 className="w-full gradient-primary"
                 onClick={handleMassSend}
-                disabled={isSending || selectedLeads.length === 0 || !massMessage.trim()}
+                disabled={isCreating || hasActiveMassSend || selectedLeads.length === 0 || !massMessage.trim()}
               >
-                {isSending ? (
+                {isCreating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : hasActiveMassSend ? (
+                  <Activity className="h-4 w-4 mr-2 animate-pulse" />
                 ) : (
                   <Send className="h-4 w-4 mr-2" />
                 )}
-                Enviar para {selectedLeads.length} leads
-                {useAIPersonalization && ' (com IA)'}
+                {hasActiveMassSend 
+                  ? 'Envio em andamento...'
+                  : `Enviar para ${selectedLeads.length} leads${useAIPersonalization ? ' (com IA)' : ''}`
+                }
               </Button>
 
               {settings?.message_interval_seconds && settings.message_interval_seconds > 0 && (
                 <p className="text-xs text-center text-muted-foreground">
-                  Intervalo aleatório de {Math.round(settings.message_interval_seconds * 0.5)}s a {Math.round(settings.message_interval_seconds * 1.5)}s entre mensagens para parecer humano
+                  ⚡ Envio em segundo plano com intervalo aleatório de {Math.round(settings.message_interval_seconds * 0.5)}s a {Math.round(settings.message_interval_seconds * 1.5)}s entre mensagens.
+                  <br />
+                  <strong>Você pode fechar ou recarregar a página - o envio continuará automaticamente.</strong>
                 </p>
               )}
             </div>

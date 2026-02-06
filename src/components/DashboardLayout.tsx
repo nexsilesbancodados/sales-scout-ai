@@ -6,6 +6,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from '@/co
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
+import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -37,6 +38,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
           </Breadcrumb>
           <div className="flex items-center gap-2 shrink-0">
             {actions}
+            <BackgroundJobsMonitor />
             <Button
               variant="ghost"
               size="icon"
