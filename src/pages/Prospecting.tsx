@@ -14,6 +14,7 @@ import { FollowUpManager } from '@/components/followup/FollowUpManager';
 import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
 import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
 import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
+import { WebSearchTab } from '@/components/prospecting/WebSearchTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -38,6 +39,7 @@ import {
   FlaskConical,
   Calendar,
   Mail,
+  Globe,
 } from 'lucide-react';
 
 export default function ProspectingPage() {
@@ -48,7 +50,7 @@ export default function ProspectingPage() {
   // Handle URL param for tab navigation
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'sequences', 'scheduled', 'email-finder', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
+    if (tab && ['capture', 'web-search', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'sequences', 'scheduled', 'email-finder', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -94,7 +96,11 @@ export default function ProspectingPage() {
         <TabsList className="flex flex-wrap gap-1 h-auto p-1">
           <TabsTrigger value="capture" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            <span className="hidden sm:inline">Capturar</span>
+            <span className="hidden sm:inline">Maps</span>
+          </TabsTrigger>
+          <TabsTrigger value="web-search" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            <span className="hidden sm:inline">Web</span>
           </TabsTrigger>
           <TabsTrigger value="campaigns" className="flex items-center gap-2">
             <Rocket className="h-4 w-4" />
@@ -144,6 +150,10 @@ export default function ProspectingPage() {
 
         <TabsContent value="capture">
           <CaptureAndSendTab />
+        </TabsContent>
+
+        <TabsContent value="web-search">
+          <WebSearchTab />
         </TabsContent>
 
         <TabsContent value="campaigns">
