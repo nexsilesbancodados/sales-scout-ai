@@ -343,20 +343,47 @@ Deno.serve(async (req) => {
     }
 
     if (action === "disconnect") {
-      console.log(`Disconnecting: ${instanceName}`);
+      console.log(`Disconnecting and deleting instance: ${instanceName}`);
       
-      await fetch(`${EVOLUTION_API_URL}/instance/logout/${instanceName}`, {
-        method: "DELETE",
-        headers: { "apikey": EVOLUTION_API_KEY },
-      });
+      // First logout the instance
+      try {
+        await fetch(`${EVOLUTION_API_URL}/instance/logout/${instanceName}`, {
+          method: "DELETE",
+          headers: { "apikey": EVOLUTION_API_KEY },
+        });
+        console.log("Instance logged out successfully");
+      } catch (logoutError) {
+        console.error("Logout error (continuing with delete):", logoutError);
+      }
 
+      // Then delete the instance completely so a new one is created on reconnect
+      try {
+        const deleteResponse = await fetch(`${EVOLUTION_API_URL}/instance/delete/${instanceName}`, {
+          method: "DELETE",
+          headers: { "apikey": EVOLUTION_API_KEY },
+        });
+        
+        if (deleteResponse.ok) {
+          console.log("Instance deleted successfully");
+        } else {
+          const deleteError = await deleteResponse.text();
+          console.error("Delete instance error:", deleteError);
+        }
+      } catch (deleteError) {
+        console.error("Delete instance error:", deleteError);
+      }
+
+      // Clear both whatsapp_connected and whatsapp_instance_id so a fresh instance is created
       await supabaseService
         .from("user_settings")
-        .update({ whatsapp_connected: false })
+        .update({ 
+          whatsapp_connected: false,
+          whatsapp_instance_id: null,
+        })
         .eq("user_id", user.id);
 
       return new Response(
-        JSON.stringify({ success: true }),
+        JSON.stringify({ success: true, deleted: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
