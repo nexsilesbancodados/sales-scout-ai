@@ -42,6 +42,22 @@ import {
   Globe,
 } from 'lucide-react';
 
+const tabs = [
+  { id: 'capture', icon: Target, label: 'Maps' },
+  { id: 'web-search', icon: Globe, label: 'Web' },
+  { id: 'campaigns', icon: Rocket, label: 'Campanhas' },
+  { id: 'mass-send', icon: Send, label: 'Disparo' },
+  { id: 'scheduled', icon: Calendar, label: 'Agendado' },
+  { id: 'follow-up', icon: RefreshCw, label: 'Follow-up' },
+  { id: 'sequences', icon: RefreshCw, label: 'Sequências' },
+  { id: 'email-finder', icon: Mail, label: 'Emails' },
+  { id: 'ab-testing', icon: FlaskConical, label: 'A/B Test' },
+  { id: 'templates', icon: MessageSquareText, label: 'Templates' },
+  { id: 'import', icon: Upload, label: 'Importar' },
+  { id: 'ai-insights', icon: Brain, label: 'IA' },
+  { id: 'settings', icon: Settings, label: 'Config' },
+] as const;
+
 export default function ProspectingPage() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('capture');
@@ -50,7 +66,7 @@ export default function ProspectingPage() {
   // Handle URL param for tab navigation
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['capture', 'web-search', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'sequences', 'scheduled', 'email-finder', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
+    if (tab && tabs.some(t => t.id === tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -63,24 +79,25 @@ export default function ProspectingPage() {
         <div className="flex items-center gap-2">
           <Button
             size="lg"
-            className="gradient-primary shadow-lg hover:shadow-xl transition-shadow"
+            className="gradient-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             onClick={() => setActiveTab('capture')}
           >
             <Target className="h-5 w-5 mr-2" />
-            Capturar Leads
+            <span className="hidden sm:inline">Capturar Leads</span>
+            <span className="sm:hidden">Capturar</span>
           </Button>
           <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Campanha
+              <Button variant="outline" className="shadow-sm">
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Nova Campanha</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Criar Nova Campanha</DialogTitle>
                 <DialogDescription>
-                  Configure sua campanha de prospecção
+                  Configure sua campanha de prospecção automatizada
                 </DialogDescription>
               </DialogHeader>
               <NewCampaignForm onSuccess={() => setIsNewCampaignOpen(false)} />
@@ -92,113 +109,75 @@ export default function ProspectingPage() {
       {/* Stats Dashboard */}
       <ProspectingDashboard />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 mt-6">
-        <TabsList className="flex flex-wrap gap-1 h-auto p-1">
-          <TabsTrigger value="capture" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            <span className="hidden sm:inline">Maps</span>
-          </TabsTrigger>
-          <TabsTrigger value="web-search" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Web</span>
-          </TabsTrigger>
-          <TabsTrigger value="campaigns" className="flex items-center gap-2">
-            <Rocket className="h-4 w-4" />
-            <span className="hidden sm:inline">Campanhas</span>
-          </TabsTrigger>
-          <TabsTrigger value="mass-send" className="flex items-center gap-2">
-            <Send className="h-4 w-4" />
-            <span className="hidden sm:inline">Disparo</span>
-          </TabsTrigger>
-          <TabsTrigger value="scheduled" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span className="hidden sm:inline">Agendado</span>
-          </TabsTrigger>
-          <TabsTrigger value="follow-up" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            <span className="hidden sm:inline">Follow-up</span>
-          </TabsTrigger>
-          <TabsTrigger value="sequences" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            <span className="hidden sm:inline">Sequências</span>
-          </TabsTrigger>
-          <TabsTrigger value="email-finder" className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            <span className="hidden sm:inline">Emails</span>
-          </TabsTrigger>
-          <TabsTrigger value="ab-testing" className="flex items-center gap-2">
-            <FlaskConical className="h-4 w-4" />
-            <span className="hidden sm:inline">A/B Test</span>
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-2">
-            <MessageSquareText className="h-4 w-4" />
-            <span className="hidden sm:inline">Templates</span>
-          </TabsTrigger>
-          <TabsTrigger value="import" className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">Importar</span>
-          </TabsTrigger>
-          <TabsTrigger value="ai-insights" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            <span className="hidden sm:inline">IA</span>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Config</span>
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+        <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabsList className="inline-flex h-12 p-1 bg-muted/50 backdrop-blur-sm rounded-xl gap-1 min-w-max">
+            {tabs.map(({ id, icon: Icon, label }) => (
+              <TabsTrigger 
+                key={id}
+                value={id} 
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm font-medium">{label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-        <TabsContent value="capture">
-          <CaptureAndSendTab />
-        </TabsContent>
+        <div className="mt-6">
+          <TabsContent value="capture" className="animate-fade-in m-0">
+            <CaptureAndSendTab />
+          </TabsContent>
 
-        <TabsContent value="web-search">
-          <WebSearchTab />
-        </TabsContent>
+          <TabsContent value="web-search" className="animate-fade-in m-0">
+            <WebSearchTab />
+          </TabsContent>
 
-        <TabsContent value="campaigns">
-          <CampaignsTab />
-        </TabsContent>
+          <TabsContent value="campaigns" className="animate-fade-in m-0">
+            <CampaignsTab />
+          </TabsContent>
 
-        <TabsContent value="mass-send">
-          <MassSendTab />
-        </TabsContent>
+          <TabsContent value="mass-send" className="animate-fade-in m-0">
+            <MassSendTab />
+          </TabsContent>
 
-        <TabsContent value="scheduled">
-          <ScheduledProspectingTab />
-        </TabsContent>
+          <TabsContent value="scheduled" className="animate-fade-in m-0">
+            <ScheduledProspectingTab />
+          </TabsContent>
 
-        <TabsContent value="follow-up">
-          <FollowUpManager />
-        </TabsContent>
+          <TabsContent value="follow-up" className="animate-fade-in m-0">
+            <FollowUpManager />
+          </TabsContent>
 
-        <TabsContent value="sequences">
-          <FollowUpSequencesTab />
-        </TabsContent>
+          <TabsContent value="sequences" className="animate-fade-in m-0">
+            <FollowUpSequencesTab />
+          </TabsContent>
 
-        <TabsContent value="email-finder">
-          <EmailFinderTab />
-        </TabsContent>
+          <TabsContent value="email-finder" className="animate-fade-in m-0">
+            <EmailFinderTab />
+          </TabsContent>
 
-        <TabsContent value="templates">
-          <TemplatesTab />
-        </TabsContent>
+          <TabsContent value="templates" className="animate-fade-in m-0">
+            <TemplatesTab />
+          </TabsContent>
 
-        <TabsContent value="ab-testing">
-          <ABTestingTab />
-        </TabsContent>
+          <TabsContent value="ab-testing" className="animate-fade-in m-0">
+            <ABTestingTab />
+          </TabsContent>
 
-        <TabsContent value="import">
-          <ImportTab />
-        </TabsContent>
+          <TabsContent value="import" className="animate-fade-in m-0">
+            <ImportTab />
+          </TabsContent>
 
-        <TabsContent value="ai-insights">
-          <AIInsightsTab />
-        </TabsContent>
+          <TabsContent value="ai-insights" className="animate-fade-in m-0">
+            <AIInsightsTab />
+          </TabsContent>
 
-        <TabsContent value="settings">
-          <SettingsTab />
-        </TabsContent>
+          <TabsContent value="settings" className="animate-fade-in m-0">
+            <SettingsTab />
+          </TabsContent>
+        </div>
       </Tabs>
     </DashboardLayout>
   );
