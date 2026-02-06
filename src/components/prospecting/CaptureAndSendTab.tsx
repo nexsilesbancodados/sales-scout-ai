@@ -181,6 +181,14 @@ export function CaptureAndSendTab() {
           const leads = response.data?.leads || [];
           addLog(`Encontrados ${leads.length} leads em ${location}`);
 
+          // Toast notification for each batch of leads found
+          if (leads.length > 0) {
+            toast({
+              title: `🎯 ${leads.length} leads encontrados!`,
+              description: `${niche} em ${location}`,
+            });
+          }
+
           for (const lead of leads) {
             if (lead.phone) {
               allLeads.push({
@@ -211,6 +219,15 @@ export function CaptureAndSendTab() {
     addLog(`Captura concluída: ${allLeads.length} leads encontrados`);
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
+    
+    // Final summary toast
+    toast({
+      title: allLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
+      description: allLeads.length > 0 
+        ? `${allLeads.length} leads capturados. Selecione e analise para gerar mensagens.`
+        : 'Tente outras combinações de nichos e locais.',
+      variant: allLeads.length > 0 ? 'default' : 'destructive',
+    });
   };
 
   const analyzeAndGenerateMessages = async () => {
@@ -297,6 +314,11 @@ export function CaptureAndSendTab() {
     addLog('Análise concluída! Revise as mensagens e inicie o disparo.');
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
+    
+    toast({
+      title: '🧠 Análise concluída!',
+      description: `${leadsToAnalyze.length} mensagens personalizadas geradas. Revise e inicie o disparo.`,
+    });
   };
 
   const startSending = async () => {
