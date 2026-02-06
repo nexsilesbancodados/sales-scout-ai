@@ -94,36 +94,47 @@ export function AppSidebar() {
 
   const renderMenuItems = (items: typeof mainItems) => (
     <SidebarMenu>
-      {items.map((item) => (
-        <SidebarMenuItem key={item.path}>
-          <SidebarMenuButton
-            asChild
-            isActive={isActive(item.path)}
-            className={`transition-colors ${
-              item.highlight 
-                ? 'bg-primary/10 text-primary hover:bg-primary/20 font-medium' 
-                : ''
-            }`}
-          >
-            <Link to={item.path}>
-              <item.icon className={`h-4 w-4 ${item.highlight ? 'text-primary' : ''}`} />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+      {items.map((item) => {
+        const active = isActive(item.path);
+        return (
+          <SidebarMenuItem key={item.path}>
+            <SidebarMenuButton
+              asChild
+              isActive={active}
+              className={`
+                transition-all duration-200 rounded-lg
+                ${item.highlight 
+                  ? 'bg-primary/10 text-primary hover:bg-primary/20 font-medium border border-primary/20' 
+                  : active
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'hover:bg-muted'
+                }
+              `}
+            >
+              <Link to={item.path} className="flex items-center gap-3 py-2.5">
+                <item.icon className={`h-4 w-4 ${active && !item.highlight ? 'text-primary-foreground' : item.highlight ? 'text-primary' : ''}`} />
+                <span className="font-medium">{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        );
+      })}
     </SidebarMenu>
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="p-4">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <img src={logoImage} alt="Prospecte" className="h-10 w-auto" />
+    <Sidebar className="border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="p-5 border-b border-sidebar-border">
+        <Link to="/dashboard" className="flex items-center gap-2 group">
+          <img 
+            src={logoImage} 
+            alt="Prospecte" 
+            className="h-10 w-auto transition-transform duration-200 group-hover:scale-105" 
+          />
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="py-4 px-3">
         {/* Main */}
         <SidebarGroup>
           <SidebarGroupContent>
@@ -131,27 +142,31 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="my-3 opacity-50" />
 
         {/* Prospecting */}
         <SidebarGroup>
-          <SidebarGroupLabel>Prospecção</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Prospecção
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             {renderMenuItems(prospectingItems)}
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="my-3 opacity-50" />
 
         {/* CRM */}
         <SidebarGroup>
-          <SidebarGroupLabel>CRM</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            CRM
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             {renderMenuItems(crmItems)}
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="my-3 opacity-50" />
 
         {/* Analysis */}
         <SidebarGroup>
@@ -161,14 +176,18 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 border-t border-sidebar-border">
         {/* Settings quick access */}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/settings')}>
-              <Link to="/settings">
+            <SidebarMenuButton 
+              asChild 
+              isActive={isActive('/settings')}
+              className={`rounded-lg transition-all duration-200 ${isActive('/settings') ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+            >
+              <Link to="/settings" className="flex items-center gap-3 py-2.5">
                 <Settings className="h-4 w-4" />
-                <span>Configurações</span>
+                <span className="font-medium">Configurações</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -176,33 +195,36 @@ export function AppSidebar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 h-auto py-2 mt-2">
-              <Avatar className="h-8 w-8">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-3 h-auto py-3 mt-3 rounded-xl hover:bg-muted transition-colors"
+            >
+              <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium truncate">
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-semibold truncate">
                   {user?.user_metadata?.full_name || 'Usuário'}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
                   {user?.email}
                 </p>
               </div>
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem asChild>
-              <Link to="/settings">
-                <Settings className="h-4 w-4 mr-2" />
+              <Link to="/settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
                 Configurações
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </DropdownMenuItem>

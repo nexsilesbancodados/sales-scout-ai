@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ import {
   Eye,
   Loader2,
   Users,
+  Filter,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -106,6 +108,8 @@ export default function LeadsPage() {
     setDetailsOpen(true);
   };
 
+  const activeFiltersCount = (stageFilter !== 'all' ? 1 : 0) + (tempFilter !== 'all' ? 1 : 0);
+
   return (
     <DashboardLayout
       title="Leads"
@@ -113,115 +117,138 @@ export default function LeadsPage() {
       actions={
         <div className="flex items-center gap-2">
           <ImportExportLeads />
-          <Button>
+          <Button className="shadow-md">
             <Plus className="h-4 w-4 mr-2" />
-            Novo Lead
+            <span className="hidden sm:inline">Novo Lead</span>
           </Button>
         </div>
       }
     >
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar leads..."
-                className="pl-10"
-                value={search}
-                onChange={(e) => handleFilterChange(setSearch, e.target.value)}
-              />
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-muted/30 border-b">
+          <div className="flex flex-col gap-4">
+            {/* Search and Filters Row */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, telefone ou nicho..."
+                  className="pl-10 bg-background"
+                  value={search}
+                  onChange={(e) => handleFilterChange(setSearch, e.target.value)}
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-2">
+                <Select 
+                  value={stageFilter} 
+                  onValueChange={(v) => handleFilterChange(setStageFilter, v as LeadStage | 'all')}
+                >
+                  <SelectTrigger className="w-[140px] bg-background">
+                    <SelectValue placeholder="Estágio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos estágios</SelectItem>
+                    {allStages.map((stage) => (
+                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={tempFilter} 
+                  onValueChange={(v) => handleFilterChange(setTempFilter, v as LeadTemperature | 'all')}
+                >
+                  <SelectTrigger className="w-[140px] bg-background">
+                    <SelectValue placeholder="Temperatura" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas temps.</SelectItem>
+                    {allTemperatures.map((temp) => (
+                      <SelectItem key={temp} value={temp} className="capitalize">{temp}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {activeFiltersCount > 0 && (
+                  <Badge variant="secondary" className="h-9 px-3 flex items-center gap-1.5">
+                    <Filter className="h-3 w-3" />
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </div>
             </div>
 
-            {/* Filters */}
-            <Select 
-              value={stageFilter} 
-              onValueChange={(v) => handleFilterChange(setStageFilter, v as LeadStage | 'all')}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Estágio" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                {allStages.map((stage) => (
-                  <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select 
-              value={tempFilter} 
-              onValueChange={(v) => handleFilterChange(setTempFilter, v as LeadTemperature | 'all')}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Temperatura" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {allTemperatures.map((temp) => (
-                  <SelectItem key={temp} value={temp} className="capitalize">{temp}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Bulk Actions */}
+            {selectedLeads.length > 0 && (
+              <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <span className="text-sm font-medium">
+                  {selectedLeads.length} lead{selectedLeads.length > 1 ? 's' : ''} selecionado{selectedLeads.length > 1 ? 's' : ''}
+                </span>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDeleteSelected}
+                  disabled={isDeleting}
+                  className="ml-auto"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir selecionados
+                </Button>
+              </div>
+            )}
           </div>
-
-          {/* Bulk Actions */}
-          {selectedLeads.length > 0 && (
-            <div className="flex items-center gap-4 pt-4">
-              <span className="text-sm text-muted-foreground">
-                {selectedLeads.length} selecionado(s)
-              </span>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDeleteSelected}
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Excluir
-              </Button>
-            </div>
-          )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="flex items-center justify-center py-16">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Carregando leads...</p>
+              </div>
             </div>
           ) : leads.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Users className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium">Nenhum lead encontrado</p>
-              <p className="text-sm">Inicie uma prospecção ou adicione leads manualmente</p>
-            </div>
+            <EmptyState
+              icon={Users}
+              title="Nenhum lead encontrado"
+              description="Inicie uma prospecção ou adicione leads manualmente para começar"
+              action={{
+                label: "Capturar Leads",
+                onClick: () => window.location.href = '/prospecting?tab=capture',
+                icon: Plus,
+              }}
+              className="py-16"
+            />
           ) : (
             <>
-              <div className="rounded-md border">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={selectedLeads.length === paginatedLeads.length && paginatedLeads.length > 0}
                           onCheckedChange={toggleSelectAll}
                         />
                       </TableHead>
-                      <TableHead>Empresa</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Nicho</TableHead>
-                      <TableHead>Estágio</TableHead>
-                      <TableHead>Temp.</TableHead>
-                      <TableHead>Último Contato</TableHead>
+                      <TableHead className="font-semibold">Empresa</TableHead>
+                      <TableHead className="font-semibold">Telefone</TableHead>
+                      <TableHead className="font-semibold">Nicho</TableHead>
+                      <TableHead className="font-semibold">Estágio</TableHead>
+                      <TableHead className="font-semibold">Temp.</TableHead>
+                      <TableHead className="font-semibold">Último Contato</TableHead>
                       <TableHead className="w-12"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedLeads.map((lead) => (
+                    {paginatedLeads.map((lead, index) => (
                       <TableRow 
                         key={lead.id} 
-                        className="cursor-pointer hover:bg-muted/50"
+                        className="cursor-pointer transition-colors hover:bg-muted/50 group"
                         onClick={() => handleViewDetails(lead)}
+                        style={{ animationDelay: `${index * 0.02}s` }}
                       >
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <Checkbox
@@ -229,18 +256,27 @@ export default function LeadsPage() {
                             onCheckedChange={() => toggleSelect(lead.id)}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{lead.business_name}</TableCell>
-                        <TableCell>{lead.phone}</TableCell>
                         <TableCell>
-                          <Badge variant="secondary">{lead.niche || '-'}</Badge>
+                          <div className="font-medium">{lead.business_name}</div>
+                          {lead.location && (
+                            <div className="text-xs text-muted-foreground mt-0.5">{lead.location}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{lead.phone}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="rounded-full font-normal">
+                            {lead.niche || '-'}
+                          </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${stageColors[lead.stage]} text-white`}>
+                          <Badge className={`${stageColors[lead.stage]} text-white shadow-sm`}>
                             {lead.stage}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {temperatureIcons[lead.temperature]}
+                          <div className="flex items-center justify-center">
+                            {temperatureIcons[lead.temperature]}
+                          </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {lead.last_contact_at
@@ -253,7 +289,11 @@ export default function LeadsPage() {
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -271,7 +311,7 @@ export default function LeadsPage() {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-destructive"
+                                className="text-destructive focus:text-destructive"
                                 onClick={() => deleteLead(lead.id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
@@ -287,17 +327,19 @@ export default function LeadsPage() {
               </div>
 
               {/* Pagination */}
-              <LeadsPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={leads.length}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
+              <div className="border-t">
+                <LeadsPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={leads.length}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
             </>
           )}
         </CardContent>

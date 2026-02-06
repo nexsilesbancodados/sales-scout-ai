@@ -19,63 +19,58 @@ export function ProspectingDashboard() {
     ? ((totalLeadsResponded / totalLeadsContacted) * 100).toFixed(1) 
     : '0';
 
+  const stats = [
+    {
+      icon: Search,
+      value: totalLeadsProspected || leads.length,
+      label: 'Leads Encontrados',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+    },
+    {
+      icon: Send,
+      value: totalLeadsContacted,
+      label: 'Leads Contatados',
+      color: 'text-info',
+      bgColor: 'bg-info/10',
+    },
+    {
+      icon: MessageSquare,
+      value: totalLeadsResponded,
+      label: 'Respostas',
+      color: 'text-success',
+      bgColor: 'bg-success/10',
+    },
+    {
+      icon: TrendingUp,
+      value: `${responseRate}%`,
+      label: 'Taxa de Resposta',
+      color: 'text-warning',
+      bgColor: 'bg-warning/10',
+    },
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-4">
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary/10">
-              <Search className="h-6 w-6 text-primary" />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat, index) => (
+        <Card 
+          key={stat.label} 
+          className="card-hover overflow-hidden"
+          style={{ animationDelay: `${index * 0.05}s` }}
+        >
+          <CardContent className="p-5">
+            <div className="flex items-center gap-4">
+              <div className={`p-3.5 rounded-xl ${stat.bgColor} transition-transform duration-200 hover:scale-110`}>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold">{totalLeadsProspected || leads.length}</p>
-              <p className="text-sm text-muted-foreground">Leads Encontrados</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-blue-500/10">
-              <Send className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalLeadsContacted}</p>
-              <p className="text-sm text-muted-foreground">Leads Contatados</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-green-500/10">
-              <MessageSquare className="h-6 w-6 text-green-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalLeadsResponded}</p>
-              <p className="text-sm text-muted-foreground">Respostas</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-yellow-500/10">
-              <TrendingUp className="h-6 w-6 text-yellow-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{responseRate}%</p>
-              <p className="text-sm text-muted-foreground">Taxa de Resposta</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

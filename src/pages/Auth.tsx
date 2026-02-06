@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Lock, User, Chrome, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Chrome, Loader2, ArrowRight } from 'lucide-react';
 import authBackground from '@/assets/auth-background.jpg';
 import logoImage from '@/assets/logo.png';
 
@@ -139,50 +139,54 @@ export default function AuthPage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+      {/* Overlay with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-primary/20 backdrop-blur-[2px]" />
       
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <img src={logoImage} alt="Prospecte" className="h-24 w-auto drop-shadow-2xl" />
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center mb-6">
+            <img 
+              src={logoImage} 
+              alt="Prospecte" 
+              className="h-28 w-auto drop-shadow-2xl animate-fade-in" 
+            />
           </div>
-          <p className="text-white/90 text-lg font-medium drop-shadow-lg">
+          <p className="text-white/90 text-lg font-medium drop-shadow-lg max-w-xs mx-auto">
             Automatize sua prospecção com inteligência artificial
           </p>
         </div>
 
-        <Card className="border-border/50 shadow-xl">
-          <CardHeader className="text-center">
-            <CardTitle>
+        <Card className="border-0 shadow-2xl bg-card/95 backdrop-blur-xl">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-2xl font-bold">
               {showResetPassword 
                 ? 'Redefinir Senha' 
                 : showForgotPassword 
                 ? 'Recuperar Senha' 
                 : 'Bem-vindo'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               {showResetPassword 
-                ? 'Digite sua nova senha' 
+                ? 'Digite sua nova senha abaixo' 
                 : showForgotPassword 
                 ? '' 
                 : 'Entre ou crie sua conta para começar'}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {showResetPassword ? (
               // Reset Password Form
-              <form onSubmit={handleResetPassword} className="space-y-4">
+              <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">Nova Senha</Label>
+                  <Label htmlFor="new-password" className="text-sm font-medium">Nova Senha</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="new-password"
                       type="password"
                       placeholder="Mínimo 6 caracteres"
-                      className="pl-10"
+                      className="pl-11 h-12 text-base"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       minLength={6}
@@ -192,7 +196,7 @@ export default function AuthPage() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-12 gradient-primary"
+                  className="w-full h-12 text-base gradient-primary shadow-lg hover:shadow-xl transition-all duration-300"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -201,7 +205,10 @@ export default function AuthPage() {
                       Salvando...
                     </>
                   ) : (
-                    'Salvar Nova Senha'
+                    <>
+                      Salvar Nova Senha
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
                   )}
                 </Button>
               </form>
@@ -211,43 +218,47 @@ export default function AuthPage() {
             ) : (
               // Login/Signup Forms
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="login">Entrar</TabsTrigger>
-                  <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-8 h-12 p-1 bg-muted/50">
+                  <TabsTrigger value="login" className="text-base font-medium data-[state=active]:shadow-sm">
+                    Entrar
+                  </TabsTrigger>
+                  <TabsTrigger value="signup" className="text-base font-medium data-[state=active]:shadow-sm">
+                    Cadastrar
+                  </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="login" className="space-y-4">
+                <TabsContent value="login" className="space-y-5 mt-0">
                   {/* Google Login */}
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12"
+                    className="w-full h-12 text-base font-medium hover:bg-muted transition-colors"
                     onClick={handleGoogleLogin}
                     disabled={loading || isSubmitting}
                   >
-                    <Chrome className="w-5 h-5 mr-2" />
+                    <Chrome className="w-5 h-5 mr-3" />
                     Continuar com Google
                   </Button>
 
-                  <div className="relative">
+                  <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
+                      <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">ou</span>
+                      <span className="bg-card px-3 text-muted-foreground font-medium">ou</span>
                     </div>
                   </div>
 
                   <form onSubmit={handleEmailLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email">E-mail</Label>
+                      <Label htmlFor="login-email" className="text-sm font-medium">E-mail</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="login-email"
                           type="email"
                           placeholder="seu@email.com"
-                          className="pl-10"
+                          className="pl-11 h-12 text-base"
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           required
@@ -256,22 +267,22 @@ export default function AuthPage() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="login-password">Senha</Label>
+                        <Label htmlFor="login-password" className="text-sm font-medium">Senha</Label>
                         <button
                           type="button"
                           onClick={() => setShowForgotPassword(true)}
-                          className="text-xs text-primary hover:underline"
+                          className="text-xs text-primary hover:underline font-medium"
                         >
                           Esqueceu a senha?
                         </button>
                       </div>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="login-password"
                           type="password"
                           placeholder="••••••••"
-                          className="pl-10"
+                          className="pl-11 h-12 text-base"
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
                           required
@@ -280,46 +291,56 @@ export default function AuthPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-12 gradient-primary"
+                      className="w-full h-12 text-base gradient-primary shadow-lg hover:shadow-xl transition-all duration-300 mt-6"
                       disabled={loading || isSubmitting}
                     >
-                      {isSubmitting ? 'Entrando...' : 'Entrar'}
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Entrando...
+                        </>
+                      ) : (
+                        <>
+                          Entrar
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </>
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
 
-                <TabsContent value="signup" className="space-y-4">
+                <TabsContent value="signup" className="space-y-5 mt-0">
                   {/* Google Signup */}
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12"
+                    className="w-full h-12 text-base font-medium hover:bg-muted transition-colors"
                     onClick={handleGoogleLogin}
                     disabled={loading || isSubmitting}
                   >
-                    <Chrome className="w-5 h-5 mr-2" />
+                    <Chrome className="w-5 h-5 mr-3" />
                     Cadastrar com Google
                   </Button>
 
-                  <div className="relative">
+                  <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
+                      <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">ou</span>
+                      <span className="bg-card px-3 text-muted-foreground font-medium">ou</span>
                     </div>
                   </div>
 
                   <form onSubmit={handleSignup} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="signup-name">Nome completo</Label>
+                      <Label htmlFor="signup-name" className="text-sm font-medium">Nome completo</Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-name"
                           type="text"
                           placeholder="Seu nome"
-                          className="pl-10"
+                          className="pl-11 h-12 text-base"
                           value={signupName}
                           onChange={(e) => setSignupName(e.target.value)}
                           required
@@ -327,14 +348,14 @@ export default function AuthPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-email">E-mail</Label>
+                      <Label htmlFor="signup-email" className="text-sm font-medium">E-mail</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-email"
                           type="email"
                           placeholder="seu@email.com"
-                          className="pl-10"
+                          className="pl-11 h-12 text-base"
                           value={signupEmail}
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
@@ -342,14 +363,14 @@ export default function AuthPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-password">Senha</Label>
+                      <Label htmlFor="signup-password" className="text-sm font-medium">Senha</Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-password"
                           type="password"
                           placeholder="Mínimo 6 caracteres"
-                          className="pl-10"
+                          className="pl-11 h-12 text-base"
                           value={signupPassword}
                           onChange={(e) => setSignupPassword(e.target.value)}
                           minLength={6}
@@ -359,10 +380,20 @@ export default function AuthPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-12 gradient-primary"
+                      className="w-full h-12 text-base gradient-primary shadow-lg hover:shadow-xl transition-all duration-300 mt-6"
                       disabled={loading || isSubmitting}
                     >
-                      {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Cadastrando...
+                        </>
+                      ) : (
+                        <>
+                          Criar conta
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </>
+                      )}
                     </Button>
                   </form>
                 </TabsContent>
@@ -371,8 +402,11 @@ export default function AuthPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade.
+        <p className="text-center text-sm text-white/70 mt-8">
+          Ao continuar, você concorda com nossos{' '}
+          <a href="#" className="text-white/90 hover:underline">Termos de Serviço</a>
+          {' '}e{' '}
+          <a href="#" className="text-white/90 hover:underline">Política de Privacidade</a>.
         </p>
       </div>
     </div>
