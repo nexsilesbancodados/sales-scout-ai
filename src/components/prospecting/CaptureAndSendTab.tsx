@@ -22,6 +22,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useUserSettings } from '@/hooks/use-user-settings';
+import { useProspectingHistory, ProspectingHistoryLead } from '@/hooks/use-prospecting-history';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -228,6 +229,7 @@ type ProcessStatus = 'idle' | 'capturing' | 'analyzing' | 'sending' | 'paused' |
 
 export function CaptureAndSendTab() {
   const { settings } = useUserSettings();
+  const { createSession, updateSession } = useProspectingHistory();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -241,6 +243,7 @@ export function CaptureAndSendTab() {
   const [logs, setLogs] = useState<string[]>([]);
   const [filters, setFilters] = useState<CaptureFilters>(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
@@ -443,6 +446,20 @@ export function CaptureAndSendTab() {
     isStoppedRef.current = false;
     isPausedRef.current = false;
 
+    // Create history session
+    let historySessionId: string | null = null;
+    try {
+      const session = await createSession({
+        session_type: 'capture',
+        niche: selectedNiches.join(', '),
+        location: selectedLocations.join(', '),
+      });
+      historySessionId = session?.id || null;
+      setCurrentHistorySessionId(historySessionId);
+    } catch (error) {
+      console.error('Error creating history session:', error);
+    }
+
     const totalSearches = selectedNiches.length * selectedLocations.length;
     let currentSearch = 0;
     const allLeads: CapturedLead[] = [];
@@ -578,6 +595,31 @@ export function CaptureAndSendTab() {
     
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
+
+    // Update history session with final data
+    if (historySessionId) {
+      try {
+        const leadsForHistory: ProspectingHistoryLead[] = sortedLeads.map(l => ({
+          id: l.id,
+          business_name: l.business_name,
+          phone: l.phone,
+          status: l.isDuplicate ? 'duplicate' : 'pending',
+        }));
+
+        await updateSession({
+          id: historySessionId,
+          status: 'completed',
+          total_found: sortedLeads.length,
+          total_saved: newLeadsCount,
+          total_duplicates: duplicateCount,
+          total_pending: newLeadsCount,
+          leads_data: leadsForHistory,
+          completed_at: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error updating history session:', error);
+      }
+    }
     
     // Final summary toast with more details
     const filterInfo = filters.enabled && filteredCount > 0 
@@ -900,6 +942,31 @@ export function CaptureAndSendTab() {
     addLog(`🎉 Disparo concluído! ${sentCount} enviadas, ${failedCount} falharam.`);
     setProcessStatus('completed');
     setProgress({ current: 0, total: 0, phase: '' });
+
+    // Update history session with send results
+    if (currentHistorySessionId) {
+      try {
+        const leadsForHistory: ProspectingHistoryLead[] = capturedLeads.map(l => ({
+          id: l.id,
+          business_name: l.business_name,
+          phone: l.phone,
+          status: l.status === 'sent' ? 'sent' : l.status === 'failed' ? 'error' : l.isDuplicate ? 'duplicate' : 'pending',
+          error_message: l.status === 'failed' ? 'Falha no envio' : undefined,
+        }));
+
+        await updateSession({
+          id: currentHistorySessionId,
+          status: 'completed',
+          total_sent: sentCount,
+          total_errors: failedCount,
+          total_pending: capturedLeads.filter(l => l.status === 'pending').length,
+          leads_data: leadsForHistory,
+          completed_at: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error updating history session:', error);
+      }
+    }
     
     toast({
       title: '🎉 Disparo concluído!',
