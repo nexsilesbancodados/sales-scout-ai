@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,13 +30,13 @@ import {
 import { useLeads } from '@/hooks/use-leads';
 import { Lead, LeadStage, LeadTemperature } from '@/types/database';
 import { ImportExportLeads } from '@/components/leads/ImportExportLeads';
+import { LeadDetailsModal } from '@/components/leads/LeadDetailsModal';
+import { LeadsPagination } from '@/components/leads/LeadsPagination';
+import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
 import {
   Search,
   Plus,
   MoreHorizontal,
-  Flame,
-  ThermometerSun,
-  Snowflake,
   MessageSquare,
   Trash2,
   Eye,
@@ -46,26 +46,17 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const stageColors: Record<LeadStage, string> = {
-  'Contato': 'bg-stage-contact',
-  'Qualificado': 'bg-stage-qualified',
-  'Proposta': 'bg-stage-proposal',
-  'Negociação': 'bg-stage-negotiation',
-  'Ganho': 'bg-stage-won',
-  'Perdido': 'bg-stage-lost',
-};
-
-const temperatureIcons: Record<LeadTemperature, React.ReactNode> = {
-  'quente': <Flame className="h-4 w-4 text-temp-hot" />,
-  'morno': <ThermometerSun className="h-4 w-4 text-temp-warm" />,
-  'frio': <Snowflake className="h-4 w-4 text-temp-cold" />,
-};
-
 export default function LeadsPage() {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<LeadStage | 'all'>('all');
   const [tempFilter, setTempFilter] = useState<LeadTemperature | 'all'>('all');
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const { leads, isLoading, deleteLead, deleteLeads, isDeleting } = useLeads({
     search: search || undefined,
@@ -73,11 +64,25 @@ export default function LeadsPage() {
     temperature: tempFilter !== 'all' ? tempFilter : undefined,
   });
 
+  // Calculate paginated leads
+  const paginatedLeads = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return leads.slice(startIndex, startIndex + pageSize);
+  }, [leads, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(leads.length / pageSize);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (setter: (value: any) => void, value: any) => {
+    setter(value);
+    setCurrentPage(1);
+  };
+
   const toggleSelectAll = () => {
-    if (selectedLeads.length === leads.length) {
+    if (selectedLeads.length === paginatedLeads.length) {
       setSelectedLeads([]);
     } else {
-      setSelectedLeads(leads.map(l => l.id));
+      setSelectedLeads(paginatedLeads.map(l => l.id));
     }
   };
 
@@ -94,6 +99,11 @@ export default function LeadsPage() {
       deleteLeads(selectedLeads);
       setSelectedLeads([]);
     }
+  };
+
+  const handleViewDetails = (lead: Lead) => {
+    setSelectedLead(lead);
+    setDetailsOpen(true);
   };
 
   return (
@@ -120,35 +130,38 @@ export default function LeadsPage() {
                 placeholder="Buscar leads..."
                 className="pl-10"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleFilterChange(setSearch, e.target.value)}
               />
             </div>
 
             {/* Filters */}
-            <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as LeadStage | 'all')}>
+            <Select 
+              value={stageFilter} 
+              onValueChange={(v) => handleFilterChange(setStageFilter, v as LeadStage | 'all')}
+            >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Estágio" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="Contato">Contato</SelectItem>
-                <SelectItem value="Qualificado">Qualificado</SelectItem>
-                <SelectItem value="Proposta">Proposta</SelectItem>
-                <SelectItem value="Negociação">Negociação</SelectItem>
-                <SelectItem value="Ganho">Ganho</SelectItem>
-                <SelectItem value="Perdido">Perdido</SelectItem>
+                {allStages.map((stage) => (
+                  <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
-            <Select value={tempFilter} onValueChange={(v) => setTempFilter(v as LeadTemperature | 'all')}>
+            <Select 
+              value={tempFilter} 
+              onValueChange={(v) => handleFilterChange(setTempFilter, v as LeadTemperature | 'all')}
+            >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Temperatura" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="quente">Quente</SelectItem>
-                <SelectItem value="morno">Morno</SelectItem>
-                <SelectItem value="frio">Frio</SelectItem>
+                {allTemperatures.map((temp) => (
+                  <SelectItem key={temp} value={temp} className="capitalize">{temp}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -183,90 +196,119 @@ export default function LeadsPage() {
               <p className="text-sm">Inicie uma prospecção ou adicione leads manualmente</p>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox
-                        checked={selectedLeads.length === leads.length}
-                        onCheckedChange={toggleSelectAll}
-                      />
-                    </TableHead>
-                    <TableHead>Empresa</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Nicho</TableHead>
-                    <TableHead>Estágio</TableHead>
-                    <TableHead>Temp.</TableHead>
-                    <TableHead>Último Contato</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leads.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell>
+            <>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
                         <Checkbox
-                          checked={selectedLeads.includes(lead.id)}
-                          onCheckedChange={() => toggleSelect(lead.id)}
+                          checked={selectedLeads.length === paginatedLeads.length && paginatedLeads.length > 0}
+                          onCheckedChange={toggleSelectAll}
                         />
-                      </TableCell>
-                      <TableCell className="font-medium">{lead.business_name}</TableCell>
-                      <TableCell>{lead.phone}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{lead.niche || '-'}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${stageColors[lead.stage]} text-white`}>
-                          {lead.stage}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {temperatureIcons[lead.temperature]}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {lead.last_contact_at
-                          ? formatDistanceToNow(new Date(lead.last_contact_at), {
-                              addSuffix: true,
-                              locale: ptBR,
-                            })
-                          : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Ver detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <MessageSquare className="h-4 w-4 mr-2" />
-                              Ver conversa
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={() => deleteLead(lead.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+                      </TableHead>
+                      <TableHead>Empresa</TableHead>
+                      <TableHead>Telefone</TableHead>
+                      <TableHead>Nicho</TableHead>
+                      <TableHead>Estágio</TableHead>
+                      <TableHead>Temp.</TableHead>
+                      <TableHead>Último Contato</TableHead>
+                      <TableHead className="w-12"></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedLeads.map((lead) => (
+                      <TableRow 
+                        key={lead.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleViewDetails(lead)}
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedLeads.includes(lead.id)}
+                            onCheckedChange={() => toggleSelect(lead.id)}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">{lead.business_name}</TableCell>
+                        <TableCell>{lead.phone}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{lead.niche || '-'}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={`${stageColors[lead.stage]} text-white`}>
+                            {lead.stage}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {temperatureIcons[lead.temperature]}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {lead.last_contact_at
+                            ? formatDistanceToNow(new Date(lead.last_contact_at), {
+                                addSuffix: true,
+                                locale: ptBR,
+                              })
+                            : '-'}
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleViewDetails(lead)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedLead(lead);
+                                setDetailsOpen(true);
+                              }}>
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Ver conversa
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => deleteLead(lead.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination */}
+              <LeadsPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={leads.length}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+              />
+            </>
           )}
         </CardContent>
       </Card>
+
+      {/* Lead Details Modal */}
+      <LeadDetailsModal
+        lead={selectedLead}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </DashboardLayout>
   );
 }
