@@ -25,7 +25,18 @@ import {
   Key,
   Bot,
   Users,
+  ExternalLink,
+  Mail,
+  Search,
+  Sparkles,
 } from 'lucide-react';
+
+// API Links for users to get their keys
+const API_LINKS = {
+  gemini: 'https://aistudio.google.com/apikey',
+  serpapi: 'https://serpapi.com/manage-api-key',
+  hunter: 'https://hunter.io/api_keys',
+};
 
 interface TutorialStep {
   id: string;
@@ -339,6 +350,113 @@ export default function TutorialPage() {
                 </AccordionItem>
               ))}
             </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* API Keys Section */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              Chaves de API Necessárias
+            </CardTitle>
+            <CardDescription>
+              Obtenha suas chaves de API clicando nos links abaixo e configure em Configurações
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Gemini API */}
+              <a 
+                href={API_LINKS.gemini} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Card className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md h-full group">
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Sparkles className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium flex items-center justify-center gap-1">
+                        Google Gemini
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        IA para análise e personalização de mensagens
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      Grátis - 60 req/min
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </a>
+
+              {/* SerpAPI */}
+              <a 
+                href={API_LINKS.serpapi} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Card className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md h-full group">
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Search className="h-6 w-6 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium flex items-center justify-center gap-1">
+                        SerpAPI
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Busca de leads no Google Maps
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      100 buscas/mês grátis
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </a>
+
+              {/* Hunter.io */}
+              <a 
+                href={API_LINKS.hunter} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Card className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md h-full group">
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Mail className="h-6 w-6 text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium flex items-center justify-center gap-1">
+                        Hunter.io
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Busca de emails profissionais
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      25 buscas/mês grátis
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </a>
+            </div>
+
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground flex items-start gap-2">
+                <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                Após obter suas chaves, vá em <Link to="/settings" className="text-primary hover:underline font-medium">Configurações → API Keys</Link> para configurá-las.
+              </p>
+            </div>
           </CardContent>
         </Card>
 
