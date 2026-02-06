@@ -26,3 +26,15 @@ verify_jwt = false
 
 [functions.ai-prospecting]
 verify_jwt = false
+
+[functions.firecrawl-scrape]
+verify_jwt = false
+
+[functions.firecrawl-search]
+verify_jwt = false
+
+[functions.firecrawl-map]
+verify_jwt = false
+
+[functions.web-search]
+verify_jwt = false
