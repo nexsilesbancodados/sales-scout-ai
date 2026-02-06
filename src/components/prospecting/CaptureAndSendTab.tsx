@@ -5,6 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import {
   Select,
   SelectContent,
@@ -12,6 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +42,14 @@ import {
   Clock,
   AlertCircle,
   Shield,
+  Filter,
+  ChevronDown,
+  Globe,
+  MessageCircle,
+  ThumbsUp,
+  Users,
+  Zap,
+  Settings2,
 } from 'lucide-react';
 
 const NICHES = [
@@ -76,6 +93,28 @@ const LOCATIONS = [
   'Natal, RN',
 ];
 
+interface CaptureFilters {
+  enabled: boolean;
+  noWebsite: boolean;
+  hasWhatsApp: boolean;
+  minRating: number;
+  minReviews: number;
+  maxReviews: number;
+  hasAddress: boolean;
+  hasEmail: boolean;
+}
+
+const DEFAULT_FILTERS: CaptureFilters = {
+  enabled: false,
+  noWebsite: false,
+  hasWhatsApp: true,
+  minRating: 0,
+  minReviews: 0,
+  maxReviews: 10000,
+  hasAddress: false,
+  hasEmail: false,
+};
+
 interface CapturedLead {
   id: string;
   business_name: string;
@@ -84,12 +123,13 @@ interface CapturedLead {
   rating?: number;
   reviews_count?: number;
   website?: string;
+  email?: string;
   niche: string;
   location: string;
   painPoints?: string[];
   suggestedMessage?: string;
   status: 'pending' | 'sending' | 'sent' | 'failed';
-  subtype?: string; // Subnicho usado na busca
+  subtype?: string;
   google_maps_url?: string;
 }
 
@@ -107,6 +147,8 @@ export function CaptureAndSendTab() {
   const [processStatus, setProcessStatus] = useState<ProcessStatus>('idle');
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [logs, setLogs] = useState<string[]>([]);
+  const [filters, setFilters] = useState<CaptureFilters>(DEFAULT_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
@@ -114,6 +156,53 @@ export function CaptureAndSendTab() {
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString('pt-BR');
     setLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
+  };
+
+  // Filter leads based on capture filters
+  const applyFilters = (lead: CapturedLead): boolean => {
+    if (!filters.enabled) return true;
+
+    // No website filter
+    if (filters.noWebsite && lead.website) return false;
+
+    // Has WhatsApp (phone starting with country code or specific patterns)
+    if (filters.hasWhatsApp) {
+      const phone = lead.phone?.replace(/\D/g, '') || '';
+      // Brazilian WhatsApp numbers typically start with 55 and have 12-13 digits
+      // Or are mobile numbers starting with 9
+      const isMobile = phone.length >= 10 && (phone.startsWith('55') || /^[1-9][1-9]9/.test(phone));
+      if (!isMobile) return false;
+    }
+
+    // Minimum rating filter
+    if (filters.minRating > 0 && (lead.rating || 0) < filters.minRating) return false;
+
+    // Minimum reviews filter
+    if (filters.minReviews > 0 && (lead.reviews_count || 0) < filters.minReviews) return false;
+
+    // Maximum reviews filter (to target smaller businesses)
+    if (filters.maxReviews < 10000 && (lead.reviews_count || 0) > filters.maxReviews) return false;
+
+    // Has address filter
+    if (filters.hasAddress && !lead.address) return false;
+
+    // Has email filter
+    if (filters.hasEmail && !lead.email) return false;
+
+    return true;
+  };
+
+  const getActiveFiltersCount = () => {
+    if (!filters.enabled) return 0;
+    let count = 0;
+    if (filters.noWebsite) count++;
+    if (filters.hasWhatsApp) count++;
+    if (filters.minRating > 0) count++;
+    if (filters.minReviews > 0) count++;
+    if (filters.maxReviews < 10000) count++;
+    if (filters.hasAddress) count++;
+    if (filters.hasEmail) count++;
+    return count;
   };
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -288,18 +377,31 @@ export function CaptureAndSendTab() {
       return index === self.findIndex(l => l.phone.replace(/\D/g, '') === normalizedPhone);
     });
 
-    setCapturedLeads(uniqueLeads);
-    addLog(`✅ Captura concluída: ${uniqueLeads.length} leads únicos encontrados`);
+    // Apply capture filters
+    const filteredLeads = uniqueLeads.filter(applyFilters);
+    const filteredCount = uniqueLeads.length - filteredLeads.length;
+
+    setCapturedLeads(filteredLeads);
+    
+    if (filters.enabled && filteredCount > 0) {
+      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos, ${filteredLeads.length} passaram nos filtros`);
+    }
+    
+    addLog(`✅ Captura concluída: ${filteredLeads.length} leads únicos encontrados`);
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
     
     // Final summary toast with more details
+    const filterInfo = filters.enabled && filteredCount > 0 
+      ? ` (${filteredCount} removidos por filtros)`
+      : '';
+    
     toast({
-      title: uniqueLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
-      description: uniqueLeads.length > 0 
-        ? `${uniqueLeads.length} leads únicos capturados de ${selectedNiches.length} nichos × ${selectedLocations.length} locais.`
-        : 'Tente outras combinações de nichos e locais.',
-      variant: uniqueLeads.length > 0 ? 'default' : 'destructive',
+      title: filteredLeads.length > 0 ? '✅ Captura concluída!' : '⚠️ Nenhum lead encontrado',
+      description: filteredLeads.length > 0 
+        ? `${filteredLeads.length} leads únicos capturados de ${selectedNiches.length} nichos × ${selectedLocations.length} locais.${filterInfo}`
+        : 'Tente outras combinações de nichos e locais ou ajuste os filtros.',
+      variant: filteredLeads.length > 0 ? 'default' : 'destructive',
     });
   };
 
@@ -748,6 +850,302 @@ export function CaptureAndSendTab() {
         </Card>
       </div>
 
+      {/* Capture Filters */}
+      <Card>
+        <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filtros de Captura
+                  {getActiveFiltersCount() > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {getActiveFiltersCount()} ativos
+                    </Badge>
+                  )}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="filters-enabled" className="text-sm text-muted-foreground">
+                      {filters.enabled ? 'Ativado' : 'Desativado'}
+                    </Label>
+                    <Switch
+                      id="filters-enabled"
+                      checked={filters.enabled}
+                      onCheckedChange={(checked) => {
+                        setFilters(prev => ({ ...prev, enabled: checked }));
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </div>
+              <CardDescription>
+                {filters.enabled 
+                  ? 'Filtre os leads capturados para focar em empresas com maior potencial'
+                  : 'Clique para configurar filtros avançados de captura'
+                }
+              </CardDescription>
+            </CardHeader>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {/* Website Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <Label className="font-medium">Website</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="no-website"
+                      checked={filters.noWebsite}
+                      onCheckedChange={(checked) => 
+                        setFilters(prev => ({ ...prev, noWebsite: !!checked }))
+                      }
+                      disabled={!filters.enabled}
+                    />
+                    <Label 
+                      htmlFor="no-website" 
+                      className={`text-sm ${!filters.enabled ? 'text-muted-foreground' : ''}`}
+                    >
+                      Apenas empresas SEM site
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Empresas sem site têm mais chances de precisar dos seus serviços
+                  </p>
+                </div>
+
+                {/* WhatsApp Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                    <Label className="font-medium">WhatsApp</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="has-whatsapp"
+                      checked={filters.hasWhatsApp}
+                      onCheckedChange={(checked) => 
+                        setFilters(prev => ({ ...prev, hasWhatsApp: !!checked }))
+                      }
+                      disabled={!filters.enabled}
+                    />
+                    <Label 
+                      htmlFor="has-whatsapp" 
+                      className={`text-sm ${!filters.enabled ? 'text-muted-foreground' : ''}`}
+                    >
+                      Apenas números de celular (WhatsApp)
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Filtra números fixos, mantendo apenas celulares válidos para WhatsApp
+                  </p>
+                </div>
+
+                {/* Address Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Label className="font-medium">Endereço</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="has-address"
+                      checked={filters.hasAddress}
+                      onCheckedChange={(checked) => 
+                        setFilters(prev => ({ ...prev, hasAddress: !!checked }))
+                      }
+                      disabled={!filters.enabled}
+                    />
+                    <Label 
+                      htmlFor="has-address" 
+                      className={`text-sm ${!filters.enabled ? 'text-muted-foreground' : ''}`}
+                    >
+                      Apenas com endereço completo
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Empresas com endereço são mais estabelecidas e confiáveis
+                  </p>
+                </div>
+
+                {/* Rating Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-muted-foreground" />
+                      <Label className="font-medium">Avaliação Mínima</Label>
+                    </div>
+                    <Badge variant="outline" className="font-mono">
+                      {filters.minRating > 0 ? `${filters.minRating}+ ⭐` : 'Qualquer'}
+                    </Badge>
+                  </div>
+                  <Slider
+                    value={[filters.minRating]}
+                    onValueChange={([value]) => 
+                      setFilters(prev => ({ ...prev, minRating: value }))
+                    }
+                    max={5}
+                    step={0.5}
+                    disabled={!filters.enabled}
+                    className="py-2"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Empresas bem avaliadas costumam ser mais profissionais
+                  </p>
+                </div>
+
+                {/* Min Reviews Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ThumbsUp className="h-4 w-4 text-muted-foreground" />
+                      <Label className="font-medium">Mínimo de Avaliações</Label>
+                    </div>
+                    <Badge variant="outline" className="font-mono">
+                      {filters.minReviews > 0 ? `${filters.minReviews}+` : 'Qualquer'}
+                    </Badge>
+                  </div>
+                  <Slider
+                    value={[filters.minReviews]}
+                    onValueChange={([value]) => 
+                      setFilters(prev => ({ ...prev, minReviews: value }))
+                    }
+                    max={100}
+                    step={5}
+                    disabled={!filters.enabled}
+                    className="py-2"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Mais avaliações = empresa mais estabelecida
+                  </p>
+                </div>
+
+                {/* Max Reviews Filter */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Label className="font-medium">Máximo de Avaliações</Label>
+                    </div>
+                    <Badge variant="outline" className="font-mono">
+                      {filters.maxReviews < 10000 ? `até ${filters.maxReviews}` : 'Ilimitado'}
+                    </Badge>
+                  </div>
+                  <Slider
+                    value={[filters.maxReviews]}
+                    onValueChange={([value]) => 
+                      setFilters(prev => ({ ...prev, maxReviews: value }))
+                    }
+                    min={10}
+                    max={10000}
+                    step={10}
+                    disabled={!filters.enabled}
+                    className="py-2"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Empresas menores são mais receptivas a novos fornecedores
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Presets */}
+              <div className="mt-6 pt-4 border-t">
+                <Label className="text-sm font-medium mb-3 block">Presets Rápidos</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilters({
+                      enabled: true,
+                      noWebsite: true,
+                      hasWhatsApp: true,
+                      minRating: 0,
+                      minReviews: 0,
+                      maxReviews: 10000,
+                      hasAddress: false,
+                      hasEmail: false,
+                    })}
+                    disabled={isProcessing}
+                  >
+                    <Zap className="h-3 w-3 mr-1" />
+                    Empresas sem Site
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilters({
+                      enabled: true,
+                      noWebsite: false,
+                      hasWhatsApp: true,
+                      minRating: 4,
+                      minReviews: 10,
+                      maxReviews: 10000,
+                      hasAddress: false,
+                      hasEmail: false,
+                    })}
+                    disabled={isProcessing}
+                  >
+                    <Star className="h-3 w-3 mr-1" />
+                    Bem Avaliadas
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilters({
+                      enabled: true,
+                      noWebsite: false,
+                      hasWhatsApp: true,
+                      minRating: 0,
+                      minReviews: 0,
+                      maxReviews: 50,
+                      hasAddress: false,
+                      hasEmail: false,
+                    })}
+                    disabled={isProcessing}
+                  >
+                    <Building2 className="h-3 w-3 mr-1" />
+                    Negócios Pequenos
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilters({
+                      enabled: true,
+                      noWebsite: true,
+                      hasWhatsApp: true,
+                      minRating: 3.5,
+                      minReviews: 5,
+                      maxReviews: 100,
+                      hasAddress: true,
+                      hasEmail: false,
+                    })}
+                    disabled={isProcessing}
+                  >
+                    <Settings2 className="h-3 w-3 mr-1" />
+                    Leads Premium
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilters(DEFAULT_FILTERS)}
+                    disabled={isProcessing}
+                  >
+                    Limpar Filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
       {/* Actions */}
       <Card>
         <CardContent className="pt-4">
@@ -871,6 +1269,9 @@ export function CaptureAndSendTab() {
                               <span>{lead.rating}</span>
                             </>
                           )}
+                          {lead.reviews_count && lead.reviews_count > 0 && (
+                            <span className="text-xs">({lead.reviews_count} avaliações)</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           <Badge variant="secondary" className="text-xs">{lead.niche}</Badge>
@@ -878,6 +1279,18 @@ export function CaptureAndSendTab() {
                             <Badge variant="outline" className="text-xs bg-accent/20">{lead.subtype}</Badge>
                           )}
                           <Badge variant="outline" className="text-xs">{lead.location}</Badge>
+                          {!lead.website && (
+                            <Badge variant="outline" className="text-xs border-warning/50 text-warning">
+                              <Globe className="h-2.5 w-2.5 mr-1" />
+                              Sem site
+                            </Badge>
+                          )}
+                          {lead.website && (
+                            <a href={lead.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                              <Globe className="h-2.5 w-2.5" />
+                              Site
+                            </a>
+                          )}
                           {lead.google_maps_url && (
                             <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                               Ver no Maps
