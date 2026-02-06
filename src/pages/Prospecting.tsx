@@ -9,6 +9,7 @@ import { ImportTab } from '@/components/prospecting/ImportTab';
 import { TemplatesTab } from '@/components/prospecting/TemplatesTab';
 import { SettingsTab } from '@/components/prospecting/SettingsTab';
 import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
+import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
 import { FollowUpManager } from '@/components/followup/FollowUpManager';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -31,6 +32,7 @@ import {
   Plus,
   Target,
   RefreshCw,
+  FlaskConical,
 } from 'lucide-react';
 
 export default function ProspectingPage() {
@@ -41,7 +43,7 @@ export default function ProspectingPage() {
   // Handle URL param for tab navigation
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'ai-insights', 'settings'].includes(tab)) {
+    if (tab && ['capture', 'campaigns', 'mass-send', 'templates', 'import', 'follow-up', 'ab-testing', 'ai-insights', 'settings'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -84,7 +86,7 @@ export default function ProspectingPage() {
       <ProspectingDashboard />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 mt-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="capture" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">Capturar</span>
@@ -100,6 +102,10 @@ export default function ProspectingPage() {
           <TabsTrigger value="follow-up" className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
             <span className="hidden sm:inline">Follow-up</span>
+          </TabsTrigger>
+          <TabsTrigger value="ab-testing" className="flex items-center gap-2">
+            <FlaskConical className="h-4 w-4" />
+            <span className="hidden sm:inline">A/B Test</span>
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <MessageSquareText className="h-4 w-4" />
@@ -137,6 +143,10 @@ export default function ProspectingPage() {
 
         <TabsContent value="templates">
           <TemplatesTab />
+        </TabsContent>
+
+        <TabsContent value="ab-testing">
+          <ABTestingTab />
         </TabsContent>
 
         <TabsContent value="import">
