@@ -142,7 +142,15 @@ Deno.serve(async (req) => {
         .update({ whatsapp_instance_id: instanceName })
         .eq("user_id", user.id);
 
-      return new Response(JSON.stringify(instanceData), {
+      // Extract QR code from creation response if available
+      const base64 = instanceData.qrcode?.base64 || instanceData.base64;
+      const pairingCode = instanceData.qrcode?.pairingCode || instanceData.pairingCode;
+      
+      return new Response(JSON.stringify({
+        ...instanceData,
+        base64,
+        pairingCode,
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -162,7 +170,19 @@ Deno.serve(async (req) => {
       }
 
       const qrData = await qrResponse.json();
-      return new Response(JSON.stringify(qrData), {
+      console.log("QR Response keys:", Object.keys(qrData));
+      console.log("QR Data:", JSON.stringify(qrData).substring(0, 500));
+      
+      // Evolution API returns QR in different formats depending on version
+      // Try to extract base64 from various possible locations
+      const base64 = qrData.base64 || qrData.qrcode?.base64 || qrData.code;
+      const pairingCode = qrData.pairingCode || qrData.pairing_code;
+      
+      return new Response(JSON.stringify({
+        base64,
+        code: qrData.code || qrData.qrcode?.code,
+        pairingCode,
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
