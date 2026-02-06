@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
+import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -49,6 +50,7 @@ import {
   Brain,
   Sparkles,
   Settings2,
+  Shield,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -216,8 +218,12 @@ export default function SettingsPage() {
       title="Configurações"
       description="Personalize seu agente de prospecção com IA avançada"
     >
-      <Tabs defaultValue="personality" className="space-y-6">
-        <TabsList className="grid grid-cols-6 w-full max-w-3xl">
+      <Tabs defaultValue="antiblock" className="space-y-6">
+        <TabsList className="grid grid-cols-7 w-full max-w-4xl">
+          <TabsTrigger value="antiblock" className="gap-1">
+            <Shield className="h-4 w-4" />
+            <span className="hidden sm:inline">Anti-Bloqueio</span>
+          </TabsTrigger>
           <TabsTrigger value="personality" className="gap-1">
             <Brain className="h-4 w-4" />
             <span className="hidden sm:inline">Personalidade</span>
@@ -243,6 +249,11 @@ export default function SettingsPage() {
             <span className="hidden sm:inline">Integrações</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Anti-Block Tab - NEW */}
+        <TabsContent value="antiblock">
+          <AntiBlockSettings />
+        </TabsContent>
 
         {/* Personality Tab - NEW */}
         <TabsContent value="personality">

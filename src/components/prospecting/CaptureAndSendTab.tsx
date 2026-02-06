@@ -32,6 +32,7 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Shield,
 } from 'lucide-react';
 
 const NICHES = [
@@ -117,11 +118,62 @@ export function CaptureAndSendTab() {
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  // Advanced interval calculation with human-like randomization
   const getRandomInterval = () => {
     const baseInterval = (settings?.message_interval_seconds || 60) * 1000;
+    // More variance: 50% to 200% of base interval
     const minInterval = baseInterval * 0.5;
-    const maxInterval = baseInterval * 1.5;
-    return Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+    const maxInterval = baseInterval * 2;
+    const randomInterval = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+    
+    // Add "natural" micro-pauses (human typing behavior)
+    const typingDelay = Math.floor(Math.random() * 3000) + 1000; // 1-4s typing simulation
+    
+    return randomInterval + typingDelay;
+  };
+
+  // Check if current time is within operating hours
+  const isWithinOperatingHours = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const day = now.getDay();
+    const startHour = settings?.auto_start_hour || 9;
+    const endHour = settings?.auto_end_hour || 18;
+    
+    // Check if weekend (0 = Sunday, 6 = Saturday)
+    const isWeekend = day === 0 || day === 6;
+    if (isWeekend) {
+      addLog('⚠️ Fim de semana detectado - pausando envios');
+      return false;
+    }
+    
+    // Check if within hours
+    if (hour < startHour || hour >= endHour) {
+      addLog(`⚠️ Fora do horário de operação (${startHour}h-${endHour}h)`);
+      return false;
+    }
+    
+    return true;
+  };
+
+  // Check daily limit
+  const checkDailyLimit = (sentToday: number) => {
+    const dailyLimit = settings?.daily_message_limit || 30;
+    if (sentToday >= dailyLimit) {
+      addLog(`🛑 Limite diário atingido (${dailyLimit} mensagens)`);
+      return false;
+    }
+    return true;
+  };
+
+  // Shuffle array for random order (anti-pattern detection)
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   };
 
   const handleCapture = async () => {
@@ -343,11 +395,11 @@ export function CaptureAndSendTab() {
   };
 
   const startSending = async () => {
-    const leadsToSend = capturedLeads.filter(
+    const leadsWithMessages = capturedLeads.filter(
       l => selectedLeadIds.includes(l.id) && l.suggestedMessage && l.status === 'pending'
     );
 
-    if (leadsToSend.length === 0) {
+    if (leadsWithMessages.length === 0) {
       toast({
         title: 'Nenhum lead para enviar',
         description: 'Analise os leads primeiro para gerar mensagens personalizadas.',
@@ -365,15 +417,57 @@ export function CaptureAndSendTab() {
       return;
     }
 
+    // Check if within operating hours
+    if (!isWithinOperatingHours()) {
+      toast({
+        title: '⚠️ Fora do horário de operação',
+        description: `Envios permitidos entre ${settings?.auto_start_hour || 9}h e ${settings?.auto_end_hour || 18}h em dias úteis.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const dailyLimit = settings?.daily_message_limit || 30;
+
     setProcessStatus('sending');
     isPausedRef.current = false;
     isStoppedRef.current = false;
 
-    addLog(`Iniciando disparo para ${leadsToSend.length} leads...`);
+    // Shuffle leads for random order (anti-pattern detection)
+    const leadsToSend = shuffleArray(leadsWithMessages);
+    
+    addLog(`🚀 Iniciando disparo seguro para ${leadsToSend.length} leads...`);
+    addLog(`📊 Limite diário: ${dailyLimit} | Intervalo base: ${settings?.message_interval_seconds || 60}s`);
+
+    let sentToday = 0;
+    let consecutiveErrors = 0;
+    const maxConsecutiveErrors = 3;
+    const batchSize = 10;
+    let batchCount = 0;
 
     for (let i = 0; i < leadsToSend.length; i++) {
+      // Check daily limit
+      if (!checkDailyLimit(sentToday)) {
+        toast({
+          title: '🛑 Limite diário atingido',
+          description: `Você atingiu o limite de ${dailyLimit} mensagens por dia.`,
+        });
+        setProcessStatus('stopped');
+        return;
+      }
+
+      // Check operating hours periodically
+      if (i > 0 && i % 5 === 0 && !isWithinOperatingHours()) {
+        toast({
+          title: '⏰ Fora do horário de operação',
+          description: 'O disparo será pausado até o próximo horário permitido.',
+        });
+        setProcessStatus('paused');
+        return;
+      }
+
       if (isStoppedRef.current) {
-        addLog('Disparo interrompido pelo usuário');
+        addLog('🛑 Disparo interrompido pelo usuário');
         setProcessStatus('stopped');
         return;
       }
@@ -391,7 +485,7 @@ export function CaptureAndSendTab() {
       setProgress({ 
         current: i + 1, 
         total: leadsToSend.length, 
-        phase: `Enviando para: ${lead.business_name}` 
+        phase: `📤 Enviando para: ${lead.business_name}` 
       });
 
       // Update lead status to sending
@@ -400,7 +494,12 @@ export function CaptureAndSendTab() {
       ));
 
       try {
-        addLog(`Enviando mensagem para ${lead.business_name}...`);
+        // Simulate typing delay (human behavior)
+        const typingDelay = Math.floor(Math.random() * 2000) + 1000;
+        addLog(`⌨️ Simulando digitação para ${lead.business_name}... (${(typingDelay / 1000).toFixed(1)}s)`);
+        await sleep(typingDelay);
+
+        addLog(`📤 Enviando mensagem para ${lead.business_name}...`);
 
         const response = await supabase.functions.invoke('whatsapp-send', {
           body: {
@@ -445,30 +544,64 @@ export function CaptureAndSendTab() {
         setCapturedLeads(prev => prev.map(l => 
           l.id === lead.id ? { ...l, status: 'sent' as const } : l
         ));
-        addLog(`✓ Mensagem enviada para ${lead.business_name}`);
+        addLog(`✅ Mensagem enviada para ${lead.business_name}`);
+        
+        sentToday++;
+        consecutiveErrors = 0; // Reset error counter on success
+        batchCount++;
+
       } catch (error: any) {
         setCapturedLeads(prev => prev.map(l => 
           l.id === lead.id ? { ...l, status: 'failed' as const } : l
         ));
-        addLog(`✗ Erro ao enviar para ${lead.business_name}: ${error.message}`);
+        addLog(`❌ Erro ao enviar para ${lead.business_name}: ${error.message}`);
+        
+        consecutiveErrors++;
+        
+        // Auto-pause on consecutive errors (safety measure)
+        if (consecutiveErrors >= maxConsecutiveErrors) {
+          addLog(`⚠️ ${maxConsecutiveErrors} erros consecutivos detectados - pausando por segurança...`);
+          toast({
+            title: '⚠️ Erros consecutivos detectados',
+            description: 'O sistema pausou automaticamente para evitar problemas. Verifique sua conexão.',
+            variant: 'destructive',
+          });
+          
+          // Wait 5 minutes before continuing
+          addLog('⏳ Aguardando 5 minutos antes de continuar...');
+          await sleep(5 * 60 * 1000);
+          consecutiveErrors = 0;
+        }
       }
 
-      // Random delay between messages
+      // Random delay between messages (human-like)
       if (i < leadsToSend.length - 1) {
-        const interval = getRandomInterval();
-        addLog(`Aguardando ${Math.round(interval / 1000)}s...`);
-        await sleep(interval);
+        // Batch cooldown: longer pause after every batchSize messages
+        if (batchCount >= batchSize) {
+          const cooldownMinutes = Math.floor(Math.random() * 10) + 10; // 10-20 min cooldown
+          addLog(`☕ Pausa de cooldown: ${cooldownMinutes} minutos após ${batchSize} mensagens...`);
+          await sleep(cooldownMinutes * 60 * 1000);
+          batchCount = 0;
+        } else {
+          const interval = getRandomInterval();
+          const minutes = Math.floor(interval / 60000);
+          const seconds = Math.round((interval % 60000) / 1000);
+          addLog(`⏳ Aguardando ${minutes}m ${seconds}s antes da próxima mensagem...`);
+          await sleep(interval);
+        }
       }
     }
 
     const sentCount = capturedLeads.filter(l => l.status === 'sent').length;
-    addLog(`Disparo concluído! ${sentCount} mensagens enviadas com sucesso.`);
+    const failedCount = capturedLeads.filter(l => l.status === 'failed').length;
+    
+    addLog(`🎉 Disparo concluído! ${sentCount} enviadas, ${failedCount} falharam.`);
     setProcessStatus('completed');
     setProgress({ current: 0, total: 0, phase: '' });
     
     toast({
-      title: 'Disparo concluído!',
-      description: `${sentCount} mensagens enviadas com sucesso.`,
+      title: '🎉 Disparo concluído!',
+      description: `${sentCount} mensagens enviadas com sucesso, ${failedCount} falharam.`,
     });
   };
 
@@ -520,8 +653,36 @@ export function CaptureAndSendTab() {
 
   const isProcessing = ['capturing', 'analyzing', 'sending'].includes(processStatus);
 
+  // Calculate safety status for display
+  const getSafetyStatus = () => {
+    const dailyLimit = settings?.daily_message_limit || 30;
+    const interval = settings?.message_interval_seconds || 60;
+    
+    if (dailyLimit <= 30 && interval >= 60) {
+      return { level: 'safe', label: '✓ Seguro', color: 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400' };
+    } else if (dailyLimit <= 50 && interval >= 45) {
+      return { level: 'moderate', label: '⚠ Moderado', color: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400' };
+    } else {
+      return { level: 'risky', label: '🚨 Arriscado', color: 'bg-destructive/10 border-destructive/30 text-destructive' };
+    }
+  };
+
+  const safetyStatus = getSafetyStatus();
+
   return (
     <div className="space-y-4">
+      {/* Safety Status Banner */}
+      <div className={`p-3 rounded-lg border flex items-center justify-between ${safetyStatus.color}`}>
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          <span className="font-medium">Status Anti-Bloqueio: {safetyStatus.label}</span>
+        </div>
+        <div className="text-sm">
+          {settings?.daily_message_limit || 30} msgs/dia • {settings?.message_interval_seconds || 60}s intervalo • 
+          {settings?.auto_start_hour || 9}h-{settings?.auto_end_hour || 18}h
+        </div>
+      </div>
+
       {/* Configuration */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
