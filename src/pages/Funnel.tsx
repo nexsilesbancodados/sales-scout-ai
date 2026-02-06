@@ -4,35 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLeads } from '@/hooks/use-leads';
 import { Lead, LeadStage } from '@/types/database';
+import { LeadDetailsModal } from '@/components/leads/LeadDetailsModal';
+import { temperatureIconsSmall, stageBorderColors, allStages } from '@/constants/lead-icons';
 import {
-  Flame,
-  ThermometerSun,
-  Snowflake,
   GripVertical,
   Loader2,
   Kanban,
 } from 'lucide-react';
 
-const stages: LeadStage[] = ['Contato', 'Qualificado', 'Proposta', 'Negociação', 'Ganho', 'Perdido'];
-
-const stageColors: Record<LeadStage, string> = {
-  'Contato': 'border-t-stage-contact',
-  'Qualificado': 'border-t-stage-qualified',
-  'Proposta': 'border-t-stage-proposal',
-  'Negociação': 'border-t-stage-negotiation',
-  'Ganho': 'border-t-stage-won',
-  'Perdido': 'border-t-stage-lost',
-};
-
-const temperatureIcons = {
-  'quente': <Flame className="h-3 w-3 text-temp-hot" />,
-  'morno': <ThermometerSun className="h-3 w-3 text-temp-warm" />,
-  'frio': <Snowflake className="h-3 w-3 text-temp-cold" />,
-};
-
 export default function FunnelPage() {
   const { leads, isLoading, updateLead } = useLeads();
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const getLeadsByStage = (stage: LeadStage) => {
     return leads.filter(lead => lead.stage === stage);
@@ -56,6 +40,11 @@ export default function FunnelPage() {
     setDraggedLead(null);
   };
 
+  const handleLeadClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setDetailsOpen(true);
+  };
+
   return (
     <DashboardLayout
       title="Funil de Vendas"
@@ -67,14 +56,14 @@ export default function FunnelPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          {stages.map((stage) => (
+          {allStages.map((stage) => (
             <div
               key={stage}
               className="flex flex-col"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, stage)}
             >
-              <Card className={`border-t-4 ${stageColors[stage]}`}>
+              <Card className={`border-t-4 ${stageBorderColors[stage]}`}>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium flex items-center justify-between">
                     {stage}
@@ -95,6 +84,7 @@ export default function FunnelPage() {
                         key={lead.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, lead)}
+                        onClick={() => handleLeadClick(lead)}
                         className="p-3 rounded-lg border bg-card cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors"
                       >
                         <div className="flex items-start gap-2">
@@ -107,7 +97,7 @@ export default function FunnelPage() {
                               {lead.phone}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              {temperatureIcons[lead.temperature]}
+                              {temperatureIconsSmall[lead.temperature]}
                               {lead.niche && (
                                 <Badge variant="secondary" className="text-xs">
                                   {lead.niche}
@@ -125,6 +115,13 @@ export default function FunnelPage() {
           ))}
         </div>
       )}
+
+      {/* Lead Details Modal */}
+      <LeadDetailsModal
+        lead={selectedLead}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </DashboardLayout>
   );
 }

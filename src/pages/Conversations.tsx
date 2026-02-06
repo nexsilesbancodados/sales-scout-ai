@@ -9,30 +9,25 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { Lead } from '@/types/database';
+import { LeadDetailsModal } from '@/components/leads/LeadDetailsModal';
+import { temperatureIconsSmall } from '@/constants/lead-icons';
 import {
   Search,
   MessageSquare,
   Send,
-  Flame,
-  ThermometerSun,
-  Snowflake,
   Bot,
   User,
   Loader2,
+  Eye,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-const temperatureIcons = {
-  'quente': <Flame className="h-3 w-3 text-temp-hot" />,
-  'morno': <ThermometerSun className="h-3 w-3 text-temp-warm" />,
-  'frio': <Snowflake className="h-3 w-3 text-temp-cold" />,
-};
 
 export default function ConversationsPage() {
   const [search, setSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const { leads, isLoading: leadsLoading } = useLeads({ search: search || undefined });
   const { messages, isLoading: messagesLoading, sendMessage, isSending } = useChatMessages(selectedLead?.id || null);
@@ -47,6 +42,12 @@ export default function ConversationsPage() {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleViewDetails = () => {
+    if (selectedLead) {
+      setDetailsOpen(true);
     }
   };
 
@@ -99,7 +100,7 @@ export default function ConversationsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <p className="font-medium truncate">{lead.business_name}</p>
-                            {temperatureIcons[lead.temperature]}
+                            {temperatureIconsSmall[lead.temperature]}
                           </div>
                           <p className="text-sm text-muted-foreground truncate">
                             {lead.conversation_summary || 'Sem mensagens'}
@@ -136,13 +137,17 @@ export default function ConversationsPage() {
                       {selectedLead.business_name[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-lg">{selectedLead.business_name}</CardTitle>
                     <p className="text-sm text-muted-foreground">{selectedLead.phone}</p>
                   </div>
-                  <div className="ml-auto flex items-center gap-2">
-                    {temperatureIcons[selectedLead.temperature]}
+                  <div className="flex items-center gap-2">
+                    {temperatureIconsSmall[selectedLead.temperature]}
                     <Badge>{selectedLead.stage}</Badge>
+                    <Button variant="outline" size="sm" onClick={handleViewDetails}>
+                      <Eye className="h-4 w-4 mr-1" />
+                      Detalhes
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -242,6 +247,13 @@ export default function ConversationsPage() {
           )}
         </Card>
       </div>
+
+      {/* Lead Details Modal */}
+      <LeadDetailsModal
+        lead={selectedLead}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </DashboardLayout>
   );
 }
