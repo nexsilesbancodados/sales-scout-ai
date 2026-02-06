@@ -116,6 +116,14 @@ export interface Lead {
   reviews_count: number | null;
   best_contact_hour: number | null;
   tags: string[] | null;
+  // Lead Scoring
+  lead_score: number;
+  score_factors: Record<string, number>;
+  last_scored_at: string | null;
+  // Team
+  team_id: string | null;
+  assigned_to: string | null;
+  // Timestamps
   created_at: string;
   updated_at: string;
 }

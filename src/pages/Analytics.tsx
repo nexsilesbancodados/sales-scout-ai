@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { NichePerformanceAnalytics } from '@/components/analytics/NichePerformanceAnalytics';
+import { LeadScoring } from '@/components/analytics/LeadScoring';
 import { Loader2 } from 'lucide-react';
 import { useLeads } from '@/hooks/use-leads';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Target } from 'lucide-react';
+import { BarChart3, Target, Trophy } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const { isLoading: leadsLoading } = useLeads();
@@ -35,6 +36,10 @@ export default function AnalyticsPage() {
               <Target className="h-4 w-4" />
               Análise de Nichos
             </TabsTrigger>
+            <TabsTrigger value="scoring" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              Lead Scoring
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -43,6 +48,10 @@ export default function AnalyticsPage() {
 
           <TabsContent value="niches">
             <NichePerformanceAnalytics />
+          </TabsContent>
+
+          <TabsContent value="scoring">
+            <LeadScoring />
           </TabsContent>
         </Tabs>
       )}
