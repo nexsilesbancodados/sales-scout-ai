@@ -195,21 +195,24 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Format phone number (remove non-digits)
-      const formattedPhone = phoneNumber.replace(/\D/g, "");
+      // Format phone number - ensure it has country code (Brazil = 55)
+      let formattedPhone = phoneNumber.replace(/\D/g, "");
+      if (!formattedPhone.startsWith("55")) {
+        formattedPhone = "55" + formattedPhone;
+      }
       console.log(`Getting pairing code for: ${instanceName}, phone: ${formattedPhone}`);
       
-      // First ensure instance exists
+      // First check if instance exists
       const statusResponse = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
         method: "GET",
         headers: { "apikey": EVOLUTION_API_KEY },
       });
 
       if (!statusResponse.ok) {
-        // Instance doesn't exist, create it first
-        console.log("Instance doesn't exist, creating...");
+        // Instance doesn't exist, create it first with the phone number
+        console.log("Instance doesn't exist, creating with phone number...");
         const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
-        await fetch(`${EVOLUTION_API_URL}/instance/create`, {
+        const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
           method: "POST",
           headers: {
             "apikey": EVOLUTION_API_KEY,
@@ -217,6 +220,7 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             instanceName,
+            number: formattedPhone,
             qrcode: false,
             integration: "WHATSAPP-BAILEYS",
             webhook: {
@@ -227,27 +231,79 @@ Deno.serve(async (req) => {
             },
           }),
         });
+
+        if (createResponse.ok) {
+          const createData = await createResponse.json();
+          console.log("Instance created with pairing code:", JSON.stringify(createData).substring(0, 500));
+          
+          // Check if pairing code is in creation response
+          const pairingCode = createData.pairingCode || createData.pairing_code;
+          if (pairingCode) {
+            await supabaseService
+              .from("user_settings")
+              .update({ whatsapp_instance_id: instanceName })
+              .eq("user_id", user.id);
+            
+            return new Response(JSON.stringify({
+              pairingCode,
+              phoneNumber: formattedPhone,
+            }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        }
       }
 
-      // Request pairing code
-      const pairingResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
-        method: "GET",
-        headers: { 
+      // Instance exists, need to reconnect with phone number to get pairing code
+      // First delete the existing instance and recreate with phone
+      console.log("Recreating instance with phone number...");
+      
+      // Delete existing instance
+      await fetch(`${EVOLUTION_API_URL}/instance/delete/${instanceName}`, {
+        method: "DELETE",
+        headers: { "apikey": EVOLUTION_API_KEY },
+      });
+
+      // Wait a moment for deletion
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create new instance with phone number for pairing code
+      const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
+      const createResponse = await fetch(`${EVOLUTION_API_URL}/instance/create`, {
+        method: "POST",
+        headers: {
           "apikey": EVOLUTION_API_KEY,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          instanceName,
+          number: formattedPhone,
+          qrcode: false,
+          integration: "WHATSAPP-BAILEYS",
+          webhook: {
+            url: webhookUrl,
+            byEvents: false,
+            base64: false,
+            events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+          },
+        }),
       });
 
-      if (!pairingResponse.ok) {
-        const errorText = await pairingResponse.text();
-        console.error("Pairing code error:", errorText);
-        throw new Error("Failed to get pairing code");
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        console.error("Failed to create instance with phone:", errorText);
+        throw new Error("Failed to generate pairing code");
       }
 
-      const pairingData = await pairingResponse.json();
-      console.log("Pairing Response:", JSON.stringify(pairingData).substring(0, 500));
+      const createData = await createResponse.json();
+      console.log("Instance created response:", JSON.stringify(createData).substring(0, 500));
       
-      const pairingCode = pairingData.pairingCode || pairingData.pairing_code;
+      const pairingCode = createData.pairingCode || createData.pairing_code;
+      
+      if (!pairingCode) {
+        console.error("No pairing code in response:", createData);
+        throw new Error("Pairing code not available. Try QR Code instead.");
+      }
       
       // Update user settings with instance ID
       await supabaseService
