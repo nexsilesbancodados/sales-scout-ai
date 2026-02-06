@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
+import { LeadQuantitySlider } from './LeadQuantitySlider';
 import {
   Select,
   SelectContent,
@@ -242,6 +243,7 @@ export function CaptureAndSendTab() {
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [logs, setLogs] = useState<string[]>([]);
   const [filters, setFilters] = useState<CaptureFilters>(DEFAULT_FILTERS);
+  const [maxLeadsToCapture, setMaxLeadsToCapture] = useState(300);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
   
@@ -529,11 +531,11 @@ export function CaptureAndSendTab() {
         addLog(`Buscando "${niche}" em "${location}"...`);
 
         try {
-          // Call our edge function to search with higher limit
+          // Call our edge function to search with configured limit
           const response = await supabase.functions.invoke('ai-prospecting', {
             body: {
               action: 'search_leads',
-              data: { niche, location, maxResults: 500 },
+              data: { niche, location, maxResults: maxLeadsToCapture },
             },
           });
 
@@ -1089,7 +1091,7 @@ export function CaptureAndSendTab() {
       case 'failed':
         return <XCircle className="h-4 w-4 text-destructive" />;
       case 'duplicate':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+        return <AlertCircle className="h-4 w-4 text-warning" />;
       default:
         return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
@@ -1097,9 +1099,9 @@ export function CaptureAndSendTab() {
 
   // Get quality score color
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
+    if (score >= 80) return 'text-success';
     if (score >= 60) return 'text-primary';
-    if (score >= 40) return 'text-yellow-500';
+    if (score >= 40) return 'text-warning';
     return 'text-muted-foreground';
   };
 
@@ -1673,6 +1675,13 @@ export function CaptureAndSendTab() {
         </Collapsible>
       </Card>
 
+      {/* Lead Quantity Slider */}
+      <LeadQuantitySlider
+        value={maxLeadsToCapture}
+        onChange={setMaxLeadsToCapture}
+        disabled={isProcessing}
+      />
+
       {/* Actions */}
       <Card>
         <CardContent className="pt-4">
@@ -1686,7 +1695,7 @@ export function CaptureAndSendTab() {
               ) : (
                 <Search className="h-4 w-4 mr-2" />
               )}
-              Capturar Leads
+              Capturar {maxLeadsToCapture} Leads
             </Button>
 
             <Button
@@ -1812,7 +1821,7 @@ export function CaptureAndSendTab() {
                             </Badge>
                           )}
                           {lead.isDuplicate && (
-                            <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-600 dark:text-yellow-400">
+                            <Badge variant="outline" className="text-xs border-warning/50 text-warning">
                               Já existe
                             </Badge>
                           )}
