@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { action } = await req.json();
+    const { action, phoneNumber } = await req.json();
     const instanceName = `prospecte_${user.id.replace(/-/g, "_")}`;
 
     const supabaseService = createClient(
@@ -182,6 +182,82 @@ Deno.serve(async (req) => {
         base64,
         code: qrData.code || qrData.qrcode?.code,
         pairingCode,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "get_pairing_code") {
+      if (!phoneNumber) {
+        return new Response(
+          JSON.stringify({ error: "Phone number is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Format phone number (remove non-digits)
+      const formattedPhone = phoneNumber.replace(/\D/g, "");
+      console.log(`Getting pairing code for: ${instanceName}, phone: ${formattedPhone}`);
+      
+      // First ensure instance exists
+      const statusResponse = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
+        method: "GET",
+        headers: { "apikey": EVOLUTION_API_KEY },
+      });
+
+      if (!statusResponse.ok) {
+        // Instance doesn't exist, create it first
+        console.log("Instance doesn't exist, creating...");
+        const webhookUrl = `${supabaseUrl}/functions/v1/webhook`;
+        await fetch(`${EVOLUTION_API_URL}/instance/create`, {
+          method: "POST",
+          headers: {
+            "apikey": EVOLUTION_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            instanceName,
+            qrcode: false,
+            integration: "WHATSAPP-BAILEYS",
+            webhook: {
+              url: webhookUrl,
+              byEvents: false,
+              base64: false,
+              events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+            },
+          }),
+        });
+      }
+
+      // Request pairing code
+      const pairingResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
+        method: "GET",
+        headers: { 
+          "apikey": EVOLUTION_API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!pairingResponse.ok) {
+        const errorText = await pairingResponse.text();
+        console.error("Pairing code error:", errorText);
+        throw new Error("Failed to get pairing code");
+      }
+
+      const pairingData = await pairingResponse.json();
+      console.log("Pairing Response:", JSON.stringify(pairingData).substring(0, 500));
+      
+      const pairingCode = pairingData.pairingCode || pairingData.pairing_code;
+      
+      // Update user settings with instance ID
+      await supabaseService
+        .from("user_settings")
+        .update({ whatsapp_instance_id: instanceName })
+        .eq("user_id", user.id);
+      
+      return new Response(JSON.stringify({
+        pairingCode,
+        phoneNumber: formattedPhone,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
