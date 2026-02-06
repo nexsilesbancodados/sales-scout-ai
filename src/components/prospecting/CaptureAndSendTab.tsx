@@ -933,11 +933,24 @@ export function CaptureAndSendTab() {
   };
 
   const selectAllLeads = () => {
-    if (selectedLeadIds.length === capturedLeads.length) {
+    // Get only selectable leads (not sent, not duplicates)
+    const selectableLeads = capturedLeads.filter(l => l.status !== 'sent' && !l.isDuplicate);
+    const allSelectableIds = selectableLeads.map(l => l.id);
+    
+    // Check if all selectable leads are already selected
+    const allSelected = allSelectableIds.every(id => selectedLeadIds.includes(id));
+    
+    if (allSelected) {
       setSelectedLeadIds([]);
     } else {
-      setSelectedLeadIds(capturedLeads.map(l => l.id));
+      setSelectedLeadIds(allSelectableIds);
     }
+  };
+
+  const selectAllNewLeads = () => {
+    // Select only new leads (not duplicates, not sent)
+    const newLeads = capturedLeads.filter(l => !l.isDuplicate && l.status !== 'sent');
+    setSelectedLeadIds(newLeads.map(l => l.id));
   };
 
   const getStatusIcon = (status: CapturedLead['status']) => {
@@ -1610,13 +1623,27 @@ export function CaptureAndSendTab() {
       {capturedLeads.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle className="text-base">
                 Leads Capturados ({capturedLeads.length})
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={selectAllLeads}>
-                {selectedLeadIds.length === capturedLeads.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={selectAllNewLeads}
+                  disabled={capturedLeads.filter(l => !l.isDuplicate && l.status !== 'sent').length === 0}
+                >
+                  Selecionar Novos ({capturedLeads.filter(l => !l.isDuplicate && l.status !== 'sent').length})
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={selectAllLeads}
+                >
+                  {selectedLeadIds.length > 0 ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                </Button>
+              </div>
             </div>
             <CardDescription>
               {selectedLeadIds.length} selecionados • 
