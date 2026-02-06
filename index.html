@@ -1,26 +1,134 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Lovable App</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <title>Prospecte - Prospecção Inteligente via WhatsApp</title>
+    <meta name="description" content="Automatize sua prospecção de vendas com IA. Capture leads, personalize mensagens e envie via WhatsApp de forma inteligente." />
+    <meta name="author" content="Prospecte" />
+    <meta name="keywords" content="prospecção, vendas, whatsapp, leads, automação, IA, inteligência artificial" />
 
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="Lovable App" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#059669" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Prospecte" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Prospecte" />
+    <meta name="msapplication-TileColor" content="#10b981" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Prospecte - Prospecção Inteligente via WhatsApp" />
+    <meta property="og:description" content="Automatize sua prospecção de vendas com IA. Capture leads, personalize mensagens e envie via WhatsApp." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:site_name" content="Prospecte" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:locale" content="pt_BR" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:title" content="Prospecte - Prospecção Inteligente via WhatsApp" />
+    <meta name="twitter:description" content="Automatize sua prospecção de vendas com IA." />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#10b981" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Safe area for notched devices -->
+    <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+      
+      body {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+
+      /* Prevent overscroll bounce on iOS */
+      html, body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Loading screen */
+      #app-loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: hsl(160, 84%, 4%);
+        z-index: 9999;
+        transition: opacity 0.3s ease;
+      }
+
+      #app-loading.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid rgba(16, 185, 129, 0.2);
+        border-top-color: #10b981;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @media (prefers-color-scheme: light) {
+        #app-loading {
+          background: hsl(0, 0%, 100%);
+        }
+      }
+    </style>
   </head>
 
   <body>
+    <!-- Loading screen -->
+    <div id="app-loading">
+      <div class="loading-spinner"></div>
+    </div>
+
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Remove loading screen when app is ready -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var loading = document.getElementById('app-loading');
+          if (loading) {
+            loading.classList.add('hidden');
+            setTimeout(function() {
+              loading.remove();
+            }, 300);
+          }
+        }, 100);
+      });
+    </script>
   </body>
 </html>

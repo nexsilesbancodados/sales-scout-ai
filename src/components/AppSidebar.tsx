@@ -32,10 +32,13 @@ import {
   LogOut,
   ChevronUp,
   Zap,
+  BookOpen,
+  TestTube,
 } from 'lucide-react';
 
 const menuItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
   { title: 'Prospecção', icon: Target, path: '/prospecting' },
   { title: 'Capturar Leads', icon: Zap, path: '/prospecting?tab=capture', highlight: true },
   { title: 'Leads', icon: Users, path: '/leads' },
@@ -43,6 +46,7 @@ const menuItems = [
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
   { title: 'Agendamentos', icon: Calendar, path: '/meetings' },
   { title: 'Análise', icon: BarChart3, path: '/analytics' },
+  { title: 'Testes', icon: TestTube, path: '/tests' },
   { title: 'Configurações', icon: Settings, path: '/settings' },
 ];
 

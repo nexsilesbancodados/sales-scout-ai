@@ -17,13 +17,15 @@ import ConversationsPage from "./pages/Conversations";
 import MeetingsPage from "./pages/Meetings";
 import AnalyticsPage from "./pages/Analytics";
 import SettingsPage from "./pages/Settings";
+import TutorialPage from "./pages/Tutorial";
+import TestsPage from "./pages/Tests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
@@ -40,6 +42,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tutorial"
+                element={
+                  <ProtectedRoute>
+                    <TutorialPage />
                   </ProtectedRoute>
                 }
               />
@@ -96,6 +106,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <SettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tests"
+                element={
+                  <ProtectedRoute>
+                    <TestsPage />
                   </ProtectedRoute>
                 }
               />
