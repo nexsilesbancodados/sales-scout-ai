@@ -9,7 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Target, Mail, Lock, User, Chrome, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Chrome, Loader2 } from 'lucide-react';
+import authBackground from '@/assets/auth-background.jpg';
+import logoImage from '@/assets/logo.png';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -128,17 +130,25 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url(${authBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+      
+      <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-              <Target className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="text-3xl font-bold text-gradient">Prospecte</span>
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src={logoImage} alt="Prospecte" className="h-24 w-auto drop-shadow-2xl" />
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-white/90 text-lg font-medium drop-shadow-lg">
             Automatize sua prospecção com inteligência artificial
           </p>
         </div>
