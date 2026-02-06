@@ -430,6 +430,52 @@ export function CaptureAndSendTab() {
     }
   };
 
+  // Poll for background job completion
+  const pollJobCompletion = async (jobId: string): Promise<{ leads: any[]; error?: string }> => {
+    const maxAttempts = 60; // 2 minutes max
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-prospecting', {
+          body: {
+            action: 'check_job_status',
+            data: { job_id: jobId },
+          },
+        });
+
+        if (error) {
+          console.error('Error checking job status:', error);
+          return { leads: [], error: error.message };
+        }
+
+        const jobStatus = data?.status;
+        const processed = data?.processed_items || 0;
+        
+        if (jobStatus === 'completed') {
+          addLog(`✅ Job concluído: ${processed} leads encontrados`);
+          return { leads: data?.result?.leads || [] };
+        }
+        
+        if (jobStatus === 'failed') {
+          addLog(`❌ Job falhou: ${data?.error_message}`);
+          return { leads: [], error: data?.error_message || 'Job failed' };
+        }
+
+        // Still processing - wait and check again
+        addLog(`⏳ Processando... (${processed} leads encontrados até agora)`);
+        await sleep(2000);
+        attempts++;
+      } catch (err: any) {
+        console.error('Poll error:', err);
+        attempts++;
+        await sleep(2000);
+      }
+    }
+
+    return { leads: [], error: 'Job timed out' };
+  };
+
   const handleCapture = async () => {
     if (selectedNiches.length === 0 || selectedLocations.length === 0) {
       toast({
@@ -483,15 +529,11 @@ export function CaptureAndSendTab() {
         addLog(`Buscando "${niche}" em "${location}"...`);
 
         try {
-          // Use SerpAPI to search for businesses
-          const searchQuery = `${niche} em ${location}`;
-          const SERPAPI_KEY = import.meta.env.VITE_SERPAPI_API_KEY;
-          
           // Call our edge function to search
           const response = await supabase.functions.invoke('ai-prospecting', {
             body: {
               action: 'search_leads',
-              data: { niche, location, query: searchQuery },
+              data: { niche, location, maxResults: 100 },
             },
           });
 
@@ -500,8 +542,26 @@ export function CaptureAndSendTab() {
             continue;
           }
 
-          const leads = response.data?.leads || [];
-          const searchTermsUsed = response.data?.searchTermsUsed || [];
+          const responseData = response.data || {};
+          let leads: any[] = [];
+          
+          // Check if it's a background job
+          if (responseData.job_id) {
+            addLog(`🔄 Busca em segundo plano iniciada...`);
+            const jobResult = await pollJobCompletion(responseData.job_id);
+            
+            if (jobResult.error) {
+              addLog(`Erro no job: ${jobResult.error}`);
+              continue;
+            }
+            
+            leads = jobResult.leads || [];
+          } else {
+            // Synchronous response
+            leads = responseData.leads || [];
+          }
+          
+          const searchTermsUsed = responseData.searchTermsUsed || [];
           
           addLog(`🎯 Encontrados ${leads.length} leads únicos em ${location}`);
           if (searchTermsUsed.length > 0) {
