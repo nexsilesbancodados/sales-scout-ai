@@ -150,20 +150,69 @@ export type Database = {
           },
         ]
       }
+      follow_up_sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          message_templates: Json | null
+          name: string
+          trigger_after_days: number[] | null
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_templates?: Json | null
+          name: string
+          trigger_after_days?: number[] | null
+          trigger_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          message_templates?: Json | null
+          name?: string
+          trigger_after_days?: number[] | null
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           address: string | null
           analyzed_needs: Json | null
           best_contact_hour: number | null
           business_name: string
+          company_description: string | null
           conversation_summary: string | null
           created_at: string
           email: string | null
+          employee_count: string | null
+          enriched_at: string | null
+          facebook_url: string | null
           follow_up_count: number | null
+          founded_year: number | null
           google_maps_url: string | null
+          hunter_email: string | null
+          hunter_email_confidence: number | null
           id: string
+          industry: string | null
+          instagram_url: string | null
           last_contact_at: string | null
           last_response_at: string | null
+          linkedin_url: string | null
           location: string | null
           next_follow_up_at: string | null
           niche: string | null
@@ -177,6 +226,7 @@ export type Database = {
           stage: string
           tags: string[] | null
           temperature: string | null
+          twitter_url: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -186,14 +236,24 @@ export type Database = {
           analyzed_needs?: Json | null
           best_contact_hour?: number | null
           business_name: string
+          company_description?: string | null
           conversation_summary?: string | null
           created_at?: string
           email?: string | null
+          employee_count?: string | null
+          enriched_at?: string | null
+          facebook_url?: string | null
           follow_up_count?: number | null
+          founded_year?: number | null
           google_maps_url?: string | null
+          hunter_email?: string | null
+          hunter_email_confidence?: number | null
           id?: string
+          industry?: string | null
+          instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
+          linkedin_url?: string | null
           location?: string | null
           next_follow_up_at?: string | null
           niche?: string | null
@@ -207,6 +267,7 @@ export type Database = {
           stage?: string
           tags?: string[] | null
           temperature?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -216,14 +277,24 @@ export type Database = {
           analyzed_needs?: Json | null
           best_contact_hour?: number | null
           business_name?: string
+          company_description?: string | null
           conversation_summary?: string | null
           created_at?: string
           email?: string | null
+          employee_count?: string | null
+          enriched_at?: string | null
+          facebook_url?: string | null
           follow_up_count?: number | null
+          founded_year?: number | null
           google_maps_url?: string | null
+          hunter_email?: string | null
+          hunter_email_confidence?: number | null
           id?: string
+          industry?: string | null
+          instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
+          linkedin_url?: string | null
           location?: string | null
           next_follow_up_at?: string | null
           niche?: string | null
@@ -237,6 +308,7 @@ export type Database = {
           stage?: string
           tags?: string[] | null
           temperature?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -406,6 +478,60 @@ export type Database = {
           niche?: string
           positive_responses?: number | null
           responses_received?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_prospecting: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          locations: string[]
+          max_leads_per_run: number | null
+          name: string
+          next_run_at: string | null
+          niches: string[]
+          prospecting_type: string | null
+          schedule_days: number[] | null
+          schedule_hour: number | null
+          total_leads_captured: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          locations?: string[]
+          max_leads_per_run?: number | null
+          name: string
+          next_run_at?: string | null
+          niches?: string[]
+          prospecting_type?: string | null
+          schedule_days?: number[] | null
+          schedule_hour?: number | null
+          total_leads_captured?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          locations?: string[]
+          max_leads_per_run?: number | null
+          name?: string
+          next_run_at?: string | null
+          niches?: string[]
+          prospecting_type?: string | null
+          schedule_days?: number[] | null
+          schedule_hour?: number | null
+          total_leads_captured?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
