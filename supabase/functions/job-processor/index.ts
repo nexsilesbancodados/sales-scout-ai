@@ -25,7 +25,7 @@ async function processJobItem(
   job: BackgroundJob,
   index: number,
   userSettings: any
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; skipped?: boolean }> {
   const { job_type, payload } = job;
 
   try {
@@ -33,14 +33,128 @@ async function processJobItem(
       case "mass_send": {
         const leads = payload.leads || [];
         const lead = leads[index];
-        if (!lead) return { success: true };
+        if (!lead) return { success: true, skipped: true };
+
+        // Check if lead has valid phone
+        if (!lead.phone) {
+          console.log(`[Job ${job.id}] Lead ${index} has no phone, skipping`);
+          return { success: true, skipped: true };
+        }
+
+        let message = "";
+
+        // Check if using direct AI mode (no template)
+        if (payload.direct_ai_mode || !payload.message_template) {
+          console.log(`[Job ${job.id}] Generating AI message for lead ${index}: ${lead.business_name}`);
+          
+          try {
+            // Call AI to generate message from scratch
+            const aiResponse = await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-prospecting`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({
+                  action: "generate_message",
+                  data: {
+                    lead: {
+                      business_name: lead.business_name,
+                      niche: lead.niche,
+                      location: lead.location,
+                      rating: lead.rating,
+                      reviews_count: lead.reviews_count,
+                    },
+                    template: null, // Direct mode - no template
+                    agentSettings: payload.agent_settings || {},
+                  },
+                }),
+              }
+            );
+
+            if (!aiResponse.ok) {
+              const errorText = await aiResponse.text();
+              console.error(`[Job ${job.id}] AI generation failed for lead ${index}:`, errorText);
+              return { success: false, error: `Falha ao gerar mensagem IA: ${errorText}` };
+            }
+
+            const aiData = await aiResponse.json();
+            message = aiData.message || "";
+
+            if (!message) {
+              return { success: false, error: "IA retornou mensagem vazia" };
+            }
+          } catch (aiError: any) {
+            console.error(`[Job ${job.id}] AI error for lead ${index}:`, aiError);
+            return { success: false, error: `Erro de IA: ${aiError.message}` };
+          }
+        } else if (payload.use_ai_personalization) {
+          // Use AI to personalize template
+          console.log(`[Job ${job.id}] Personalizing template for lead ${index}: ${lead.business_name}`);
+          
+          try {
+            const aiResponse = await fetch(
+              `${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-prospecting`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+                },
+                body: JSON.stringify({
+                  action: "generate_message",
+                  data: {
+                    lead: {
+                      business_name: lead.business_name,
+                      niche: lead.niche,
+                      location: lead.location,
+                      rating: lead.rating,
+                      reviews_count: lead.reviews_count,
+                    },
+                    template: payload.message_template,
+                    agentSettings: payload.agent_settings || {},
+                  },
+                }),
+              }
+            );
+
+            if (aiResponse.ok) {
+              const aiData = await aiResponse.json();
+              message = aiData.message || payload.message_template;
+            } else {
+              // Fallback to simple replacement
+              console.log(`[Job ${job.id}] AI personalization failed, using fallback`);
+              message = payload.message_template
+                .replace(/{nome}/gi, lead.business_name || "")
+                .replace(/{empresa}/gi, lead.business_name || "")
+                .replace(/{nicho}/gi, lead.niche || "seu segmento")
+                .replace(/{cidade}/gi, lead.location || "sua região")
+                .replace(/{telefone}/gi, lead.phone || "");
+            }
+          } catch (aiError) {
+            // Fallback to simple replacement
+            message = payload.message_template
+              .replace(/{nome}/gi, lead.business_name || "")
+              .replace(/{empresa}/gi, lead.business_name || "")
+              .replace(/{nicho}/gi, lead.niche || "seu segmento")
+              .replace(/{cidade}/gi, lead.location || "sua região")
+              .replace(/{telefone}/gi, lead.phone || "");
+          }
+        } else {
+          // Simple variable replacement
+          message = payload.message_template
+            .replace(/{nome}/gi, lead.business_name || "")
+            .replace(/{empresa}/gi, lead.business_name || "")
+            .replace(/{nicho}/gi, lead.niche || "seu segmento")
+            .replace(/{cidade}/gi, lead.location || "sua região")
+            .replace(/{telefone}/gi, lead.phone || "");
+        }
 
         // Send WhatsApp message
-        const message = payload.message_template
-          .replace(/{nome}/gi, lead.business_name || "")
-          .replace(/{empresa}/gi, lead.business_name || "")
-          .replace(/{telefone}/gi, lead.phone || "");
-
+        console.log(`[Job ${job.id}] Sending message to ${lead.business_name} (${lead.phone})`);
+        
         const response = await fetch(
           `${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-send`,
           {
@@ -59,27 +173,32 @@ async function processJobItem(
 
         if (!response.ok) {
           const error = await response.text();
-          return { success: false, error };
+          console.error(`[Job ${job.id}] WhatsApp send failed for lead ${index}:`, error);
+          // Continue to next lead instead of stopping
+          return { success: false, error: `WhatsApp: ${error}` };
         }
 
         // Save message to database
-        await supabase.from("chat_messages").insert({
-          lead_id: lead.id,
-          content: message,
-          sender_type: "user",
-          status: "sent",
-        });
+        if (lead.id) {
+          await supabase.from("chat_messages").insert({
+            lead_id: lead.id,
+            content: message,
+            sender_type: "user",
+            status: "sent",
+          });
 
-        // Update lead's last_contact_at
-        await supabase
-          .from("leads")
-          .update({ last_contact_at: new Date().toISOString() })
-          .eq("id", lead.id);
+          // Update lead's last_contact_at
+          await supabase
+            .from("leads")
+            .update({ last_contact_at: new Date().toISOString() })
+            .eq("id", lead.id);
+        }
 
         // Random delay between messages (anti-block)
         const minInterval = userSettings.message_interval_seconds || 30;
         const maxInterval = minInterval + 30;
         const delay = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+        console.log(`[Job ${job.id}] Waiting ${delay}s before next message`);
         await new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
         return { success: true };
@@ -88,11 +207,17 @@ async function processJobItem(
       case "follow_up": {
         const leads = payload.leads || [];
         const lead = leads[index];
-        if (!lead) return { success: true };
+        if (!lead) return { success: true, skipped: true };
+
+        if (!lead.phone) {
+          return { success: true, skipped: true };
+        }
 
         const message = payload.message_template
           .replace(/{nome}/gi, lead.business_name || "")
-          .replace(/{empresa}/gi, lead.business_name || "");
+          .replace(/{empresa}/gi, lead.business_name || "")
+          .replace(/{nicho}/gi, lead.niche || "seu segmento")
+          .replace(/{cidade}/gi, lead.location || "sua região");
 
         const response = await fetch(
           `${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-send`,
@@ -111,17 +236,24 @@ async function processJobItem(
         );
 
         if (!response.ok) {
+          // Continue to next lead
           return { success: false, error: await response.text() };
         }
 
         // Update follow-up count
-        await supabase
-          .from("leads")
-          .update({
-            follow_up_count: (lead.follow_up_count || 0) + 1,
-            last_contact_at: new Date().toISOString(),
-          })
-          .eq("id", lead.id);
+        if (lead.id) {
+          await supabase
+            .from("leads")
+            .update({
+              follow_up_count: (lead.follow_up_count || 0) + 1,
+              last_contact_at: new Date().toISOString(),
+            })
+            .eq("id", lead.id);
+        }
+
+        // Anti-block delay
+        const delay = Math.floor(Math.random() * 30) + 30;
+        await new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
         return { success: true };
       }
@@ -135,8 +267,9 @@ async function processJobItem(
       default:
         return { success: true };
     }
-  } catch (error) {
-    console.error(`Error processing job item ${index}:`, error);
+  } catch (error: any) {
+    console.error(`[Job ${job.id}] Error processing item ${index}:`, error);
+    // Return failure but allow job to continue with next item
     return { success: false, error: error.message };
   }
 }
