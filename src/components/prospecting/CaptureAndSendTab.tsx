@@ -682,7 +682,8 @@ export function CaptureAndSendTab({
     });
 
     const duplicateCount = sortedLeads.filter(l => l.isDuplicate).length;
-    const newLeadsCount = sortedLeads.length - duplicateCount;
+    const newLeads = sortedLeads.filter(l => !l.isDuplicate);
+    const newLeadsCount = newLeads.length;
     
     setCapturedLeads(sortedLeads);
     
@@ -693,9 +694,54 @@ export function CaptureAndSendTab({
     if (duplicateCount > 0) {
       addLog(`⚠️ ${duplicateCount} leads já existem no banco (marcados como duplicados)`);
     }
+
+    // Save new leads to database immediately so they appear in MassSendTab
+    let savedCount = 0;
+    if (newLeadsCount > 0 && user?.id) {
+      addLog(`💾 Salvando ${newLeadsCount} leads novos no banco de dados...`);
+      
+      try {
+        const leadsToSave = newLeads.map(lead => ({
+          user_id: user.id,
+          business_name: lead.business_name,
+          phone: lead.phone,
+          address: lead.address || null,
+          niche: lead.niche,
+          location: lead.location,
+          rating: lead.rating || null,
+          reviews_count: lead.reviews_count || null,
+          website: lead.website || null,
+          google_maps_url: lead.google_maps_url || null,
+          stage: 'Novo',
+          temperature: 'frio',
+          source: 'prospecting_capture',
+          quality_score: lead.qualityScore || null,
+        }));
+
+        const { data: savedLeads, error: saveError } = await supabase
+          .from('leads')
+          .insert(leadsToSave)
+          .select();
+
+        if (saveError) {
+          console.error('Error saving leads:', saveError);
+          addLog(`❌ Erro ao salvar leads: ${saveError.message}`);
+        } else {
+          savedCount = savedLeads?.length || 0;
+          addLog(`✅ ${savedCount} leads salvos no banco de dados`);
+        }
+      } catch (error: any) {
+        console.error('Error saving leads:', error);
+        addLog(`❌ Erro ao salvar leads: ${error.message}`);
+      }
+    }
     
     addLog(`✅ Captura concluída: ${newLeadsCount} leads novos + ${duplicateCount} duplicados`);
     addLog(`📊 Scores de qualidade calculados (média: ${Math.round(sortedLeads.reduce((sum, l) => sum + (l.qualityScore || 0), 0) / sortedLeads.length || 0)})`);
+    
+    if (savedCount > 0) {
+      addLog(`💡 Leads disponíveis na aba "Disparo" para envio em massa`);
+    }
     
     setProcessStatus('idle');
     setProgress({ current: 0, total: 0, phase: '' });
@@ -714,9 +760,9 @@ export function CaptureAndSendTab({
           id: historySessionId,
           status: 'completed',
           total_found: sortedLeads.length,
-          total_saved: newLeadsCount,
+          total_saved: savedCount,
           total_duplicates: duplicateCount,
-          total_pending: newLeadsCount,
+          total_pending: savedCount,
           leads_data: leadsForHistory,
           completed_at: new Date().toISOString(),
         });
@@ -736,7 +782,7 @@ export function CaptureAndSendTab({
     toast({
       title: newLeadsCount > 0 ? '✅ Captura concluída!' : duplicateCount > 0 ? '⚠️ Apenas duplicados encontrados' : '⚠️ Nenhum lead encontrado',
       description: newLeadsCount > 0 
-        ? `${newLeadsCount} leads novos capturados${duplicateInfo}.${filterInfo}`
+        ? `${savedCount} leads salvos no banco! Disponíveis na aba "Disparo".${duplicateInfo}${filterInfo}`
         : duplicateCount > 0 
           ? 'Todos os leads encontrados já existem no seu banco de dados.'
           : 'Tente outras combinações de nichos e locais ou ajuste os filtros.',
@@ -1016,32 +1062,61 @@ export function CaptureAndSendTab({
           throw new Error(response.error.message);
         }
 
-        // Save lead to database
-        const { data: savedLead } = await supabase.from('leads').insert([{
-          user_id: user?.id,
-          business_name: lead.business_name,
-          phone: lead.phone,
-          address: lead.address,
-          niche: lead.niche,
-          location: lead.location,
-          rating: lead.rating,
-          reviews_count: lead.reviews_count,
-          website: lead.website,
-          stage: 'Contato',
-          temperature: 'morno',
-          source: 'prospecting_capture',
-          last_contact_at: new Date().toISOString(),
-          pain_points: lead.painPoints,
-        }]).select().single();
+        // Update existing lead in database (already saved during capture) or find it by phone
+        const { data: existingLead } = await supabase
+          .from('leads')
+          .select('id')
+          .eq('user_id', user?.id)
+          .eq('phone', lead.phone.replace(/\D/g, ''))
+          .maybeSingle();
 
-        if (savedLead) {
+        if (existingLead) {
+          // Update existing lead
+          await supabase
+            .from('leads')
+            .update({
+              stage: 'Contato',
+              temperature: 'morno',
+              last_contact_at: new Date().toISOString(),
+              pain_points: lead.painPoints,
+            })
+            .eq('id', existingLead.id);
+
           // Save message to chat history
           await supabase.from('chat_messages').insert({
-            lead_id: savedLead.id,
+            lead_id: existingLead.id,
             sender_type: 'agent',
             content: messageToSend,
             status: 'sent',
           });
+        } else {
+          // Lead not found, save it now
+          const { data: savedLead } = await supabase.from('leads').insert([{
+            user_id: user?.id,
+            business_name: lead.business_name,
+            phone: lead.phone,
+            address: lead.address,
+            niche: lead.niche,
+            location: lead.location,
+            rating: lead.rating,
+            reviews_count: lead.reviews_count,
+            website: lead.website,
+            stage: 'Contato',
+            temperature: 'morno',
+            source: 'prospecting_capture',
+            last_contact_at: new Date().toISOString(),
+            pain_points: lead.painPoints,
+          }]).select().single();
+
+          if (savedLead) {
+            // Save message to chat history
+            await supabase.from('chat_messages').insert({
+              lead_id: savedLead.id,
+              sender_type: 'agent',
+              content: messageToSend,
+              status: 'sent',
+            });
+          }
         }
 
         setCapturedLeads(prev => prev.map(l => 
