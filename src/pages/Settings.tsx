@@ -255,35 +255,22 @@ export default function SettingsPage() {
       title="Configurações"
       description="Configure seu agente de prospecção"
     >
-      {/* Tab Navigation */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      {/* Tab Navigation - Compact */}
+      <div className="flex flex-wrap gap-2 mb-6">
         {settingsTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const TabIcon = tab.icon;
           return (
-            <button
+            <Button
               key={tab.id}
+              variant={isActive ? "default" : "outline"}
+              size="sm"
               onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "p-4 rounded-xl border text-left transition-all duration-200",
-                isActive
-                  ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
-                  : "border-border hover:border-primary/50 hover:bg-muted/50"
-              )}
+              className={cn("gap-2", isActive && "shadow-md")}
             >
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-lg",
-                  isActive ? "bg-primary text-primary-foreground" : "bg-muted"
-                )}>
-                  <TabIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">{tab.label}</p>
-                  <p className="text-xs text-muted-foreground hidden sm:block">{tab.description}</p>
-                </div>
-              </div>
-            </button>
+              <TabIcon className="h-4 w-4" />
+              {tab.label}
+            </Button>
           );
         })}
       </div>
