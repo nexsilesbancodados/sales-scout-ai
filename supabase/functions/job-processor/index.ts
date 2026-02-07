@@ -249,12 +249,30 @@ async function processJobItem(
         }).catch(err => console.error('[Job] Error recording stats:', err));
 
         // Random delay between messages (anti-block)
+        // Check job status during delay to allow pause/cancel to work
         const minInterval = userSettings.message_interval_seconds || 30;
         const maxInterval = userSettings.message_interval_max || (minInterval + 60);
         const delay = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
         console.log(`[Job ${job.id}] Waiting ${delay}s before next message`);
         await logToDb(supabase, job.id, job.user_id, 'info', `Aguardando ${delay}s antes do próximo envio...`);
-        await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+        
+        // Break delay into smaller chunks to check for pause/cancel
+        const chunkSize = 5; // Check every 5 seconds
+        for (let waited = 0; waited < delay; waited += chunkSize) {
+          await new Promise((resolve) => setTimeout(resolve, chunkSize * 1000));
+          
+          // Check if job was cancelled or paused during delay
+          const { data: checkJob } = await supabase
+            .from("background_jobs")
+            .select("status")
+            .eq("id", job.id)
+            .single();
+          
+          if (checkJob?.status === "cancelled" || checkJob?.status === "paused") {
+            console.log(`[Job ${job.id}] ${checkJob.status} during delay, stopping`);
+            return { success: true, stopped: true };
+          }
+        }
 
         return { success: true };
       }
@@ -307,9 +325,22 @@ async function processJobItem(
             .eq("id", lead.id);
         }
 
-        // Anti-block delay
+        // Anti-block delay with status check
         const delay = Math.floor(Math.random() * 30) + 30;
-        await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+        const chunkSize = 5;
+        for (let waited = 0; waited < delay; waited += chunkSize) {
+          await new Promise((resolve) => setTimeout(resolve, chunkSize * 1000));
+          
+          const { data: checkJob } = await supabase
+            .from("background_jobs")
+            .select("status")
+            .eq("id", job.id)
+            .single();
+          
+          if (checkJob?.status === "cancelled" || checkJob?.status === "paused") {
+            return { success: true, stopped: true };
+          }
+        }
 
         return { success: true };
       }
@@ -427,6 +458,11 @@ async function processJob(supabase: any, job: BackgroundJob) {
 
     if (result.success) {
       processedItems++;
+      // Check if job was stopped during delay
+      if ((result as any).stopped) {
+        console.log(`[Job ${job.id}] Stopped during delay, exiting loop`);
+        break;
+      }
     } else if (!result.skipped) {
       failedItems++;
       console.error(`Item ${i} failed:`, result.error);
