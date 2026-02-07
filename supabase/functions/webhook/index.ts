@@ -138,6 +138,51 @@ Seja conciso quando apropriado, mais elaborado quando necessário.
 Adapte-se ao estilo de comunicação do lead.`;
 }
 
+// Analyze sentiment of lead messages using AI
+async function analyzeSentiment(message: string, apiKey: string | null): Promise<'positive' | 'neutral' | 'negative'> {
+  if (!apiKey) return 'neutral';
+
+  const positivePatterns = /obrigad|perfeito|ótimo|excelente|adorei|gostei|interesse|quero|sim|pode|bom|maravilh|top|show|massa|legal|bacana|aceito|combinado|fechado|vamos|bora/i;
+  const negativePatterns = /não quero|não preciso|não tenho interesse|para de|não me ligue|spam|bloquear|cancelar|desinscrever|chato|péssimo|ruim|nunca|jamais|desisto|esquece/i;
+  
+  if (negativePatterns.test(message)) return 'negative';
+  if (positivePatterns.test(message)) return 'positive';
+  
+  // For ambiguous messages, use AI
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite",
+        messages: [{
+          role: "user",
+          content: `Classifique o sentimento desta mensagem de um lead em uma conversa de vendas. Responda APENAS com: positive, neutral ou negative
+
+Mensagem: "${message}"
+
+Classificação:`
+        }],
+        max_tokens: 10,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const result = data.choices?.[0]?.message?.content?.toLowerCase().trim();
+      if (result?.includes('positive')) return 'positive';
+      if (result?.includes('negative')) return 'negative';
+    }
+  } catch (e) {
+    console.error("Sentiment analysis error:", e);
+  }
+  
+  return 'neutral';
+}
+
 // Analyze conversation to extract context
 async function analyzeConversation(messages: any[], apiKey: string | null): Promise<any> {
   const context = {
@@ -150,6 +195,7 @@ async function analyzeConversation(messages: any[], apiKey: string | null): Prom
     isNegative: false,
     isPositive: false,
     summary: "",
+    sentiment: 'neutral' as 'positive' | 'neutral' | 'negative',
   };
 
   if (messages.length === 0) return context;
@@ -215,23 +261,33 @@ Resumo:`
   return context;
 }
 
-// Update lead temperature based on conversation analysis
+// Update lead temperature and sentiment based on conversation analysis
 async function updateLeadTemperature(leadId: string, context: any, supabase: any) {
   let newTemperature = "morno";
   
-  if (context.isNegative) {
+  if (context.isNegative || context.sentiment === 'negative') {
     newTemperature = "frio";
-  } else if (context.isPositive && context.hasShownInterest) {
+  } else if ((context.isPositive && context.hasShownInterest) || context.sentiment === 'positive') {
     newTemperature = "quente";
   } else if (context.hasShownInterest || context.mentionedPrice) {
     newTemperature = "quente";
   }
+
+  // Determine analyzed_needs based on conversation
+  const analyzedNeeds: any = {
+    sentiment: context.sentiment,
+    hasShownInterest: context.hasShownInterest,
+    mentionedPrice: context.mentionedPrice,
+    mentionedTime: context.mentionedTime,
+    lastAnalyzed: new Date().toISOString(),
+  };
 
   await supabase
     .from("leads")
     .update({ 
       temperature: newTemperature,
       conversation_summary: context.summary || null,
+      analyzed_needs: analyzedNeeds,
     })
     .eq("id", leadId);
 }

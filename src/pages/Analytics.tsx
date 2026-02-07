@@ -3,7 +3,9 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { NichePerformanceAnalytics } from '@/components/analytics/NichePerformanceAnalytics';
 import { LeadScoring } from '@/components/analytics/LeadScoring';
-import { Loader2, BarChart3, Target, Trophy } from 'lucide-react';
+import { ConversionFunnel } from '@/components/analytics/ConversionFunnel';
+import { SentimentAnalysis } from '@/components/analytics/SentimentAnalysis';
+import { Loader2, BarChart3, Target, Trophy, TrendingUp, Sparkles } from 'lucide-react';
 import { useLeads } from '@/hooks/use-leads';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +19,8 @@ export default function AnalyticsPage() {
 
   const tabs = [
     { id: 'overview', icon: BarChart3, label: 'Visão Geral' },
+    { id: 'funnel', icon: TrendingUp, label: 'Funil de Conversão' },
+    { id: 'sentiment', icon: Sparkles, label: 'Sentimento' },
     { id: 'niches', icon: Target, label: 'Análise de Nichos' },
     { id: 'scoring', icon: Trophy, label: 'Lead Scoring' },
   ];
@@ -35,7 +39,7 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="inline-flex h-12 p-1 bg-muted/50 backdrop-blur-sm rounded-xl gap-1">
+          <TabsList className="inline-flex h-12 p-1 bg-muted/50 backdrop-blur-sm rounded-xl gap-1 flex-wrap">
             {tabs.map(({ id, icon: Icon, label }) => (
               <TabsTrigger 
                 key={id}
@@ -50,6 +54,14 @@ export default function AnalyticsPage() {
 
           <TabsContent value="overview" className="animate-fade-in mt-6">
             <AdvancedAnalytics />
+          </TabsContent>
+
+          <TabsContent value="funnel" className="animate-fade-in mt-6">
+            <ConversionFunnel />
+          </TabsContent>
+
+          <TabsContent value="sentiment" className="animate-fade-in mt-6">
+            <SentimentAnalysis />
           </TabsContent>
 
           <TabsContent value="niches" className="animate-fade-in mt-6">
