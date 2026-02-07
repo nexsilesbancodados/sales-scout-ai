@@ -3,17 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -30,39 +20,34 @@ import {
   Plus,
   Play,
   Pause,
-  BarChart3,
   TrendingUp,
-  TrendingDown,
   Trophy,
-  Target,
   MessageSquare,
-  Users,
-  Percent,
-  Clock,
   CheckCircle2,
-  XCircle,
-  Loader2,
-  Copy,
   Trash2,
+  Copy,
 } from 'lucide-react';
+
+interface ABTestVariant {
+  id: string;
+  name: string;
+  content: string;
+  sent: number;
+  responses: number;
+  conversions: number;
+}
 
 interface ABTest {
   id: string;
   name: string;
   niche: string;
   status: 'draft' | 'running' | 'paused' | 'completed';
-  variants: {
-    id: string;
-    name: string;
-    content: string;
-    sent: number;
-    responses: number;
-    conversions: number;
-  }[];
+  variants: ABTestVariant[];
   startedAt?: string;
   completedAt?: string;
   winnerId?: string;
   minSampleSize: number;
+  confidence?: number;
 }
 
 export function ABTestingTab() {
