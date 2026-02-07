@@ -78,6 +78,19 @@ export interface UserSettings {
   auto_end_hour: number;
   auto_prospecting_enabled: boolean;
   blacklist: string[];
+  // Anti-Block Settings
+  work_days_only: boolean;
+  operate_all_day: boolean;
+  warmup_enabled: boolean;
+  warmup_day: number;
+  warmup_start_date: string | null;
+  randomize_interval: boolean;
+  randomize_order: boolean;
+  typing_simulation: boolean;
+  pause_on_error: boolean;
+  cooldown_after_batch: boolean;
+  batch_size: number;
+  cooldown_minutes: number;
   // Timestamps
   created_at: string;
   updated_at: string;

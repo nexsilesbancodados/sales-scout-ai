@@ -805,9 +805,12 @@ export type Database = {
           auto_end_hour: number | null
           auto_prospecting_enabled: boolean | null
           auto_start_hour: number | null
+          batch_size: number | null
           blacklist: string[] | null
           closing_style: string | null
           communication_style: string | null
+          cooldown_after_batch: boolean | null
+          cooldown_minutes: number | null
           created_at: string
           daily_message_limit: number | null
           daily_report_enabled: boolean | null
@@ -822,19 +825,28 @@ export type Database = {
           message_interval_seconds: number | null
           message_variations: Json | null
           objection_handling: string | null
+          operate_all_day: boolean | null
+          pause_on_error: boolean | null
           personality_traits: Json | null
+          randomize_interval: boolean | null
+          randomize_order: boolean | null
           response_length: string | null
           serpapi_api_key: string | null
           services_offered: string[] | null
           target_locations: string[] | null
           target_niches: string[] | null
+          typing_simulation: boolean | null
           updated_at: string
           user_id: string
           value_proposition_focus: string | null
+          warmup_day: number | null
+          warmup_enabled: boolean | null
+          warmup_start_date: string | null
           webhook_events: string[] | null
           webhook_url: string | null
           whatsapp_connected: boolean | null
           whatsapp_instance_id: string | null
+          work_days_only: boolean | null
         }
         Insert: {
           agent_name?: string | null
@@ -843,9 +855,12 @@ export type Database = {
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
           auto_start_hour?: number | null
+          batch_size?: number | null
           blacklist?: string[] | null
           closing_style?: string | null
           communication_style?: string | null
+          cooldown_after_batch?: boolean | null
+          cooldown_minutes?: number | null
           created_at?: string
           daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
@@ -860,19 +875,28 @@ export type Database = {
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
+          operate_all_day?: boolean | null
+          pause_on_error?: boolean | null
           personality_traits?: Json | null
+          randomize_interval?: boolean | null
+          randomize_order?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null
+          typing_simulation?: boolean | null
           updated_at?: string
           user_id: string
           value_proposition_focus?: string | null
+          warmup_day?: number | null
+          warmup_enabled?: boolean | null
+          warmup_start_date?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
           whatsapp_connected?: boolean | null
           whatsapp_instance_id?: string | null
+          work_days_only?: boolean | null
         }
         Update: {
           agent_name?: string | null
@@ -881,9 +905,12 @@ export type Database = {
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
           auto_start_hour?: number | null
+          batch_size?: number | null
           blacklist?: string[] | null
           closing_style?: string | null
           communication_style?: string | null
+          cooldown_after_batch?: boolean | null
+          cooldown_minutes?: number | null
           created_at?: string
           daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
@@ -898,19 +925,28 @@ export type Database = {
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
+          operate_all_day?: boolean | null
+          pause_on_error?: boolean | null
           personality_traits?: Json | null
+          randomize_interval?: boolean | null
+          randomize_order?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
           services_offered?: string[] | null
           target_locations?: string[] | null
           target_niches?: string[] | null
+          typing_simulation?: boolean | null
           updated_at?: string
           user_id?: string
           value_proposition_focus?: string | null
+          warmup_day?: number | null
+          warmup_enabled?: boolean | null
+          warmup_start_date?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
           whatsapp_connected?: boolean | null
           whatsapp_instance_id?: string | null
+          work_days_only?: boolean | null
         }
         Relationships: []
       }

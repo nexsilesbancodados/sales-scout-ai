@@ -155,14 +155,27 @@ export function AntiBlockSettings() {
 
   useEffect(() => {
     if (settings) {
-      // Load settings from user_settings
+      // Load settings from user_settings - use explicit checks for booleans
       setConfig({
         ...DEFAULT_CONFIG,
         dailyMessageLimit: settings.daily_message_limit || 30,
         messageIntervalMin: settings.message_interval_seconds || 60,
         messageIntervalMax: (settings.message_interval_seconds || 60) * 3,
-        startHour: settings.auto_start_hour || 9,
-        endHour: settings.auto_end_hour || 18,
+        startHour: settings.auto_start_hour ?? 9,
+        endHour: settings.auto_end_hour ?? 18,
+        // Load persisted anti-block settings
+        workDaysOnly: settings.work_days_only ?? true,
+        operateAllDay: settings.operate_all_day ?? false,
+        warmupEnabled: settings.warmup_enabled ?? true,
+        warmupDay: settings.warmup_day ?? 1,
+        warmupStartDate: settings.warmup_start_date || null,
+        randomizeInterval: settings.randomize_interval ?? true,
+        randomizeOrder: settings.randomize_order ?? true,
+        typingSimulation: settings.typing_simulation ?? true,
+        pauseOnError: settings.pause_on_error ?? true,
+        cooldownAfterBatch: settings.cooldown_after_batch ?? true,
+        batchSize: settings.batch_size ?? 10,
+        cooldownMinutes: settings.cooldown_minutes ?? 15,
       });
     }
   }, [settings]);
@@ -178,6 +191,19 @@ export function AntiBlockSettings() {
       message_interval_seconds: config.messageIntervalMin,
       auto_start_hour: config.startHour,
       auto_end_hour: config.endHour,
+      // Save all anti-block settings
+      work_days_only: config.workDaysOnly,
+      operate_all_day: config.operateAllDay,
+      warmup_enabled: config.warmupEnabled,
+      warmup_day: config.warmupDay,
+      warmup_start_date: config.warmupStartDate,
+      randomize_interval: config.randomizeInterval,
+      randomize_order: config.randomizeOrder,
+      typing_simulation: config.typingSimulation,
+      pause_on_error: config.pauseOnError,
+      cooldown_after_batch: config.cooldownAfterBatch,
+      batch_size: config.batchSize,
+      cooldown_minutes: config.cooldownMinutes,
     });
     setHasChanges(false);
   };
