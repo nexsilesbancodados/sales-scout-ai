@@ -804,6 +804,7 @@ export type Database = {
           agent_type: string | null
           auto_end_hour: number | null
           auto_prospecting_enabled: boolean | null
+          auto_slowdown: boolean | null
           auto_start_hour: number | null
           batch_size: number | null
           blacklist: string[] | null
@@ -819,22 +820,29 @@ export type Database = {
           follow_up_tone: string | null
           gemini_api_key: string | null
           greeting_style: string | null
+          hourly_message_limit: number | null
           hunter_api_token: string | null
           id: string
           knowledge_base: string | null
+          max_consecutive_errors: number | null
+          message_interval_max: number | null
           message_interval_seconds: number | null
           message_variations: Json | null
           objection_handling: string | null
           operate_all_day: boolean | null
+          pause_duration_minutes: number | null
           pause_on_error: boolean | null
           personality_traits: Json | null
           randomize_interval: boolean | null
           randomize_order: boolean | null
+          read_receipt_delay: boolean | null
           response_length: string | null
           serpapi_api_key: string | null
           services_offered: string[] | null
+          slowdown_threshold: number | null
           target_locations: string[] | null
           target_niches: string[] | null
+          typing_delay_ms: number | null
           typing_simulation: boolean | null
           updated_at: string
           user_id: string
@@ -854,6 +862,7 @@ export type Database = {
           agent_type?: string | null
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
+          auto_slowdown?: boolean | null
           auto_start_hour?: number | null
           batch_size?: number | null
           blacklist?: string[] | null
@@ -869,22 +878,29 @@ export type Database = {
           follow_up_tone?: string | null
           gemini_api_key?: string | null
           greeting_style?: string | null
+          hourly_message_limit?: number | null
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
+          max_consecutive_errors?: number | null
+          message_interval_max?: number | null
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
           operate_all_day?: boolean | null
+          pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
           personality_traits?: Json | null
           randomize_interval?: boolean | null
           randomize_order?: boolean | null
+          read_receipt_delay?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
           services_offered?: string[] | null
+          slowdown_threshold?: number | null
           target_locations?: string[] | null
           target_niches?: string[] | null
+          typing_delay_ms?: number | null
           typing_simulation?: boolean | null
           updated_at?: string
           user_id: string
@@ -904,6 +920,7 @@ export type Database = {
           agent_type?: string | null
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
+          auto_slowdown?: boolean | null
           auto_start_hour?: number | null
           batch_size?: number | null
           blacklist?: string[] | null
@@ -919,22 +936,29 @@ export type Database = {
           follow_up_tone?: string | null
           gemini_api_key?: string | null
           greeting_style?: string | null
+          hourly_message_limit?: number | null
           hunter_api_token?: string | null
           id?: string
           knowledge_base?: string | null
+          max_consecutive_errors?: number | null
+          message_interval_max?: number | null
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
           operate_all_day?: boolean | null
+          pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
           personality_traits?: Json | null
           randomize_interval?: boolean | null
           randomize_order?: boolean | null
+          read_receipt_delay?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
           services_offered?: string[] | null
+          slowdown_threshold?: number | null
           target_locations?: string[] | null
           target_niches?: string[] | null
+          typing_delay_ms?: number | null
           typing_simulation?: boolean | null
           updated_at?: string
           user_id?: string
