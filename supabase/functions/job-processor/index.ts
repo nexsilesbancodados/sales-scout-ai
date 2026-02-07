@@ -187,16 +187,34 @@ async function processJobItem(
             status: "sent",
           });
 
-          // Update lead's last_contact_at
+          // Update lead's last_contact_at and stage
           await supabase
             .from("leads")
-            .update({ last_contact_at: new Date().toISOString() })
+            .update({ 
+              last_contact_at: new Date().toISOString(),
+              stage: 'Contato',
+              temperature: 'morno',
+            })
             .eq("id", lead.id);
         }
 
+        // Record prospecting stats for analytics
+        const now = new Date();
+        await supabase.from("prospecting_stats").insert({
+          user_id: job.user_id,
+          niche: lead.niche || 'Geral',
+          location: lead.location || null,
+          hour_of_day: now.getHours(),
+          day_of_week: now.getDay(),
+          messages_sent: 1,
+          responses_received: 0,
+          positive_responses: 0,
+          date: now.toISOString().split('T')[0],
+        }).catch(err => console.error('[Job] Error recording stats:', err));
+
         // Random delay between messages (anti-block)
         const minInterval = userSettings.message_interval_seconds || 30;
-        const maxInterval = minInterval + 30;
+        const maxInterval = userSettings.message_interval_max || (minInterval + 60);
         const delay = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
         console.log(`[Job ${job.id}] Waiting ${delay}s before next message`);
         await new Promise((resolve) => setTimeout(resolve, delay * 1000));
