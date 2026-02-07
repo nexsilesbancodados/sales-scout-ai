@@ -19,9 +19,30 @@ import {
   Activity,
   Zap,
   MessageSquare,
+  Filter,
+  Briefcase,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+// Available services for filtering
+const AVAILABLE_SERVICES = [
+  { id: 'all', label: 'Todos os Serviços', description: 'Usar serviços configurados no perfil' },
+  { id: 'trafego_pago', label: 'Tráfego Pago', description: 'Gestão de anúncios e campanhas pagas' },
+  { id: 'automacao', label: 'Automação', description: 'Automação de processos e sistemas' },
+  { id: 'social_media', label: 'Social Media', description: 'Gestão de redes sociais' },
+  { id: 'websites', label: 'Sites e Landing Pages', description: 'Criação de sites e páginas' },
+  { id: 'seo', label: 'SEO', description: 'Otimização para buscadores' },
+  { id: 'design', label: 'Design Gráfico', description: 'Identidade visual e materiais' },
+  { id: 'consultoria', label: 'Consultoria', description: 'Consultoria em marketing digital' },
+];
 
 export function MassSendTab() {
   const { leads } = useLeads();
@@ -36,6 +57,7 @@ export function MassSendTab() {
   const [previewMessage, setPreviewMessage] = useState<string>('');
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [sendMode, setSendMode] = useState<'template' | 'direct'>('template');
+  const [selectedService, setSelectedService] = useState<string>('all');
 
   // Check if there's an active mass_send job
   const hasActiveMassSend = activeJobs.some(j => j.job_type === 'mass_send');
@@ -80,6 +102,11 @@ export function MassSendTab() {
     const lead = leads.find(l => l.id === leadId);
     if (!lead) return;
 
+    // Get the specific service to offer
+    const serviceToOffer = selectedService !== 'all' 
+      ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+      : null;
+
     // For direct mode, we don't need a base message
     if (sendMode === 'direct') {
       setPreviewLead(leadId);
@@ -102,8 +129,9 @@ export function MassSendTab() {
                 agent_persona: settings?.agent_persona,
                 communication_style: settings?.communication_style,
                 emoji_usage: settings?.emoji_usage,
-                services_offered: settings?.services_offered,
+                services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
                 knowledge_base: settings?.knowledge_base,
+                specific_service: serviceToOffer,
               },
             },
           },
@@ -185,6 +213,11 @@ export function MassSendTab() {
       };
     }).filter(l => l.id);
 
+    // Get the specific service to offer
+    const serviceToOffer = selectedService !== 'all' 
+      ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+      : null;
+
     // Create background job for mass sending
     createJob({
       job_type: 'mass_send',
@@ -200,8 +233,9 @@ export function MassSendTab() {
           agent_persona: settings?.agent_persona,
           communication_style: settings?.communication_style,
           emoji_usage: settings?.emoji_usage,
-          services_offered: settings?.services_offered,
+          services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
           knowledge_base: settings?.knowledge_base,
+          specific_service: serviceToOffer,
         },
       },
     });
@@ -400,6 +434,35 @@ export function MassSendTab() {
                 </TabsContent>
 
                 <TabsContent value="direct" className="space-y-4 mt-4">
+                  {/* Service Filter */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4" />
+                      Serviço a Oferecer
+                    </Label>
+                    <Select value={selectedService} onValueChange={setSelectedService}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABLE_SERVICES.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            <div className="flex flex-col">
+                              <span>{service.label}</span>
+                              <span className="text-xs text-muted-foreground">{service.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedService !== 'all' && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Filter className="h-3 w-3 mr-1" />
+                        Focado em: {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
+                      </Badge>
+                    )}
+                  </div>
+
                   <Alert className="border-primary/50 bg-primary/5">
                     <Zap className="h-4 w-4 text-primary" />
                     <AlertDescription>
@@ -409,7 +472,7 @@ export function MassSendTab() {
                       <ul className="list-disc list-inside mt-2 text-xs space-y-1">
                         <li>Dados do lead (nome, nicho, localização)</li>
                         <li>Persona do seu agente configurado</li>
-                        <li>Serviços que você oferece</li>
+                        <li>Serviço selecionado: <strong>{AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}</strong></li>
                         <li>Base de conhecimento</li>
                       </ul>
                     </AlertDescription>
