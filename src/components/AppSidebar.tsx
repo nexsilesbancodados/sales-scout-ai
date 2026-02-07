@@ -35,6 +35,7 @@ import {
   ChevronUp,
   Zap,
   BookOpen,
+  FlaskConical,
 } from 'lucide-react';
 import logoImage from '@/assets/logo.png';
 
@@ -49,6 +50,7 @@ interface MenuItem {
 // Main navigation items - organized by category
 const mainItems: MenuItem[] = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Testes', icon: FlaskConical, path: '/tests', highlight: true },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
