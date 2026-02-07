@@ -1,24 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProspectingDashboard } from '@/components/prospecting/ProspectingDashboard';
-import { CampaignsTab } from '@/components/prospecting/CampaignsTab';
-import { MassSendTab } from '@/components/prospecting/MassSendTab';
 import { CaptureAndSendTab } from '@/components/prospecting/CaptureAndSendTab';
-import { ImportTab } from '@/components/prospecting/ImportTab';
-import { TemplatesTab } from '@/components/prospecting/TemplatesTab';
-import { SettingsTab } from '@/components/prospecting/SettingsTab';
-import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
-import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
-import { FollowUpManager } from '@/components/followup/FollowUpManager';
-import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
-import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
-import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
 import { WebSearchTab } from '@/components/prospecting/WebSearchTab';
+import { ImportTab } from '@/components/prospecting/ImportTab';
+import { MassSendTab } from '@/components/prospecting/MassSendTab';
+import { CampaignsTab } from '@/components/prospecting/CampaignsTab';
+import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
+import { FollowUpManager } from '@/components/followup/FollowUpManager';
+import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
+import { TemplatesTab } from '@/components/prospecting/TemplatesTab';
+import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
+import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
+import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
 import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -27,18 +25,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { NewCampaignForm } from '@/components/prospecting/NewCampaignForm';
 import {
   Rocket,
   Send,
   Upload,
   MessageSquareText,
-  Settings,
   Brain,
   Plus,
   Target,
@@ -48,7 +40,6 @@ import {
   Mail,
   Globe,
   History,
-  ChevronDown,
   Search,
   Zap,
   Layers,
@@ -66,17 +57,15 @@ interface TabGroup {
   id: string;
   label: string;
   icon: LucideIcon;
-  description: string;
   tabs: TabItem[];
 }
 
-// Grouped tabs for better organization
+// Simplified tab groups
 const tabGroups: TabGroup[] = [
   {
     id: 'capture',
     label: 'Captura',
     icon: Search,
-    description: 'Encontrar novos leads',
     tabs: [
       { id: 'maps', icon: Target, label: 'Google Maps' },
       { id: 'web-search', icon: Globe, label: 'Pesquisa Web' },
@@ -87,9 +76,8 @@ const tabGroups: TabGroup[] = [
     id: 'outreach',
     label: 'Disparo',
     icon: Send,
-    description: 'Enviar mensagens',
     tabs: [
-      { id: 'mass-send', icon: Send, label: 'Disparo em Massa' },
+      { id: 'mass-send', icon: Send, label: 'Em Massa' },
       { id: 'campaigns', icon: Rocket, label: 'Campanhas' },
       { id: 'scheduled', icon: Calendar, label: 'Agendado' },
     ],
@@ -98,7 +86,6 @@ const tabGroups: TabGroup[] = [
     id: 'followup',
     label: 'Follow-up',
     icon: RefreshCw,
-    description: 'Acompanhamento',
     tabs: [
       { id: 'follow-up', icon: RefreshCw, label: 'Pendentes' },
       { id: 'sequences', icon: Layers, label: 'Sequências' },
@@ -108,18 +95,16 @@ const tabGroups: TabGroup[] = [
     id: 'tools',
     label: 'Ferramentas',
     icon: Zap,
-    description: 'Utilitários e IA',
     tabs: [
       { id: 'templates', icon: MessageSquareText, label: 'Templates' },
-      { id: 'email-finder', icon: Mail, label: 'Buscar Emails' },
+      { id: 'email-finder', icon: Mail, label: 'Emails' },
       { id: 'ab-testing', icon: FlaskConical, label: 'Teste A/B' },
-      { id: 'ai-insights', icon: Brain, label: 'IA Insights' },
+      { id: 'ai-insights', icon: Brain, label: 'IA' },
       { id: 'history', icon: History, label: 'Histórico' },
     ],
   },
 ];
 
-// Flat list of all tab IDs for content switching
 const allTabs = tabGroups.flatMap(g => g.tabs);
 
 export default function ProspectingPage() {
@@ -134,22 +119,17 @@ export default function ProspectingPage() {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) {
-      // Map old tab names to new ones
-      const tabMapping: Record<string, string> = {
-        capture: 'maps',
-      };
+      const tabMapping: Record<string, string> = { capture: 'maps' };
       const mappedTab = tabMapping[tab] || tab;
       
       if (allTabs.some(t => t.id === mappedTab)) {
         setActiveTab(mappedTab);
-        // Find and set the group
         const group = tabGroups.find(g => g.tabs.some(t => t.id === mappedTab));
         if (group) setActiveGroup(group.id);
       }
     }
   }, [searchParams]);
 
-  // Handle reprospectar from history
   const handleReprospectFromHistory = (niches: string[], locations: string[]) => {
     setPrefilledNiches(niches);
     setPrefilledLocations(locations);
@@ -157,11 +137,10 @@ export default function ProspectingPage() {
     setActiveGroup('capture');
   };
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    const group = tabGroups.find(g => g.tabs.some(t => t.id === tabId));
-    if (group) setActiveGroup(group.id);
-  };
+  const activeGroupData = useMemo(() => 
+    tabGroups.find(g => g.id === activeGroup), 
+    [activeGroup]
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -176,65 +155,50 @@ export default function ProspectingPage() {
             }}
           />
         );
-      case 'web-search':
-        return <WebSearchTab />;
-      case 'import':
-        return <ImportTab />;
-      case 'mass-send':
-        return <MassSendTab />;
-      case 'campaigns':
-        return <CampaignsTab />;
-      case 'scheduled':
-        return <ScheduledProspectingTab />;
-      case 'follow-up':
-        return <FollowUpManager />;
-      case 'sequences':
-        return <FollowUpSequencesTab />;
-      case 'templates':
-        return <TemplatesTab />;
-      case 'email-finder':
-        return <EmailFinderTab />;
-      case 'ab-testing':
-        return <ABTestingTab />;
-      case 'ai-insights':
-        return <AIInsightsTab />;
-      case 'history':
-        return <ProspectingHistoryTab onReprospect={handleReprospectFromHistory} />;
-      default:
-        return null;
+      case 'web-search': return <WebSearchTab />;
+      case 'import': return <ImportTab />;
+      case 'mass-send': return <MassSendTab />;
+      case 'campaigns': return <CampaignsTab />;
+      case 'scheduled': return <ScheduledProspectingTab />;
+      case 'follow-up': return <FollowUpManager />;
+      case 'sequences': return <FollowUpSequencesTab />;
+      case 'templates': return <TemplatesTab />;
+      case 'email-finder': return <EmailFinderTab />;
+      case 'ab-testing': return <ABTestingTab />;
+      case 'ai-insights': return <AIInsightsTab />;
+      case 'history': return <ProspectingHistoryTab onReprospect={handleReprospectFromHistory} />;
+      default: return null;
     }
   };
 
   return (
     <DashboardLayout
       title="Prospecção"
-      description="Capture leads e dispare mensagens personalizadas"
+      description="Capture leads e envie mensagens"
       actions={
         <div className="flex items-center gap-2">
           <Button
-            size="lg"
-            className="gradient-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            size="default"
+            className="gradient-primary shadow-md"
             onClick={() => {
               setActiveTab('maps');
               setActiveGroup('capture');
             }}
           >
-            <Target className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Capturar Leads</span>
-            <span className="sm:hidden">Capturar</span>
+            <Target className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Capturar</span>
           </Button>
           <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="shadow-sm">
-                <Plus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Nova Campanha</span>
+              <Button variant="outline" size="icon" className="shrink-0">
+                <Plus className="h-4 w-4" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Criar Nova Campanha</DialogTitle>
+                <DialogTitle>Nova Campanha</DialogTitle>
                 <DialogDescription>
-                  Configure sua campanha de prospecção automatizada
+                  Configure sua campanha de prospecção
                 </DialogDescription>
               </DialogHeader>
               <NewCampaignForm onSuccess={() => setIsNewCampaignOpen(false)} />
@@ -246,93 +210,69 @@ export default function ProspectingPage() {
       {/* Stats Dashboard */}
       <ProspectingDashboard />
 
-      {/* Grouped Navigation */}
-      <div className="mt-8 space-y-4">
-        {/* Group Cards - Quick Access */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Navigation */}
+      <div className="mt-6 space-y-4">
+        {/* Group Buttons - Compact */}
+        <div className="flex flex-wrap gap-2">
           {tabGroups.map((group) => {
             const isActive = activeGroup === group.id;
             const GroupIcon = group.icon;
             return (
-              <button
+              <Button
                 key={group.id}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
                 onClick={() => {
                   setActiveGroup(group.id);
                   setActiveTab(group.tabs[0].id);
                 }}
                 className={cn(
-                  "p-4 rounded-xl border text-left transition-all duration-200",
-                  isActive
-                    ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
-                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                  "gap-2",
+                  isActive && "shadow-md"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-2 rounded-lg",
-                    isActive ? "bg-primary text-primary-foreground" : "bg-muted"
-                  )}>
-                    <GroupIcon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{group.label}</p>
-                    <p className="text-xs text-muted-foreground hidden sm:block">{group.description}</p>
-                  </div>
-                </div>
-              </button>
+                <GroupIcon className="h-4 w-4" />
+                {group.label}
+              </Button>
             );
           })}
         </div>
 
-        {/* Sub-tabs for active group */}
+        {/* Tab Content */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                {(() => {
-                  const group = tabGroups.find(g => g.id === activeGroup);
-                  if (!group) return null;
-                  const GroupIcon = group.icon;
-                  return (
-                    <>
-                      <GroupIcon className="h-5 w-5 text-primary" />
-                      {group.label}
-                    </>
-                  );
-                })()}
+              <CardTitle className="text-base flex items-center gap-2">
+                {activeGroupData && (
+                  <>
+                    <activeGroupData.icon className="h-4 w-4 text-primary" />
+                    {activeGroupData.label}
+                  </>
+                )}
               </CardTitle>
             </div>
+            {/* Sub-tabs */}
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {activeGroupData?.tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                const TabIcon = tab.icon;
+                return (
+                  <Button
+                    key={tab.id}
+                    variant={isActive ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setActiveTab(tab.id)}
+                    className="h-8 text-xs gap-1.5"
+                  >
+                    <TabIcon className="h-3.5 w-3.5" />
+                    {tab.label}
+                  </Button>
+                );
+              })}
+            </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            {/* Sub-navigation */}
-            <div className="flex flex-wrap gap-2 pb-4 border-b mb-4">
-              {tabGroups
-                .find(g => g.id === activeGroup)
-                ?.tabs.map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  const TabIcon = tab.icon;
-                  return (
-                    <Button
-                      key={tab.id}
-                      variant={isActive ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        "transition-all",
-                        isActive && "shadow-sm"
-                      )}
-                    >
-                      <TabIcon className="h-4 w-4 mr-2" />
-                      {tab.label}
-                    </Button>
-                  );
-                })}
-            </div>
-
-            {/* Tab Content */}
-            <div className="animate-fade-in">
-              {renderTabContent()}
-            </div>
+          <CardContent className="pt-4">
+            {renderTabContent()}
           </CardContent>
         </Card>
       </div>
