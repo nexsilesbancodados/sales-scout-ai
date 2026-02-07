@@ -32,20 +32,21 @@ export function useBackgroundJobs() {
   const { user } = useAuth();
 
   const { data: jobs, isLoading, refetch } = useQuery({
-    queryKey: ['background-jobs'],
+    queryKey: ['background-jobs', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user?.id) return [];
 
       const { data, error } = await supabase
         .from('background_jobs')
         .select('*')
+        .eq('user_id', user.id) // CRITICAL: Filter by user_id to prevent data leakage
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
       return data as BackgroundJob[];
     },
-    enabled: !!user,
+    enabled: !!user?.id,
     refetchInterval: 5000, // Poll every 5 seconds for active jobs
   });
 
@@ -78,7 +79,7 @@ export function useBackgroundJobs() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['background-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['background-jobs', user?.id] });
       toast({
         title: '✓ Tarefa iniciada',
         description: 'A tarefa está sendo processada em segundo plano.',
@@ -103,7 +104,7 @@ export function useBackgroundJobs() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['background-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['background-jobs', user?.id] });
       toast({
         title: '⏸️ Tarefa pausada',
         description: 'A tarefa foi pausada e pode ser retomada depois.',
@@ -128,7 +129,7 @@ export function useBackgroundJobs() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['background-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['background-jobs', user?.id] });
       toast({
         title: '▶️ Tarefa retomada',
         description: 'A tarefa continuará de onde parou.',
@@ -153,7 +154,7 @@ export function useBackgroundJobs() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['background-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['background-jobs', user?.id] });
       toast({
         title: '❌ Tarefa cancelada',
         description: 'A tarefa foi cancelada.',
