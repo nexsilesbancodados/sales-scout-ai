@@ -25,6 +25,31 @@ Deno.serve(async (req) => {
       throw new Error("Evolution API not configured");
     }
 
+    // Check connection status before sending
+    console.log(`Checking connection status for instance ${instance_id}`);
+    const statusResponse = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instance_id}`, {
+      method: "GET",
+      headers: {
+        "apikey": EVOLUTION_API_KEY,
+      },
+    });
+
+    if (!statusResponse.ok) {
+      const statusError = await statusResponse.text();
+      console.error("Status check error:", statusError);
+      throw new Error(`WhatsApp desconectado. Por favor, reconecte na página de Configurações.`);
+    }
+
+    const statusData = await statusResponse.json();
+    console.log("Connection status:", statusData);
+
+    // Check if instance is connected (state should be "open")
+    const connectionState = statusData?.instance?.state || statusData?.state;
+    if (connectionState !== "open") {
+      console.error("WhatsApp not connected. Current state:", connectionState);
+      throw new Error(`WhatsApp não está conectado (estado: ${connectionState || 'desconhecido'}). Reconecte em Configurações.`);
+    }
+
     // Format phone number (remove non-digits, ensure country code)
     let formattedPhone = phone.replace(/\D/g, "");
     if (!formattedPhone.startsWith("55") && formattedPhone.length <= 11) {
@@ -49,11 +74,23 @@ Deno.serve(async (req) => {
     if (!sendResponse.ok) {
       const errorText = await sendResponse.text();
       console.error("Evolution send error:", errorText);
-      throw new Error(`Failed to send message: ${errorText}`);
+      
+      // Parse error to give better user feedback
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.response?.message?.includes("Connection Closed") || 
+            errorData.message?.includes("Connection Closed")) {
+          throw new Error("Conexão WhatsApp perdida. Por favor, reconecte em Configurações.");
+        }
+      } catch (e) {
+        // If parse fails, use generic message
+      }
+      
+      throw new Error(`Falha ao enviar mensagem: ${errorText}`);
     }
 
     const sendData = await sendResponse.json();
-    console.log("Message sent:", sendData);
+    console.log("Message sent successfully:", sendData);
 
     return new Response(
       JSON.stringify({ 
@@ -65,7 +102,10 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("WhatsApp send error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Failed to send message" }),
+      JSON.stringify({ 
+        error: error.message || "Failed to send message",
+        needsReconnect: error.message?.includes("reconecte") || error.message?.includes("desconectado") 
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
