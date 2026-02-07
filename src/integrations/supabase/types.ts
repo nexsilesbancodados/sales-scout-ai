@@ -874,11 +874,13 @@ export type Database = {
           pause_duration_minutes: number | null
           pause_on_error: boolean | null
           personality_traits: Json | null
+          preferred_search_api: string | null
           randomize_interval: boolean | null
           randomize_order: boolean | null
           read_receipt_delay: boolean | null
           response_length: string | null
           serpapi_api_key: string | null
+          serper_api_key: string | null
           services_offered: string[] | null
           slowdown_threshold: number | null
           target_locations: string[] | null
@@ -932,11 +934,13 @@ export type Database = {
           pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
           personality_traits?: Json | null
+          preferred_search_api?: string | null
           randomize_interval?: boolean | null
           randomize_order?: boolean | null
           read_receipt_delay?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
+          serper_api_key?: string | null
           services_offered?: string[] | null
           slowdown_threshold?: number | null
           target_locations?: string[] | null
@@ -990,11 +994,13 @@ export type Database = {
           pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
           personality_traits?: Json | null
+          preferred_search_api?: string | null
           randomize_interval?: boolean | null
           randomize_order?: boolean | null
           read_receipt_delay?: boolean | null
           response_length?: string | null
           serpapi_api_key?: string | null
+          serper_api_key?: string | null
           services_offered?: string[] | null
           slowdown_threshold?: number | null
           target_locations?: string[] | null

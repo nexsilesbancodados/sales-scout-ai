@@ -14,7 +14,9 @@ async function processSearchLeadsInBackground(
   niche: string,
   location: string,
   maxResults: number,
-  serpApiKey: string
+  serpApiKey: string,
+  serperApiKey: string | null,
+  preferredApi: string
 ) {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -234,7 +236,7 @@ Deno.serve(async (req) => {
     // Get user settings to retrieve their API keys
     const { data: userSettings } = await supabase
       .from("user_settings")
-      .select("gemini_api_key, serpapi_api_key")
+      .select("gemini_api_key, serpapi_api_key, serper_api_key, preferred_search_api")
       .eq("user_id", effectiveUserId)
       .single();
 
@@ -627,15 +629,19 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       }
     }
 
-    // Action: Search leads - NOW WITH BACKGROUND PROCESSING
+    // Action: Search leads - NOW WITH SERPER.DEV SUPPORT
     if (action === "search_leads") {
       const { niche, location, maxResults = 200 } = data;
       
-      // Use user's SerpAPI key if available
-      const SERPAPI_API_KEY = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
-      if (!SERPAPI_API_KEY) {
+      // Determine which API to use based on user preference
+      const preferredApi = userSettings?.preferred_search_api || 'serper';
+      const serperApiKey = userSettings?.serper_api_key;
+      const serpApiKey = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
+      
+      // Check if at least one API is configured
+      if (!serperApiKey && !serpApiKey) {
         return new Response(JSON.stringify({ 
-          error: "SerpAPI não configurada. Configure sua chave em Configurações > APIs.", 
+          error: "Nenhuma API de busca configurada. Configure Serper.dev ou SerpAPI em Configurações > APIs.", 
           leads: [] 
         }), {
           status: 400,
@@ -643,7 +649,43 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         });
       }
 
-      // Always do synchronous search with expanded coverage
+      // Helper function to search with Serper.dev
+      async function searchWithSerper(searchQuery: string, start: number): Promise<any[]> {
+        const response = await fetch('https://google.serper.dev/places', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': serperApiKey!,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            q: searchQuery,
+            gl: 'br',
+            hl: 'pt-br',
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Serper API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.places || [];
+      }
+
+      // Helper function to search with SerpAPI
+      async function searchWithSerpApi(searchQuery: string, start: number): Promise<any[]> {
+        const response = await fetch(
+          `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`SerpAPI error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.local_results || [];
+      }
+
       const allLeads: any[] = [];
       const seenPhones = new Set<string>();
       const seenNames = new Set<string>();
@@ -676,38 +718,30 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       // Use more search terms (up to 8) for better coverage
       const limitedSearchTerms = searchTerms.slice(0, 8);
 
-      console.log(`Enhanced search for ${niche} in ${location} with ${limitedSearchTerms.length} terms (max: ${maxResults})`);
+      // Determine which API to use (with fallback logic)
+      let useSerper = preferredApi === 'serper' && serperApiKey;
+      let useSerpApi = !useSerper && serpApiKey;
+      let apiUsed = useSerper ? 'serper' : 'serpapi';
+
+      console.log(`Enhanced search for ${niche} in ${location} with ${limitedSearchTerms.length} terms (max: ${maxResults}) using ${apiUsed}`);
 
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
-        // Search up to 5 pages (100 results per term)
-        for (let start = 0; start < 100; start += 20) {
-          if (allLeads.length >= maxResults) break;
-
-          const searchQuery = `${searchTerm} em ${location}`;
-          
+        const searchQuery = `${searchTerm} em ${location}`;
+        
+        // For Serper, we do a single call per term (no pagination)
+        // For SerpAPI, we paginate
+        if (useSerper) {
           try {
-            const serpResponse = await fetch(
-              `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br&start=${start}`
-            );
-
-            if (!serpResponse.ok) {
-              console.log(`SerpAPI returned ${serpResponse.status} for ${searchQuery}`);
-              continue;
-            }
-
-            const serpData = await serpResponse.json();
-            const localResults = serpData.local_results || [];
+            const results = await searchWithSerper(searchQuery, 0);
+            console.log(`Serper found ${results.length} results for "${searchTerm}"`);
             
-            console.log(`Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
-            
-            if (localResults.length === 0) break;
-
-            for (const result of localResults) {
-              if (!result.phone) continue;
+            for (const result of results) {
+              if (allLeads.length >= maxResults) break;
+              if (!result.phoneNumber) continue;
               
-              const normalizedPhone = result.phone.replace(/\D/g, "");
+              const normalizedPhone = result.phoneNumber.replace(/\D/g, "");
               if (seenPhones.has(normalizedPhone)) continue;
               
               const normalizedName = (result.title || "").toLowerCase().trim();
@@ -718,34 +752,86 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
 
               allLeads.push({
                 business_name: result.title || "Empresa",
-                phone: result.phone,
+                phone: result.phoneNumber,
                 address: result.address || null,
                 rating: result.rating || null,
-                reviews_count: result.reviews || null,
+                reviews_count: result.ratingCount || null,
                 website: result.website || null,
-                google_maps_url: result.place_id 
-                  ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                  : null,
-                place_id: result.place_id || null,
-                type: result.type || null,
+                google_maps_url: result.link || null,
+                place_id: result.placeId || null,
+                type: result.category || null,
                 subtype: searchTerm,
               });
             }
-
-            // Small delay to respect rate limits
+            
             await new Promise(r => setTimeout(r, 80));
           } catch (error) {
-            console.error(`Search error for ${searchTerm}:`, error);
+            console.error(`Serper error for ${searchTerm}:`, error);
+            // Try fallback to SerpAPI
+            if (serpApiKey) {
+              console.log('Falling back to SerpAPI...');
+              useSerper = false;
+              useSerpApi = true;
+              apiUsed = 'serpapi (fallback)';
+            }
+          }
+        }
+        
+        if (useSerpApi) {
+          // Search up to 5 pages (100 results per term)
+          for (let start = 0; start < 100; start += 20) {
+            if (allLeads.length >= maxResults) break;
+
+            try {
+              const results = await searchWithSerpApi(searchQuery, start);
+              console.log(`SerpAPI found ${results.length} results for "${searchTerm}" at position ${start}`);
+              
+              if (results.length === 0) break;
+
+              for (const result of results) {
+                if (!result.phone) continue;
+                
+                const normalizedPhone = result.phone.replace(/\D/g, "");
+                if (seenPhones.has(normalizedPhone)) continue;
+                
+                const normalizedName = (result.title || "").toLowerCase().trim();
+                if (seenNames.has(normalizedName)) continue;
+
+                seenPhones.add(normalizedPhone);
+                seenNames.add(normalizedName);
+
+                allLeads.push({
+                  business_name: result.title || "Empresa",
+                  phone: result.phone,
+                  address: result.address || null,
+                  rating: result.rating || null,
+                  reviews_count: result.reviews || null,
+                  website: result.website || null,
+                  google_maps_url: result.place_id 
+                    ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                    : null,
+                  place_id: result.place_id || null,
+                  type: result.type || null,
+                  subtype: searchTerm,
+                });
+              }
+
+              // Small delay to respect rate limits
+              await new Promise(r => setTimeout(r, 80));
+            } catch (error) {
+              console.error(`SerpAPI error for ${searchTerm}:`, error);
+            }
           }
         }
       }
 
-      console.log(`Total unique leads found: ${allLeads.length}`);
+      console.log(`Total unique leads found: ${allLeads.length} using ${apiUsed}`);
 
       return new Response(JSON.stringify({ 
         leads: allLeads,
         total: allLeads.length,
         searchTermsUsed: limitedSearchTerms,
+        apiUsed,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

@@ -42,6 +42,9 @@ function fromDbFormat(data: Record<string, unknown>): UserSettings {
     follow_up_tone: (data.follow_up_tone as string) || 'amigavel',
     greeting_style: (data.greeting_style as string) || 'padrao',
     value_proposition_focus: (data.value_proposition_focus as string) || 'beneficios',
+    // Search API preferences
+    serper_api_key: (data.serper_api_key as string) || null,
+    preferred_search_api: (data.preferred_search_api as string) || 'serper',
   } as UserSettings;
 }
 
