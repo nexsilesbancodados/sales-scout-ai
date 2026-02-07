@@ -270,6 +270,7 @@ export function CaptureAndSendTab({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string>('all');
+  const [useDirectAI, setUseDirectAI] = useState(true); // Default to direct AI mode
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
@@ -847,14 +848,17 @@ export function CaptureAndSendTab({
   };
 
   const startSending = async () => {
-    const leadsWithMessages = capturedLeads.filter(
-      l => selectedLeadIds.includes(l.id) && l.suggestedMessage && l.status === 'pending'
-    );
+    // In Direct AI mode, we don't require suggestedMessage - messages will be generated on the fly
+    const leadsToProcess = useDirectAI
+      ? capturedLeads.filter(l => selectedLeadIds.includes(l.id) && l.status === 'pending' && !l.isDuplicate)
+      : capturedLeads.filter(l => selectedLeadIds.includes(l.id) && l.suggestedMessage && l.status === 'pending');
 
-    if (leadsWithMessages.length === 0) {
+    if (leadsToProcess.length === 0) {
       toast({
         title: 'Nenhum lead para enviar',
-        description: 'Analise os leads primeiro para gerar mensagens personalizadas.',
+        description: useDirectAI 
+          ? 'Selecione pelo menos um lead para enviar.'
+          : 'Analise os leads primeiro para gerar mensagens personalizadas.',
         variant: 'destructive',
       });
       return;
@@ -886,10 +890,15 @@ export function CaptureAndSendTab({
     isStoppedRef.current = false;
 
     // Shuffle leads for random order (anti-pattern detection)
-    const leadsToSend = shuffleArray(leadsWithMessages);
+    const leadsToSend = shuffleArray(leadsToProcess);
     
-    addLog(`🚀 Iniciando disparo seguro para ${leadsToSend.length} leads...`);
+    addLog(`🚀 Iniciando disparo ${useDirectAI ? 'com IA Direta' : 'com mensagens pré-geradas'} para ${leadsToSend.length} leads...`);
     addLog(`📊 Limite diário: ${dailyLimit} | Intervalo base: ${settings?.message_interval_seconds || 60}s`);
+
+    // Get the specific service to offer
+    const serviceToOffer = selectedService !== 'all' 
+      ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+      : null;
 
     let sentToday = 0;
     let consecutiveErrors = 0;
@@ -946,6 +955,48 @@ export function CaptureAndSendTab({
       ));
 
       try {
+        let messageToSend = lead.suggestedMessage || '';
+
+        // In Direct AI mode, generate message on the fly if not already generated
+        if (useDirectAI && !lead.suggestedMessage) {
+          addLog(`🤖 Gerando mensagem com IA para ${lead.business_name}...`);
+          
+          const aiResponse = await supabase.functions.invoke('ai-prospecting', {
+            body: {
+              action: 'generate_message',
+              data: {
+                lead: {
+                  business_name: lead.business_name,
+                  niche: lead.niche,
+                  location: lead.location,
+                  rating: lead.rating,
+                  reviews_count: lead.reviews_count,
+                },
+                template: null, // No template - generate from scratch
+                agentSettings: {
+                  agent_name: settings?.agent_name,
+                  agent_persona: settings?.agent_persona,
+                  communication_style: settings?.communication_style,
+                  emoji_usage: settings?.emoji_usage,
+                  services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
+                  knowledge_base: settings?.knowledge_base,
+                  specific_service: serviceToOffer,
+                },
+              },
+            },
+          });
+
+          if (aiResponse.error) {
+            throw new Error(`Erro ao gerar mensagem: ${aiResponse.error.message}`);
+          }
+          
+          messageToSend = aiResponse.data?.message || '';
+          
+          if (!messageToSend) {
+            throw new Error('IA não conseguiu gerar mensagem');
+          }
+        }
+
         // Simulate typing delay (human behavior)
         const typingDelay = Math.floor(Math.random() * 2000) + 1000;
         addLog(`⌨️ Simulando digitação para ${lead.business_name}... (${(typingDelay / 1000).toFixed(1)}s)`);
@@ -956,7 +1007,7 @@ export function CaptureAndSendTab({
         const response = await supabase.functions.invoke('whatsapp-send', {
           body: {
             phone: lead.phone,
-            message: lead.suggestedMessage,
+            message: messageToSend,
             instance_id: settings?.whatsapp_instance_id,
           },
         });
@@ -988,13 +1039,13 @@ export function CaptureAndSendTab({
           await supabase.from('chat_messages').insert({
             lead_id: savedLead.id,
             sender_type: 'agent',
-            content: lead.suggestedMessage,
+            content: messageToSend,
             status: 'sent',
           });
         }
 
         setCapturedLeads(prev => prev.map(l => 
-          l.id === lead.id ? { ...l, status: 'sent' as const } : l
+          l.id === lead.id ? { ...l, status: 'sent' as const, suggestedMessage: messageToSend } : l
         ));
         addLog(`✅ Mensagem enviada para ${lead.business_name}`);
         
@@ -1764,7 +1815,29 @@ export function CaptureAndSendTab({
 
       {/* Actions */}
       <Card>
-        <CardContent className="pt-4">
+        <CardContent className="pt-4 space-y-4">
+          {/* Direct AI Mode Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-3">
+              <Zap className={`h-5 w-5 ${useDirectAI ? 'text-primary' : 'text-muted-foreground'}`} />
+              <div>
+                <Label htmlFor="direct-ai-mode" className="font-medium">Modo IA Direta</Label>
+                <p className="text-xs text-muted-foreground">
+                  {useDirectAI 
+                    ? 'Dispara direto gerando mensagens únicas com IA'
+                    : 'Requer análise prévia para gerar mensagens'
+                  }
+                </p>
+              </div>
+            </div>
+            <Switch
+              id="direct-ai-mode"
+              checked={useDirectAI}
+              onCheckedChange={setUseDirectAI}
+              disabled={isProcessing}
+            />
+          </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={handleCapture}
@@ -1778,18 +1851,20 @@ export function CaptureAndSendTab({
               Capturar {maxLeadsToCapture} Leads
             </Button>
 
-            <Button
-              onClick={analyzeAndGenerateMessages}
-              disabled={isProcessing || selectedLeadIds.length === 0}
-              variant="secondary"
-            >
-              {processStatus === 'analyzing' ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-2" />
-              )}
-              Analisar e Gerar Mensagens ({selectedLeadIds.length})
-            </Button>
+            {!useDirectAI && (
+              <Button
+                onClick={analyzeAndGenerateMessages}
+                disabled={isProcessing || selectedLeadIds.length === 0}
+                variant="secondary"
+              >
+                {processStatus === 'analyzing' ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                Analisar e Gerar Mensagens ({selectedLeadIds.length})
+              </Button>
+            )}
 
             <Button
               onClick={startSending}
@@ -1798,10 +1873,12 @@ export function CaptureAndSendTab({
             >
               {processStatus === 'sending' ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : useDirectAI ? (
+                <Zap className="h-4 w-4 mr-2" />
               ) : (
                 <Send className="h-4 w-4 mr-2" />
               )}
-              Iniciar Disparo
+              {useDirectAI ? `Disparar IA Direta (${selectedLeadIds.length})` : 'Iniciar Disparo'}
             </Button>
 
             {isProcessing && (
