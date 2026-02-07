@@ -258,7 +258,7 @@ export function CaptureAndSendTab({
 }: CaptureAndSendTabProps) {
   const { settings } = useUserSettings();
   const { createSession, updateSession } = useProspectingHistory();
-  const { activeJob, createJob, isCreating } = useMassSendJob();
+  const { activeJob, createJob, isCreating, cancelJob, isCancelling } = useMassSendJob();
   const { recentLogs: dbLogs, formatLog, getLogColorClass, refetch: refetchLogs } = useJobLogs(activeJob?.id);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -2322,10 +2322,30 @@ export function CaptureAndSendTab({
             <CardTitle className="text-base flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
               Log do Processo
+              {activeJob && (activeJob.status === 'running' || activeJob.status === 'pending') && (
+                <Badge variant="default" className="animate-pulse ml-2">● Ativo</Badge>
+              )}
             </CardTitle>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => refetchLogs()}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {activeJob && (activeJob.status === 'running' || activeJob.status === 'paused') && (
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => cancelJob(activeJob.id)}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Square className="h-3 w-3 mr-1" />
+                  )}
+                  Parar
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => refetchLogs()}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
