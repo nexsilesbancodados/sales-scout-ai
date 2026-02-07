@@ -59,11 +59,48 @@ import {
   Key,
   Users,
   Download,
+  Zap,
+  Wrench,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+
+// Simplified tab structure
+const settingsTabs = [
+  { 
+    id: 'quickstart', 
+    icon: Sparkles, 
+    label: 'Início Rápido',
+    description: 'Configure tudo em 3 passos'
+  },
+  { 
+    id: 'connections', 
+    icon: Zap, 
+    label: 'Conexões',
+    description: 'WhatsApp e APIs'
+  },
+  { 
+    id: 'agent', 
+    icon: Bot, 
+    label: 'Agente IA',
+    description: 'Personalidade e comportamento'
+  },
+  { 
+    id: 'advanced', 
+    icon: Wrench, 
+    label: 'Avançado',
+    description: 'Equipe, relatórios e mais'
+  },
+];
 
 export default function SettingsPage() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('quickstart');
 
   // Basic settings
   const [agentName, setAgentName] = useState('');
@@ -179,14 +216,6 @@ export default function SettingsPage() {
     updateSettings({ webhook_url: webhookUrl });
   };
 
-  const handleToggleNotifications = (enabled: boolean) => {
-    updateSettings({ email_notifications: enabled });
-  };
-
-  const handleToggleDailyReport = (enabled: boolean) => {
-    updateSettings({ daily_report_enabled: enabled });
-  };
-
   if (isLoading) {
     return (
       <DashboardLayout title="Configurações">
@@ -224,519 +253,361 @@ export default function SettingsPage() {
   return (
     <DashboardLayout
       title="Configurações"
-      description="Personalize seu agente de prospecção com IA avançada"
+      description="Configure seu agente de prospecção"
     >
-      <Tabs defaultValue="quickstart" className="space-y-6">
-        <TabsList className="flex flex-wrap w-full max-w-5xl gap-1">
-          <TabsTrigger value="quickstart" className="gap-1">
-            <Sparkles className="h-4 w-4" />
-            <span className="hidden sm:inline">Início Rápido</span>
-          </TabsTrigger>
-          <TabsTrigger value="apikeys" className="gap-1">
-            <Key className="h-4 w-4" />
-            <span className="hidden sm:inline">APIs</span>
-          </TabsTrigger>
-          <TabsTrigger value="antiblock" className="gap-1">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Anti-Bloqueio</span>
-          </TabsTrigger>
-          <TabsTrigger value="personality" className="gap-1">
-            <Brain className="h-4 w-4" />
-            <span className="hidden sm:inline">Personalidade</span>
-          </TabsTrigger>
-          <TabsTrigger value="agent" className="gap-1">
-            <Bot className="h-4 w-4" />
-            <span className="hidden sm:inline">Agente</span>
-          </TabsTrigger>
-          <TabsTrigger value="whatsapp" className="gap-1">
-            <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">WhatsApp</span>
-          </TabsTrigger>
-          <TabsTrigger value="prospecting" className="gap-1">
-            <Target className="h-4 w-4" />
-            <span className="hidden sm:inline">Prospecção</span>
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-1">
-            <Bell className="h-4 w-4" />
-            <span className="hidden sm:inline">Alertas</span>
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-1">
-            <Webhook className="h-4 w-4" />
-            <span className="hidden sm:inline">Integrações</span>
-          </TabsTrigger>
-          <TabsTrigger value="team" className="gap-1">
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Equipe</span>
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="gap-1">
-            <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Relatórios</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Tab Navigation */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {settingsTabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "p-4 rounded-xl border text-left transition-all duration-200",
+                isActive
+                  ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20"
+                  : "border-border hover:border-primary/50 hover:bg-muted/50"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "p-2 rounded-lg",
+                  isActive ? "bg-primary text-primary-foreground" : "bg-muted"
+                )}>
+                  <TabIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">{tab.label}</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">{tab.description}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Quick Start Tab - NEW */}
-        <TabsContent value="quickstart">
-          <QuickSetupWizard />
-        </TabsContent>
+      {/* Tab Content */}
+      <div className="space-y-6">
+        {/* Quick Start */}
+        {activeTab === 'quickstart' && <QuickSetupWizard />}
 
-        {/* API Keys Tab */}
-        <TabsContent value="apikeys">
-          <ApiKeysSettings />
-        </TabsContent>
-
-        {/* Anti-Block Tab - NEW */}
-        <TabsContent value="antiblock">
-          <AntiBlockSettings />
-        </TabsContent>
-
-        {/* Personality Tab - NEW */}
-        <TabsContent value="personality">
+        {/* Connections - WhatsApp & APIs */}
+        {activeTab === 'connections' && (
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* Agent Type */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Tipo de Agente
-                </CardTitle>
-                <CardDescription>
-                  Escolha o estilo principal de abordagem do seu agente
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {renderOptionCard(AGENT_TYPE_OPTIONS, agentType, (v) => setAgentType(v as AgentType), 'agent-type')}
-              </CardContent>
-            </Card>
-
-            {/* Communication Style */}
+            {/* WhatsApp */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-primary" />
-                  Estilo de Comunicação
+                  WhatsApp
                 </CardTitle>
                 <CardDescription>
-                  Define o tom geral das mensagens
+                  Conecte sua conta para enviar mensagens
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {renderOptionCard(COMMUNICATION_STYLE_OPTIONS, communicationStyle, (v) => setCommunicationStyle(v as CommunicationStyle), 'comm-style')}
+                <WhatsAppConnection />
               </CardContent>
             </Card>
 
-            {/* Personality Traits */}
-            <Card className="lg:col-span-2">
+            {/* API Keys */}
+            <div className="space-y-6">
+              <ApiKeysSettings />
+            </div>
+
+            {/* Anti-Block Settings */}
+            <div className="lg:col-span-2">
+              <AntiBlockSettings />
+            </div>
+          </div>
+        )}
+
+        {/* Agent Configuration */}
+        {activeTab === 'agent' && (
+          <div className="space-y-6">
+            {/* Agent Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  Informações do Agente
+                </CardTitle>
+                <CardDescription>
+                  Configure como a IA se apresenta e o que ela sabe sobre seu negócio
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="agentName">Nome do Agente</Label>
+                    <Input
+                      id="agentName"
+                      value={agentName}
+                      onChange={(e) => setAgentName(e.target.value)}
+                      placeholder="Ex: Ana, Carlos..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="agentPersona">Persona/Cargo</Label>
+                    <Input
+                      id="agentPersona"
+                      value={agentPersona}
+                      onChange={(e) => setAgentPersona(e.target.value)}
+                      placeholder="Ex: Consultora de Marketing"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="knowledgeBase">Base de Conhecimento</Label>
+                  <Textarea
+                    id="knowledgeBase"
+                    value={knowledgeBase}
+                    onChange={(e) => setKnowledgeBase(e.target.value)}
+                    placeholder="Descreva seus serviços, diferenciais, preços..."
+                    className="min-h-[120px]"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    A IA usará essas informações para personalizar as mensagens
+                  </p>
+                </div>
+                <Button onClick={handleSaveAgent} disabled={isUpdating}>
+                  {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                  Salvar Informações
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Personality Settings - Collapsible sections */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="h-5 w-5 text-primary" />
-                  Traços de Personalidade
-                  <Badge variant="secondary" className="ml-2">
-                    {selectedTraits.length}/5 selecionados
-                  </Badge>
+                  Personalidade
                 </CardTitle>
                 <CardDescription>
-                  Selecione até 5 características que definem a personalidade do agente
+                  Defina o tom e estilo de comunicação
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {PERSONALITY_TRAITS.map((trait) => {
-                    const isSelected = selectedTraits.includes(trait.id);
-                    return (
-                      <button
-                        key={trait.id}
-                        onClick={() => toggleTrait(trait.id)}
-                        className={`flex flex-col p-3 rounded-lg border text-left transition-all ${
-                          isSelected
-                            ? 'border-primary bg-primary/10 ring-1 ring-primary'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Checkbox checked={isSelected} className="pointer-events-none" />
-                          <span className="font-medium text-sm">{trait.name}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {trait.description}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Response Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings2 className="h-5 w-5 text-primary" />
-                  Configurações de Resposta
-                </CardTitle>
-              </CardHeader>
               <CardContent className="space-y-6">
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Tamanho das Respostas</Label>
-                  {renderOptionCard(RESPONSE_LENGTH_OPTIONS, responseLength, (v) => setResponseLength(v as ResponseLength), 'resp-length')}
+                {/* Agent Type */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Tipo de Agente</Label>
+                  {renderOptionCard(AGENT_TYPE_OPTIONS, agentType, (v) => setAgentType(v as AgentType), 'agent-type')}
                 </div>
+
                 <Separator />
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Uso de Emojis</Label>
-                  {renderOptionCard(EMOJI_USAGE_OPTIONS, emojiUsage, (v) => setEmojiUsage(v as EmojiUsage), 'emoji')}
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Sales Approach */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  Abordagem de Vendas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Tratamento de Objeções</Label>
-                  {renderOptionCard(OBJECTION_HANDLING_OPTIONS, objectionHandling, (v) => setObjectionHandling(v as ObjectionHandling), 'objection')}
+                {/* Communication Style */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Estilo de Comunicação</Label>
+                  {renderOptionCard(COMMUNICATION_STYLE_OPTIONS, communicationStyle, (v) => setCommunicationStyle(v as CommunicationStyle), 'comm-style')}
                 </div>
+
                 <Separator />
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Estilo de Fechamento</Label>
-                  {renderOptionCard(CLOSING_STYLE_OPTIONS, closingStyle, (v) => setClosingStyle(v as ClosingStyle), 'closing')}
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Follow-up & Greeting */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Follow-up e Saudação</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Tom do Follow-up</Label>
-                  {renderOptionCard(FOLLOW_UP_TONE_OPTIONS, followUpTone, (v) => setFollowUpTone(v as FollowUpTone), 'followup')}
-                </div>
-                <Separator />
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Estilo de Saudação</Label>
-                  {renderOptionCard(GREETING_STYLE_OPTIONS, greetingStyle, (v) => setGreetingStyle(v as GreetingStyle), 'greeting')}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Value Proposition */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Proposta de Valor</CardTitle>
-                <CardDescription>
-                  Como o agente destaca seus serviços
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {renderOptionCard(VALUE_PROPOSITION_OPTIONS, valuePropositionFocus, (v) => setValuePropositionFocus(v as ValuePropositionFocus), 'value')}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <Button onClick={handleSavePersonality} disabled={isUpdating} size="lg">
-              {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
-              Salvar Personalidade
-            </Button>
-          </div>
-        </TabsContent>
-
-        {/* Agent Tab */}
-        <TabsContent value="agent">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="h-5 w-5" />
-                Personalização Básica do Agente
-              </CardTitle>
-              <CardDescription>
-                Configure nome, persona e base de conhecimento
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="agent-name">Nome do Agente</Label>
-                <Input
-                  id="agent-name"
-                  placeholder="Ex: Gustavo"
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="agent-persona">Persona do Agente</Label>
-                <Textarea
-                  id="agent-persona"
-                  placeholder="Descreva como o agente deve se comportar..."
-                  rows={4}
-                  value={agentPersona}
-                  onChange={(e) => setAgentPersona(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Defina o tom de voz, estilo de comunicação e objetivos do agente
-                </p>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-2">
-                <Label htmlFor="knowledge-base">Base de Conhecimento</Label>
-                <Textarea
-                  id="knowledge-base"
-                  placeholder="Informações sobre seus produtos, serviços, preços, diferenciais..."
-                  rows={6}
-                  value={knowledgeBase}
-                  onChange={(e) => setKnowledgeBase(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  O agente usará essas informações para responder perguntas dos leads
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Serviços Oferecidos</Label>
-                <div className="flex flex-wrap gap-2">
-                  {settings?.services_offered?.map((service) => (
-                    <Badge key={service} variant="secondary">
-                      {service}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <Button onClick={handleSaveAgent} disabled={isUpdating}>
-                {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                Salvar Configurações
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* WhatsApp Tab */}
-        <TabsContent value="whatsapp">
-          <WhatsAppConnection />
-        </TabsContent>
-
-        {/* Prospecting Tab */}
-        <TabsContent value="prospecting">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Nichos Alvo
-                </CardTitle>
-                <CardDescription>
-                  Defina os tipos de negócios que você quer prospectar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ex: Restaurantes, Clínicas..."
-                    value={newNiche}
-                    onChange={(e) => setNewNiche(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddNiche()}
-                  />
-                  <Button onClick={handleAddNiche} disabled={isUpdating}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {settings?.target_niches?.map((niche) => (
-                    <Badge key={niche} variant="secondary" className="gap-1">
-                      {niche}
-                      <button
-                        onClick={() => handleRemoveNiche(niche)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Localizações
-                </CardTitle>
-                <CardDescription>
-                  Defina as cidades ou regiões para prospectar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ex: São Paulo, Campinas..."
-                    value={newLocation}
-                    onChange={(e) => setNewLocation(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddLocation()}
-                  />
-                  <Button onClick={handleAddLocation} disabled={isUpdating}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {settings?.target_locations?.map((location) => (
-                    <Badge key={location} variant="secondary" className="gap-1">
-                      {location}
-                      <button
-                        onClick={() => handleRemoveLocation(location)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <NotificationSettings />
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notificações por E-mail
-                </CardTitle>
-                <CardDescription>
-                  Configure alertas por email
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Alertas de Leads</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receba alertas quando leads responderem
-                    </p>
+                {/* Personality Traits */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">Traços de Personalidade</Label>
+                    <Badge variant="secondary">{selectedTraits.length}/5</Badge>
                   </div>
-                  <Switch
-                    checked={settings?.email_notifications}
-                    onCheckedChange={handleToggleNotifications}
-                  />
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                    {PERSONALITY_TRAITS.map((trait) => {
+                      const isSelected = selectedTraits.includes(trait.id);
+                      return (
+                        <button
+                          key={trait.id}
+                          onClick={() => toggleTrait(trait.id)}
+                          className={cn(
+                            "p-2 rounded-lg border text-left transition-all text-xs",
+                            isSelected
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50"
+                          )}
+                        >
+                          <span className="font-medium">{trait.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Relatório Diário</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receba um resumo das atividades do dia
-                    </p>
+                {/* Quick Settings Grid */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Tamanho das Respostas</Label>
+                    {renderOptionCard(RESPONSE_LENGTH_OPTIONS, responseLength, (v) => setResponseLength(v as ResponseLength), 'resp-length')}
                   </div>
-                  <Switch
-                    checked={settings?.daily_report_enabled}
-                    onCheckedChange={handleToggleDailyReport}
-                  />
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Uso de Emojis</Label>
+                    {renderOptionCard(EMOJI_USAGE_OPTIONS, emojiUsage, (v) => setEmojiUsage(v as EmojiUsage), 'emoji')}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
 
-        {/* Integrations Tab */}
-        <TabsContent value="integrations">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Webhook className="h-5 w-5" />
-                Webhook de Eventos
-              </CardTitle>
-              <CardDescription>
-                Envie eventos para ferramentas externas como n8n ou Zapier
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="webhook-url">URL do Webhook</Label>
-                <Input
-                  id="webhook-url"
-                  placeholder="https://..."
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Eventos Enviados</Label>
-                <div className="flex flex-wrap gap-2">
-                  {settings?.webhook_events?.map((event) => (
-                    <Badge key={event} variant="outline">
-                      {event}
-                    </Badge>
-                  ))}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Tratamento de Objeções</Label>
+                    {renderOptionCard(OBJECTION_HANDLING_OPTIONS, objectionHandling, (v) => setObjectionHandling(v as ObjectionHandling), 'objection')}
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Estilo de Fechamento</Label>
+                    {renderOptionCard(CLOSING_STYLE_OPTIONS, closingStyle, (v) => setClosingStyle(v as ClosingStyle), 'closing')}
+                  </div>
                 </div>
-              </div>
 
-              <Button onClick={handleSaveWebhook} disabled={isUpdating}>
-                {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                Salvar Webhook
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Token de API</CardTitle>
-              <CardDescription>
-                Use este token para acionar a prospecção via API externa
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="password"
-                  value={settings?.hunter_api_token || ''}
-                  readOnly
-                  className="font-mono"
-                />
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    navigator.clipboard.writeText(settings?.hunter_api_token || '');
-                    toast({ title: 'Token copiado!' });
-                  }}
-                >
-                  Copiar
+                <Button onClick={handleSavePersonality} disabled={isUpdating} className="w-full">
+                  {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                  Salvar Personalidade
                 </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Use como Bearer Token em requisições para /api/hunter
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
 
-        {/* Team Tab */}
-        <TabsContent value="team">
-          <TeamSettings />
-        </TabsContent>
+            {/* Target Niches & Locations */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Nichos Alvo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newNiche}
+                      onChange={(e) => setNewNiche(e.target.value)}
+                      placeholder="Ex: Restaurantes"
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddNiche()}
+                    />
+                    <Button onClick={handleAddNiche} size="icon" variant="outline">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {settings?.target_niches?.map((niche, i) => (
+                      <Badge key={i} variant="secondary" className="pr-1">
+                        {niche}
+                        <button onClick={() => handleRemoveNiche(niche)} className="ml-2 hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Reports Tab */}
-        <TabsContent value="reports">
-          <ReportExportSettings />
-        </TabsContent>
-      </Tabs>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Localizações
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newLocation}
+                      onChange={(e) => setNewLocation(e.target.value)}
+                      placeholder="Ex: São Paulo, SP"
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddLocation()}
+                    />
+                    <Button onClick={handleAddLocation} size="icon" variant="outline">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {settings?.target_locations?.map((loc, i) => (
+                      <Badge key={i} variant="secondary" className="pr-1">
+                        {loc}
+                        <button onClick={() => handleRemoveLocation(loc)} className="ml-2 hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Advanced Settings */}
+        {activeTab === 'advanced' && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Team Settings */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  Equipe
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TeamSettings />
+              </CardContent>
+            </Card>
+
+            {/* Notifications */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-primary" />
+                  Notificações
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <NotificationSettings />
+              </CardContent>
+            </Card>
+
+            {/* Reports */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Download className="h-5 w-5 text-primary" />
+                  Relatórios
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReportExportSettings />
+              </CardContent>
+            </Card>
+
+            {/* Webhook */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Webhook className="h-5 w-5 text-primary" />
+                  Webhook
+                </CardTitle>
+                <CardDescription>
+                  Receba eventos em tempo real (para n8n, Zapier, etc.)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="https://seu-webhook.com/endpoint"
+                    className="flex-1"
+                  />
+                  <Button onClick={handleSaveWebhook} disabled={isUpdating}>
+                    Salvar
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Eventos disponíveis: lead_created, message_sent, meeting_scheduled
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </DashboardLayout>
   );
 }
