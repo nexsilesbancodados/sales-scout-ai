@@ -24,6 +24,8 @@ import {
 } from '@/components/ui/collapsible';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useProspectingHistory, ProspectingHistoryLead } from '@/hooks/use-prospecting-history';
+import { useMassSendJob, formatPhoneForWhatsApp } from '@/hooks/use-mass-send-job';
+import { MassSendProgress } from './MassSendProgress';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -254,6 +256,7 @@ export function CaptureAndSendTab({
 }: CaptureAndSendTabProps) {
   const { settings } = useUserSettings();
   const { createSession, updateSession } = useProspectingHistory();
+  const { activeJob, createJob, isCreating } = useMassSendJob();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -1312,6 +1315,9 @@ export function CaptureAndSendTab({
 
   return (
     <div className="space-y-4">
+      {/* Active Background Job Progress */}
+      <MassSendProgress />
+
       {/* Safety Status Banner */}
       <div className={`p-3 rounded-lg border flex items-center justify-between ${safetyStatus.color}`}>
         <div className="flex items-center gap-2">
@@ -1949,19 +1955,91 @@ export function CaptureAndSendTab({
               </Button>
             )}
 
+            {/* Main send button - now uses background jobs for persistence */}
             <Button
-              onClick={startSending}
-              disabled={isProcessing || selectedLeadIds.length === 0}
+              onClick={() => {
+                if (!settings?.whatsapp_connected) {
+                  toast({
+                    title: '⚠️ WhatsApp não conectado',
+                    description: 'Conecte seu WhatsApp nas configurações primeiro.',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                if (!isWithinOperatingHours()) {
+                  const workDaysText = settings?.work_days_only ? ' em dias úteis' : '';
+                  toast({
+                    title: '⚠️ Fora do horário de operação',
+                    description: `Envios permitidos entre ${settings?.auto_start_hour ?? 9}h e ${settings?.auto_end_hour ?? 18}h${workDaysText}. Ative "Operação 24h" nas configurações para ignorar.`,
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                const leadsToProcess = capturedLeads.filter(l => 
+                  selectedLeadIds.includes(l.id) && 
+                  l.status !== 'sent' && 
+                  !l.isDuplicate
+                );
+
+                if (leadsToProcess.length === 0) {
+                  toast({
+                    title: '⚠️ Nenhum lead válido',
+                    description: 'Selecione leads que ainda não foram enviados.',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                // Get the specific service to offer
+                const serviceToOffer = selectedService !== 'all' 
+                  ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+                  : undefined;
+
+                // Create background job for persistent sending
+                createJob({
+                  leads: leadsToProcess.map(l => ({
+                    id: l.id,
+                    business_name: l.business_name,
+                    phone: formatPhoneForWhatsApp(l.phone), // Format phone number
+                    niche: l.niche,
+                    location: l.location,
+                    rating: l.rating,
+                    reviews_count: l.reviews_count,
+                    suggestedMessage: l.suggestedMessage,
+                    status: 'pending' as const,
+                  })),
+                  directAIMode: useDirectAI,
+                  useAIPersonalization: true,
+                  agentSettings: {
+                    agent_name: settings?.agent_name,
+                    agent_persona: settings?.agent_persona,
+                    communication_style: settings?.communication_style,
+                    emoji_usage: settings?.emoji_usage,
+                    services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
+                    knowledge_base: settings?.knowledge_base,
+                  },
+                  prospectingType: selectedProspectingType.id,
+                  serviceToOffer,
+                });
+
+                // Clear selection after starting
+                setSelectedLeadIds([]);
+                addLog(`🚀 Disparo em segundo plano iniciado para ${leadsToProcess.length} leads`);
+              }}
+              disabled={isProcessing || isCreating || selectedLeadIds.length === 0 || !!activeJob}
               className="gradient-primary"
             >
-              {processStatus === 'sending' ? (
+              {isCreating ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : useDirectAI ? (
                 <Zap className="h-4 w-4 mr-2" />
               ) : (
                 <Send className="h-4 w-4 mr-2" />
               )}
-              {useDirectAI ? `Disparar IA Direta (${selectedLeadIds.length})` : 'Iniciar Disparo'}
+              {activeJob ? 'Disparo em andamento...' : 
+                useDirectAI ? `Disparar IA Direta (${selectedLeadIds.length})` : `Iniciar Disparo (${selectedLeadIds.length})`}
             </Button>
 
             {isProcessing && (
