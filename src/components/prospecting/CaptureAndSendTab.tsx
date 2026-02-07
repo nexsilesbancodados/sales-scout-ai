@@ -362,15 +362,22 @@ export function CaptureAndSendTab({
 
   // Check if current time is within operating hours
   const isWithinOperatingHours = () => {
+    // If operate_all_day is enabled, always return true
+    if (settings?.operate_all_day) {
+      return true;
+    }
+    
     const now = new Date();
     const hour = now.getHours();
     const day = now.getDay();
-    const startHour = settings?.auto_start_hour || 9;
-    const endHour = settings?.auto_end_hour || 18;
+    const startHour = settings?.auto_start_hour ?? 9;
+    const endHour = settings?.auto_end_hour ?? 18;
     
-    // Check if weekend (0 = Sunday, 6 = Saturday)
+    // Check if weekend (0 = Sunday, 6 = Saturday) - only if work_days_only is enabled
     const isWeekend = day === 0 || day === 6;
-    if (isWeekend) {
+    const workDaysOnly = settings?.work_days_only ?? true;
+    
+    if (workDaysOnly && isWeekend) {
       addLog('⚠️ Fim de semana detectado - pausando envios');
       return false;
     }
@@ -919,11 +926,12 @@ export function CaptureAndSendTab({
       return;
     }
 
-    // Check if within operating hours
+    // Check if within operating hours (only if operate_all_day is disabled)
     if (!isWithinOperatingHours()) {
+      const workDaysText = settings?.work_days_only ? ' em dias úteis' : '';
       toast({
         title: '⚠️ Fora do horário de operação',
-        description: `Envios permitidos entre ${settings?.auto_start_hour || 9}h e ${settings?.auto_end_hour || 18}h em dias úteis.`,
+        description: `Envios permitidos entre ${settings?.auto_start_hour ?? 9}h e ${settings?.auto_end_hour ?? 18}h${workDaysText}. Ative "Operação 24h" nas configurações para ignorar.`,
         variant: 'destructive',
       });
       return;
