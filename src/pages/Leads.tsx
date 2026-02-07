@@ -74,6 +74,12 @@ export default function LeadsPage() {
     messageSent: messageSentFilter === 'all' ? undefined : messageSentFilter === 'sent',
   });
 
+  // Get counts for all/sent/pending (without other filters for accurate counts)
+  const { leads: allLeadsForCounts } = useLeads({});
+  const totalCount = allLeadsForCounts?.length || 0;
+  const sentCount = useMemo(() => allLeadsForCounts?.filter(l => l.message_sent).length || 0, [allLeadsForCounts]);
+  const pendingCount = useMemo(() => allLeadsForCounts?.filter(l => !l.message_sent).length || 0, [allLeadsForCounts]);
+
   // Calculate paginated leads
   const paginatedLeads = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -160,6 +166,55 @@ export default function LeadsPage() {
         </div>
       }
     >
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Total de Leads</p>
+              <p className="text-2xl font-bold">{totalCount}</p>
+            </div>
+            <div className="p-3 rounded-full bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+        </Card>
+        
+        <Card 
+          className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+            messageSentFilter === 'pending' ? 'ring-2 ring-amber-500' : ''
+          } bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20`}
+          onClick={() => handleFilterChange(setMessageSentFilter, messageSentFilter === 'pending' ? 'all' : 'pending')}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Aguardando Envio</p>
+              <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
+            </div>
+            <div className="p-3 rounded-full bg-amber-500/10">
+              <Clock className="h-5 w-5 text-amber-600" />
+            </div>
+          </div>
+        </Card>
+        
+        <Card 
+          className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+            messageSentFilter === 'sent' ? 'ring-2 ring-green-500' : ''
+          } bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20`}
+          onClick={() => handleFilterChange(setMessageSentFilter, messageSentFilter === 'sent' ? 'all' : 'sent')}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Já Contatados</p>
+              <p className="text-2xl font-bold text-green-600">{sentCount}</p>
+            </div>
+            <div className="p-3 rounded-full bg-green-500/10">
+              <Send className="h-5 w-5 text-green-600" />
+            </div>
+          </div>
+        </Card>
+      </div>
+
       <Card className="overflow-hidden">
         <CardHeader className="bg-muted/30 border-b">
           <div className="flex flex-col gap-4">
@@ -212,21 +267,28 @@ export default function LeadsPage() {
                   value={messageSentFilter} 
                   onValueChange={(v) => handleFilterChange(setMessageSentFilter, v as 'all' | 'sent' | 'pending')}
                 >
-                  <SelectTrigger className="w-[160px] bg-background">
+                  <SelectTrigger className="w-[180px] bg-background">
                     <SelectValue placeholder="Status Envio" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos ({leads.length})</SelectItem>
+                    <SelectItem value="all">
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <span>Todos</span>
+                        <Badge variant="secondary" className="ml-2 text-xs">{totalCount}</Badge>
+                      </div>
+                    </SelectItem>
                     <SelectItem value="sent">
                       <div className="flex items-center gap-2">
                         <Send className="h-3 w-3 text-green-500" />
-                        Enviados
+                        <span>Enviados</span>
+                        <Badge className="ml-2 bg-green-500 text-white text-xs">{sentCount}</Badge>
                       </div>
                     </SelectItem>
                     <SelectItem value="pending">
                       <div className="flex items-center gap-2">
                         <Clock className="h-3 w-3 text-amber-500" />
-                        Pendentes
+                        <span>Pendentes</span>
+                        <Badge variant="outline" className="ml-2 text-amber-600 border-amber-300 text-xs">{pendingCount}</Badge>
                       </div>
                     </SelectItem>
                   </SelectContent>

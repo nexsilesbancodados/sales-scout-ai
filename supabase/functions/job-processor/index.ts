@@ -67,8 +67,9 @@ async function processJobItem(
 
         // Check if using direct AI mode (no template)
         if (payload.direct_ai_mode || !payload.message_template) {
-          console.log(`[Job ${job.id}] Generating AI message for lead ${index}: ${lead.business_name}`);
-          await logToDb(supabase, job.id, job.user_id, 'info', `Gerando mensagem IA para ${lead.business_name}...`);
+          const isRemarketing = payload.is_remarketing || false;
+          console.log(`[Job ${job.id}] Generating ${isRemarketing ? 'remarketing' : 'AI'} message for lead ${index}: ${lead.business_name}`);
+          await logToDb(supabase, job.id, job.user_id, 'info', `Gerando mensagem ${isRemarketing ? 'de remarketing' : 'IA'} para ${lead.business_name}...`);
           
           try {
             // Call AI to generate message from scratch - include user_id for auth
@@ -93,6 +94,7 @@ async function processJobItem(
                     },
                     template: null, // Direct mode - no template
                     agentSettings: payload.agent_settings || {},
+                    isRemarketing: isRemarketing,
                   },
                 }),
               }
