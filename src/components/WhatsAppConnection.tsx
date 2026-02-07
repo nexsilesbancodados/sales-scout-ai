@@ -70,23 +70,71 @@ export function WhatsAppConnection() {
   const handleConnect = async () => {
     setIsLoading(true);
     try {
-      await createWhatsAppInstance();
-      const qrData = await getWhatsAppQRCode();
+      const instanceData = await createWhatsAppInstance();
       
-      if (qrData.base64) {
-        setQrCode(qrData.base64);
-      } else if (qrData.code) {
-        setQrCode(qrData.code);
+      // Check if QR code came with instance creation
+      if (instanceData.base64) {
+        setQrCode(instanceData.base64);
+        toast({
+          title: 'QR Code Gerado',
+          description: 'Escaneie o código com seu WhatsApp para conectar.',
+        });
+        return;
       }
       
-      if (qrData.pairingCode) {
-        setPairingCode(qrData.pairingCode);
-      }
-
+      // If no QR code in creation, wait and fetch it with retries
       toast({
-        title: 'QR Code Gerado',
-        description: 'Escaneie o código com seu WhatsApp para conectar.',
+        title: 'Instância criada',
+        description: 'Aguarde enquanto o QR Code é gerado...',
       });
+      
+      // Wait a bit for instance to fully initialize
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Try to get QR code with retries
+      let retries = 0;
+      const maxRetries = 3;
+      
+      while (retries < maxRetries) {
+        try {
+          const qrData = await getWhatsAppQRCode();
+          
+          if (qrData.base64) {
+            setQrCode(qrData.base64);
+            toast({
+              title: 'QR Code Gerado',
+              description: 'Escaneie o código com seu WhatsApp para conectar.',
+            });
+            return;
+          } else if (qrData.code) {
+            setQrCode(qrData.code);
+            return;
+          }
+          
+          if (qrData.pairingCode) {
+            setPairingCode(qrData.pairingCode);
+          }
+          
+          // No QR yet, wait and retry
+          retries++;
+          if (retries < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
+        } catch (qrError) {
+          console.error('QR fetch attempt error:', qrError);
+          retries++;
+          if (retries < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
+        }
+      }
+      
+      // If we got here, show a message to retry
+      toast({
+        title: 'QR Code ainda não está pronto',
+        description: 'A instância está inicializando. Clique em "Atualizar QR Code" em alguns segundos.',
+      });
+      
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Não foi possível gerar o QR Code';
       console.error('Connect error:', error);
