@@ -38,13 +38,14 @@ export function useProspectingHistory() {
   const { user } = useAuth();
 
   const { data: history, isLoading, refetch } = useQuery({
-    queryKey: ['prospecting-history'],
+    queryKey: ['prospecting-history', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user?.id) return [];
 
       const { data, error } = await supabase
         .from('prospecting_history')
         .select('*')
+        .eq('user_id', user.id) // CRITICAL: Filter by user_id to prevent data leakage
         .order('created_at', { ascending: false })
         .limit(100);
 
@@ -55,7 +56,7 @@ export function useProspectingHistory() {
         leads_data: (Array.isArray(item.leads_data) ? item.leads_data : []) as unknown as ProspectingHistoryLead[],
       })) as ProspectingHistory[];
     },
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
   const createSession = useMutation({
@@ -86,7 +87,7 @@ export function useProspectingHistory() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['prospecting-history'] });
+      queryClient.invalidateQueries({ queryKey: ['prospecting-history', user?.id] });
     },
   });
 
@@ -109,7 +110,7 @@ export function useProspectingHistory() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['prospecting-history'] });
+      queryClient.invalidateQueries({ queryKey: ['prospecting-history', user?.id] });
     },
   });
 
@@ -123,7 +124,7 @@ export function useProspectingHistory() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['prospecting-history'] });
+      queryClient.invalidateQueries({ queryKey: ['prospecting-history', user?.id] });
       toast({
         title: '✓ Histórico removido',
         description: 'O registro foi excluído com sucesso.',
@@ -150,7 +151,7 @@ export function useProspectingHistory() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['prospecting-history'] });
+      queryClient.invalidateQueries({ queryKey: ['prospecting-history', user?.id] });
       toast({
         title: '✓ Histórico limpo',
         description: 'Todo o histórico foi excluído.',
