@@ -92,6 +92,7 @@ export interface AntiBlockConfig {
   messageIntervalMax: number;
   
   // Timing
+  operateAllDay: boolean;
   startHour: number;
   endHour: number;
   workDaysOnly: boolean;
@@ -126,6 +127,7 @@ const DEFAULT_CONFIG: AntiBlockConfig = {
   hourlyMessageLimit: 10,
   messageIntervalMin: 60,
   messageIntervalMax: 180,
+  operateAllDay: false,
   startHour: 9,
   endHour: 18,
   workDaysOnly: true,
@@ -565,48 +567,78 @@ export function AntiBlockSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* 24 Hours Operation */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                <div>
+                  <p className="font-medium flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-yellow-500" />
+                    Operação 24 Horas
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Permite enviar mensagens a qualquer hora do dia
+                  </p>
+                </div>
+                <Switch
+                  checked={config.operateAllDay}
+                  onCheckedChange={(v) => handleChange('operateAllDay', v)}
+                />
+              </div>
+
+              {config.operateAllDay && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Atenção</AlertTitle>
+                  <AlertDescription>
+                    Enviar mensagens fora do horário comercial pode aumentar o risco de bloqueio 
+                    e diminuir a taxa de resposta. Use com cautela.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Working Hours */}
-              <div className="space-y-3">
-                <Label>Horário de Funcionamento</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Início</Label>
-                    <Select 
-                      value={String(config.startHour)} 
-                      onValueChange={(v) => handleChange('startHour', Number(v))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => (
-                          <SelectItem key={i} value={String(i)}>
-                            {i.toString().padStart(2, '0')}:00
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Fim</Label>
-                    <Select 
-                      value={String(config.endHour)} 
-                      onValueChange={(v) => handleChange('endHour', Number(v))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => (
-                          <SelectItem key={i} value={String(i)}>
-                            {i.toString().padStart(2, '0')}:00
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {!config.operateAllDay && (
+                <div className="space-y-3">
+                  <Label>Horário de Funcionamento</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Início</Label>
+                      <Select 
+                        value={String(config.startHour)} 
+                        onValueChange={(v) => handleChange('startHour', Number(v))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 24 }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              {i.toString().padStart(2, '0')}:00
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Fim</Label>
+                      <Select 
+                        value={String(config.endHour)} 
+                        onValueChange={(v) => handleChange('endHour', Number(v))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 24 }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              {i.toString().padStart(2, '0')}:00
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
                 <div>
@@ -621,14 +653,16 @@ export function AntiBlockSettings() {
                 />
               </div>
 
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Recomendação</AlertTitle>
-                <AlertDescription>
-                  Enviar mensagens fora do horário comercial (9h-18h) pode parecer spam e aumenta 
-                  o risco de bloqueio. Respeite o horário dos seus leads.
-                </AlertDescription>
-              </Alert>
+              {!config.operateAllDay && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Recomendação</AlertTitle>
+                  <AlertDescription>
+                    Enviar mensagens fora do horário comercial (9h-18h) pode parecer spam e aumenta 
+                    o risco de bloqueio. Respeite o horário dos seus leads.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
