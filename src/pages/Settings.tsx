@@ -19,6 +19,7 @@ import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { QuickSetupWizard } from '@/components/settings/QuickSetupWizard';
 import {
   PERSONALITY_TRAITS,
   AGENT_TYPE_OPTIONS,
@@ -225,8 +226,12 @@ export default function SettingsPage() {
       title="Configurações"
       description="Personalize seu agente de prospecção com IA avançada"
     >
-      <Tabs defaultValue="antiblock" className="space-y-6">
+      <Tabs defaultValue="quickstart" className="space-y-6">
         <TabsList className="flex flex-wrap w-full max-w-5xl gap-1">
+          <TabsTrigger value="quickstart" className="gap-1">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">Início Rápido</span>
+          </TabsTrigger>
           <TabsTrigger value="apikeys" className="gap-1">
             <Key className="h-4 w-4" />
             <span className="hidden sm:inline">APIs</span>
@@ -269,7 +274,12 @@ export default function SettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* API Keys Tab - NEW */}
+        {/* Quick Start Tab - NEW */}
+        <TabsContent value="quickstart">
+          <QuickSetupWizard />
+        </TabsContent>
+
+        {/* API Keys Tab */}
         <TabsContent value="apikeys">
           <ApiKeysSettings />
         </TabsContent>
