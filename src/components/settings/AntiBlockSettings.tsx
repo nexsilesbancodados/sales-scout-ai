@@ -155,6 +155,11 @@ export function AntiBlockSettings() {
 
   useEffect(() => {
     if (settings) {
+      console.log('Loading anti-block settings from DB:', {
+        work_days_only: settings.work_days_only,
+        operate_all_day: settings.operate_all_day,
+        warmup_enabled: settings.warmup_enabled,
+      });
       // Load settings from user_settings - use explicit checks for booleans
       setConfig({
         ...DEFAULT_CONFIG,
@@ -177,6 +182,7 @@ export function AntiBlockSettings() {
         batchSize: settings.batch_size ?? 10,
         cooldownMinutes: settings.cooldown_minutes ?? 15,
       });
+      setHasChanges(false);
     }
   }, [settings]);
 
