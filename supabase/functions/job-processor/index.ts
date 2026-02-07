@@ -220,13 +220,14 @@ async function processJobItem(
             status: "sent",
           });
 
-          // Update lead's last_contact_at and stage
+          // Update lead's last_contact_at, stage, and mark as message_sent
           await supabase
             .from("leads")
             .update({ 
               last_contact_at: new Date().toISOString(),
               stage: 'Contato',
               temperature: 'morno',
+              message_sent: true,
             })
             .eq("id", lead.id);
         }
@@ -292,13 +293,14 @@ async function processJobItem(
           return { success: false, error: await response.text() };
         }
 
-        // Update follow-up count
+        // Update follow-up count and mark as sent
         if (lead.id) {
           await supabase
             .from("leads")
             .update({
               follow_up_count: (lead.follow_up_count || 0) + 1,
               last_contact_at: new Date().toISOString(),
+              message_sent: true,
             })
             .eq("id", lead.id);
         }

@@ -327,6 +327,7 @@ export type Database = {
           lead_score: number | null
           linkedin_url: string | null
           location: string | null
+          message_sent: boolean | null
           next_follow_up_at: string | null
           niche: string | null
           notes: string | null
@@ -373,6 +374,7 @@ export type Database = {
           lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
+          message_sent?: boolean | null
           next_follow_up_at?: string | null
           niche?: string | null
           notes?: string | null
@@ -419,6 +421,7 @@ export type Database = {
           lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
+          message_sent?: boolean | null
           next_follow_up_at?: string | null
           niche?: string | null
           notes?: string | null

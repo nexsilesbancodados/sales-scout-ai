@@ -44,6 +44,8 @@ import {
   Loader2,
   Users,
   Filter,
+  Send,
+  Clock,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -52,6 +54,7 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<LeadStage | 'all'>('all');
   const [tempFilter, setTempFilter] = useState<LeadTemperature | 'all'>('all');
+  const [messageSentFilter, setMessageSentFilter] = useState<'all' | 'sent' | 'pending'>('all');
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -64,6 +67,7 @@ export default function LeadsPage() {
     search: search || undefined,
     stage: stageFilter !== 'all' ? stageFilter : undefined,
     temperature: tempFilter !== 'all' ? tempFilter : undefined,
+    messageSent: messageSentFilter === 'all' ? undefined : messageSentFilter === 'sent',
   });
 
   // Calculate paginated leads
@@ -108,7 +112,11 @@ export default function LeadsPage() {
     setDetailsOpen(true);
   };
 
-  const activeFiltersCount = (stageFilter !== 'all' ? 1 : 0) + (tempFilter !== 'all' ? 1 : 0);
+  const activeFiltersCount = (stageFilter !== 'all' ? 1 : 0) + (tempFilter !== 'all' ? 1 : 0) + (messageSentFilter !== 'all' ? 1 : 0);
+
+  // Counts for message status
+  const sentCount = leads.filter(l => l.message_sent).length;
+  const pendingCount = leads.filter(l => !l.message_sent).length;
 
   return (
     <DashboardLayout
@@ -172,6 +180,29 @@ export default function LeadsPage() {
                   </SelectContent>
                 </Select>
 
+                <Select 
+                  value={messageSentFilter} 
+                  onValueChange={(v) => handleFilterChange(setMessageSentFilter, v as 'all' | 'sent' | 'pending')}
+                >
+                  <SelectTrigger className="w-[160px] bg-background">
+                    <SelectValue placeholder="Status Envio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos ({leads.length})</SelectItem>
+                    <SelectItem value="sent">
+                      <div className="flex items-center gap-2">
+                        <Send className="h-3 w-3 text-green-500" />
+                        Enviados
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pending">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-amber-500" />
+                        Pendentes
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 {activeFiltersCount > 0 && (
                   <Badge variant="secondary" className="h-9 px-3 flex items-center gap-1.5">
                     <Filter className="h-3 w-3" />
@@ -236,6 +267,7 @@ export default function LeadsPage() {
                       <TableHead className="font-semibold">Empresa</TableHead>
                       <TableHead className="font-semibold">Telefone</TableHead>
                       <TableHead className="font-semibold">Nicho</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
                       <TableHead className="font-semibold">Estágio</TableHead>
                       <TableHead className="font-semibold">Temp.</TableHead>
                       <TableHead className="font-semibold">Último Contato</TableHead>
@@ -267,6 +299,19 @@ export default function LeadsPage() {
                           <Badge variant="secondary" className="rounded-full font-normal">
                             {lead.niche || '-'}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {lead.message_sent ? (
+                            <Badge className="bg-green-500 text-white shadow-sm">
+                              <Send className="h-3 w-3 mr-1" />
+                              Enviado
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-amber-600 border-amber-300">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Pendente
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge className={`${stageColors[lead.stage]} text-white shadow-sm`}>
