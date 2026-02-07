@@ -373,6 +373,47 @@ export function MassSendTab() {
       </Card>
 
       <div className="space-y-4">
+        {/* Filters Card */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Filter className="h-4 w-4" />
+              Filtros do Disparo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Serviço a Oferecer
+                </Label>
+                <Select value={selectedService} onValueChange={setSelectedService}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_SERVICES.map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        <div className="flex flex-col">
+                          <span>{service.label}</span>
+                          <span className="text-xs text-muted-foreground">{service.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedService !== 'all' && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Briefcase className="h-3 w-3 mr-1" />
+                    Focado em: {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -434,35 +475,6 @@ export function MassSendTab() {
                 </TabsContent>
 
                 <TabsContent value="direct" className="space-y-4 mt-4">
-                  {/* Service Filter */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Serviço a Oferecer
-                    </Label>
-                    <Select value={selectedService} onValueChange={setSelectedService}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um serviço" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {AVAILABLE_SERVICES.map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            <div className="flex flex-col">
-                              <span>{service.label}</span>
-                              <span className="text-xs text-muted-foreground">{service.description}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {selectedService !== 'all' && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Filter className="h-3 w-3 mr-1" />
-                        Focado em: {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
-                      </Badge>
-                    )}
-                  </div>
-
                   <Alert className="border-primary/50 bg-primary/5">
                     <Zap className="h-4 w-4 text-primary" />
                     <AlertDescription>
