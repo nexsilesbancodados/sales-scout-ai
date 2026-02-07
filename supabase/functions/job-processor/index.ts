@@ -312,9 +312,18 @@ async function processJob(supabase: any, job: BackgroundJob) {
   let failedItems = job.failed_items;
   let currentIndex = job.current_index;
 
+  // Get payload with leads
+  const payload = job.payload as any;
+  const leads = payload.leads || [];
+
   // Process items from current index
   for (let i = currentIndex; i < totalItems; i++) {
-    // Update heartbeat every iteration
+    // Mark current lead as "sending" and update job
+    if (leads[i]) {
+      leads[i].status = 'sending';
+    }
+
+    // Update heartbeat and current lead status every iteration
     await supabase
       .from("background_jobs")
       .update({
@@ -322,13 +331,14 @@ async function processJob(supabase: any, job: BackgroundJob) {
         processed_items: processedItems,
         failed_items: failedItems,
         last_heartbeat_at: new Date().toISOString(),
+        payload: { ...payload, leads },
       })
       .eq("id", job.id);
 
-    // Check if job was cancelled
+    // Check if job was cancelled or paused
     const { data: currentJob } = await supabase
       .from("background_jobs")
-      .select("status")
+      .select("status, current_index")
       .eq("id", job.id)
       .single();
 
@@ -337,15 +347,41 @@ async function processJob(supabase: any, job: BackgroundJob) {
       return;
     }
 
+    // Check if skip was requested (current_index was advanced externally)
+    if (currentJob?.current_index > i) {
+      console.log(`Job ${job.id} skip detected, advancing to index ${currentJob.current_index}`);
+      i = currentJob.current_index - 1; // Will be incremented by loop
+      processedItems++;
+      continue;
+    }
+
     // Process item
     const result = await processJobItem(supabase, job, i, userSettings);
 
+    // Update lead status based on result
+    if (leads[i]) {
+      leads[i].status = result.success ? 'sent' : (result.skipped ? 'skipped' : 'failed');
+      if (!result.success && result.error) {
+        leads[i].error_message = result.error;
+      }
+    }
+
     if (result.success) {
       processedItems++;
-    } else {
+    } else if (!result.skipped) {
       failedItems++;
       console.error(`Item ${i} failed:`, result.error);
+    } else {
+      processedItems++; // Skipped items count as processed
     }
+
+    // Update payload with lead status
+    await supabase
+      .from("background_jobs")
+      .update({
+        payload: { ...payload, leads },
+      })
+      .eq("id", job.id);
   }
 
   // Mark job as completed
@@ -357,10 +393,13 @@ async function processJob(supabase: any, job: BackgroundJob) {
       failed_items: failedItems,
       current_index: totalItems,
       completed_at: new Date().toISOString(),
+      payload: { ...payload, leads }, // Save final lead statuses
       result: {
         total: totalItems,
         processed: processedItems,
         failed: failedItems,
+        sent: leads.filter((l: any) => l.status === 'sent').length,
+        skipped: leads.filter((l: any) => l.status === 'skipped').length,
       },
     })
     .eq("id", job.id);
@@ -483,6 +522,84 @@ Deno.serve(async (req) => {
           .from("background_jobs")
           .update({ status: "cancelled", completed_at: new Date().toISOString() })
           .eq("id", job_id);
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "skip": {
+        // Skip to next lead immediately
+        if (!job_id) {
+          return new Response(
+            JSON.stringify({ error: "job_id required" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Get current job
+        const { data: job } = await supabase
+          .from("background_jobs")
+          .select("*")
+          .eq("id", job_id)
+          .single();
+
+        if (!job) {
+          return new Response(
+            JSON.stringify({ error: "Job not found" }),
+            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Update payload to mark current lead as skipped and advance index
+        const payload = job.payload as any;
+        const leads = payload.leads || [];
+        const currentIndex = job.current_index || 0;
+
+        if (currentIndex < leads.length) {
+          leads[currentIndex].status = 'skipped';
+        }
+
+        await supabase
+          .from("background_jobs")
+          .update({
+            current_index: currentIndex + 1,
+            processed_items: (job.processed_items || 0) + 1,
+            payload: { ...payload, leads },
+          })
+          .eq("id", job_id);
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "start": {
+        // Start a job that was just created
+        if (!job_id) {
+          return new Response(
+            JSON.stringify({ error: "job_id required" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { data: job } = await supabase
+          .from("background_jobs")
+          .select("*")
+          .eq("id", job_id)
+          .single();
+
+        if (!job) {
+          return new Response(
+            JSON.stringify({ error: "Job not found" }),
+            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Start processing in background
+        EdgeRuntime.waitUntil(processJob(supabase, job));
 
         return new Response(
           JSON.stringify({ success: true }),
