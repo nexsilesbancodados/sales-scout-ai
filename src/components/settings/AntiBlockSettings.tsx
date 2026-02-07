@@ -160,15 +160,16 @@ export function AntiBlockSettings() {
         operate_all_day: settings.operate_all_day,
         warmup_enabled: settings.warmup_enabled,
       });
-      // Load settings from user_settings - use explicit checks for booleans
+      // Load ALL settings from user_settings
       setConfig({
         ...DEFAULT_CONFIG,
-        dailyMessageLimit: settings.daily_message_limit || 30,
-        messageIntervalMin: settings.message_interval_seconds || 60,
-        messageIntervalMax: (settings.message_interval_seconds || 60) * 3,
+        dailyMessageLimit: settings.daily_message_limit ?? 30,
+        hourlyMessageLimit: settings.hourly_message_limit ?? 10,
+        messageIntervalMin: settings.message_interval_seconds ?? 60,
+        messageIntervalMax: settings.message_interval_max ?? 180,
         startHour: settings.auto_start_hour ?? 9,
         endHour: settings.auto_end_hour ?? 18,
-        // Load persisted anti-block settings
+        // Anti-block settings
         workDaysOnly: settings.work_days_only ?? true,
         operateAllDay: settings.operate_all_day ?? false,
         warmupEnabled: settings.warmup_enabled ?? true,
@@ -177,10 +178,16 @@ export function AntiBlockSettings() {
         randomizeInterval: settings.randomize_interval ?? true,
         randomizeOrder: settings.randomize_order ?? true,
         typingSimulation: settings.typing_simulation ?? true,
+        typingDelayMs: settings.typing_delay_ms ?? 2000,
+        readReceiptDelay: settings.read_receipt_delay ?? true,
         pauseOnError: settings.pause_on_error ?? true,
+        maxConsecutiveErrors: settings.max_consecutive_errors ?? 3,
+        pauseDurationMinutes: settings.pause_duration_minutes ?? 30,
         cooldownAfterBatch: settings.cooldown_after_batch ?? true,
         batchSize: settings.batch_size ?? 10,
         cooldownMinutes: settings.cooldown_minutes ?? 15,
+        autoSlowdown: settings.auto_slowdown ?? true,
+        slowdownThreshold: settings.slowdown_threshold ?? 5,
       });
       setHasChanges(false);
     }
@@ -194,10 +201,12 @@ export function AntiBlockSettings() {
   const handleSave = () => {
     updateSettings({
       daily_message_limit: config.dailyMessageLimit,
+      hourly_message_limit: config.hourlyMessageLimit,
       message_interval_seconds: config.messageIntervalMin,
+      message_interval_max: config.messageIntervalMax,
       auto_start_hour: config.startHour,
       auto_end_hour: config.endHour,
-      // Save all anti-block settings
+      // Save ALL anti-block settings
       work_days_only: config.workDaysOnly,
       operate_all_day: config.operateAllDay,
       warmup_enabled: config.warmupEnabled,
@@ -206,10 +215,16 @@ export function AntiBlockSettings() {
       randomize_interval: config.randomizeInterval,
       randomize_order: config.randomizeOrder,
       typing_simulation: config.typingSimulation,
+      typing_delay_ms: config.typingDelayMs,
+      read_receipt_delay: config.readReceiptDelay,
       pause_on_error: config.pauseOnError,
+      max_consecutive_errors: config.maxConsecutiveErrors,
+      pause_duration_minutes: config.pauseDurationMinutes,
       cooldown_after_batch: config.cooldownAfterBatch,
       batch_size: config.batchSize,
       cooldown_minutes: config.cooldownMinutes,
+      auto_slowdown: config.autoSlowdown,
+      slowdown_threshold: config.slowdownThreshold,
     });
     setHasChanges(false);
   };

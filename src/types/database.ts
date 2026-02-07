@@ -91,6 +91,15 @@ export interface UserSettings {
   cooldown_after_batch: boolean;
   batch_size: number;
   cooldown_minutes: number;
+  // Additional Anti-Block Settings
+  hourly_message_limit: number;
+  message_interval_max: number;
+  max_consecutive_errors: number;
+  pause_duration_minutes: number;
+  typing_delay_ms: number;
+  read_receipt_delay: boolean;
+  auto_slowdown: boolean;
+  slowdown_threshold: number;
   // Timestamps
   created_at: string;
   updated_at: string;
