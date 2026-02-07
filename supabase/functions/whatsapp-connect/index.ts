@@ -143,13 +143,50 @@ Deno.serve(async (req) => {
         .eq("user_id", user.id);
 
       // Extract QR code from creation response if available
-      const base64 = instanceData.qrcode?.base64 || instanceData.base64;
+      let base64 = instanceData.qrcode?.base64 || instanceData.base64;
       const pairingCode = instanceData.qrcode?.pairingCode || instanceData.pairingCode;
+      
+      // If no QR code in creation response, wait and fetch it
+      if (!base64) {
+        console.log("No QR in creation response, waiting for instance to initialize...");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Fetch QR code with retries
+        for (let attempt = 1; attempt <= 5; attempt++) {
+          console.log(`Fetching QR code attempt ${attempt}/5...`);
+          const qrResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
+            method: "GET",
+            headers: { "apikey": EVOLUTION_API_KEY },
+          });
+          
+          if (qrResponse.ok) {
+            const qrData = await qrResponse.json();
+            console.log(`QR fetch response attempt ${attempt}:`, JSON.stringify(qrData).substring(0, 400));
+            base64 = qrData.base64 || qrData.qrcode?.base64 || qrData.code;
+            
+            if (base64) {
+              console.log("QR code obtained successfully!");
+              break;
+            }
+          }
+          
+          if (attempt < 5) {
+            const delay = attempt * 2000; // 2s, 4s, 6s, 8s
+            console.log(`QR not ready, waiting ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+      
+      if (!base64) {
+        console.log("QR code not available after retries, returning partial response");
+      }
       
       return new Response(JSON.stringify({
         ...instanceData,
         base64,
         pairingCode,
+        message: base64 ? "QR code ready" : "QR code loading, please refresh",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -158,14 +195,29 @@ Deno.serve(async (req) => {
     if (action === "get_qrcode") {
       console.log(`Getting QR code for: ${instanceName}`);
       
-      // Try up to 3 times with delays to wait for QR generation
-      let qrData: { base64?: string; code?: string; pairingCode?: string; count?: number } = { count: 0 };
-      let attempts = 0;
-      const maxAttempts = 3;
+      // First check if instance exists
+      const statusCheck = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
+        method: "GET",
+        headers: { "apikey": EVOLUTION_API_KEY },
+      });
       
-      while (attempts < maxAttempts) {
-        attempts++;
-        console.log(`QR code attempt ${attempts}/${maxAttempts}`);
+      if (!statusCheck.ok) {
+        console.log("Instance doesn't exist, need to create first");
+        return new Response(JSON.stringify({
+          error: "Instância não existe. Clique em 'Conectar WhatsApp' primeiro.",
+          needsCreate: true,
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      // Try up to 6 times with delays to wait for QR generation
+      let qrData: { base64?: string; code?: string; pairingCode?: string; count?: number } = { count: 0 };
+      const maxAttempts = 6;
+      
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        console.log(`QR code attempt ${attempt}/${maxAttempts}`);
         
         const qrResponse = await fetch(`${EVOLUTION_API_URL}/instance/connect/${instanceName}`, {
           method: "GET",
@@ -179,7 +231,7 @@ Deno.serve(async (req) => {
         }
 
         qrData = await qrResponse.json();
-        console.log(`QR Response attempt ${attempts}:`, JSON.stringify(qrData).substring(0, 300));
+        console.log(`QR Response attempt ${attempt}:`, JSON.stringify(qrData).substring(0, 400));
         
         // Check if we got the base64 QR code
         const base64Check = qrData.base64 || (qrData as Record<string, unknown>).qrcode?.base64;
@@ -189,8 +241,8 @@ Deno.serve(async (req) => {
         }
         
         // Wait before retry (increasing delay)
-        if (attempts < maxAttempts) {
-          const delay = attempts * 2000; // 2s, 4s
+        if (attempt < maxAttempts) {
+          const delay = Math.min(attempt * 2000, 6000); // 2s, 4s, 6s, 6s, 6s
           console.log(`No QR code yet, waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
@@ -202,7 +254,15 @@ Deno.serve(async (req) => {
       
       if (!base64) {
         console.error("Could not obtain QR code after retries. Response:", JSON.stringify(qrData));
-        throw new Error("QR Code não disponível. A instância pode estar inicializando. Tente novamente em alguns segundos.");
+        // Instead of throwing, return a helpful response
+        return new Response(JSON.stringify({
+          error: "QR Code ainda não está pronto",
+          message: "A instância está inicializando. Aguarde alguns segundos e tente novamente.",
+          retry: true,
+        }), {
+          status: 202,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
       
       return new Response(JSON.stringify({
