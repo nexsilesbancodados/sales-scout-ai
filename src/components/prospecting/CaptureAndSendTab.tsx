@@ -295,6 +295,27 @@ export function CaptureAndSendTab({
     }
   }, [prefilledNiches, prefilledLocations, onPrefilledConsumed, toast]);
 
+  // Monitor background job completion to update history
+  useEffect(() => {
+    if (activeJob?.status === 'completed' && currentHistorySessionId) {
+      // Update history session with final results from background job
+      const payload = activeJob.payload as any;
+      const leads = payload?.leads || [];
+      const sentCount = leads.filter((l: any) => l.status === 'sent').length;
+      const failedCount = leads.filter((l: any) => l.status === 'failed').length;
+      
+      updateSession({
+        id: currentHistorySessionId,
+        status: 'completed',
+        total_sent: sentCount,
+        total_errors: failedCount,
+        completed_at: new Date().toISOString(),
+      }).catch(console.error);
+      
+      setCurrentHistorySessionId(null);
+    }
+  }, [activeJob?.status, activeJob?.payload, currentHistorySessionId, updateSession]);
+
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString('pt-BR');
     setLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
@@ -929,6 +950,16 @@ export function CaptureAndSendTab({
       return;
     }
 
+    // Check if there's already an active job
+    if (activeJob && ['pending', 'running', 'paused'].includes(activeJob.status)) {
+      toast({
+        title: 'Disparo em andamento',
+        description: 'Aguarde o disparo atual terminar ou cancele-o antes de iniciar outro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     // Check if within operating hours (only if operate_all_day is disabled)
     if (!isWithinOperatingHours()) {
       const workDaysText = settings?.work_days_only ? ' em dias úteis' : '';
@@ -940,6 +971,76 @@ export function CaptureAndSendTab({
       return;
     }
 
+    // Get the specific service to offer
+    const serviceToOffer = selectedService !== 'all' 
+      ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+      : null;
+
+    addLog(`🚀 Criando disparo em segundo plano para ${leadsToProcess.length} leads...`);
+    addLog(`💡 O disparo continuará mesmo se você fechar a página.`);
+
+    // Create a background job for persistent sending
+    try {
+      // Format leads for the job with all necessary data
+      const formattedLeads = leadsToProcess.map(lead => ({
+        id: lead.id,
+        business_name: lead.business_name,
+        phone: formatPhoneForWhatsApp(lead.phone),
+        niche: lead.niche,
+        location: lead.location,
+        rating: lead.rating,
+        reviews_count: lead.reviews_count,
+        suggestedMessage: lead.suggestedMessage,
+        status: 'pending' as const,
+      }));
+
+      // Create job using the hook (which handles persistence)
+      createJob({
+        leads: formattedLeads,
+        messageTemplate: leadsToProcess[0]?.suggestedMessage,
+        useAIPersonalization: !useDirectAI && !!leadsToProcess[0]?.suggestedMessage,
+        directAIMode: useDirectAI,
+        agentSettings: {
+          agent_name: settings?.agent_name,
+          agent_persona: settings?.agent_persona,
+          communication_style: settings?.communication_style,
+          emoji_usage: settings?.emoji_usage,
+          services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
+          knowledge_base: settings?.knowledge_base,
+          message_interval_seconds: settings?.message_interval_seconds,
+          specific_service: serviceToOffer,
+        },
+        prospectingType: selectedProspectingType.id,
+        serviceToOffer: serviceToOffer || undefined,
+      });
+
+      // Update local state to reflect that leads are being processed
+      setCapturedLeads(prev => prev.map(l => 
+        selectedLeadIds.includes(l.id) && l.status === 'pending' && !l.isDuplicate
+          ? { ...l, status: 'sending' as const }
+          : l
+      ));
+
+      // Clear selection
+      setSelectedLeadIds([]);
+      setProcessStatus('idle');
+      
+    } catch (error: any) {
+      addLog(`❌ Erro ao criar disparo: ${error.message}`);
+      toast({
+        title: 'Erro ao iniciar disparo',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Legacy local sending function (kept for reference but not used)
+  const startSendingLocal = async () => {
+    const leadsToProcess = useDirectAI
+      ? capturedLeads.filter(l => selectedLeadIds.includes(l.id) && l.status === 'pending' && !l.isDuplicate)
+      : capturedLeads.filter(l => selectedLeadIds.includes(l.id) && l.suggestedMessage && l.status === 'pending');
+    
     const dailyLimit = settings?.daily_message_limit || 30;
 
     setProcessStatus('sending');
@@ -949,7 +1050,7 @@ export function CaptureAndSendTab({
     // Shuffle leads for random order (anti-pattern detection)
     const leadsToSend = shuffleArray(leadsToProcess);
     
-    addLog(`🚀 Iniciando disparo ${useDirectAI ? 'com IA Direta' : 'com mensagens pré-geradas'} para ${leadsToSend.length} leads...`);
+    addLog(`🚀 Iniciando disparo local para ${leadsToSend.length} leads...`);
     addLog(`📊 Limite diário: ${dailyLimit} | Intervalo base: ${settings?.message_interval_seconds || 60}s`);
 
     // Get the specific service to offer
