@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { useUserSettings } from '@/hooks/use-user-settings';
+import { useAuth } from '@/lib/auth';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import {
   Users,
   Calendar,
@@ -28,9 +32,16 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { activities, isLoading: activitiesLoading } = useActivityLog(10);
   const { settings } = useUserSettings();
+  const [showChecklist, setShowChecklist] = useState(true);
+
+  // Check if user needs onboarding checklist
+  const isNewUser = !settings?.whatsapp_connected && 
+                    !settings?.agent_name && 
+                    !settings?.knowledge_base;
 
   const getActivityIcon = (type: string) => {
     const iconMap: Record<string, JSX.Element> = {
@@ -47,6 +58,15 @@ export default function DashboardPage() {
       title="Dashboard"
       description="Visão geral da sua prospecção automatizada"
     >
+      {/* Onboarding Wizard for new users */}
+      <OnboardingWizard />
+
+      {/* Onboarding Checklist */}
+      {showChecklist && (
+        <div className="mb-8 animate-fade-in">
+          <OnboardingChecklist onDismiss={() => setShowChecklist(false)} />
+        </div>
+      )}
       {/* Hero Action Card */}
       <Card className="mb-8 overflow-hidden border-0 shadow-xl animate-fade-in">
         <div className="gradient-primary relative">
