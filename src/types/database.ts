@@ -34,6 +34,9 @@ export interface Profile {
   updated_at: string;
 }
 
+// Search API preference type
+export type PreferredSearchApi = 'serper' | 'serpapi';
+
 export interface UserSettings {
   id: string;
   user_id: string;
@@ -71,6 +74,8 @@ export interface UserSettings {
   // User's own API keys
   gemini_api_key: string | null;
   serpapi_api_key: string | null;
+  serper_api_key: string | null;
+  preferred_search_api: PreferredSearchApi;
   // Automation & Security Settings
   daily_message_limit: number;
   message_interval_seconds: number;
