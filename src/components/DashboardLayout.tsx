@@ -25,7 +25,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen">
+      <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
         <header className="sticky top-0 z-20 flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 px-3 sm:px-6 safe-top">
           <SidebarTrigger className="-ml-1 tap-target" />
           <Separator orientation="vertical" className="mr-2 h-4 hide-mobile" />
