@@ -462,28 +462,53 @@ Por favor, analise e sugira melhorias.`;
     if (action === "generate_message") {
       const { lead, template, agentSettings } = data;
 
-      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            {
-              role: "system",
-              content: `Você é ${agentSettings?.agent_name || "um consultor de vendas"}.
+      // Check if this is direct AI mode (no template)
+      const isDirectMode = !template || template === null || template.trim() === '';
+
+      let systemPrompt = '';
+      let userPrompt = '';
+
+      if (isDirectMode) {
+        // Direct AI mode - generate message from scratch based on agent settings
+        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas especializado"}.
 ${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
 
 Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
 Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
 
-Sua tarefa é personalizar a mensagem de prospecção para o lead específico, mantendo o tom e estrutura do template mas adaptando para a realidade do lead.`,
-            },
-            {
-              role: "user",
-              content: `Lead:
+${agentSettings?.knowledge_base ? `Conhecimento especializado: ${agentSettings.knowledge_base}` : ''}
+
+Serviços que você oferece:
+${agentSettings?.services_offered?.length ? agentSettings.services_offered.join(', ') : 'soluções digitais personalizadas'}
+
+INSTRUÇÕES IMPORTANTES:
+- Crie uma mensagem de prospecção ÚNICA e NATURAL para este lead
+- A mensagem deve parecer escrita especificamente para essa empresa
+- Seja direto mas amigável, não pareça spam
+- Mencione algo específico do nicho ou da empresa
+- Mantenha a mensagem curta (máximo 3 parágrafos)
+- Não use palavras genéricas como "prezado" ou "venho por meio desta"
+- Comece com uma abordagem natural, como se fosse uma conversa`;
+
+        userPrompt = `Crie uma mensagem de prospecção para:
+- Empresa: ${lead.business_name}
+- Nicho/Segmento: ${lead.niche || "negócio local"}
+- Localização: ${lead.location || "não especificada"}
+${lead.rating ? `- Avaliação: ${lead.rating} estrelas com ${lead.reviews_count || 0} avaliações` : ''}
+
+Gere APENAS a mensagem final, sem explicações ou comentários.`;
+
+      } else {
+        // Template mode - personalize existing template
+        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas"}.
+${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
+
+Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
+Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
+
+Sua tarefa é personalizar a mensagem de prospecção para o lead específico, mantendo o tom e estrutura do template mas adaptando para a realidade do lead.`;
+
+        userPrompt = `Lead:
 - Empresa: ${lead.business_name}
 - Nicho: ${lead.niche || "não especificado"}
 - Localização: ${lead.location || "não especificada"}
@@ -493,23 +518,38 @@ Sua tarefa é personalizar a mensagem de prospecção para o lead específico, m
 Template base:
 ${template}
 
-Personalize esta mensagem para este lead específico. Mantenha curta e direta.`,
-            },
-          ],
-        }),
-      });
-
-      if (!aiResponse.ok) {
-        console.error("AI API error:", await aiResponse.text());
-        throw new Error("Failed to generate message");
+Personalize esta mensagem para este lead específico. Mantenha curta e direta. Retorne APENAS a mensagem final.`;
       }
 
-      const aiData = await aiResponse.json();
-      const message = aiData.choices?.[0]?.message?.content || template;
+      try {
+        const message = await callAI(systemPrompt, userPrompt);
+        
+        // Clean up the message - remove any markdown or extra formatting
+        const cleanMessage = message
+          .replace(/^["']|["']$/g, '') // Remove quotes at start/end
+          .replace(/^\*\*|\*\*$/g, '') // Remove bold markdown
+          .trim();
 
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        return new Response(JSON.stringify({ message: cleanMessage }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error: any) {
+        console.error("AI API error:", error);
+        
+        // Fallback for template mode
+        if (!isDirectMode) {
+          const fallbackMessage = template
+            .replace(/\{empresa\}/gi, lead.business_name)
+            .replace(/\{nicho\}/gi, lead.niche || 'seu segmento')
+            .replace(/\{cidade\}/gi, lead.location || 'sua região');
+          
+          return new Response(JSON.stringify({ message: fallbackMessage }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        
+        throw new Error("Falha ao gerar mensagem. Verifique sua chave API.");
+      }
     }
 
     // Action: Search leads - NOW WITH BACKGROUND PROCESSING
