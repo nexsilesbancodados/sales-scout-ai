@@ -8,6 +8,7 @@ export function useLeads(filters?: {
   stage?: LeadStage;
   temperature?: LeadTemperature;
   search?: string;
+  messageSent?: boolean;
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -32,6 +33,9 @@ export function useLeads(filters?: {
       }
       if (filters?.search) {
         query = query.or(`business_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
+      }
+      if (filters?.messageSent !== undefined) {
+        query = query.eq('message_sent', filters.messageSent);
       }
 
       const { data, error } = await query;
