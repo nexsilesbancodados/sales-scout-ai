@@ -488,7 +488,7 @@ Por favor, analise e sugira melhorias.`;
 
     // Action: Generate personalized message
     if (action === "generate_message") {
-      const { lead, template, agentSettings } = data;
+      const { lead, template, agentSettings, isRemarketing } = data;
 
       // Check if this is direct AI mode (no template)
       const isDirectMode = !template || template === null || template.trim() === '';
@@ -502,7 +502,45 @@ Por favor, analise e sugira melhorias.`;
       let systemPrompt = '';
       let userPrompt = '';
 
-      if (isDirectMode) {
+      if (isRemarketing) {
+        // Remarketing mode - generate follow-up message
+        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas especializado"}.
+${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
+
+Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
+Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
+
+${agentSettings?.knowledge_base ? `Conhecimento especializado: ${agentSettings.knowledge_base}` : ''}
+
+Serviços disponíveis: ${servicesText}
+
+CONTEXTO: Esta é uma mensagem de REMARKETING/FOLLOW-UP. O lead já foi contatado anteriormente mas não respondeu ou a conversa não avançou.
+
+INSTRUÇÕES IMPORTANTES PARA REMARKETING:
+- Crie uma mensagem de follow-up DIFERENTE da primeira abordagem
+- NÃO repita a mesma apresentação - assuma que já se apresentou
+- Use gatilhos como: novidades, promoções, cases de sucesso, urgência
+- Seja breve e direto ao ponto
+- Mostre que você lembrou dele e quer ajudar
+- Mencione algo específico do nicho que possa interessar
+- Exemplos de abordagens:
+  * "Oi [empresa]! Passando aqui pra compartilhar uma novidade..."
+  * "Lembrei de vocês quando vi esse resultado de um cliente..."
+  * "Consegui uma condição especial que pode interessar..."
+- NÃO use: "Olá, sou fulano da empresa X" (você já se apresentou antes)
+- Mantenha curta (2 parágrafos no máximo)`;
+
+        userPrompt = `Crie uma mensagem de REMARKETING para:
+- Empresa: ${lead.business_name}
+- Nicho/Segmento: ${lead.niche || "negócio local"}
+- Localização: ${lead.location || "não especificada"}
+${lead.rating ? `- Avaliação: ${lead.rating} estrelas com ${lead.reviews_count || 0} avaliações` : ''}
+
+Esta empresa já foi contatada antes. Crie uma mensagem de follow-up criativa e diferente.
+
+Gere APENAS a mensagem final, sem explicações ou comentários.`;
+
+      } else if (isDirectMode) {
         // Direct AI mode - generate message from scratch based on agent settings
         systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas especializado"}.
 ${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
