@@ -465,6 +465,12 @@ Por favor, analise e sugira melhorias.`;
       // Check if this is direct AI mode (no template)
       const isDirectMode = !template || template === null || template.trim() === '';
 
+      // Check if a specific service was selected
+      const specificService = agentSettings?.specific_service;
+      const servicesText = specificService 
+        ? specificService 
+        : (agentSettings?.services_offered?.length ? agentSettings.services_offered.join(', ') : 'soluções digitais personalizadas');
+
       let systemPrompt = '';
       let userPrompt = '';
 
@@ -478,12 +484,14 @@ Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
 
 ${agentSettings?.knowledge_base ? `Conhecimento especializado: ${agentSettings.knowledge_base}` : ''}
 
-Serviços que você oferece:
-${agentSettings?.services_offered?.length ? agentSettings.services_offered.join(', ') : 'soluções digitais personalizadas'}
+${specificService ? `FOCO PRINCIPAL: Você está oferecendo especificamente o serviço de "${specificService}". Toda a mensagem deve girar em torno deste serviço.` : ''}
+
+Serviços disponíveis: ${servicesText}
 
 INSTRUÇÕES IMPORTANTES:
 - Crie uma mensagem de prospecção ÚNICA e NATURAL para este lead
 - A mensagem deve parecer escrita especificamente para essa empresa
+- ${specificService ? `Foque em como "${specificService}" pode ajudar este negócio específico` : 'Mencione um serviço relevante para o nicho'}
 - Seja direto mas amigável, não pareça spam
 - Mencione algo específico do nicho ou da empresa
 - Mantenha a mensagem curta (máximo 3 parágrafos)
@@ -495,6 +503,7 @@ INSTRUÇÕES IMPORTANTES:
 - Nicho/Segmento: ${lead.niche || "negócio local"}
 - Localização: ${lead.location || "não especificada"}
 ${lead.rating ? `- Avaliação: ${lead.rating} estrelas com ${lead.reviews_count || 0} avaliações` : ''}
+${specificService ? `\nSERVIÇO A OFERECER: ${specificService}` : ''}
 
 Gere APENAS a mensagem final, sem explicações ou comentários.`;
 
