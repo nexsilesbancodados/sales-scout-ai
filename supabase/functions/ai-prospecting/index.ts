@@ -189,25 +189,53 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    
+    // Check if this is a service role call (internal from job-processor)
+    const isServiceRoleCall = authHeader.includes(supabaseServiceKey);
+    
+    let user: any = null;
+    let supabase: any;
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+    if (isServiceRoleCall) {
+      // Internal call from job-processor - use service role client
+      supabase = createClient(supabaseUrl, supabaseServiceKey);
+      // User ID should be passed in the body for internal calls
+      const body = await req.clone().json();
+      if (body.user_id) {
+        user = { id: body.user_id };
+      }
+    } else {
+      // Normal user call - authenticate with JWT
+      supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      user = userData.user;
+    }
+
+    const { action, data, user_id } = await req.json();
+    
+    // For internal calls, use provided user_id
+    const effectiveUserId = user?.id || user_id;
+    
+    if (!effectiveUserId) {
+      return new Response(JSON.stringify({ error: "User ID required" }), {
+        status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const { action, data } = await req.json();
     
     // Get user settings to retrieve their API keys
     const { data: userSettings } = await supabase
       .from("user_settings")
       .select("gemini_api_key, serpapi_api_key")
-      .eq("user_id", user.id)
+      .eq("user_id", effectiveUserId)
       .single();
 
     const GEMINI_API_KEY = userSettings?.gemini_api_key;
