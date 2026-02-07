@@ -53,6 +53,7 @@ import {
   Zap,
   Settings2,
   Plus,
+  Briefcase,
 } from 'lucide-react';
 
 const NICHES = [
@@ -94,6 +95,18 @@ const LOCATIONS = [
   'Florianópolis, SC',
   'Vitória, ES',
   'Natal, RN',
+];
+
+// Available services for filtering
+const AVAILABLE_SERVICES = [
+  { id: 'all', label: 'Todos os Serviços', description: 'Usar serviços configurados no perfil' },
+  { id: 'trafego_pago', label: 'Tráfego Pago', description: 'Gestão de anúncios e campanhas pagas' },
+  { id: 'automacao', label: 'Automação', description: 'Automação de processos e sistemas' },
+  { id: 'social_media', label: 'Social Media', description: 'Gestão de redes sociais' },
+  { id: 'websites', label: 'Sites e Landing Pages', description: 'Criação de sites e páginas' },
+  { id: 'seo', label: 'SEO', description: 'Otimização para buscadores' },
+  { id: 'design', label: 'Design Gráfico', description: 'Identidade visual e materiais' },
+  { id: 'consultoria', label: 'Consultoria', description: 'Consultoria em marketing digital' },
 ];
 
 interface ProspectingType {
@@ -256,6 +269,7 @@ export function CaptureAndSendTab({
   const [maxLeadsToCapture, setMaxLeadsToCapture] = useState(300);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<string>('all');
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
@@ -782,9 +796,14 @@ export function CaptureAndSendTab({
               agentSettings: {
                 agent_name: settings?.agent_name,
                 agent_persona: settings?.agent_persona,
-                services_offered: settings?.services_offered,
+                services_offered: selectedService !== 'all' 
+                  ? [AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label]
+                  : settings?.services_offered,
                 communication_style: settings?.communication_style,
                 emoji_usage: settings?.emoji_usage,
+                specific_service: selectedService !== 'all' 
+                  ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+                  : null,
               },
               prospectingType: {
                 id: selectedProspectingType.id,
@@ -1449,6 +1468,40 @@ export function CaptureAndSendTab({
           
           <CollapsibleContent>
             <CardContent className="pt-0">
+              {/* Service Filter - Always visible */}
+              <div className="mb-6 p-4 rounded-lg border bg-muted/30">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-primary" />
+                    <Label className="font-medium">Serviço a Oferecer</Label>
+                  </div>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Selecione um serviço" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AVAILABLE_SERVICES.map((service) => (
+                        <SelectItem key={service.id} value={service.id}>
+                          <div className="flex flex-col">
+                            <span>{service.label}</span>
+                            <span className="text-xs text-muted-foreground">{service.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedService !== 'all' && (
+                    <Badge variant="default" className="text-xs">
+                      <Briefcase className="h-3 w-3 mr-1" />
+                      Focado em: {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
+                    </Badge>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    A IA focará as mensagens neste serviço específico durante a prospecção
+                  </p>
+                </div>
+              </div>
+
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {/* Website Filter */}
                 <div className="space-y-3">
