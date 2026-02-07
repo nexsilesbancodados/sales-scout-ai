@@ -108,40 +108,49 @@ export function MassSendProgress() {
   };
 
   return (
-    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Send className="h-5 w-5 text-primary" />
             Disparo em Andamento
+          </CardTitle>
+          <div className="flex items-center gap-2">
             {isRunning && (
-              <Badge className="animate-pulse bg-green-500">Executando</Badge>
+              <Badge className="animate-pulse bg-emerald-500 text-emerald-50">● Executando</Badge>
             )}
             {isPaused && (
-              <Badge variant="secondary">Pausado</Badge>
+              <Badge variant="secondary">⏸ Pausado</Badge>
             )}
-          </CardTitle>
-          <Button variant="ghost" size="icon" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
+            <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progresso</span>
-            <span className="font-medium">
-              {activeJob.processed_items} / {activeJob.total_items} ({progress}%)
+        {/* Visual progress */}
+        <div className="space-y-3">
+          <div className="relative">
+            <Progress value={progress} className="h-4" />
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+              {progress}%
             </span>
           </div>
-          <Progress value={progress} className="h-3" />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span className="text-emerald-600">✓ {activeJob.processed_items - activeJob.failed_items} enviados</span>
-            {activeJob.failed_items > 0 && (
-              <span className="text-destructive">✗ {activeJob.failed_items} falharam</span>
-            )}
-            <span>{activeJob.total_items - activeJob.processed_items} restantes</span>
+          
+          <div className="grid grid-cols-3 gap-2 text-center text-sm">
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <p className="text-2xl font-bold text-emerald-600">{activeJob.processed_items - (activeJob.failed_items || 0)}</p>
+              <p className="text-xs text-muted-foreground">Enviados</p>
+            </div>
+            <div className="p-2 rounded-lg bg-destructive/10">
+              <p className="text-2xl font-bold text-destructive">{activeJob.failed_items || 0}</p>
+              <p className="text-xs text-muted-foreground">Falharam</p>
+            </div>
+            <div className="p-2 rounded-lg bg-muted">
+              <p className="text-2xl font-bold text-muted-foreground">{activeJob.total_items - activeJob.processed_items}</p>
+              <p className="text-xs text-muted-foreground">Restantes</p>
+            </div>
           </div>
         </div>
 
