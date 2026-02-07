@@ -17,8 +17,11 @@ import {
   Sparkles,
   AlertCircle,
   Activity,
+  Zap,
+  MessageSquare,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function MassSendTab() {
   const { leads } = useLeads();
@@ -32,6 +35,7 @@ export function MassSendTab() {
   const [previewLead, setPreviewLead] = useState<string | null>(null);
   const [previewMessage, setPreviewMessage] = useState<string>('');
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [sendMode, setSendMode] = useState<'template' | 'direct'>('template');
 
   // Check if there's an active mass_send job
   const hasActiveMassSend = activeJobs.some(j => j.job_type === 'mass_send');
@@ -74,7 +78,49 @@ export function MassSendTab() {
 
   const handlePreviewMessage = async (leadId: string) => {
     const lead = leads.find(l => l.id === leadId);
-    if (!lead || !massMessage.trim()) return;
+    if (!lead) return;
+
+    // For direct mode, we don't need a base message
+    if (sendMode === 'direct') {
+      setPreviewLead(leadId);
+      setIsGeneratingPreview(true);
+      try {
+        const response = await supabase.functions.invoke('ai-prospecting', {
+          body: {
+            action: 'generate_message',
+            data: {
+              lead: {
+                business_name: lead.business_name,
+                niche: lead.niche,
+                location: lead.location,
+                rating: lead.rating,
+                reviews_count: lead.reviews_count,
+              },
+              template: null, // No template - generate from scratch
+              agentSettings: {
+                agent_name: settings?.agent_name,
+                agent_persona: settings?.agent_persona,
+                communication_style: settings?.communication_style,
+                emoji_usage: settings?.emoji_usage,
+                services_offered: settings?.services_offered,
+                knowledge_base: settings?.knowledge_base,
+              },
+            },
+          },
+        });
+        if (response.error) throw response.error;
+        setPreviewMessage(response.data?.message || 'Erro ao gerar mensagem');
+      } catch (error) {
+        console.error('Preview error:', error);
+        setPreviewMessage('Erro ao gerar prévia da mensagem');
+      } finally {
+        setIsGeneratingPreview(false);
+      }
+      return;
+    }
+
+    // Template mode
+    if (!massMessage.trim()) return;
 
     setPreviewLead(leadId);
     setIsGeneratingPreview(true);
@@ -100,9 +146,17 @@ export function MassSendTab() {
   };
 
   const handleMassSend = async () => {
-    if (selectedLeads.length === 0 || !massMessage.trim()) {
+    if (selectedLeads.length === 0) {
       toast({
-        title: 'Selecione leads e escreva uma mensagem',
+        title: 'Selecione pelo menos um lead',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (sendMode === 'template' && !massMessage.trim()) {
+      toast({
+        title: 'Escreva uma mensagem template',
         variant: 'destructive',
       });
       return;
@@ -138,13 +192,16 @@ export function MassSendTab() {
       priority: 7, // Higher priority for user-initiated tasks
       payload: {
         leads: selectedLeadsData,
-        message_template: massMessage,
-        use_ai_personalization: useAIPersonalization,
+        message_template: sendMode === 'direct' ? null : massMessage,
+        use_ai_personalization: sendMode === 'direct' ? true : useAIPersonalization,
+        direct_ai_mode: sendMode === 'direct',
         agent_settings: {
           agent_name: settings?.agent_name,
           agent_persona: settings?.agent_persona,
           communication_style: settings?.communication_style,
           emoji_usage: settings?.emoji_usage,
+          services_offered: settings?.services_offered,
+          knowledge_base: settings?.knowledge_base,
         },
       },
     });
@@ -163,6 +220,10 @@ export function MassSendTab() {
     acc[niche].push(lead);
     return acc;
   }, {} as Record<string, typeof leads>);
+
+  const canSend = sendMode === 'direct' 
+    ? selectedLeads.length > 0 
+    : selectedLeads.length > 0 && massMessage.trim();
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -262,7 +323,7 @@ export function MassSendTab() {
                               e.stopPropagation();
                               handlePreviewMessage(lead.id);
                             }}
-                            disabled={!massMessage.trim()}
+                            disabled={sendMode === 'template' && !massMessage.trim()}
                           >
                             Prévia
                           </Button>
@@ -282,46 +343,92 @@ export function MassSendTab() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Mensagem Personalizada por IA
+              Configurar Mensagem
             </CardTitle>
             <CardDescription>
-              A mensagem será adaptada automaticamente para cada empresa e nicho
+              Escolha como as mensagens serão geradas para cada lead
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="ai-personalization">Personalização com IA</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Adapta tom e conteúdo para cada nicho
-                  </p>
-                </div>
-                <Switch
-                  id="ai-personalization"
-                  checked={useAIPersonalization}
-                  onCheckedChange={setUseAIPersonalization}
-                />
-              </div>
+              {/* Send Mode Tabs */}
+              <Tabs value={sendMode} onValueChange={(v) => setSendMode(v as 'template' | 'direct')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="template" className="gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Com Template
+                  </TabsTrigger>
+                  <TabsTrigger value="direct" className="gap-2">
+                    <Zap className="h-4 w-4" />
+                    IA Direta
+                  </TabsTrigger>
+                </TabsList>
 
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-xs">
-                  Use variáveis: <code className="bg-muted px-1 rounded">{'{empresa}'}</code>, <code className="bg-muted px-1 rounded">{'{nicho}'}</code>, <code className="bg-muted px-1 rounded">{'{cidade}'}</code>
-                </AlertDescription>
-              </Alert>
+                <TabsContent value="template" className="space-y-4 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="ai-personalization">Personalização com IA</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Adapta tom e conteúdo para cada nicho
+                      </p>
+                    </div>
+                    <Switch
+                      id="ai-personalization"
+                      checked={useAIPersonalization}
+                      onCheckedChange={setUseAIPersonalization}
+                    />
+                  </div>
 
-              <Textarea
-                placeholder={`Olá! Vi que a {empresa} atua no segmento de {nicho} em {cidade}. Tenho uma solução que pode ajudar vocês a crescer...`}
-                value={massMessage}
-                onChange={(e) => setMassMessage(e.target.value)}
-                rows={6}
-              />
-              
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>{massMessage.length} caracteres</span>
-                <span>{selectedLeads.length} destinatários</span>
-              </div>
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      Use variáveis: <code className="bg-muted px-1 rounded">{'{empresa}'}</code>, <code className="bg-muted px-1 rounded">{'{nicho}'}</code>, <code className="bg-muted px-1 rounded">{'{cidade}'}</code>
+                    </AlertDescription>
+                  </Alert>
+
+                  <Textarea
+                    placeholder={`Olá! Vi que a {empresa} atua no segmento de {nicho} em {cidade}. Tenho uma solução que pode ajudar vocês a crescer...`}
+                    value={massMessage}
+                    onChange={(e) => setMassMessage(e.target.value)}
+                    rows={6}
+                  />
+                  
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{massMessage.length} caracteres</span>
+                    <span>{selectedLeads.length} destinatários</span>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="direct" className="space-y-4 mt-4">
+                  <Alert className="border-primary/50 bg-primary/5">
+                    <Zap className="h-4 w-4 text-primary" />
+                    <AlertDescription>
+                      <strong>Disparo Direto com IA</strong>
+                      <br />
+                      A IA gerará uma mensagem única para cada lead baseada em:
+                      <ul className="list-disc list-inside mt-2 text-xs space-y-1">
+                        <li>Dados do lead (nome, nicho, localização)</li>
+                        <li>Persona do seu agente configurado</li>
+                        <li>Serviços que você oferece</li>
+                        <li>Base de conhecimento</li>
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-2">
+                    <p className="font-medium">✨ Vantagens:</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Mensagens 100% únicas - menor chance de bloqueio</li>
+                      <li>• Não precisa escrever template</li>
+                      <li>• Personalização profunda baseada no nicho</li>
+                    </ul>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground text-center">
+                    {selectedLeads.length} leads selecionados
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               {previewMessage && previewLead && (
                 <div className="p-3 bg-muted rounded-lg space-y-2">
@@ -336,7 +443,7 @@ export function MassSendTab() {
                   {isGeneratingPreview ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Gerando prévia...
+                      Gerando prévia com IA...
                     </div>
                   ) : (
                     <p className="text-sm whitespace-pre-wrap">{previewMessage}</p>
@@ -347,18 +454,22 @@ export function MassSendTab() {
               <Button
                 className="w-full gradient-primary"
                 onClick={handleMassSend}
-                disabled={isCreating || hasActiveMassSend || selectedLeads.length === 0 || !massMessage.trim()}
+                disabled={isCreating || hasActiveMassSend || !canSend}
               >
                 {isCreating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : hasActiveMassSend ? (
                   <Activity className="h-4 w-4 mr-2 animate-pulse" />
+                ) : sendMode === 'direct' ? (
+                  <Zap className="h-4 w-4 mr-2" />
                 ) : (
                   <Send className="h-4 w-4 mr-2" />
                 )}
                 {hasActiveMassSend 
                   ? 'Envio em andamento...'
-                  : `Enviar para ${selectedLeads.length} leads${useAIPersonalization ? ' (com IA)' : ''}`
+                  : sendMode === 'direct'
+                    ? `Disparar IA Direta para ${selectedLeads.length} leads`
+                    : `Enviar para ${selectedLeads.length} leads${useAIPersonalization ? ' (com IA)' : ''}`
                 }
               </Button>
 
