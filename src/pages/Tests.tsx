@@ -111,8 +111,7 @@ export default function TestsPage() {
     try {
       const response = await supabase.functions.invoke('whatsapp-connect', {
         body: {
-          action: 'get_status',
-          instance_id: settings.whatsapp_instance_id,
+          action: 'check_status',
         },
       });
 
