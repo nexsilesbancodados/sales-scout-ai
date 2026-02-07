@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import { useUserSettings } from '@/hooks/use-user-settings';
 import { useBackgroundJobs } from '@/hooks/use-background-jobs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Lead } from '@/types/database';
 import {
   Send,
   Loader2,
@@ -21,8 +23,10 @@ import {
   MessageSquare,
   Filter,
   Briefcase,
+  RefreshCw,
+  Users,
 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -45,6 +49,7 @@ const AVAILABLE_SERVICES = [
 ];
 
 export function MassSendTab() {
+  const [searchParams] = useSearchParams();
   const { leads } = useLeads();
   const { settings } = useUserSettings();
   const { toast } = useToast();
@@ -58,9 +63,43 @@ export function MassSendTab() {
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [sendMode, setSendMode] = useState<'template' | 'direct'>('template');
   const [selectedService, setSelectedService] = useState<string>('all');
+  const [importedLeads, setImportedLeads] = useState<Lead[]>([]);
+  const [isRemarketing, setIsRemarketing] = useState(false);
+
+  // Check for leads passed from Leads page via sessionStorage
+  useEffect(() => {
+    const source = searchParams.get('source');
+    if (source === 'leads' || source === 'remarketing') {
+      const storedLeads = sessionStorage.getItem('mass_send_leads');
+      const remarketing = sessionStorage.getItem('mass_send_remarketing');
+      
+      if (storedLeads) {
+        try {
+          const parsedLeads = JSON.parse(storedLeads) as Lead[];
+          setImportedLeads(parsedLeads);
+          setSelectedLeads(parsedLeads.map(l => l.id));
+          setIsRemarketing(remarketing === 'true');
+          
+          // Clear sessionStorage
+          sessionStorage.removeItem('mass_send_leads');
+          sessionStorage.removeItem('mass_send_remarketing');
+          
+          toast({
+            title: isRemarketing ? 'Leads para Remarketing' : 'Leads Importados',
+            description: `${parsedLeads.length} leads prontos para ${remarketing === 'true' ? 'remarketing' : 'envio'}`,
+          });
+        } catch (e) {
+          console.error('Error parsing stored leads:', e);
+        }
+      }
+    }
+  }, [searchParams, toast]);
 
   // Check if there's an active mass_send job
   const hasActiveMassSend = activeJobs.some(j => j.job_type === 'mass_send');
+
+  // Combine imported leads with regular leads for display
+  const displayLeads = importedLeads.length > 0 ? importedLeads : leads;
 
   const generatePersonalizedMessage = async (lead: any, baseMessage: string): Promise<string> => {
     try {
@@ -82,6 +121,7 @@ export function MassSendTab() {
               communication_style: settings?.communication_style,
               emoji_usage: settings?.emoji_usage,
             },
+            isRemarketing,
           },
         },
       });
@@ -99,7 +139,7 @@ export function MassSendTab() {
   };
 
   const handlePreviewMessage = async (leadId: string) => {
-    const lead = leads.find(l => l.id === leadId);
+    const lead = displayLeads.find(l => l.id === leadId);
     if (!lead) return;
 
     // Get the specific service to offer
@@ -133,6 +173,7 @@ export function MassSendTab() {
                 knowledge_base: settings?.knowledge_base,
                 specific_service: serviceToOffer,
               },
+              isRemarketing,
             },
           },
         });
@@ -201,7 +242,7 @@ export function MassSendTab() {
 
     // Prepare leads data for the job
     const selectedLeadsData = selectedLeads.map(id => {
-      const lead = leads.find(l => l.id === id);
+      const lead = displayLeads.find(l => l.id === id);
       return {
         id: lead?.id,
         phone: lead?.phone,
@@ -228,6 +269,7 @@ export function MassSendTab() {
         message_template: sendMode === 'direct' ? null : massMessage,
         use_ai_personalization: sendMode === 'direct' ? true : useAIPersonalization,
         direct_ai_mode: sendMode === 'direct',
+        is_remarketing: isRemarketing,
         agent_settings: {
           agent_name: settings?.agent_name,
           agent_persona: settings?.agent_persona,
@@ -240,6 +282,10 @@ export function MassSendTab() {
       },
     });
 
+    // Clear imported leads and remarketing flag after sending
+    setImportedLeads([]);
+    setIsRemarketing(false);
+
     // Clear selections
     setSelectedLeads([]);
     setMassMessage('');
@@ -248,12 +294,12 @@ export function MassSendTab() {
   };
 
   // Group leads by niche for better organization
-  const leadsByNiche = leads.reduce((acc, lead) => {
+  const leadsByNiche = displayLeads.reduce((acc, lead) => {
     const niche = lead.niche || 'Sem nicho';
     if (!acc[niche]) acc[niche] = [];
     acc[niche].push(lead);
     return acc;
-  }, {} as Record<string, typeof leads>);
+  }, {} as Record<string, typeof displayLeads>);
 
   const canSend = sendMode === 'direct' 
     ? selectedLeads.length > 0 
@@ -261,6 +307,33 @@ export function MassSendTab() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* Remarketing indicator */}
+      {isRemarketing && (
+        <div className="lg:col-span-2">
+          <Alert className="border-blue-500/50 bg-blue-500/10">
+            <RefreshCw className="h-4 w-4 text-blue-600" />
+            <AlertTitle className="text-blue-700">Modo Remarketing</AlertTitle>
+            <AlertDescription className="text-blue-600">
+              Você está enviando mensagens de remarketing para {importedLeads.length} leads que já foram contatados anteriormente.
+              A IA irá gerar mensagens de follow-up contextualizadas.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      {/* Imported leads indicator */}
+      {importedLeads.length > 0 && !isRemarketing && (
+        <div className="lg:col-span-2">
+          <Alert className="border-green-500/50 bg-green-500/10">
+            <Users className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-700">Leads Importados</AlertTitle>
+            <AlertDescription className="text-green-600">
+              {importedLeads.length} leads foram importados da página de Leads e estão prontos para envio.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Active job indicator */}
       {hasActiveMassSend && (
         <div className="lg:col-span-2">
@@ -276,8 +349,16 @@ export function MassSendTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Selecionar Leads</CardTitle>
-          <CardDescription>Escolha os leads para enviar mensagem em massa (agrupados por nicho)</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            {isRemarketing ? <RefreshCw className="h-5 w-5 text-blue-500" /> : <Send className="h-5 w-5" />}
+            {isRemarketing ? 'Remarketing' : 'Selecionar Leads'}
+          </CardTitle>
+          <CardDescription>
+            {isRemarketing 
+              ? 'Leads selecionados para remarketing (já foram contatados antes)'
+              : 'Escolha os leads para enviar mensagem em massa (agrupados por nicho)'
+            }
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -289,14 +370,14 @@ export function MassSendTab() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  if (selectedLeads.length === leads.length) {
+                  if (selectedLeads.length === displayLeads.length) {
                     setSelectedLeads([]);
                   } else {
-                    setSelectedLeads(leads.map(l => l.id));
+                    setSelectedLeads(displayLeads.map(l => l.id));
                   }
                 }}
               >
-                {selectedLeads.length === leads.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                {selectedLeads.length === displayLeads.length ? 'Desmarcar todos' : 'Selecionar todos'}
               </Button>
             </div>
             

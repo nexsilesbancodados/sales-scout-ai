@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,11 +47,14 @@ import {
   Filter,
   Send,
   Clock,
+  RefreshCw,
+  Zap,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function LeadsPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<LeadStage | 'all'>('all');
   const [tempFilter, setTempFilter] = useState<LeadTemperature | 'all'>('all');
@@ -114,9 +118,33 @@ export default function LeadsPage() {
 
   const activeFiltersCount = (stageFilter !== 'all' ? 1 : 0) + (tempFilter !== 'all' ? 1 : 0) + (messageSentFilter !== 'all' ? 1 : 0);
 
-  // Counts for message status
-  const sentCount = leads.filter(l => l.message_sent).length;
-  const pendingCount = leads.filter(l => !l.message_sent).length;
+  // Get selected leads data
+  const selectedLeadsData = useMemo(() => {
+    return leads.filter(l => selectedLeads.includes(l.id));
+  }, [leads, selectedLeads]);
+
+  // Check if selected leads are pending or sent
+  const selectedPendingLeads = selectedLeadsData.filter(l => !l.message_sent);
+  const selectedSentLeads = selectedLeadsData.filter(l => l.message_sent);
+
+  // Handler to send messages to pending leads
+  const handleSendToPending = () => {
+    if (selectedPendingLeads.length === 0) return;
+    
+    // Store selected leads in sessionStorage and navigate to mass send
+    sessionStorage.setItem('mass_send_leads', JSON.stringify(selectedPendingLeads));
+    navigate('/prospecting?tab=mass-send&source=leads');
+  };
+
+  // Handler for remarketing (re-send to already contacted leads)
+  const handleRemarketing = () => {
+    if (selectedSentLeads.length === 0) return;
+    
+    // Store selected leads in sessionStorage and navigate to mass send with remarketing flag
+    sessionStorage.setItem('mass_send_leads', JSON.stringify(selectedSentLeads));
+    sessionStorage.setItem('mass_send_remarketing', 'true');
+    navigate('/prospecting?tab=mass-send&source=remarketing');
+  };
 
   return (
     <DashboardLayout
@@ -214,20 +242,92 @@ export default function LeadsPage() {
 
             {/* Bulk Actions */}
             {selectedLeads.length > 0 && (
-              <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
                 <span className="text-sm font-medium">
                   {selectedLeads.length} lead{selectedLeads.length > 1 ? 's' : ''} selecionado{selectedLeads.length > 1 ? 's' : ''}
                 </span>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteSelected}
-                  disabled={isDeleting}
-                  className="ml-auto"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir selecionados
-                </Button>
+                
+                <div className="flex items-center gap-2 ml-auto">
+                  {/* Send to Pending Leads */}
+                  {selectedPendingLeads.length > 0 && (
+                    <Button
+                      size="sm"
+                      onClick={handleSendToPending}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Enviar ({selectedPendingLeads.length})
+                    </Button>
+                  )}
+
+                  {/* Remarketing for Sent Leads */}
+                  {selectedSentLeads.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={handleRemarketing}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Remarketing ({selectedSentLeads.length})
+                    </Button>
+                  )}
+
+                  {/* Delete Selected */}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteSelected}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Action Buttons for filtered views */}
+            {selectedLeads.length === 0 && messageSentFilter !== 'all' && leads.length > 0 && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                {messageSentFilter === 'pending' && (
+                  <>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-4 w-4 text-amber-500" />
+                      <span className="font-medium">{leads.length} leads aguardando envio</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSelectedLeads(paginatedLeads.map(l => l.id));
+                      }}
+                      variant="outline"
+                      className="ml-auto"
+                    >
+                      <Zap className="h-4 w-4 mr-2" />
+                      Selecionar Todos para Enviar
+                    </Button>
+                  </>
+                )}
+                {messageSentFilter === 'sent' && (
+                  <>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Send className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">{leads.length} leads já contatados</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSelectedLeads(paginatedLeads.map(l => l.id));
+                      }}
+                      variant="outline"
+                      className="ml-auto"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Selecionar Todos para Remarketing
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </div>
