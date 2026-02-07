@@ -25,6 +25,7 @@ import {
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useProspectingHistory, ProspectingHistoryLead } from '@/hooks/use-prospecting-history';
 import { useMassSendJob, formatPhoneForWhatsApp } from '@/hooks/use-mass-send-job';
+import { useJobLogs } from '@/hooks/use-job-logs';
 import { MassSendProgress } from './MassSendProgress';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +57,7 @@ import {
   Settings2,
   Plus,
   Briefcase,
+  RefreshCw,
 } from 'lucide-react';
 
 const NICHES = [
@@ -257,6 +259,7 @@ export function CaptureAndSendTab({
   const { settings } = useUserSettings();
   const { createSession, updateSession } = useProspectingHistory();
   const { activeJob, createJob, isCreating } = useMassSendJob();
+  const { recentLogs: dbLogs, formatLog, getLogColorClass, refetch: refetchLogs } = useJobLogs(activeJob?.id);
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -267,7 +270,7 @@ export function CaptureAndSendTab({
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [processStatus, setProcessStatus] = useState<ProcessStatus>('idle');
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
-  const [logs, setLogs] = useState<string[]>([]);
+  const [localLogs, setLocalLogs] = useState<string[]>([]);
   const [filters, setFilters] = useState<CaptureFilters>(DEFAULT_FILTERS);
   const [maxLeadsToCapture, setMaxLeadsToCapture] = useState(300);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -318,7 +321,7 @@ export function CaptureAndSendTab({
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString('pt-BR');
-    setLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
+    setLocalLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
   };
 
   // Filter leads based on capture filters
@@ -2315,27 +2318,42 @@ export function CaptureAndSendTab({
       {/* Logs */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" />
-            Log do Processo
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Log do Processo
+            </CardTitle>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => refetchLogs()}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[200px] bg-muted/50 rounded-lg p-3">
             <div className="space-y-1 font-mono text-xs">
-              {logs.length === 0 ? (
+              {/* Show DB logs first (persisted), then local logs */}
+              {dbLogs.length === 0 && localLogs.length === 0 ? (
                 <p className="text-muted-foreground">Aguardando ações...</p>
               ) : (
-                logs.map((log, idx) => (
-                  <p key={idx} className={
-                    log.includes('✓') ? 'text-emerald-600 dark:text-emerald-400' :
-                    log.includes('✗') || log.includes('Erro') ? 'text-destructive' :
-                    log.includes('Aguardando') ? 'text-muted-foreground' :
-                    'text-foreground'
-                  }>
-                    {log}
-                  </p>
-                ))
+                <>
+                  {/* Database logs (persisted) */}
+                  {dbLogs.map((log) => (
+                    <p key={log.id} className={getLogColorClass(log)}>
+                      {formatLog(log)}
+                    </p>
+                  ))}
+                  {/* Local logs (capture phase etc) */}
+                  {localLogs.map((log, idx) => (
+                    <p key={`local-${idx}`} className={
+                      log.includes('✓') ? 'text-emerald-600 dark:text-emerald-400' :
+                      log.includes('✗') || log.includes('Erro') ? 'text-destructive' :
+                      log.includes('Aguardando') ? 'text-muted-foreground' :
+                      'text-foreground'
+                    }>
+                      {log}
+                    </p>
+                  ))}
+                </>
               )}
             </div>
           </ScrollArea>

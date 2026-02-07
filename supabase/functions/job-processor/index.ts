@@ -19,6 +19,28 @@ interface BackgroundJob {
   max_retries: number;
 }
 
+// Helper to log to database for persistence
+async function logToDb(
+  supabase: any,
+  jobId: string,
+  userId: string,
+  level: 'info' | 'error' | 'warning' | 'success',
+  message: string,
+  metadata?: Record<string, any>
+) {
+  try {
+    await supabase.from("job_logs").insert({
+      job_id: jobId,
+      user_id: userId,
+      level,
+      message,
+      metadata,
+    });
+  } catch (err) {
+    console.error("Failed to log to DB:", err);
+  }
+}
+
 // Process a single job item
 async function processJobItem(
   supabase: any,
@@ -46,9 +68,10 @@ async function processJobItem(
         // Check if using direct AI mode (no template)
         if (payload.direct_ai_mode || !payload.message_template) {
           console.log(`[Job ${job.id}] Generating AI message for lead ${index}: ${lead.business_name}`);
+          await logToDb(supabase, job.id, job.user_id, 'info', `Gerando mensagem IA para ${lead.business_name}...`);
           
           try {
-            // Call AI to generate message from scratch
+            // Call AI to generate message from scratch - include user_id for auth
             const aiResponse = await fetch(
               `${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-prospecting`,
               {
@@ -59,6 +82,7 @@ async function processJobItem(
                 },
                 body: JSON.stringify({
                   action: "generate_message",
+                  user_id: job.user_id, // Pass user_id for internal auth
                   data: {
                     lead: {
                       business_name: lead.business_name,
@@ -77,6 +101,7 @@ async function processJobItem(
             if (!aiResponse.ok) {
               const errorText = await aiResponse.text();
               console.error(`[Job ${job.id}] AI generation failed for lead ${index}:`, errorText);
+              await logToDb(supabase, job.id, job.user_id, 'error', `Falha IA para ${lead.business_name}: ${errorText}`);
               return { success: false, error: `Falha ao gerar mensagem IA: ${errorText}` };
             }
 
@@ -84,10 +109,12 @@ async function processJobItem(
             message = aiData.message || "";
 
             if (!message) {
+              await logToDb(supabase, job.id, job.user_id, 'error', `IA retornou mensagem vazia para ${lead.business_name}`);
               return { success: false, error: "IA retornou mensagem vazia" };
             }
           } catch (aiError: any) {
             console.error(`[Job ${job.id}] AI error for lead ${index}:`, aiError);
+            await logToDb(supabase, job.id, job.user_id, 'error', `Erro de IA: ${aiError.message}`);
             return { success: false, error: `Erro de IA: ${aiError.message}` };
           }
         } else if (payload.use_ai_personalization) {
@@ -105,6 +132,7 @@ async function processJobItem(
                 },
                 body: JSON.stringify({
                   action: "generate_message",
+                  user_id: job.user_id, // Pass user_id for internal auth
                   data: {
                     lead: {
                       business_name: lead.business_name,
@@ -154,6 +182,7 @@ async function processJobItem(
 
         // Send WhatsApp message
         console.log(`[Job ${job.id}] Sending message to ${lead.business_name} (${lead.phone})`);
+        await logToDb(supabase, job.id, job.user_id, 'info', `Enviando para ${lead.business_name} (${lead.phone})...`);
         
         const response = await fetch(
           `${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-send`,
@@ -174,9 +203,13 @@ async function processJobItem(
         if (!response.ok) {
           const error = await response.text();
           console.error(`[Job ${job.id}] WhatsApp send failed for lead ${index}:`, error);
+          await logToDb(supabase, job.id, job.user_id, 'error', `Falha ao enviar para ${lead.business_name}: ${error}`);
           // Continue to next lead instead of stopping
           return { success: false, error: `WhatsApp: ${error}` };
         }
+
+        // Log success
+        await logToDb(supabase, job.id, job.user_id, 'success', `Mensagem enviada para ${lead.business_name}`);
 
         // Save message to database
         if (lead.id) {
@@ -217,6 +250,7 @@ async function processJobItem(
         const maxInterval = userSettings.message_interval_max || (minInterval + 60);
         const delay = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
         console.log(`[Job ${job.id}] Waiting ${delay}s before next message`);
+        await logToDb(supabase, job.id, job.user_id, 'info', `Aguardando ${delay}s antes do próximo envio...`);
         await new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
         return { success: true };
@@ -295,6 +329,8 @@ async function processJobItem(
 // Main job processing function
 async function processJob(supabase: any, job: BackgroundJob) {
   console.log(`Processing job ${job.id} (${job.job_type}) from index ${job.current_index}`);
+  
+  await logToDb(supabase, job.id, job.user_id, 'info', `Iniciando processamento do job (${job.total_items} leads)`);
 
   // Get user settings
   const { data: userSettings } = await supabase
@@ -304,6 +340,7 @@ async function processJob(supabase: any, job: BackgroundJob) {
     .single();
 
   if (!userSettings?.whatsapp_connected) {
+    await logToDb(supabase, job.id, job.user_id, 'error', 'WhatsApp não conectado. Conecte seu WhatsApp nas configurações.');
     await supabase
       .from("background_jobs")
       .update({
@@ -403,6 +440,13 @@ async function processJob(supabase: any, job: BackgroundJob) {
   }
 
   // Mark job as completed
+  const sentCount = leads.filter((l: any) => l.status === 'sent').length;
+  const skippedCount = leads.filter((l: any) => l.status === 'skipped').length;
+  
+  await logToDb(supabase, job.id, job.user_id, 'success', 
+    `Job concluído! ${sentCount} enviados, ${failedItems} falhas, ${skippedCount} pulados.`
+  );
+  
   await supabase
     .from("background_jobs")
     .update({
@@ -416,8 +460,8 @@ async function processJob(supabase: any, job: BackgroundJob) {
         total: totalItems,
         processed: processedItems,
         failed: failedItems,
-        sent: leads.filter((l: any) => l.status === 'sent').length,
-        skipped: leads.filter((l: any) => l.status === 'skipped').length,
+        sent: sentCount,
+        skipped: skippedCount,
       },
     })
     .eq("id", job.id);
