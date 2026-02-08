@@ -152,6 +152,8 @@ export function useMassSendJob() {
       agentSettings,
       prospectingType,
       serviceToOffer,
+      autoServiceMode,
+      captureFilter,
     }: {
       leads: MassSendLead[];
       messageTemplate?: string;
@@ -160,6 +162,8 @@ export function useMassSendJob() {
       agentSettings?: Record<string, any>;
       prospectingType?: string;
       serviceToOffer?: string;
+      autoServiceMode?: boolean;
+      captureFilter?: string;
     }) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
 
@@ -184,6 +188,8 @@ export function useMassSendJob() {
             agent_settings: agentSettings,
             prospecting_type: prospectingType,
             service_to_offer: serviceToOffer,
+            auto_service_mode: autoServiceMode,
+            capture_filter: captureFilter,
           },
           total_items: formattedLeads.length,
           processed_items: 0,

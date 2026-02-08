@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,9 +33,36 @@ import {
   Zap,
   TrendingUp,
   Target,
+  Filter,
+  Briefcase,
+  ChevronDown,
+  Settings2,
 } from 'lucide-react';
 import { MassSendProgress } from './MassSendProgress';
 import { useMassSendJob, formatPhoneForWhatsApp } from '@/hooks/use-mass-send-job';
+
+// Available services for filtering
+const AVAILABLE_SERVICES = [
+  { id: 'auto', label: 'IA Automática', description: 'IA analisa e oferece o serviço ideal' },
+  { id: 'all', label: 'Todos os Serviços', description: 'Usar serviços do perfil' },
+  { id: 'trafego_pago', label: 'Tráfego Pago', description: 'Anúncios e campanhas' },
+  { id: 'automacao', label: 'Automação', description: 'Processos e sistemas' },
+  { id: 'social_media', label: 'Social Media', description: 'Redes sociais' },
+  { id: 'websites', label: 'Sites e Landing Pages', description: 'Criação de sites' },
+  { id: 'seo', label: 'SEO', description: 'Otimização para buscadores' },
+  { id: 'design', label: 'Design Gráfico', description: 'Identidade visual' },
+  { id: 'consultoria', label: 'Consultoria', description: 'Consultoria em marketing' },
+];
+
+// Lead filters for targeting
+const CAPTURE_FILTERS = [
+  { id: 'all', label: 'Todos', description: 'Sem filtro' },
+  { id: 'no_website', label: 'Sem Site', description: 'Empresas sem website' },
+  { id: 'low_rating', label: 'Avaliação Baixa', description: '< 4 estrelas' },
+  { id: 'few_reviews', label: 'Poucos Reviews', description: '< 10 avaliações' },
+  { id: 'small_business', label: 'Pequenos Negócios', description: 'Microempresas' },
+  { id: 'premium', label: 'Premium', description: 'Alta avaliação + reviews' },
+];
 
 interface CapturedLead {
   id: string;
@@ -68,6 +98,9 @@ export function LeadFinderInterface() {
   const [processStatus, setProcessStatus] = useState<ProcessStatus>('idle');
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [autoSave, setAutoSave] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('auto');
+  const [captureFilter, setCaptureFilter] = useState<string>('all');
   
   const isStoppedRef = useRef(false);
 
@@ -372,6 +405,12 @@ export function LeadFinderInterface() {
       return;
     }
 
+    // Get the specific service to offer
+    const isAutoMode = selectedService === 'auto';
+    const serviceToOffer = (selectedService !== 'all' && selectedService !== 'auto')
+      ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
+      : null;
+
     createJob({
       leads: leadsToSend.map(l => ({
         id: l.id,
@@ -381,17 +420,23 @@ export function LeadFinderInterface() {
         location: l.location,
         rating: l.rating,
         reviews_count: l.reviews_count,
+        website: l.website,
+        has_website: !!l.website,
         status: 'pending' as const,
       })),
       directAIMode: true,
       useAIPersonalization: true,
+      autoServiceMode: isAutoMode,
+      captureFilter: captureFilter,
       agentSettings: {
         agent_name: settings?.agent_name,
         agent_persona: settings?.agent_persona,
         communication_style: settings?.communication_style,
         emoji_usage: settings?.emoji_usage,
-        services_offered: settings?.services_offered,
+        services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
         knowledge_base: settings?.knowledge_base,
+        specific_service: isAutoMode ? null : serviceToOffer,
+        auto_detect_service: isAutoMode,
       },
       prospectingType: 'consultivo',
     });
@@ -442,6 +487,97 @@ export function LeadFinderInterface() {
               />
             </div>
           </div>
+
+          {/* Filters Section */}
+          <Collapsible open={showFilters} onOpenChange={setShowFilters} className="mt-4">
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <Settings2 className="h-4 w-4" />
+                Filtros Avançados
+                <ChevronDown className={cn("h-4 w-4 transition-transform", showFilters && "rotate-180")} />
+                {(captureFilter !== 'all' || selectedService !== 'auto') && (
+                  <Badge variant="secondary" className="ml-2 text-xs">Ativos</Badge>
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3 space-y-4 p-4 rounded-lg border bg-muted/30">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Capture Filter */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-sm">
+                    <Filter className="h-4 w-4" />
+                    Tipo de Empresa
+                  </Label>
+                  <Select value={captureFilter} onValueChange={setCaptureFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CAPTURE_FILTERS.map((filter) => (
+                        <SelectItem key={filter.id} value={filter.id}>
+                          <div className="flex flex-col">
+                            <span>{filter.label}</span>
+                            <span className="text-xs text-muted-foreground">{filter.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Service Selection */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-sm">
+                    <Briefcase className="h-4 w-4" />
+                    Serviço a Oferecer
+                  </Label>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AVAILABLE_SERVICES.map((service) => (
+                        <SelectItem key={service.id} value={service.id}>
+                          <div className="flex flex-col">
+                            <span>{service.label}</span>
+                            <span className="text-xs text-muted-foreground">{service.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Active filters indicator */}
+              {(captureFilter !== 'all' || selectedService !== 'auto') && (
+                <div className="flex flex-wrap gap-2">
+                  {captureFilter !== 'all' && (
+                    <Badge variant="outline" className="text-xs">
+                      <Filter className="h-3 w-3 mr-1" />
+                      {CAPTURE_FILTERS.find(f => f.id === captureFilter)?.label}
+                    </Badge>
+                  )}
+                  {selectedService !== 'auto' && selectedService !== 'all' && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Briefcase className="h-3 w-3 mr-1" />
+                      {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Smart suggestion */}
+              {captureFilter === 'no_website' && selectedService === 'auto' && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                  <p className="font-medium text-primary">💡 Sugestão</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Para empresas sem site, considere selecionar "Sites e Landing Pages" diretamente
+                  </p>
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
 
           <div className="mt-4">
             <Button 
