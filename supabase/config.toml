@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.cron-tasks]
 verify_jwt = false
+
+[functions.whatsapp-groups]
+verify_jwt = false
