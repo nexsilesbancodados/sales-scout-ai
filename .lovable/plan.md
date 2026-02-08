@@ -1,132 +1,101 @@
 
 
-# Implementar Serper.dev como Alternativa ao SerpAPI
+# Acessar Google Maps Diretamente para Prospecção
 
-## Resumo
-Adicionar o Serper.dev como uma alternativa ao SerpAPI para buscas de leads, permitindo que cada usuário escolha qual serviço utilizar. O Serper.dev oferece 2.500 buscas gratuitas por mês (vs 100 do SerpAPI), tornando-o uma opção mais generosa para prospecção.
+## Situação Atual
 
-## Visão Geral da Implementação
+Seu sistema **já tem integração com Google Maps** via SerpAPI implementada! A edge function `web-search` já usa o engine `google_maps` quando você configura uma chave SerpAPI.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    Configurações (UI)                        │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐   ┌─────────────┐   ┌──────────────────┐  │
-│  │  SerpAPI    │   │ Serper.dev  │   │ Preferência      │  │
-│  │  (Chave)    │   │ (Chave)     │   │ [v] Serper.dev   │  │
-│  └─────────────┘   └─────────────┘   └──────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Edge Function (web-search)                   │
-├─────────────────────────────────────────────────────────────┤
-│  1. Verifica preferência do usuário                         │
-│  2. Se Serper → usa API Serper.dev                          │
-│  3. Se SerpAPI → usa API SerpAPI (atual)                    │
-│  4. Fallback automático se uma falhar                       │
-└─────────────────────────────────────────────────────────────┘
-```
+## O que você precisa fazer
 
-## Etapas de Implementação
+Para ativar o acesso ao Google Maps:
 
-### 1. Migration do Banco de Dados
-Adicionar dois novos campos na tabela `user_settings`:
-- `serper_api_key` (text, nullable) - Chave do Serper.dev
-- `preferred_search_api` (text, default 'serper') - API preferida ('serper' ou 'serpapi')
+1. **Obter uma chave SerpAPI** (se ainda não tiver)
+   - Acesse [serpapi.com](https://serpapi.com)
+   - Crie uma conta gratuita (100 buscas/mês grátis)
+   - Copie sua API Key do painel
 
-### 2. Atualizar Types do TypeScript
-Adicionar os novos campos no arquivo `src/types/database.ts`:
-```typescript
-// Em UserSettings
-serper_api_key: string | null;
-preferred_search_api: 'serper' | 'serpapi';
-```
+2. **Configurar nas suas configurações**
+   - Você já está na página de Configurações
+   - Cole a chave no campo "SerpAPI"
+   - Clique em "Testar" para validar
+   - Clique em "Salvar"
 
-### 3. Atualizar Edge Function `web-search`
-Modificar para suportar ambas APIs:
+3. **Opcional: Definir como API preferida**
+   - Na seção "API de Busca Preferida", selecione "SerpAPI (Google Maps)"
+   - Isso garantirá que o Google Maps seja usado como fonte primária
 
-```typescript
-// Lógica de seleção
-const preferredApi = userSettings?.preferred_search_api || 'serper';
+## Benefícios do Google Maps via SerpAPI
 
-if (preferredApi === 'serper' && SERPER_API_KEY) {
-  // Usar Serper.dev
-  const response = await fetch('https://google.serper.dev/search', {
-    method: 'POST',
-    headers: {
-      'X-API-KEY': SERPER_API_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      q: searchQuery,
-      gl: 'br',
-      hl: 'pt-br',
-      num: num_results
-    })
-  });
-} else {
-  // Usar SerpAPI (código atual)
-}
-```
+| Dados Capturados | Disponível |
+|------------------|------------|
+| Nome do negócio | Sim |
+| Telefone | Sim |
+| Endereço completo | Sim |
+| Website | Sim |
+| Avaliação (estrelas) | Sim |
+| Número de reviews | Sim |
+| Foto do estabelecimento | Sim |
+| Categoria/Tipo | Sim |
+| Horário de funcionamento | Sim |
+| Coordenadas GPS | Sim |
 
-### 4. Atualizar Edge Function `ai-prospecting`
-Mesma lógica de seleção de API para buscas no Google Maps.
+## Comparativo: Serper.dev vs SerpAPI (Google Maps)
 
-### 5. Atualizar UI de Configurações (ApiKeysSettings.tsx)
-Adicionar:
-- Card para chave do Serper.dev (similar ao SerpAPI)
-- Seletor de API preferida (RadioGroup ou Select)
-- Teste de validação da chave Serper.dev
+| Característica | Serper.dev | SerpAPI |
+|----------------|------------|---------|
+| Buscas grátis/mês | 2.500 | 100 |
+| Acesso Google Maps | Places (limitado) | Completo |
+| Qualidade dos dados | Boa | Excelente |
+| Fotos de estabelecimentos | Às vezes | Sempre |
+| Telefones | Frequente | Quase sempre |
+| Melhor para | Volume alto | Qualidade alta |
 
-### 6. Atualizar Hook `use-user-settings`
-Garantir que os novos campos são parseados corretamente.
+## Recomendação
 
-## Comparativo das APIs
+Use **ambas as APIs** em conjunto:
+- **Serper.dev** como padrão (maior volume gratuito)
+- **SerpAPI** quando precisar de dados mais completos do Google Maps
 
-| Característica | SerpAPI | Serper.dev |
-|----------------|---------|------------|
-| Buscas grátis/mês | 100 | 2.500 |
-| Velocidade | 2-3s | 1-2s |
-| Google Maps | Sim | Sim (Places) |
-| Preço pago | $50/5000 | $50/50000 |
-
-## Arquivos a Modificar
-
-1. **Nova Migration SQL** - Adicionar campos `serper_api_key` e `preferred_search_api`
-2. **src/types/database.ts** - Tipos TypeScript
-3. **supabase/functions/web-search/index.ts** - Lógica dual de API
-4. **supabase/functions/ai-prospecting/index.ts** - Lógica dual para prospecção
-5. **src/components/settings/ApiKeysSettings.tsx** - UI com nova seção Serper + seletor
-6. **src/hooks/use-user-settings.ts** - Defaults para novos campos
+O sistema já faz **fallback automático** - se uma API falhar, tenta a outra.
 
 ## Detalhes Técnicos
 
-### Formato de Resposta do Serper.dev
-```json
-{
-  "organic": [
-    {
-      "title": "...",
-      "link": "...",
-      "snippet": "...",
-      "position": 1
-    }
-  ],
-  "places": [
-    {
-      "title": "...",
-      "address": "...",
-      "phone": "...",
-      "website": "..."
-    }
-  ]
-}
+O código em `supabase/functions/web-search/index.ts` já implementa:
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│         Fluxo de Busca de Leads                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  1. Usuário faz busca ("Restaurantes em São Paulo")     │
+│                         │                               │
+│                         ▼                               │
+│  2. Sistema verifica preferred_search_api               │
+│     ├─ serper → Serper.dev Places API                   │
+│     └─ serpapi → SerpAPI Google Maps Engine             │
+│                         │                               │
+│                         ▼                               │
+│  3. Se falhar → tenta API alternativa (fallback)        │
+│                         │                               │
+│                         ▼                               │
+│  4. Retorna leads com telefone, foto, rating, etc.      │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Mapeamento de Campos
-A resposta do Serper.dev será normalizada para o mesmo formato que SerpAPI usa internamente, garantindo compatibilidade com todo o sistema de leads existente.
+Campos extraídos do Google Maps:
+- `title` → Nome do negócio
+- `phone` → Telefone
+- `address` → Endereço
+- `website` → Site
+- `rating` → Avaliação (1-5 estrelas)
+- `reviews` → Quantidade de avaliações
+- `thumbnail` → Foto do estabelecimento
+- `type` → Categoria do negócio
+- `place_id` → Link direto para Google Maps
 
-### Fallback Automático
-Se a API preferida falhar (chave inválida, quota excedida), o sistema tentará automaticamente a outra API configurada.
+## Ação Necessária
+
+Basta configurar sua chave SerpAPI na aba de configurações onde você está agora. Não é necessário nenhuma alteração no código - tudo já está implementado e funcionando.
 
