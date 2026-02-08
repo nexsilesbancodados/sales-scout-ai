@@ -52,7 +52,8 @@ serve(async (req) => {
     if (action === 'list_groups') {
       console.log(`Fetching groups for instance: ${instanceId}`);
       
-      const response = await fetch(`${baseUrl}/group/fetchAllGroups/${instanceId}`, {
+      // Evolution API requires getParticipants parameter
+      const response = await fetch(`${baseUrl}/group/fetchAllGroups/${instanceId}?getParticipants=false`, {
         method: 'GET',
         headers: {
           'apikey': evolutionApiKey,
