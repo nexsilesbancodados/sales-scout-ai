@@ -1623,7 +1623,12 @@ export type Database = {
     }
     Functions: {
       calculate_lead_score: { Args: { p_lead_id: string }; Returns: number }
+      get_user_team_ids: { Args: { p_user_id: string }; Returns: string[] }
       is_lead_owner: { Args: { p_lead_id: string }; Returns: boolean }
+      is_team_admin: {
+        Args: { p_team_id: string; p_user_id: string }
+        Returns: boolean
+      }
       recover_stale_jobs: { Args: never; Returns: number }
     }
     Enums: {
