@@ -109,14 +109,16 @@ export function LeadFinderInterface() {
             phase: `${currentNiche} em ${currentLocation}`
           });
 
-          const searchQuery = `${currentNiche} em ${currentLocation}`;
+          // Use only niche in query, location as separate parameter
+          const searchQuery = currentNiche;
           
           const response = await supabase.functions.invoke('web-search', {
             body: {
               query: searchQuery,
               location: currentLocation,
-              num_results: 100, // Request maximum results
+              num_results: 0, // 0 = unlimited, fetch all available
               search_type: 'places',
+              expand_search: true, // Enable expanded search with subniches
             },
           });
 
