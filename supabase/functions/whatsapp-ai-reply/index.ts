@@ -800,7 +800,15 @@ ${s.objection_responses ? `- Objeções: ${JSON.stringify(s.objection_responses)
     const leadMessages = (messages || []).filter(m => m.sender_type === "lead").length;
     const agentMessages = (messages || []).filter(m => m.sender_type !== "lead").length;
     const conversationEngagement = leadMessages > 0 ? (leadMessages / Math.max(agentMessages, 1)) : 0;
-    const currentHour = new Date().getHours();
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentDateFormatted = now.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
 
     // Build BANT summary
     const bantSummary = qualification ? `
@@ -869,7 +877,9 @@ ${signalsSummary}
 ${patternsSummary}
 
 # CONTEXTO ATUAL
+- Data de HOJE: ${currentDateFormatted} (${currentDate})
 - Hora atual: ${currentHour}h
+- IMPORTANTE: Quando o cliente disser "hoje", use a data ${currentDate}. Quando disser "amanhã", adicione 1 dia.
 - Engajamento: ${conversationEngagement > 1 ? "ALTO" : conversationEngagement > 0.5 ? "MÉDIO" : "BAIXO"}
 - Mensagens do lead: ${leadMessages}
 - Mensagens enviadas: ${agentMessages}
