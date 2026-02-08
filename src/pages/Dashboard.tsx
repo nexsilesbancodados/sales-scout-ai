@@ -25,9 +25,7 @@ import {
   Target,
   Clock,
   Zap,
-  ArrowRight,
   Activity,
-  Sparkles,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -73,38 +71,63 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Quick Action - Enhanced with better animation */}
-      <Card className="mb-6 overflow-hidden border-0 shadow-lg animate-slide-up card-hover">
-        <div className="gradient-primary p-5 sm:p-6 relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  Capturar Leads
-                  <Sparkles className="h-4 w-4 text-white/80" />
-                </h3>
-                <p className="text-white/80 text-sm">
-                  Google Maps + mensagens automáticas
-                </p>
-              </div>
-            </div>
-            <Button asChild size="lg" variant="secondary" className="shadow-md w-full sm:w-auto group">
-              <Link to="/prospecting?tab=capture">
-                <Target className="h-5 w-5 mr-2" />
-                Iniciar
-                <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </Card>
+      {/* Quick Actions Bar */}
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-4 mb-6 animate-slide-up">
+        <Button 
+          asChild 
+          size="lg" 
+          className="h-auto py-4 flex-col gap-2 shadow-md gradient-primary"
+        >
+          <Link to="/prospecting?tab=maps">
+            <Target className="h-6 w-6" />
+            <span className="font-semibold">Capturar Leads</span>
+            <span className="text-xs opacity-80">Google Maps</span>
+          </Link>
+        </Button>
+        
+        <Button 
+          asChild 
+          size="lg" 
+          variant="outline"
+          className="h-auto py-4 flex-col gap-2"
+        >
+          <Link to="/prospecting?tab=mass-send">
+            <MessageSquare className="h-6 w-6" />
+            <span className="font-semibold">Enviar Mensagens</span>
+            <span className="text-xs text-muted-foreground">Em massa</span>
+          </Link>
+        </Button>
+
+        <Button 
+          asChild 
+          size="lg" 
+          variant="outline"
+          className="h-auto py-4 flex-col gap-2"
+        >
+          <Link to="/leads">
+            <Users className="h-6 w-6" />
+            <span className="font-semibold">Ver Leads</span>
+            <span className="text-xs text-muted-foreground">{metrics?.totalLeads || 0} total</span>
+          </Link>
+        </Button>
+
+        <Button 
+          asChild 
+          size="lg" 
+          variant={settings?.whatsapp_connected ? "outline" : "destructive"}
+          className="h-auto py-4 flex-col gap-2"
+        >
+          <Link to="/settings">
+            <Zap className="h-6 w-6" />
+            <span className="font-semibold">
+              {settings?.whatsapp_connected ? 'Configurações' : 'Conectar WhatsApp'}
+            </span>
+            <span className="text-xs opacity-80">
+              {settings?.whatsapp_connected ? 'WhatsApp ativo' : 'Necessário'}
+            </span>
+          </Link>
+        </Button>
+      </div>
 
       {/* Metrics - Clean Grid */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
@@ -161,78 +184,77 @@ export default function DashboardPage() {
 
       {/* Two Column Layout */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Status & Quick Actions */}
+        {/* Status Overview */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader
-              title="Status"
-              description="Estado atual do sistema"
+              title="Status do Sistema"
+              description="Conexões e configurações"
               className="mb-0"
             />
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* WhatsApp Status */}
             <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
               <div className="flex items-center gap-3">
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium text-sm">WhatsApp</p>
-                  <p className="text-xs text-muted-foreground">
-                    {settings?.whatsapp_connected ? 'Pronto para envio' : 'Não conectado'}
-                  </p>
-                </div>
+                <span className="font-medium text-sm">WhatsApp</span>
               </div>
               <Badge 
                 variant={settings?.whatsapp_connected ? 'default' : 'secondary'}
                 className={settings?.whatsapp_connected ? 'bg-success hover:bg-success/90' : ''}
               >
-                {settings?.whatsapp_connected ? 'Online' : 'Offline'}
+                {settings?.whatsapp_connected ? '✓ Conectado' : 'Desconectado'}
               </Badge>
             </div>
 
-            {/* Quick Links */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                variant="outline" 
-                className="h-16 flex-col gap-2"
-                asChild
+            {/* API Status */}
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <Zap className="h-5 w-5 text-muted-foreground" />
+                <span className="font-medium text-sm">APIs de Busca</span>
+              </div>
+              <Badge 
+                variant={(settings?.serper_api_key || settings?.serpapi_api_key) ? 'default' : 'secondary'}
               >
-                <Link to="/leads">
-                  <Users className="h-5 w-5" />
-                  <span className="text-sm">Ver Leads</span>
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-16 flex-col gap-2"
-                asChild
+                {(settings?.serper_api_key || settings?.serpapi_api_key) ? '✓ Configurada' : 'Não configurada'}
+              </Badge>
+            </div>
+
+            {/* Agent Status */}
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <Target className="h-5 w-5 text-muted-foreground" />
+                <span className="font-medium text-sm">Agente IA</span>
+              </div>
+              <Badge 
+                variant={(settings?.agent_name && settings?.knowledge_base) ? 'default' : 'secondary'}
               >
-                <Link to="/conversations">
-                  <MessageSquare className="h-5 w-5" />
-                  <span className="text-sm">Conversas</span>
-                </Link>
-              </Button>
+                {(settings?.agent_name && settings?.knowledge_base) ? '✓ Configurado' : 'Não configurado'}
+              </Badge>
             </div>
 
             {/* Configured Niches */}
             <div className="p-3 rounded-lg border">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Nichos</span>
+                <span className="text-sm font-medium">Nichos Alvo</span>
                 <Badge variant="secondary" className="text-xs">
                   {settings?.target_niches?.length || 0}
                 </Badge>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {settings?.target_niches?.slice(0, 4).map((niche, i) => (
+                {settings?.target_niches?.slice(0, 5).map((niche, i) => (
                   <Badge key={i} variant="outline" className="text-xs">{niche}</Badge>
                 ))}
-                {(settings?.target_niches?.length || 0) > 4 && (
+                {(settings?.target_niches?.length || 0) > 5 && (
                   <Badge variant="secondary" className="text-xs">
-                    +{(settings?.target_niches?.length || 0) - 4}
+                    +{(settings?.target_niches?.length || 0) - 5}
                   </Badge>
                 )}
                 {(!settings?.target_niches?.length) && (
-                  <p className="text-xs text-muted-foreground">Nenhum configurado</p>
+                  <Link to="/settings" className="text-xs text-primary hover:underline">
+                    Configurar nichos →
+                  </Link>
                 )}
               </div>
             </div>

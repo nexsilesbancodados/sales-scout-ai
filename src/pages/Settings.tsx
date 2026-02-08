@@ -7,10 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
@@ -19,29 +17,6 @@ import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
-import { QuickSetupWizard } from '@/components/settings/QuickSetupWizard';
-import {
-  PERSONALITY_TRAITS,
-  AGENT_TYPE_OPTIONS,
-  COMMUNICATION_STYLE_OPTIONS,
-  RESPONSE_LENGTH_OPTIONS,
-  EMOJI_USAGE_OPTIONS,
-  OBJECTION_HANDLING_OPTIONS,
-  CLOSING_STYLE_OPTIONS,
-  FOLLOW_UP_TONE_OPTIONS,
-  GREETING_STYLE_OPTIONS,
-  VALUE_PROPOSITION_OPTIONS,
-  PersonalityTrait,
-  AgentType,
-  CommunicationStyle,
-  ResponseLength,
-  EmojiUsage,
-  ObjectionHandling,
-  ClosingStyle,
-  FollowUpTone,
-  GreetingStyle,
-  ValuePropositionFocus,
-} from '@/types/database';
 import {
   Bot,
   MessageSquare,
@@ -52,15 +27,14 @@ import {
   X,
   Loader2,
   Check,
-  Brain,
-  Sparkles,
-  Settings2,
   Shield,
   Key,
   Users,
   Download,
   Zap,
-  Wrench,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -69,19 +43,13 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
-// Simplified tab structure
+// Simplified tab structure - only 3 main tabs
 const settingsTabs = [
-  { 
-    id: 'quickstart', 
-    icon: Sparkles, 
-    label: 'Início Rápido',
-    description: 'Configure tudo em 3 passos'
-  },
   { 
     id: 'connections', 
     icon: Zap, 
     label: 'Conexões',
-    description: 'WhatsApp e APIs'
+    description: 'WhatsApp, APIs e segurança'
   },
   { 
     id: 'agent', 
@@ -91,36 +59,57 @@ const settingsTabs = [
   },
   { 
     id: 'advanced', 
-    icon: Wrench, 
+    icon: Settings2, 
     label: 'Avançado',
-    description: 'Equipe, relatórios e mais'
+    description: 'Equipe e integrações'
+  },
+];
+
+// Simplified agent presets - replaces 10+ individual settings
+const AGENT_PRESETS = [
+  {
+    id: 'consultor',
+    name: '💡 Consultor',
+    description: 'Oferece valor antes de vender, tom profissional',
+    settings: { communication_style: 'formal' as const, emoji_usage: 'moderado' as const, response_length: 'medio' as const, agent_type: 'consultivo' as const }
+  },
+  {
+    id: 'amigavel',
+    name: '🤝 Amigável',
+    description: 'Tom leve e próximo, mais emojis',
+    settings: { communication_style: 'casual' as const, emoji_usage: 'frequente' as const, response_length: 'medio' as const, agent_type: 'amigavel' as const }
+  },
+  {
+    id: 'direto',
+    name: '🎯 Direto',
+    description: 'Objetivo e claro, sem rodeios',
+    settings: { communication_style: 'casual' as const, emoji_usage: 'minimo' as const, response_length: 'curto' as const, agent_type: 'agressivo' as const }
+  },
+  {
+    id: 'especialista',
+    name: '🧠 Especialista',
+    description: 'Técnico e detalhista, foco em expertise',
+    settings: { communication_style: 'formal' as const, emoji_usage: 'minimo' as const, response_length: 'longo' as const, agent_type: 'tecnico' as const }
   },
 ];
 
 export default function SettingsPage() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('quickstart');
+  const [activeTab, setActiveTab] = useState('connections');
+
+  // Collapsible states
+  const [showAntiBlock, setShowAntiBlock] = useState(false);
+  const [showAdvancedAgent, setShowAdvancedAgent] = useState(false);
 
   // Basic settings
   const [agentName, setAgentName] = useState('');
   const [agentPersona, setAgentPersona] = useState('');
   const [knowledgeBase, setKnowledgeBase] = useState('');
+  const [selectedPreset, setSelectedPreset] = useState('consultor');
   const [newNiche, setNewNiche] = useState('');
   const [newLocation, setNewLocation] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
-
-  // Advanced settings
-  const [agentType, setAgentType] = useState<AgentType>('consultivo');
-  const [communicationStyle, setCommunicationStyle] = useState<CommunicationStyle>('formal');
-  const [responseLength, setResponseLength] = useState<ResponseLength>('medio');
-  const [emojiUsage, setEmojiUsage] = useState<EmojiUsage>('moderado');
-  const [objectionHandling, setObjectionHandling] = useState<ObjectionHandling>('suave');
-  const [closingStyle, setClosingStyle] = useState<ClosingStyle>('consultivo');
-  const [followUpTone, setFollowUpTone] = useState<FollowUpTone>('amigavel');
-  const [greetingStyle, setGreetingStyle] = useState<GreetingStyle>('padrao');
-  const [valuePropositionFocus, setValuePropositionFocus] = useState<ValuePropositionFocus>('beneficios');
-  const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
 
   // Initialize form values when settings load
   useEffect(() => {
@@ -129,91 +118,63 @@ export default function SettingsPage() {
       setAgentPersona(settings.agent_persona || '');
       setKnowledgeBase(settings.knowledge_base || '');
       setWebhookUrl(settings.webhook_url || '');
-      setAgentType(settings.agent_type || 'consultivo');
-      setCommunicationStyle(settings.communication_style || 'formal');
-      setResponseLength(settings.response_length || 'medio');
-      setEmojiUsage(settings.emoji_usage || 'moderado');
-      setObjectionHandling(settings.objection_handling || 'suave');
-      setClosingStyle(settings.closing_style || 'consultivo');
-      setFollowUpTone(settings.follow_up_tone || 'amigavel');
-      setGreetingStyle(settings.greeting_style || 'padrao');
-      setValuePropositionFocus(settings.value_proposition_focus || 'beneficios');
       
-      const traits = (settings.personality_traits || []) as PersonalityTrait[];
-      setSelectedTraits(traits.filter(t => t.enabled).map(t => t.id));
+      // Detect current preset based on settings
+      const currentType = settings.agent_type || 'consultivo';
+      const matchingPreset = AGENT_PRESETS.find(p => p.settings.agent_type === currentType);
+      setSelectedPreset(matchingPreset?.id || 'consultor');
     }
   }, [settings]);
 
   const handleSaveAgent = () => {
+    const preset = AGENT_PRESETS.find(p => p.id === selectedPreset);
+    
     updateSettings({
       agent_name: agentName,
       agent_persona: agentPersona,
       knowledge_base: knowledgeBase,
+      ...(preset?.settings || {}),
     });
-  };
-
-  const handleSavePersonality = () => {
-    const traits: PersonalityTrait[] = PERSONALITY_TRAITS.map(t => ({
-      ...t,
-      enabled: selectedTraits.includes(t.id),
-    }));
-
-    updateSettings({
-      agent_type: agentType,
-      personality_traits: traits,
-      communication_style: communicationStyle,
-      response_length: responseLength,
-      emoji_usage: emojiUsage,
-      objection_handling: objectionHandling,
-      closing_style: closingStyle,
-      follow_up_tone: followUpTone,
-      greeting_style: greetingStyle,
-      value_proposition_focus: valuePropositionFocus,
+    
+    toast({
+      title: '✓ Agente atualizado',
+      description: 'As configurações foram salvas.',
     });
-  };
-
-  const toggleTrait = (traitId: string) => {
-    if (selectedTraits.includes(traitId)) {
-      setSelectedTraits(selectedTraits.filter(t => t !== traitId));
-    } else if (selectedTraits.length < 5) {
-      setSelectedTraits([...selectedTraits, traitId]);
-    } else {
-      toast({
-        title: 'Limite atingido',
-        description: 'Você pode selecionar no máximo 5 traços de personalidade.',
-        variant: 'destructive',
-      });
-    }
   };
 
   const handleAddNiche = () => {
     if (!newNiche.trim() || !settings) return;
-    const niches = [...(settings.target_niches || []), newNiche.trim()];
-    updateSettings({ target_niches: niches });
+    const values = newNiche.split(',').map(v => v.trim()).filter(v => v.length > 0);
+    const newNiches = values.filter(v => !(settings.target_niches || []).includes(v));
+    if (newNiches.length > 0) {
+      updateSettings({ target_niches: [...(settings.target_niches || []), ...newNiches] });
+    }
     setNewNiche('');
   };
 
   const handleRemoveNiche = (niche: string) => {
     if (!settings) return;
-    const niches = (settings.target_niches || []).filter(n => n !== niche);
-    updateSettings({ target_niches: niches });
+    updateSettings({ target_niches: (settings.target_niches || []).filter(n => n !== niche) });
   };
 
   const handleAddLocation = () => {
     if (!newLocation.trim() || !settings) return;
-    const locations = [...(settings.target_locations || []), newLocation.trim()];
-    updateSettings({ target_locations: locations });
+    const values = newLocation.split(',').map(v => v.trim()).filter(v => v.length > 0);
+    const newLocs = values.filter(v => !(settings.target_locations || []).includes(v));
+    if (newLocs.length > 0) {
+      updateSettings({ target_locations: [...(settings.target_locations || []), ...newLocs] });
+    }
     setNewLocation('');
   };
 
   const handleRemoveLocation = (location: string) => {
     if (!settings) return;
-    const locations = (settings.target_locations || []).filter(l => l !== location);
-    updateSettings({ target_locations: locations });
+    updateSettings({ target_locations: (settings.target_locations || []).filter(l => l !== location) });
   };
 
   const handleSaveWebhook = () => {
     updateSettings({ webhook_url: webhookUrl });
+    toast({ title: '✓ Webhook salvo' });
   };
 
   if (isLoading) {
@@ -226,50 +187,46 @@ export default function SettingsPage() {
     );
   }
 
-  const renderOptionCard = (
-    options: { value: string; label: string; description: string }[],
-    currentValue: string,
-    onChange: (value: string) => void,
-    name: string
-  ) => (
-    <RadioGroup value={currentValue} onValueChange={onChange} className="grid grid-cols-2 gap-3">
-      {options.map((option) => (
-        <label
-          key={option.value}
-          className={`flex flex-col p-3 rounded-lg border cursor-pointer transition-all hover:border-primary/50 ${
-            currentValue === option.value ? 'border-primary bg-primary/5' : 'border-border'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value={option.value} id={`${name}-${option.value}`} />
-            <span className="font-medium text-sm">{option.label}</span>
-          </div>
-          <span className="text-xs text-muted-foreground mt-1 ml-6">{option.description}</span>
-        </label>
-      ))}
-    </RadioGroup>
-  );
+  // Status indicators for tabs
+  const isWhatsAppConnected = settings?.whatsapp_connected;
+  const hasApiKeys = settings?.serper_api_key || settings?.serpapi_api_key;
+  const hasAgentConfig = settings?.agent_name && settings?.knowledge_base;
 
   return (
     <DashboardLayout
       title="Configurações"
       description="Configure seu agente de prospecção"
     >
-      {/* Tab Navigation - Compact */}
+      {/* Tab Navigation with status indicators */}
       <div className="flex flex-wrap gap-2 mb-6">
         {settingsTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const TabIcon = tab.icon;
+          
+          // Status indicator
+          let status: 'ok' | 'warning' | 'none' = 'none';
+          if (tab.id === 'connections') {
+            status = isWhatsAppConnected && hasApiKeys ? 'ok' : 'warning';
+          } else if (tab.id === 'agent') {
+            status = hasAgentConfig ? 'ok' : 'warning';
+          }
+          
           return (
             <Button
               key={tab.id}
               variant={isActive ? "default" : "outline"}
               size="sm"
               onClick={() => setActiveTab(tab.id)}
-              className={cn("gap-2", isActive && "shadow-md")}
+              className={cn("gap-2 relative", isActive && "shadow-md")}
             >
               <TabIcon className="h-4 w-4" />
               {tab.label}
+              {status === 'ok' && (
+                <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background" />
+              )}
+              {status === 'warning' && (
+                <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-yellow-500 border-2 border-background" />
+              )}
             </Button>
           );
         })}
@@ -277,21 +234,27 @@ export default function SettingsPage() {
 
       {/* Tab Content */}
       <div className="space-y-6">
-        {/* Quick Start */}
-        {activeTab === 'quickstart' && <QuickSetupWizard />}
-
-        {/* Connections - WhatsApp & APIs */}
+        {/* Connections Tab - WhatsApp, APIs & Anti-Block */}
         {activeTab === 'connections' && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* WhatsApp */}
-            <Card>
+          <div className="space-y-6">
+            {/* Priority: WhatsApp first */}
+            <Card className={cn(!isWhatsAppConnected && "ring-2 ring-destructive/50")}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-primary" />
-                  WhatsApp
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    <CardTitle>WhatsApp</CardTitle>
+                  </div>
+              {isWhatsAppConnected ? (
+                    <Badge className="bg-primary text-primary-foreground">Conectado</Badge>
+                  ) : (
+                    <Badge variant="destructive">Desconectado</Badge>
+                  )}
+                </div>
                 <CardDescription>
-                  Conecte sua conta para enviar mensagens
+                  {isWhatsAppConnected 
+                    ? 'Seu WhatsApp está pronto para enviar mensagens'
+                    : 'Conecte seu WhatsApp para começar a prospectar'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -299,34 +262,55 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            {/* API Keys */}
-            <div className="space-y-6">
-              <ApiKeysSettings />
-            </div>
+            {/* API Keys - Compact */}
+            <ApiKeysSettings />
 
-            {/* Anti-Block Settings */}
-            <div className="lg:col-span-2">
-              <AntiBlockSettings />
-            </div>
+            {/* Anti-Block - Collapsible */}
+            <Collapsible open={showAntiBlock} onOpenChange={setShowAntiBlock}>
+              <Card>
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-primary" />
+                        <div>
+                          <CardTitle className="text-base">Segurança Anti-Bloqueio</CardTitle>
+                          <CardDescription className="text-xs">
+                            Limites de envio, intervalos e warmup
+                          </CardDescription>
+                        </div>
+                      </div>
+                      {showAntiBlock ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0">
+                    <AntiBlockSettings />
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           </div>
         )}
 
-        {/* Agent Configuration */}
+        {/* Agent Configuration - Simplified */}
         {activeTab === 'agent' && (
           <div className="space-y-6">
-            {/* Agent Info */}
+            {/* Basic Info */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" />
-                  Informações do Agente
+                  Seu Agente IA
                 </CardTitle>
                 <CardDescription>
                   Configure como a IA se apresenta e o que ela sabe sobre seu negócio
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
+                {/* Name & Persona */}
+                <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="agentName">Nome do Agente</Label>
                     <Input
@@ -337,7 +321,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="agentPersona">Persona/Cargo</Label>
+                    <Label htmlFor="agentPersona">Cargo/Função</Label>
                     <Input
                       id="agentPersona"
                       value={agentPersona}
@@ -346,175 +330,126 @@ export default function SettingsPage() {
                     />
                   </div>
                 </div>
+
+                {/* Knowledge Base */}
                 <div className="space-y-2">
-                  <Label htmlFor="knowledgeBase">Base de Conhecimento</Label>
+                  <Label htmlFor="knowledgeBase">Sobre seu Negócio</Label>
                   <Textarea
                     id="knowledgeBase"
                     value={knowledgeBase}
                     onChange={(e) => setKnowledgeBase(e.target.value)}
-                    placeholder="Descreva seus serviços, diferenciais, preços..."
-                    className="min-h-[120px]"
+                    placeholder="Descreva seus serviços, diferenciais, preços... A IA usará isso para personalizar mensagens."
+                    className="min-h-[100px]"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    A IA usará essas informações para personalizar as mensagens
-                  </p>
-                </div>
-                <Button onClick={handleSaveAgent} disabled={isUpdating}>
-                  {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
-                  Salvar Informações
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Personality Settings - Collapsible sections */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-primary" />
-                  Personalidade
-                </CardTitle>
-                <CardDescription>
-                  Defina o tom e estilo de comunicação
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Agent Type */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Tipo de Agente</Label>
-                  {renderOptionCard(AGENT_TYPE_OPTIONS, agentType, (v) => setAgentType(v as AgentType), 'agent-type')}
                 </div>
 
                 <Separator />
 
-                {/* Communication Style */}
+                {/* Preset Selection - Replaces 10+ options */}
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold">Estilo de Comunicação</Label>
-                  {renderOptionCard(COMMUNICATION_STYLE_OPTIONS, communicationStyle, (v) => setCommunicationStyle(v as CommunicationStyle), 'comm-style')}
-                </div>
-
-                <Separator />
-
-                {/* Personality Traits */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">Traços de Personalidade</Label>
-                    <Badge variant="secondary">{selectedTraits.length}/5</Badge>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                    {PERSONALITY_TRAITS.map((trait) => {
-                      const isSelected = selectedTraits.includes(trait.id);
-                      return (
-                        <button
-                          key={trait.id}
-                          onClick={() => toggleTrait(trait.id)}
-                          className={cn(
-                            "p-2 rounded-lg border text-left transition-all text-xs",
-                            isSelected
-                              ? "border-primary bg-primary/10"
-                              : "border-border hover:border-primary/50"
-                          )}
-                        >
-                          <span className="font-medium">{trait.name}</span>
-                        </button>
-                      );
-                    })}
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {AGENT_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={() => setSelectedPreset(preset.id)}
+                        className={cn(
+                          "flex items-start gap-3 p-4 rounded-xl border text-left transition-all",
+                          selectedPreset === preset.id
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                            : "border-border hover:border-primary/50"
+                        )}
+                      >
+                        <span className="text-2xl">{preset.name.split(' ')[0]}</span>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{preset.name.split(' ').slice(1).join(' ')}</p>
+                          <p className="text-xs text-muted-foreground">{preset.description}</p>
+                        </div>
+                        {selectedPreset === preset.id && (
+                          <Check className="h-5 w-5 text-primary shrink-0" />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Quick Settings Grid */}
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Tamanho das Respostas</Label>
-                    {renderOptionCard(RESPONSE_LENGTH_OPTIONS, responseLength, (v) => setResponseLength(v as ResponseLength), 'resp-length')}
-                  </div>
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Uso de Emojis</Label>
-                    {renderOptionCard(EMOJI_USAGE_OPTIONS, emojiUsage, (v) => setEmojiUsage(v as EmojiUsage), 'emoji')}
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Tratamento de Objeções</Label>
-                    {renderOptionCard(OBJECTION_HANDLING_OPTIONS, objectionHandling, (v) => setObjectionHandling(v as ObjectionHandling), 'objection')}
-                  </div>
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Estilo de Fechamento</Label>
-                    {renderOptionCard(CLOSING_STYLE_OPTIONS, closingStyle, (v) => setClosingStyle(v as ClosingStyle), 'closing')}
-                  </div>
-                </div>
-
-                <Button onClick={handleSavePersonality} disabled={isUpdating} className="w-full">
+                <Button onClick={handleSaveAgent} disabled={isUpdating} className="w-full">
                   {isUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
-                  Salvar Personalidade
+                  Salvar Agente
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Target Niches & Locations */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            {/* Target Niches & Locations - Compact */}
+            <div className="grid gap-4 md:grid-cols-2">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
                     Nichos Alvo
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="flex gap-2">
                     <Input
                       value={newNiche}
                       onChange={(e) => setNewNiche(e.target.value)}
-                      placeholder="Ex: Restaurantes"
+                      placeholder="Ex: Restaurantes, Clínicas"
                       onKeyDown={(e) => e.key === 'Enter' && handleAddNiche()}
+                      className="h-9"
                     />
-                    <Button onClick={handleAddNiche} size="icon" variant="outline">
+                    <Button onClick={handleAddNiche} size="sm" variant="outline">
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {settings?.target_niches?.map((niche, i) => (
-                      <Badge key={i} variant="secondary" className="pr-1">
+                      <Badge key={i} variant="secondary" className="pr-1 text-xs">
                         {niche}
-                        <button onClick={() => handleRemoveNiche(niche)} className="ml-2 hover:text-destructive">
+                        <button onClick={() => handleRemoveNiche(niche)} className="ml-1.5 hover:text-destructive">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
                     ))}
+                    {!settings?.target_niches?.length && (
+                      <p className="text-xs text-muted-foreground">Nenhum nicho adicionado</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
                     Localizações
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="flex gap-2">
                     <Input
                       value={newLocation}
                       onChange={(e) => setNewLocation(e.target.value)}
-                      placeholder="Ex: São Paulo, SP"
+                      placeholder="Ex: São Paulo, Curitiba"
                       onKeyDown={(e) => e.key === 'Enter' && handleAddLocation()}
+                      className="h-9"
                     />
-                    <Button onClick={handleAddLocation} size="icon" variant="outline">
+                    <Button onClick={handleAddLocation} size="sm" variant="outline">
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {settings?.target_locations?.map((loc, i) => (
-                      <Badge key={i} variant="secondary" className="pr-1">
+                      <Badge key={i} variant="secondary" className="pr-1 text-xs">
                         {loc}
-                        <button onClick={() => handleRemoveLocation(loc)} className="ml-2 hover:text-destructive">
+                        <button onClick={() => handleRemoveLocation(loc)} className="ml-1.5 hover:text-destructive">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
                     ))}
+                    {!settings?.target_locations?.length && (
+                      <p className="text-xs text-muted-foreground">Nenhuma localização adicionada</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -522,60 +457,64 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Advanced Settings */}
+        {/* Advanced Settings - Compact */}
         {activeTab === 'advanced' && (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="space-y-6">
             {/* Team Settings */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-primary" />
                   Equipe
                 </CardTitle>
+                <CardDescription>Gerencie membros e permissões</CardDescription>
               </CardHeader>
               <CardContent>
                 <TeamSettings />
               </CardContent>
             </Card>
 
-            {/* Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5 text-primary" />
-                  Notificações
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <NotificationSettings />
-              </CardContent>
-            </Card>
+            {/* Grid for smaller cards */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Notifications */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    Notificações
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <NotificationSettings />
+                </CardContent>
+              </Card>
 
-            {/* Reports */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Download className="h-5 w-5 text-primary" />
-                  Relatórios
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ReportExportSettings />
-              </CardContent>
-            </Card>
+              {/* Reports */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Download className="h-4 w-4 text-primary" />
+                    Relatórios
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ReportExportSettings />
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Webhook */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Webhook className="h-5 w-5 text-primary" />
                   Webhook
                 </CardTitle>
                 <CardDescription>
-                  Receba eventos em tempo real (para n8n, Zapier, etc.)
+                  Receba eventos em tempo real (n8n, Zapier, Make)
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div className="flex gap-2">
                   <Input
                     value={webhookUrl}
@@ -588,7 +527,7 @@ export default function SettingsPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Eventos disponíveis: lead_created, message_sent, meeting_scheduled
+                  Eventos: lead_created, message_sent, meeting_scheduled
                 </p>
               </CardContent>
             </Card>
