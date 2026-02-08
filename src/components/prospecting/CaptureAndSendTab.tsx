@@ -277,6 +277,7 @@ export function CaptureAndSendTab({
   const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string>('all');
   const [useDirectAI, setUseDirectAI] = useState(true); // Default to direct AI mode
+  const [autoSaveLeads, setAutoSaveLeads] = useState(true); // Option to save leads automatically
   
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
@@ -729,9 +730,9 @@ export function CaptureAndSendTab({
       addLog(`⚠️ ${duplicateCount} leads já existem no banco (marcados como duplicados)`);
     }
 
-    // Save new leads to database immediately so they appear in MassSendTab
+    // Save new leads to database only if autoSaveLeads is enabled
     let savedCount = 0;
-    if (newLeadsCount > 0 && user?.id) {
+    if (autoSaveLeads && newLeadsCount > 0 && user?.id) {
       addLog(`💾 Salvando ${newLeadsCount} leads novos no banco de dados...`);
       
       try {
@@ -768,6 +769,9 @@ export function CaptureAndSendTab({
         console.error('Error saving leads:', error);
         addLog(`❌ Erro ao salvar leads: ${error.message}`);
       }
+    } else if (!autoSaveLeads && newLeadsCount > 0) {
+      addLog(`ℹ️ ${newLeadsCount} leads capturados (não salvos - salvamento automático desativado)`);
+      addLog(`💡 Use o botão "Salvar Leads" para salvar manualmente quando quiser`);
     }
     
     addLog(`✅ Captura concluída: ${newLeadsCount} leads novos + ${duplicateCount} duplicados`);
@@ -816,12 +820,97 @@ export function CaptureAndSendTab({
     toast({
       title: newLeadsCount > 0 ? '✅ Captura concluída!' : duplicateCount > 0 ? '⚠️ Apenas duplicados encontrados' : '⚠️ Nenhum lead encontrado',
       description: newLeadsCount > 0 
-        ? `${savedCount} leads salvos no banco! Disponíveis na aba "Disparo".${duplicateInfo}${filterInfo}`
+        ? autoSaveLeads 
+          ? `${savedCount} leads salvos no banco! Disponíveis na aba "Disparo".${duplicateInfo}${filterInfo}`
+          : `${newLeadsCount} leads capturados (não salvos). Use "Salvar Leads" para persistir.${duplicateInfo}${filterInfo}`
         : duplicateCount > 0 
           ? 'Todos os leads encontrados já existem no seu banco de dados.'
           : 'Tente outras combinações de nichos e locais ou ajuste os filtros.',
       variant: newLeadsCount > 0 ? 'default' : 'destructive',
     });
+  };
+
+  // Function to manually save leads to database
+  const handleManualSaveLeads = async () => {
+    const leadsToSave = capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending');
+    
+    if (leadsToSave.length === 0) {
+      toast({
+        title: '⚠️ Nenhum lead para salvar',
+        description: 'Não há leads pendentes que ainda não foram salvos.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: '⚠️ Usuário não autenticado',
+        description: 'Faça login para salvar leads.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    addLog(`💾 Salvando ${leadsToSave.length} leads manualmente...`);
+
+    try {
+      const leadsData = leadsToSave.map(lead => ({
+        user_id: user.id,
+        business_name: lead.business_name,
+        phone: lead.phone,
+        address: lead.address || null,
+        niche: lead.niche,
+        location: lead.location,
+        rating: lead.rating || null,
+        reviews_count: lead.reviews_count || null,
+        website: lead.website || null,
+        google_maps_url: lead.google_maps_url || null,
+        stage: 'Novo',
+        temperature: 'frio',
+        source: 'prospecting_capture',
+        quality_score: lead.qualityScore || null,
+      }));
+
+      const { data: savedLeads, error: saveError } = await supabase
+        .from('leads')
+        .insert(leadsData)
+        .select();
+
+      if (saveError) {
+        console.error('Error saving leads:', saveError);
+        addLog(`❌ Erro ao salvar leads: ${saveError.message}`);
+        toast({
+          title: '❌ Erro ao salvar',
+          description: saveError.message,
+          variant: 'destructive',
+        });
+      } else {
+        const savedCount = savedLeads?.length || 0;
+        addLog(`✅ ${savedCount} leads salvos no banco de dados`);
+        
+        // Mark saved leads as such (change status to indicate they're in DB)
+        setCapturedLeads(prev => prev.map(l => {
+          if (leadsToSave.some(ls => ls.id === l.id)) {
+            return { ...l, status: 'sent' as const }; // Mark as 'sent' to indicate saved
+          }
+          return l;
+        }));
+
+        toast({
+          title: '✅ Leads salvos!',
+          description: `${savedCount} leads salvos com sucesso. Disponíveis na aba "Disparo" e página de Leads.`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error saving leads:', error);
+      addLog(`❌ Erro ao salvar leads: ${error.message}`);
+      toast({
+        title: '❌ Erro ao salvar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   const analyzeAndGenerateMessages = async () => {
@@ -2009,26 +2098,51 @@ export function CaptureAndSendTab({
       {/* Actions */}
       <Card>
         <CardContent className="pt-4 space-y-4">
-          {/* Direct AI Mode Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-            <div className="flex items-center gap-3">
-              <Zap className={`h-5 w-5 ${useDirectAI ? 'text-primary' : 'text-muted-foreground'}`} />
-              <div>
-                <Label htmlFor="direct-ai-mode" className="font-medium">Modo IA Direta</Label>
-                <p className="text-xs text-muted-foreground">
-                  {useDirectAI 
-                    ? 'Dispara direto gerando mensagens únicas com IA'
-                    : 'Requer análise prévia para gerar mensagens'
-                  }
-                </p>
+          {/* Save Options */}
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Auto Save Toggle */}
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className={`h-5 w-5 ${autoSaveLeads ? 'text-green-500' : 'text-muted-foreground'}`} />
+                <div>
+                  <Label htmlFor="auto-save-leads" className="font-medium">Salvar Automaticamente</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {autoSaveLeads 
+                      ? 'Leads salvos no banco após captura'
+                      : 'Leads mantidos apenas em memória'
+                    }
+                  </p>
+                </div>
               </div>
+              <Switch
+                id="auto-save-leads"
+                checked={autoSaveLeads}
+                onCheckedChange={setAutoSaveLeads}
+                disabled={isProcessing}
+              />
             </div>
-            <Switch
-              id="direct-ai-mode"
-              checked={useDirectAI}
-              onCheckedChange={setUseDirectAI}
-              disabled={isProcessing}
-            />
+
+            {/* Direct AI Mode Toggle */}
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <Zap className={`h-5 w-5 ${useDirectAI ? 'text-primary' : 'text-muted-foreground'}`} />
+                <div>
+                  <Label htmlFor="direct-ai-mode" className="font-medium">Modo IA Direta</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {useDirectAI 
+                      ? 'Dispara direto gerando mensagens únicas com IA'
+                      : 'Requer análise prévia para gerar mensagens'
+                    }
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="direct-ai-mode"
+                checked={useDirectAI}
+                onCheckedChange={setUseDirectAI}
+                disabled={isProcessing}
+              />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -2043,6 +2157,18 @@ export function CaptureAndSendTab({
               )}
               Capturar {maxLeadsToCapture} Leads
             </Button>
+
+            {/* Manual save button - only shows when auto-save is disabled and there are unsaved leads */}
+            {!autoSaveLeads && capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending').length > 0 && (
+              <Button
+                onClick={handleManualSaveLeads}
+                disabled={isProcessing}
+                variant="outline"
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
+                Salvar {capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending').length} Leads
+              </Button>
+            )}
 
             {!useDirectAI && (
               <Button
