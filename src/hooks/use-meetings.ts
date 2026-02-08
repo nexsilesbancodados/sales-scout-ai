@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { Meeting, MeetingStatus } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export function useMeetings(filters?: {
   status?: MeetingStatus;
@@ -43,6 +44,32 @@ export function useMeetings(filters?: {
     },
     enabled: !!user?.id,
   });
+
+  // Subscribe to realtime updates for meetings
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('meetings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meetings',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Meeting realtime update:', payload.eventType);
+          queryClient.invalidateQueries({ queryKey: ['meetings', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   const createMeeting = useMutation({
     mutationFn: async (meeting: Omit<Meeting, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { Lead, LeadStage, LeadTemperature } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export function useLeads(filters?: {
   stage?: LeadStage;
@@ -44,6 +45,32 @@ export function useLeads(filters?: {
     },
     enabled: !!user?.id,
   });
+
+  // Subscribe to realtime updates for leads
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('leads-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Lead realtime update:', payload.eventType);
+          queryClient.invalidateQueries({ queryKey: ['leads', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   const createLead = useMutation({
     mutationFn: async (lead: Omit<Lead, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {

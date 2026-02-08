@@ -4,6 +4,7 @@ import { ChatMessage, MessageSenderType } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useLead } from '@/hooks/use-leads';
+import { useEffect } from 'react';
 
 export function useChatMessages(leadId: string | null) {
   const { toast } = useToast();
@@ -27,6 +28,32 @@ export function useChatMessages(leadId: string | null) {
     },
     enabled: !!leadId,
   });
+
+  // Subscribe to realtime updates for chat messages
+  useEffect(() => {
+    if (!leadId) return;
+
+    const channel = supabase
+      .channel(`chat-messages-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `lead_id=eq.${leadId}`,
+        },
+        (payload) => {
+          console.log('Chat message realtime update:', payload.eventType);
+          queryClient.invalidateQueries({ queryKey: ['chat-messages', leadId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [leadId, queryClient]);
 
   const sendMessage = useMutation({
     mutationFn: async ({ content, senderType }: { content: string; senderType: MessageSenderType }) => {
