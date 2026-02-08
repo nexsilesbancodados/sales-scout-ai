@@ -341,29 +341,91 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Get user by instance ID if lead not found
+    let userId = lead?.user_id;
+    let settings = null;
+
     if (!lead) {
-      console.log("Lead not found for phone:", phone);
-      return new Response(JSON.stringify({ status: "lead_not_found" }), {
-        status: 200, // Return 200 to not retry webhook
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.log("Lead not found for phone:", phone, "- will try to create automatically");
+      
+      // Find user by WhatsApp instance ID
+      if (instanceId) {
+        const { data: userSettings } = await supabase
+          .from("user_settings")
+          .select("*")
+          .eq("whatsapp_instance_id", instanceId)
+          .single();
+        
+        if (userSettings) {
+          userId = userSettings.user_id;
+          settings = userSettings;
+          
+          // Extract contact name from webhook data
+          const contactName = body.data?.pushName || body.pushName || "Contato WhatsApp";
+          
+          // Create lead automatically
+          const { data: newLead, error: createError } = await supabase
+            .from("leads")
+            .insert({
+              user_id: userId,
+              phone: phone.startsWith("55") ? phone : `55${phone}`,
+              business_name: contactName,
+              source: "whatsapp_inbound",
+              stage: "Contato",
+              temperature: "morno",
+              notes: "Lead criado automaticamente via mensagem recebida no WhatsApp",
+            })
+            .select()
+            .single();
+          
+          if (createError) {
+            console.error("Error creating lead:", createError);
+            return new Response(JSON.stringify({ error: "Failed to create lead" }), {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          
+          lead = newLead;
+          console.log(`Lead created automatically: ${lead.id} for ${phone}`);
+          
+          // Log activity
+          await supabase.from("activity_log").insert({
+            user_id: userId,
+            lead_id: lead.id,
+            activity_type: "lead_created",
+            description: `Lead "${contactName}" criado automaticamente via mensagem recebida`,
+            metadata: { phone, source: "whatsapp_inbound" },
+          });
+        }
+      }
+      
+      // If still no lead found, return
+      if (!lead) {
+        console.log("Could not find user or create lead for phone:", phone);
+        return new Response(JSON.stringify({ status: "lead_not_found_no_user" }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    const userId = lead.user_id;
+    // Get user settings if not already fetched
+    if (!settings) {
+      const { data: userSettings, error: settingsError } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
-    // Get user settings with personality configurations
-    const { data: settings, error: settingsError } = await supabase
-      .from("user_settings")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (settingsError || !settings) {
-      console.error("User settings not found:", settingsError);
-      return new Response(JSON.stringify({ error: "User settings not found" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (settingsError || !userSettings) {
+        console.error("User settings not found:", settingsError);
+        return new Response(JSON.stringify({ error: "User settings not found" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      settings = userSettings;
     }
 
     // Save incoming message
