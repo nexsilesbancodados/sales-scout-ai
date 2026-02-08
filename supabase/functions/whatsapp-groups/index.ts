@@ -15,8 +15,12 @@ interface WhatsAppGroup {
 }
 
 interface GroupParticipant {
-  id: string;
+  id?: string;
   admin?: string;
+  phoneNumber?: string;
+  phone?: string;
+  number?: string;
+  jid?: string;
 }
 
 serve(async (req) => {
@@ -137,14 +141,55 @@ serve(async (req) => {
           }
 
           const data = await response.json();
-          const participants: GroupParticipant[] = data.participants || data || [];
-
+          
+          // Log the raw response structure to debug
+          console.log('Raw participants response structure:', JSON.stringify(data).slice(0, 500));
+          
+          // Evolution API v2 may return participants in different structures
+          let participants: GroupParticipant[] = [];
+          
+          if (Array.isArray(data)) {
+            participants = data;
+          } else if (data.participants && Array.isArray(data.participants)) {
+            participants = data.participants;
+          } else if (data.participantsData && Array.isArray(data.participantsData)) {
+            participants = data.participantsData;
+          }
+          
+          console.log(`Processing ${participants.length} participants for group ${groupName}`);
+          
           for (const participant of participants) {
-            // Extract phone number from JID (format: 5511999999999@s.whatsapp.net)
-            const phone = participant.id.split('@')[0];
+            // Try multiple field names based on Evolution API versions
+            // Priority: phoneNumber > phone > number > id (parsed from JID)
+            let phone = '';
             
-            // Skip invalid numbers or group IDs
-            if (!phone || phone.includes('-') || phone.length < 10) continue;
+            if (participant.phoneNumber) {
+              phone = String(participant.phoneNumber).replace(/\D/g, '');
+            } else if (participant.phone) {
+              phone = String(participant.phone).replace(/\D/g, '');
+            } else if (participant.number) {
+              phone = String(participant.number).replace(/\D/g, '');
+            } else if (participant.jid) {
+              phone = String(participant.jid).split('@')[0].replace(/\D/g, '');
+            } else if (participant.id) {
+              // Format: 5511999999999@s.whatsapp.net or 5511999999999:123@lid
+              const rawId = String(participant.id);
+              // Remove everything after : or @
+              phone = rawId.split('@')[0].split(':')[0].replace(/\D/g, '');
+            }
+            
+            // Log first participant for debugging
+            if (participants.indexOf(participant) === 0) {
+              console.log('First participant raw data:', JSON.stringify(participant));
+              console.log('Extracted phone:', phone);
+            }
+            
+            // Skip invalid numbers - must be at least 10 digits (DDD + number)
+            // and not contain group markers like "-"
+            if (!phone || phone.length < 10 || phone.length > 15) {
+              console.log(`Skipping invalid phone: ${phone}`);
+              continue;
+            }
 
             allParticipants.push({
               phone,
@@ -154,7 +199,7 @@ serve(async (req) => {
             });
           }
 
-          console.log(`Found ${participants.length} participants in group ${groupName}`);
+          console.log(`Found ${allParticipants.length} valid participants in group ${groupName}`);
         } catch (error) {
           console.error(`Error processing group ${groupJid}:`, error);
         }
