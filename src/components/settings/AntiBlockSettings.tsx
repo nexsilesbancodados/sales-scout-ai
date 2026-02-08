@@ -1,874 +1,321 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
 import {
   Shield,
   Clock,
-  Zap,
   AlertTriangle,
   CheckCircle2,
-  TrendingUp,
+  Shuffle,
   Timer,
-  Users,
-  Calendar,
-  Loader2,
   RefreshCw,
-  Info,
-  Settings2,
-  Gauge,
-  Target,
+  Loader2,
 } from 'lucide-react';
 
-// Warmup phases configuration
-const WARMUP_PHASES = [
-  { day: 1, dailyLimit: 5, description: 'Início - Aquecimento suave', interval: 180 },
-  { day: 2, dailyLimit: 10, description: 'Dia 2 - Aumentando devagar', interval: 150 },
-  { day: 3, dailyLimit: 15, description: 'Dia 3 - Ritmo crescente', interval: 120 },
-  { day: 4, dailyLimit: 25, description: 'Dia 4 - Volume moderado', interval: 100 },
-  { day: 5, dailyLimit: 35, description: 'Dia 5 - Consolidando', interval: 90 },
-  { day: 6, dailyLimit: 50, description: 'Dia 6 - Quase normal', interval: 80 },
-  { day: 7, dailyLimit: 75, description: 'Dia 7+ - Volume normal', interval: 60 },
-];
-
-// Risk level calculation
-function calculateRiskLevel(settings: {
-  dailyLimit: number;
-  intervalSeconds: number;
-  warmupDay: number;
-}): { level: 'low' | 'medium' | 'high' | 'critical'; score: number; message: string } {
-  let score = 0;
+// Simple risk calculation
+function calculateRiskLevel(dailyLimit: number, intervalMin: number): { 
+  level: 'safe' | 'moderate' | 'risky'; 
+  score: number; 
+  message: string 
+} {
+  let score = 100;
   
-  // Daily limit scoring (0-40 points)
-  if (settings.dailyLimit > 100) score += 40;
-  else if (settings.dailyLimit > 75) score += 30;
-  else if (settings.dailyLimit > 50) score += 20;
-  else if (settings.dailyLimit > 25) score += 10;
+  // Daily limit impact
+  if (dailyLimit > 100) score -= 40;
+  else if (dailyLimit > 50) score -= 25;
+  else if (dailyLimit > 30) score -= 10;
   
-  // Interval scoring (0-40 points)
-  if (settings.intervalSeconds < 30) score += 40;
-  else if (settings.intervalSeconds < 60) score += 30;
-  else if (settings.intervalSeconds < 90) score += 20;
-  else if (settings.intervalSeconds < 120) score += 10;
+  // Interval impact
+  if (intervalMin < 30) score -= 40;
+  else if (intervalMin < 60) score -= 25;
+  else if (intervalMin < 90) score -= 10;
   
-  // Warmup day scoring (0-20 points)
-  if (settings.warmupDay < 3) score += 20;
-  else if (settings.warmupDay < 5) score += 15;
-  else if (settings.warmupDay < 7) score += 10;
-  
-  if (score >= 70) return { level: 'critical', score, message: 'PERIGO! Alto risco de bloqueio' };
-  if (score >= 50) return { level: 'high', score, message: 'Risco elevado - Recomendamos ajustar' };
-  if (score >= 30) return { level: 'medium', score, message: 'Risco moderado - Atenção recomendada' };
-  return { level: 'low', score, message: 'Configuração segura' };
+  if (score >= 70) return { level: 'safe', score, message: 'Configuração segura' };
+  if (score >= 40) return { level: 'moderate', score, message: 'Risco moderado' };
+  return { level: 'risky', score, message: 'Alto risco de bloqueio!' };
 }
-
-export interface AntiBlockConfig {
-  // Warmup
-  warmupEnabled: boolean;
-  warmupStartDate: string | null;
-  warmupDay: number;
-  
-  // Limits
-  dailyMessageLimit: number;
-  hourlyMessageLimit: number;
-  messageIntervalMin: number;
-  messageIntervalMax: number;
-  
-  // Timing
-  operateAllDay: boolean;
-  startHour: number;
-  endHour: number;
-  workDaysOnly: boolean;
-  
-  // Behavior
-  randomizeInterval: boolean;
-  randomizeOrder: boolean;
-  pauseOnError: boolean;
-  maxConsecutiveErrors: number;
-  pauseDurationMinutes: number;
-  
-  // Natural patterns
-  typingSimulation: boolean;
-  typingDelayMs: number;
-  readReceiptDelay: boolean;
-  
-  // Advanced
-  cooldownAfterBatch: boolean;
-  batchSize: number;
-  cooldownMinutes: number;
-  
-  // Auto-detection
-  autoSlowdown: boolean;
-  slowdownThreshold: number;
-}
-
-const DEFAULT_CONFIG: AntiBlockConfig = {
-  warmupEnabled: true,
-  warmupStartDate: null,
-  warmupDay: 1,
-  dailyMessageLimit: 30,
-  hourlyMessageLimit: 10,
-  messageIntervalMin: 60,
-  messageIntervalMax: 180,
-  operateAllDay: false,
-  startHour: 9,
-  endHour: 18,
-  workDaysOnly: true,
-  randomizeInterval: true,
-  randomizeOrder: true,
-  pauseOnError: true,
-  maxConsecutiveErrors: 3,
-  pauseDurationMinutes: 30,
-  typingSimulation: true,
-  typingDelayMs: 2000,
-  readReceiptDelay: true,
-  cooldownAfterBatch: true,
-  batchSize: 10,
-  cooldownMinutes: 15,
-  autoSlowdown: true,
-  slowdownThreshold: 5,
-};
 
 export function AntiBlockSettings() {
   const { settings, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
   
-  const [config, setConfig] = useState<AntiBlockConfig>(DEFAULT_CONFIG);
+  // Simple state - only essential settings
+  const [dailyLimit, setDailyLimit] = useState(30);
+  const [intervalMin, setIntervalMin] = useState(60);
+  const [intervalMax, setIntervalMax] = useState(180);
+  const [randomizeInterval, setRandomizeInterval] = useState(true);
+  const [randomizeOrder, setRandomizeOrder] = useState(true);
+  const [typingSimulation, setTypingSimulation] = useState(true);
+  const [workDaysOnly, setWorkDaysOnly] = useState(true);
+  const [startHour, setStartHour] = useState(9);
+  const [endHour, setEndHour] = useState(18);
+  
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Load settings
   useEffect(() => {
     if (settings) {
-      console.log('Loading anti-block settings from DB:', {
-        work_days_only: settings.work_days_only,
-        operate_all_day: settings.operate_all_day,
-        warmup_enabled: settings.warmup_enabled,
-      });
-      // Load ALL settings from user_settings
-      setConfig({
-        ...DEFAULT_CONFIG,
-        dailyMessageLimit: settings.daily_message_limit ?? 30,
-        hourlyMessageLimit: settings.hourly_message_limit ?? 10,
-        messageIntervalMin: settings.message_interval_seconds ?? 60,
-        messageIntervalMax: settings.message_interval_max ?? 180,
-        startHour: settings.auto_start_hour ?? 9,
-        endHour: settings.auto_end_hour ?? 18,
-        // Anti-block settings
-        workDaysOnly: settings.work_days_only ?? true,
-        operateAllDay: settings.operate_all_day ?? false,
-        warmupEnabled: settings.warmup_enabled ?? true,
-        warmupDay: settings.warmup_day ?? 1,
-        warmupStartDate: settings.warmup_start_date || null,
-        randomizeInterval: settings.randomize_interval ?? true,
-        randomizeOrder: settings.randomize_order ?? true,
-        typingSimulation: settings.typing_simulation ?? true,
-        typingDelayMs: settings.typing_delay_ms ?? 2000,
-        readReceiptDelay: settings.read_receipt_delay ?? true,
-        pauseOnError: settings.pause_on_error ?? true,
-        maxConsecutiveErrors: settings.max_consecutive_errors ?? 3,
-        pauseDurationMinutes: settings.pause_duration_minutes ?? 30,
-        cooldownAfterBatch: settings.cooldown_after_batch ?? true,
-        batchSize: settings.batch_size ?? 10,
-        cooldownMinutes: settings.cooldown_minutes ?? 15,
-        autoSlowdown: settings.auto_slowdown ?? true,
-        slowdownThreshold: settings.slowdown_threshold ?? 5,
-      });
+      setDailyLimit(settings.daily_message_limit ?? 30);
+      setIntervalMin(settings.message_interval_seconds ?? 60);
+      setIntervalMax(settings.message_interval_max ?? 180);
+      setRandomizeInterval(settings.randomize_interval ?? true);
+      setRandomizeOrder(settings.randomize_order ?? true);
+      setTypingSimulation(settings.typing_simulation ?? true);
+      setWorkDaysOnly(settings.work_days_only ?? true);
+      setStartHour(settings.auto_start_hour ?? 9);
+      setEndHour(settings.auto_end_hour ?? 18);
       setHasChanges(false);
     }
   }, [settings]);
 
-  const handleChange = <K extends keyof AntiBlockConfig>(key: K, value: AntiBlockConfig[K]) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
-    setHasChanges(true);
-  };
-
   const handleSave = () => {
     updateSettings({
-      daily_message_limit: config.dailyMessageLimit,
-      hourly_message_limit: config.hourlyMessageLimit,
-      message_interval_seconds: config.messageIntervalMin,
-      message_interval_max: config.messageIntervalMax,
-      auto_start_hour: config.startHour,
-      auto_end_hour: config.endHour,
-      // Save ALL anti-block settings
-      work_days_only: config.workDaysOnly,
-      operate_all_day: config.operateAllDay,
-      warmup_enabled: config.warmupEnabled,
-      warmup_day: config.warmupDay,
-      warmup_start_date: config.warmupStartDate,
-      randomize_interval: config.randomizeInterval,
-      randomize_order: config.randomizeOrder,
-      typing_simulation: config.typingSimulation,
-      typing_delay_ms: config.typingDelayMs,
-      read_receipt_delay: config.readReceiptDelay,
-      pause_on_error: config.pauseOnError,
-      max_consecutive_errors: config.maxConsecutiveErrors,
-      pause_duration_minutes: config.pauseDurationMinutes,
-      cooldown_after_batch: config.cooldownAfterBatch,
-      batch_size: config.batchSize,
-      cooldown_minutes: config.cooldownMinutes,
-      auto_slowdown: config.autoSlowdown,
-      slowdown_threshold: config.slowdownThreshold,
+      daily_message_limit: dailyLimit,
+      message_interval_seconds: intervalMin,
+      message_interval_max: intervalMax,
+      randomize_interval: randomizeInterval,
+      randomize_order: randomizeOrder,
+      typing_simulation: typingSimulation,
+      work_days_only: workDaysOnly,
+      auto_start_hour: startHour,
+      auto_end_hour: endHour,
     });
     setHasChanges(false);
-  };
-
-  const startWarmup = () => {
-    handleChange('warmupEnabled', true);
-    handleChange('warmupStartDate', new Date().toISOString());
-    handleChange('warmupDay', 1);
-    handleChange('dailyMessageLimit', WARMUP_PHASES[0].dailyLimit);
-    handleChange('messageIntervalMin', WARMUP_PHASES[0].interval);
     toast({
-      title: '🔥 Warmup iniciado!',
-      description: 'Seu número será aquecido gradualmente ao longo de 7 dias.',
+      title: '✓ Configurações salvas',
+      description: 'Proteção anti-bloqueio atualizada.',
     });
   };
 
-  const applyRecommendedSettings = () => {
-    setConfig({
-      ...DEFAULT_CONFIG,
-      warmupEnabled: true,
-      warmupStartDate: new Date().toISOString(),
-      warmupDay: 1,
-    });
+  const applyRecommended = () => {
+    setDailyLimit(30);
+    setIntervalMin(90);
+    setIntervalMax(180);
+    setRandomizeInterval(true);
+    setRandomizeOrder(true);
+    setTypingSimulation(true);
+    setWorkDaysOnly(true);
+    setStartHour(9);
+    setEndHour(18);
     setHasChanges(true);
     toast({
       title: '✓ Configurações recomendadas aplicadas',
-      description: 'Ajustes otimizados para máxima segurança.',
+      description: 'Clique em Salvar para confirmar.',
     });
   };
 
-  const riskLevel = calculateRiskLevel({
-    dailyLimit: config.dailyMessageLimit,
-    intervalSeconds: config.messageIntervalMin,
-    warmupDay: config.warmupDay,
-  });
+  const risk = calculateRiskLevel(dailyLimit, intervalMin);
 
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'low': return 'text-green-500';
-      case 'medium': return 'text-yellow-500';
-      case 'high': return 'text-orange-500';
-      case 'critical': return 'text-destructive';
-      default: return 'text-muted-foreground';
+  const getRiskStyles = () => {
+    switch (risk.level) {
+      case 'safe': return { bg: 'bg-green-500/10 border-green-500/30', text: 'text-green-600', badge: 'bg-green-500' };
+      case 'moderate': return { bg: 'bg-yellow-500/10 border-yellow-500/30', text: 'text-yellow-600', badge: 'bg-yellow-500' };
+      case 'risky': return { bg: 'bg-red-500/10 border-red-500/30', text: 'text-red-600', badge: 'bg-destructive' };
     }
   };
 
-  const getRiskBgColor = (level: string) => {
-    switch (level) {
-      case 'low': return 'bg-green-500/10 border-green-500/30';
-      case 'medium': return 'bg-yellow-500/10 border-yellow-500/30';
-      case 'high': return 'bg-orange-500/10 border-orange-500/30';
-      case 'critical': return 'bg-destructive/10 border-destructive/30';
-      default: return '';
-    }
-  };
-
-  const currentPhase = WARMUP_PHASES.find(p => p.day === config.warmupDay) || WARMUP_PHASES[WARMUP_PHASES.length - 1];
+  const styles = getRiskStyles();
 
   return (
-    <div className="space-y-6">
-      {/* Risk Level Overview */}
-      <Card className={`${getRiskBgColor(riskLevel.level)}`}>
-        <CardHeader className="pb-3">
+    <div className="space-y-4">
+      {/* Risk Indicator */}
+      <div className={`p-4 rounded-lg border ${styles.bg}`}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Shield className={`h-5 w-5 ${styles.text}`} />
+            <span className="font-medium">Nível de Proteção</span>
+          </div>
+          <Badge className={styles.badge}>
+            {risk.level === 'safe' && '✓ Seguro'}
+            {risk.level === 'moderate' && '⚠ Moderado'}
+            {risk.level === 'risky' && '⚠ Risco Alto'}
+          </Badge>
+        </div>
+        <Progress value={risk.score} className="h-2 mb-1" />
+        <p className={`text-sm ${styles.text}`}>{risk.message}</p>
+      </div>
+
+      {/* Essential Settings */}
+      <div className="space-y-4">
+        {/* Daily Limit */}
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Shield className={`h-5 w-5 ${getRiskColor(riskLevel.level)}`} />
-              Nível de Risco de Bloqueio
-            </CardTitle>
-            <Badge 
-              variant={riskLevel.level === 'low' ? 'default' : 'destructive'}
-              className="text-sm px-3 py-1"
-            >
-              {riskLevel.level === 'low' && '✓ Seguro'}
-              {riskLevel.level === 'medium' && '⚠ Atenção'}
-              {riskLevel.level === 'high' && '⚠ Alto Risco'}
-              {riskLevel.level === 'critical' && '🚨 Crítico'}
-            </Badge>
+            <Label className="flex items-center gap-2">
+              <Timer className="h-4 w-4 text-muted-foreground" />
+              Limite diário de mensagens
+            </Label>
+            <span className="text-sm font-medium">{dailyLimit} msgs</span>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              <Progress 
-                value={100 - riskLevel.score} 
-                className="flex-1 h-3"
+          <Slider
+            value={[dailyLimit]}
+            onValueChange={([v]) => { setDailyLimit(v); setHasChanges(true); }}
+            min={10}
+            max={100}
+            step={5}
+            className="py-2"
+          />
+          <p className="text-xs text-muted-foreground">
+            Recomendado: 20-40 mensagens para números novos
+          </p>
+        </div>
+
+        {/* Interval */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Intervalo entre mensagens
+            </Label>
+            <span className="text-sm font-medium">{intervalMin}-{intervalMax}s</span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Mínimo</p>
+              <Slider
+                value={[intervalMin]}
+                onValueChange={([v]) => { setIntervalMin(v); setHasChanges(true); }}
+                min={30}
+                max={180}
+                step={10}
               />
-              <span className={`font-bold ${getRiskColor(riskLevel.level)}`}>
-                {100 - riskLevel.score}%
-              </span>
             </div>
-            <p className={`text-sm ${getRiskColor(riskLevel.level)}`}>
-              {riskLevel.message}
-            </p>
-            {riskLevel.level !== 'low' && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={applyRecommendedSettings}
-                className="mt-2"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Aplicar Configurações Recomendadas
-              </Button>
-            )}
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Máximo</p>
+              <Slider
+                value={[intervalMax]}
+                onValueChange={([v]) => { setIntervalMax(v); setHasChanges(true); }}
+                min={60}
+                max={300}
+                step={10}
+              />
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-xs text-muted-foreground">
+            Intervalos maiores = mais seguro (mínimo 60s recomendado)
+          </p>
+        </div>
 
-      {/* Main Settings Tabs */}
-      <Tabs defaultValue="warmup" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="warmup" className="gap-1">
-            <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Warmup</span>
-          </TabsTrigger>
-          <TabsTrigger value="limits" className="gap-1">
-            <Gauge className="h-4 w-4" />
-            <span className="hidden sm:inline">Limites</span>
-          </TabsTrigger>
-          <TabsTrigger value="timing" className="gap-1">
-            <Clock className="h-4 w-4" />
-            <span className="hidden sm:inline">Horários</span>
-          </TabsTrigger>
-          <TabsTrigger value="behavior" className="gap-1">
-            <Settings2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Comportamento</span>
-          </TabsTrigger>
-        </TabsList>
+        {/* Horário Comercial */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Horário de envio
+            </Label>
+            <span className="text-sm font-medium">{startHour}h - {endHour}h</span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Início</p>
+              <Slider
+                value={[startHour]}
+                onValueChange={([v]) => { setStartHour(v); setHasChanges(true); }}
+                min={6}
+                max={12}
+                step={1}
+              />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Fim</p>
+              <Slider
+                value={[endHour]}
+                onValueChange={([v]) => { setEndHour(v); setHasChanges(true); }}
+                min={14}
+                max={22}
+                step={1}
+              />
+            </div>
+          </div>
+        </div>
 
-        {/* Warmup Tab */}
-        <TabsContent value="warmup">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Aquecimento do Número
-              </CardTitle>
-              <CardDescription>
-                O warmup aumenta gradualmente o volume de mensagens para evitar bloqueios em números novos
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Warmup Ativo</p>
-                  <p className="text-sm text-muted-foreground">
-                    Ativa o aquecimento progressivo do número
-                  </p>
-                </div>
-                <Switch
-                  checked={config.warmupEnabled}
-                  onCheckedChange={(v) => handleChange('warmupEnabled', v)}
-                />
-              </div>
+        {/* Toggles - Compact Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Shuffle className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Ordem aleatória</span>
+            </div>
+            <Switch
+              checked={randomizeOrder}
+              onCheckedChange={(v) => { setRandomizeOrder(v); setHasChanges(true); }}
+            />
+          </div>
 
-              {config.warmupEnabled ? (
-                <>
-                  {/* Current Phase */}
-                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="font-medium">Fase Atual</p>
-                      <Badge variant="secondary">Dia {config.warmupDay} de 7</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">{currentPhase.description}</p>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-primary" />
-                        <span>Limite: <strong>{currentPhase.dailyLimit} msgs/dia</strong></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Timer className="h-4 w-4 text-primary" />
-                        <span>Intervalo: <strong>{currentPhase.interval}s+</strong></span>
-                      </div>
-                    </div>
-                  </div>
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Timer className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Intervalo variável</span>
+            </div>
+            <Switch
+              checked={randomizeInterval}
+              onCheckedChange={(v) => { setRandomizeInterval(v); setHasChanges(true); }}
+            />
+          </div>
 
-                  {/* Warmup Phases Timeline */}
-                  <div className="space-y-2">
-                    <Label>Cronograma do Warmup</Label>
-                    <div className="space-y-2">
-                      {WARMUP_PHASES.map((phase, idx) => (
-                        <div 
-                          key={phase.day}
-                          className={`flex items-center gap-3 p-2 rounded-lg ${
-                            phase.day === config.warmupDay 
-                              ? 'bg-primary/10 border border-primary/30' 
-                              : phase.day < config.warmupDay 
-                                ? 'opacity-50' 
-                                : ''
-                          }`}
-                        >
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            phase.day < config.warmupDay 
-                              ? 'bg-primary text-primary-foreground' 
-                              : phase.day === config.warmupDay 
-                                ? 'bg-primary/20 text-primary border-2 border-primary' 
-                                : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {phase.day < config.warmupDay ? <CheckCircle2 className="h-4 w-4" /> : phase.day}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{phase.description}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {phase.dailyLimit} msgs/dia • {phase.interval}s intervalo
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Simular digitação</span>
+            </div>
+            <Switch
+              checked={typingSimulation}
+              onCheckedChange={(v) => { setTypingSimulation(v); setHasChanges(true); }}
+            />
+          </div>
 
-                  {/* Manual Day Adjustment */}
-                  <div className="space-y-2">
-                    <Label>Ajustar Dia do Warmup (manual)</Label>
-                    <Select 
-                      value={String(config.warmupDay)} 
-                      onValueChange={(v) => handleChange('warmupDay', Number(v))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {WARMUP_PHASES.map(phase => (
-                          <SelectItem key={phase.day} value={String(phase.day)}>
-                            Dia {phase.day} - {phase.dailyLimit} msgs/dia
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Se você já tem histórico no WhatsApp, pode avançar para um dia maior
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <Button onClick={startWarmup} className="w-full">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Iniciar Warmup (7 dias)
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">Só dias úteis</span>
+            </div>
+            <Switch
+              checked={workDaysOnly}
+              onCheckedChange={(v) => { setWorkDaysOnly(v); setHasChanges(true); }}
+            />
+          </div>
+        </div>
+      </div>
 
-        {/* Limits Tab */}
-        <TabsContent value="limits">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="h-5 w-5 text-primary" />
-                Limites de Envio
-              </CardTitle>
-              <CardDescription>
-                Configure limites diários e por hora para evitar comportamento suspeito
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Daily Limit */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Limite Diário de Mensagens</Label>
-                  <Badge variant="outline">{config.dailyMessageLimit} msgs/dia</Badge>
-                </div>
-                <Slider
-                  value={[config.dailyMessageLimit]}
-                  onValueChange={([v]) => handleChange('dailyMessageLimit', v)}
-                  min={5}
-                  max={150}
-                  step={5}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>5 (Seguro)</span>
-                  <span>50 (Normal)</span>
-                  <span>150 (Arriscado)</span>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Hourly Limit */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Limite por Hora</Label>
-                  <Badge variant="outline">{config.hourlyMessageLimit} msgs/hora</Badge>
-                </div>
-                <Slider
-                  value={[config.hourlyMessageLimit]}
-                  onValueChange={([v]) => handleChange('hourlyMessageLimit', v)}
-                  min={2}
-                  max={30}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-
-              <Separator />
-
-              {/* Interval Settings */}
-              <div className="space-y-3">
-                <Label>Intervalo entre Mensagens (segundos)</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Mínimo</Label>
-                    <Input
-                      type="number"
-                      value={config.messageIntervalMin}
-                      onChange={(e) => handleChange('messageIntervalMin', Number(e.target.value))}
-                      min={30}
-                      max={300}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Máximo</Label>
-                    <Input
-                      type="number"
-                      value={config.messageIntervalMax}
-                      onChange={(e) => handleChange('messageIntervalMax', Number(e.target.value))}
-                      min={60}
-                      max={600}
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  O sistema escolherá um intervalo aleatório entre o mínimo e máximo para parecer mais humano
-                </p>
-              </div>
-
-              <Separator />
-
-              {/* Batch Cooldown */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                  <div>
-                    <p className="font-medium">Pausa após Lote</p>
-                    <p className="text-sm text-muted-foreground">
-                      Faz uma pausa maior após enviar várias mensagens seguidas
-                    </p>
-                  </div>
-                  <Switch
-                    checked={config.cooldownAfterBatch}
-                    onCheckedChange={(v) => handleChange('cooldownAfterBatch', v)}
-                  />
-                </div>
-                
-                {config.cooldownAfterBatch && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Tamanho do Lote</Label>
-                      <Input
-                        type="number"
-                        value={config.batchSize}
-                        onChange={(e) => handleChange('batchSize', Number(e.target.value))}
-                        min={5}
-                        max={30}
-                      />
-                      <p className="text-xs text-muted-foreground">Msgs antes da pausa</p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Duração da Pausa</Label>
-                      <Input
-                        type="number"
-                        value={config.cooldownMinutes}
-                        onChange={(e) => handleChange('cooldownMinutes', Number(e.target.value))}
-                        min={5}
-                        max={60}
-                      />
-                      <p className="text-xs text-muted-foreground">Minutos de pausa</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Timing Tab */}
-        <TabsContent value="timing">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Horários de Operação
-              </CardTitle>
-              <CardDescription>
-                Configure os horários em que as mensagens podem ser enviadas
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* 24 Hours Operation */}
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-yellow-500" />
-                    Operação 24 Horas
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Permite enviar mensagens a qualquer hora do dia
-                  </p>
-                </div>
-                <Switch
-                  checked={config.operateAllDay}
-                  onCheckedChange={(v) => handleChange('operateAllDay', v)}
-                />
-              </div>
-
-              {config.operateAllDay && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Atenção</AlertTitle>
-                  <AlertDescription>
-                    Enviar mensagens fora do horário comercial pode aumentar o risco de bloqueio 
-                    e diminuir a taxa de resposta. Use com cautela.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Working Hours */}
-              {!config.operateAllDay && (
-                <div className="space-y-3">
-                  <Label>Horário de Funcionamento</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Início</Label>
-                      <Select 
-                        value={String(config.startHour)} 
-                        onValueChange={(v) => handleChange('startHour', Number(v))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 24 }, (_, i) => (
-                            <SelectItem key={i} value={String(i)}>
-                              {i.toString().padStart(2, '0')}:00
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Fim</Label>
-                      <Select 
-                        value={String(config.endHour)} 
-                        onValueChange={(v) => handleChange('endHour', Number(v))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 24 }, (_, i) => (
-                            <SelectItem key={i} value={String(i)}>
-                              {i.toString().padStart(2, '0')}:00
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Apenas Dias Úteis</p>
-                  <p className="text-sm text-muted-foreground">
-                    Não envia mensagens nos finais de semana
-                  </p>
-                </div>
-                <Switch
-                  checked={config.workDaysOnly}
-                  onCheckedChange={(v) => handleChange('workDaysOnly', v)}
-                />
-              </div>
-
-              {!config.operateAllDay && (
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Recomendação</AlertTitle>
-                  <AlertDescription>
-                    Enviar mensagens fora do horário comercial (9h-18h) pode parecer spam e aumenta 
-                    o risco de bloqueio. Respeite o horário dos seus leads.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Behavior Tab */}
-        <TabsContent value="behavior">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings2 className="h-5 w-5 text-primary" />
-                Comportamento Humanizado
-              </CardTitle>
-              <CardDescription>
-                Configure comportamentos que simulam uso humano natural
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Randomization */}
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Intervalos Aleatórios</p>
-                  <p className="text-sm text-muted-foreground">
-                    Varia o tempo entre mensagens para parecer mais natural
-                  </p>
-                </div>
-                <Switch
-                  checked={config.randomizeInterval}
-                  onCheckedChange={(v) => handleChange('randomizeInterval', v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Ordem Aleatória</p>
-                  <p className="text-sm text-muted-foreground">
-                    Envia para leads em ordem aleatória, não sequencial
-                  </p>
-                </div>
-                <Switch
-                  checked={config.randomizeOrder}
-                  onCheckedChange={(v) => handleChange('randomizeOrder', v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Simular Digitação</p>
-                  <p className="text-sm text-muted-foreground">
-                    Mostra "digitando..." antes de enviar cada mensagem
-                  </p>
-                </div>
-                <Switch
-                  checked={config.typingSimulation}
-                  onCheckedChange={(v) => handleChange('typingSimulation', v)}
-                />
-              </div>
-
-              {config.typingSimulation && (
-                <div className="space-y-2 ml-4">
-                  <Label>Tempo de Digitação (ms)</Label>
-                  <Slider
-                    value={[config.typingDelayMs]}
-                    onValueChange={([v]) => handleChange('typingDelayMs', v)}
-                    min={500}
-                    max={5000}
-                    step={100}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {(config.typingDelayMs / 1000).toFixed(1)}s de "digitando..." antes de enviar
-                  </p>
-                </div>
-              )}
-
-              <Separator />
-
-              {/* Error Handling */}
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Pausar em Erros</p>
-                  <p className="text-sm text-muted-foreground">
-                    Pausa automaticamente se detectar problemas consecutivos
-                  </p>
-                </div>
-                <Switch
-                  checked={config.pauseOnError}
-                  onCheckedChange={(v) => handleChange('pauseOnError', v)}
-                />
-              </div>
-
-              {config.pauseOnError && (
-                <div className="grid grid-cols-2 gap-4 ml-4">
-                  <div className="space-y-2">
-                    <Label>Erros Consecutivos</Label>
-                    <Input
-                      type="number"
-                      value={config.maxConsecutiveErrors}
-                      onChange={(e) => handleChange('maxConsecutiveErrors', Number(e.target.value))}
-                      min={1}
-                      max={10}
-                    />
-                    <p className="text-xs text-muted-foreground">Antes de pausar</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Duração da Pausa</Label>
-                    <Input
-                      type="number"
-                      value={config.pauseDurationMinutes}
-                      onChange={(e) => handleChange('pauseDurationMinutes', Number(e.target.value))}
-                      min={5}
-                      max={120}
-                    />
-                    <p className="text-xs text-muted-foreground">Minutos</p>
-                  </div>
-                </div>
-              )}
-
-              <Separator />
-
-              {/* Auto Slowdown */}
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                <div>
-                  <p className="font-medium">Redução Automática</p>
-                  <p className="text-sm text-muted-foreground">
-                    Reduz velocidade automaticamente se detectar sinais de risco
-                  </p>
-                </div>
-                <Switch
-                  checked={config.autoSlowdown}
-                  onCheckedChange={(v) => handleChange('autoSlowdown', v)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Save Button */}
-      <div className="flex justify-between items-center">
-        <Alert className="flex-1 mr-4">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Dica:</strong> Comece com configurações conservadoras e aumente gradualmente 
-            após algumas semanas de uso sem problemas.
-          </AlertDescription>
-        </Alert>
-        
+      {/* Actions */}
+      <div className="flex gap-2 pt-2">
+        <Button 
+          variant="outline" 
+          onClick={applyRecommended}
+          className="flex-1"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Configuração Segura
+        </Button>
         <Button 
           onClick={handleSave} 
           disabled={!hasChanges || isUpdating}
-          size="lg"
+          className="flex-1"
         >
           {isUpdating ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <CheckCircle2 className="h-4 w-4 mr-2" />
           )}
-          Salvar Configurações
+          Salvar
         </Button>
+      </div>
+
+      {/* Help Text */}
+      <div className="p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+        <p className="flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            Essas configurações simulam comportamento humano para evitar bloqueios no WhatsApp.
+            Números novos devem começar com limites baixos (20-30 msgs/dia) e aumentar gradualmente.
+          </span>
+        </p>
       </div>
     </div>
   );
