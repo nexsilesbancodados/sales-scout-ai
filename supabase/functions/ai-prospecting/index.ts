@@ -616,75 +616,77 @@ Por favor, analise e sugira melhorias.`;
       let userPrompt = '';
 
       if (isRemarketing) {
-        // Remarketing mode - generate follow-up message
-        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas especializado"}.
-${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
+        // Remarketing mode - SHORT follow-up message
+        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor"}.
+${agentSettings?.agent_persona || ""}
 
-Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
-Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
+Estilo: ${agentSettings?.communication_style || "direto"}
+Emojis: ${agentSettings?.emoji_usage || "mínimo"}
 
-${agentSettings?.knowledge_base ? `Conhecimento especializado: ${agentSettings.knowledge_base}` : ''}
+CONTEXTO: Mensagem de FOLLOW-UP (lead já foi contatado antes).
 
-Serviços disponíveis: ${servicesText}
+REGRAS DE FORMATO:
+1. MÁXIMO 2 linhas (30-50 palavras)
+2. NÃO se apresente novamente
+3. Use gatilhos: novidade, resultado, urgência, exclusividade
+4. Seja casual e direto
 
-CONTEXTO: Esta é uma mensagem de REMARKETING/FOLLOW-UP. O lead já foi contatado anteriormente mas não respondeu ou a conversa não avançou.
+EXEMPLOS:
+"E aí, tudo certo? Lembrei de vocês quando fechei um case bacana com uma ${lead.niche || 'empresa'} aqui perto. Dá uma olhada depois?"
 
-INSTRUÇÕES IMPORTANTES PARA REMARKETING:
-- Crie uma mensagem de follow-up DIFERENTE da primeira abordagem
-- NÃO repita a mesma apresentação - assuma que já se apresentou
-- Use gatilhos como: novidades, promoções, cases de sucesso, urgência
-- Seja breve e direto ao ponto
-- Mostre que você lembrou dele e quer ajudar
-- Mencione algo específico do nicho que possa interessar
-- Exemplos de abordagens:
-  * "Oi [empresa]! Passando aqui pra compartilhar uma novidade..."
-  * "Lembrei de vocês quando vi esse resultado de um cliente..."
-  * "Consegui uma condição especial que pode interessar..."
-- NÃO use: "Olá, sou fulano da empresa X" (você já se apresentou antes)
-- Mantenha curta (2 parágrafos no máximo)`;
+"Opa! Surgiu uma condição especial que pode fazer sentido pra vocês. Posso mandar mais detalhes?"
 
-        userPrompt = `Crie uma mensagem de REMARKETING para:
-- Empresa: ${lead.business_name}
-- Nicho/Segmento: ${lead.niche || "negócio local"}
-- Localização: ${lead.location || "não especificada"}
-${lead.rating ? `- Avaliação: ${lead.rating} estrelas com ${lead.reviews_count || 0} avaliações` : ''}
+PROIBIDO: apresentações, listagem de serviços, parágrafos longos.`;
 
-Esta empresa já foi contatada antes. Crie uma mensagem de follow-up criativa e diferente.
+        userPrompt = `FOLLOW-UP para:
+• ${lead.business_name} (${lead.niche || "negócio local"})
+${lead.location ? `• ${lead.location}` : ''}
 
-Gere APENAS a mensagem final, sem explicações ou comentários.`;
+Crie UMA mensagem CURTA de remarketing (máx 2 frases). Apenas a mensagem.`;
 
       } else if (isDirectMode) {
         // Direct AI mode - generate message from scratch based on agent settings
-        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor de vendas especializado"}.
-${agentSettings?.agent_persona || "Você ajuda empresas a crescerem com soluções digitais."}
+        // Optimized for SHORT, IMPACTFUL messages that show PAIN + SOLUTION
+        systemPrompt = `Você é ${agentSettings?.agent_name || "um consultor especializado"}.
+${agentSettings?.agent_persona || ""}
 
-Estilo de comunicação: ${agentSettings?.communication_style || "profissional"}
-Uso de emojis: ${agentSettings?.emoji_usage || "moderado"}
+Estilo: ${agentSettings?.communication_style || "direto"}
+Emojis: ${agentSettings?.emoji_usage || "mínimo"}
 
-${agentSettings?.knowledge_base ? `Conhecimento especializado: ${agentSettings.knowledge_base}` : ''}
+${agentSettings?.knowledge_base ? `Expertise: ${agentSettings.knowledge_base}` : ''}
 
-${specificService ? `FOCO PRINCIPAL: Você está oferecendo especificamente o serviço de "${specificService}". Toda a mensagem deve girar em torno deste serviço.` : ''}
+${specificService ? `SERVIÇO FOCO: "${specificService}"` : ''}
 
-Serviços disponíveis: ${servicesText}
+REGRAS OBRIGATÓRIAS DE FORMATO:
+1. MÁXIMO 2-3 linhas de texto (50-80 palavras no total)
+2. Estrutura: DOR → SOLUÇÃO → CTA
+3. Primeira frase: identificar uma DOR específica do nicho
+4. Segunda frase: apresentar a SOLUÇÃO de forma convincente
+5. Terceira frase: CTA direto (pergunta ou convite)
 
-INSTRUÇÕES IMPORTANTES:
-- Crie uma mensagem de prospecção ÚNICA e NATURAL para este lead
-- A mensagem deve parecer escrita especificamente para essa empresa
-- ${specificService ? `Foque em como "${specificService}" pode ajudar este negócio específico` : 'Mencione um serviço relevante para o nicho'}
-- Seja direto mas amigável, não pareça spam
-- Mencione algo específico do nicho ou da empresa
-- Mantenha a mensagem curta (máximo 3 parágrafos)
-- Não use palavras genéricas como "prezado" ou "venho por meio desta"
-- Comece com uma abordagem natural, como se fosse uma conversa`;
+PROIBIDO:
+- Apresentações longas ("Olá, meu nome é...")
+- Listagem de serviços
+- Parágrafos longos
+- Formalidade excessiva ("prezado", "venho por meio desta")
+- Mais de 3 frases
 
-        userPrompt = `Crie uma mensagem de prospecção para:
-- Empresa: ${lead.business_name}
-- Nicho/Segmento: ${lead.niche || "negócio local"}
-- Localização: ${lead.location || "não especificada"}
-${lead.rating ? `- Avaliação: ${lead.rating} estrelas com ${lead.reviews_count || 0} avaliações` : ''}
-${specificService ? `\nSERVIÇO A OFERECER: ${specificService}` : ''}
+EXEMPLOS DE FORMATO IDEAL:
+"Oi! Vi que a [empresa] não tem site e hoje 70% dos clientes pesquisam online antes de ir. Posso montar uma página profissional pra vocês em 1 semana. Bora bater um papo rápido?"
 
-Gere APENAS a mensagem final, sem explicações ou comentários.`;
+"E aí! Percebi que vocês têm poucas avaliações no Google. Tenho uma estratégia que triplicou as avaliações de [nicho similar]. Quer saber como funciona?"
+
+FOCO: Seja DIRETO, mostre que ENTENDE A DOR e ofereça SOLUÇÃO CLARA.`;
+
+        userPrompt = `LEAD:
+• Empresa: ${lead.business_name}
+• Nicho: ${lead.niche || "negócio local"}
+• Local: ${lead.location || ""}
+${lead.rating ? `• Rating: ${lead.rating}★ (${lead.reviews_count || 0} reviews)` : '• Sem avaliações'}
+${!lead.website ? '• SEM SITE' : ''}
+${specificService ? `\nOFERECER: ${specificService}` : ''}
+
+Crie UMA mensagem CURTA (máx 3 frases). Apenas a mensagem, sem explicações.`;
 
       } else {
         // Template mode - personalize existing template
