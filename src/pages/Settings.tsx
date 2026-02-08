@@ -288,6 +288,37 @@ export default function SettingsPage() {
         {/* Agent Configuration - Simplified */}
         {activeTab === 'agent' && (
           <div className="space-y-6">
+            {/* Auto Reply Toggle - PRIORITY */}
+            <Card className={cn(!settings?.auto_prospecting_enabled && "ring-2 ring-yellow-500/50")}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Zap className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Resposta Automática</p>
+                      <p className="text-sm text-muted-foreground">
+                        A IA responde automaticamente às mensagens recebidas
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings?.auto_prospecting_enabled || false}
+                    onCheckedChange={(checked) => {
+                      updateSettings({ auto_prospecting_enabled: checked });
+                      toast({
+                        title: checked ? '✓ IA ativada' : 'IA desativada',
+                        description: checked 
+                          ? 'A IA agora responderá automaticamente' 
+                          : 'Você precisará responder manualmente',
+                      });
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Basic Info */}
             <Card>
               <CardHeader>
