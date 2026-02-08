@@ -328,38 +328,28 @@ export function CaptureAndSendTab({
     setLocalLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
   };
 
-  // Filter leads based on capture filters
+  // Filter leads based on capture filters - ONLY when filters are explicitly enabled
   const applyFilters = (lead: CapturedLead): boolean => {
+    // If filters are NOT enabled, return ALL leads (no filtering)
     if (!filters.enabled) return true;
 
-    // No website filter
+    // No website filter - only filter if explicitly selected
     if (filters.noWebsite && lead.website) return false;
 
-    // Has WhatsApp (phone starting with country code or specific patterns)
+    // Has WhatsApp - only check if filter is enabled AND this specific filter is on
     if (filters.hasWhatsApp) {
       const phone = lead.phone?.replace(/\D/g, '') || '';
-      // Brazilian phone validation:
-      // - With country code: 55 + DDD (2 digits) + 9 + number (8 digits) = 13 digits
-      // - Without country code: DDD (2 digits) + 9 + number (8 digits) = 11 digits
-      // - Or DDD + number (8 digits) = 10 digits for landlines converted to mobile
-      const hasCountryCode = phone.startsWith('55');
-      const phoneWithoutCountry = hasCountryCode ? phone.slice(2) : phone;
-      
-      // Check if it's a mobile number (starts with 9 after DDD)
-      const isMobile = phoneWithoutCountry.length >= 10 && 
-        (phoneWithoutCountry.length === 11 && phoneWithoutCountry[2] === '9' || // 11 digits with 9
-         phoneWithoutCountry.length === 10); // 10 digits (older format)
-      
-      if (!isMobile && phone.length < 10) return false;
+      // Basic phone validation - must have at least 10 digits
+      if (phone.length < 10) return false;
     }
 
-    // Minimum rating filter
+    // Minimum rating filter - only apply if > 0
     if (filters.minRating > 0 && (lead.rating || 0) < filters.minRating) return false;
 
-    // Minimum reviews filter
+    // Minimum reviews filter - only apply if > 0
     if (filters.minReviews > 0 && (lead.reviews_count || 0) < filters.minReviews) return false;
 
-    // Maximum reviews filter (to target smaller businesses)
+    // Maximum reviews filter - only apply if changed from default (less than 10000)
     if (filters.maxReviews < 10000 && (lead.reviews_count || 0) > filters.maxReviews) return false;
 
     // Has address filter
@@ -709,12 +699,19 @@ export function CaptureAndSendTab({
 
     addLog(`📊 Total acumulado: ${allLeads.length} leads brutos → ${uniqueLeads.length} únicos após deduplicação`);
 
-    // Apply capture filters
-    const filteredLeads = uniqueLeads.filter(applyFilters);
-    const filteredCount = uniqueLeads.length - filteredLeads.length;
-
-    if (filteredCount > 0) {
-      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos por filtros`);
+    // Apply capture filters ONLY if enabled
+    let filteredLeads = uniqueLeads;
+    let filteredCount = 0;
+    
+    if (filters.enabled) {
+      filteredLeads = uniqueLeads.filter(applyFilters);
+      filteredCount = uniqueLeads.length - filteredLeads.length;
+      
+      if (filteredCount > 0) {
+        addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos, ${filteredLeads.length} passaram`);
+      }
+    } else {
+      addLog(`📋 Filtros desativados - mostrando todos os ${uniqueLeads.length} leads`);
     }
 
     // Check for duplicates in database and calculate quality scores
@@ -742,9 +739,6 @@ export function CaptureAndSendTab({
     
     setCapturedLeads(sortedLeads);
     
-    if (filters.enabled && filteredCount > 0) {
-      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos, ${sortedLeads.length} passaram nos filtros`);
-    }
     
     if (duplicateCount > 0) {
       addLog(`⚠️ ${duplicateCount} leads já existem no banco (marcados como duplicados)`);
@@ -1103,7 +1097,7 @@ export function CaptureAndSendTab({
 
     // Create a background job for persistent sending
     try {
-      // Format leads for the job with all necessary data
+      // Format leads for the job with all necessary data INCLUDING website info
       const formattedLeads = leadsToProcess.map(lead => ({
         id: lead.id,
         business_name: lead.business_name,
@@ -1112,6 +1106,7 @@ export function CaptureAndSendTab({
         location: lead.location,
         rating: lead.rating,
         reviews_count: lead.reviews_count,
+        website: lead.website, // Include website info so AI knows if they need a site
         suggestedMessage: lead.suggestedMessage,
         status: 'pending' as const,
       }));
