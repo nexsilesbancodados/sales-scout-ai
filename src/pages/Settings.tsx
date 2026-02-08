@@ -18,6 +18,7 @@ import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
 import { ServiceIntelligenceManager } from '@/components/settings/ServiceIntelligenceManager';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { MeetingSettings } from '@/components/settings/MeetingSettings';
 import {
   Bot,
   MessageSquare,
@@ -528,7 +529,8 @@ export default function SettingsPage() {
               </Card>
             </div>
 
-            {/* Webhook */}
+            {/* Meeting Settings */}
+            <MeetingSettings />
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

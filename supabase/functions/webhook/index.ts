@@ -610,6 +610,9 @@ Deno.serve(async (req) => {
                 console.log(`Date was in past, moved to tomorrow: ${scheduledAt.toISOString()}`);
               }
               
+              // Get Google Meet link from settings
+              const meetLink = settings.google_meet_link || null;
+              
               const { data: meeting, error: meetingError } = await supabase
                 .from("meetings")
                 .insert({
@@ -620,6 +623,7 @@ Deno.serve(async (req) => {
                   scheduled_at: scheduledAt.toISOString(),
                   duration_minutes: args.duration_minutes || 30,
                   status: "scheduled",
+                  meeting_link: meetLink,
                 })
                 .select()
                 .single();
@@ -637,7 +641,7 @@ Deno.serve(async (req) => {
                   lead_id: lead.id,
                   activity_type: "meeting_scheduled",
                   description: `Reunião agendada: ${scheduledAt.toLocaleDateString("pt-BR")} às ${args.time}`,
-                  metadata: { meeting_id: meeting.id },
+                  metadata: { meeting_id: meeting.id, meeting_link: meetLink },
                 });
 
                 // Trigger webhook
@@ -659,7 +663,13 @@ Deno.serve(async (req) => {
                 }
 
                 const dayFormatted = scheduledAt.toLocaleDateString("pt-BR", { weekday: 'long', day: 'numeric', month: 'long' });
-                responseMessage = `Perfeito! Confirmado então pra ${dayFormatted} às ${args.time}! 🎯\n\nVou te mandar um lembrete antes. Qualquer coisa é só me chamar aqui!`;
+                
+                // Build response with or without meeting link
+                if (meetLink) {
+                  responseMessage = `Perfeito! Confirmado então pra ${dayFormatted} às ${args.time}! 🎯\n\n📹 Link da reunião:\n${meetLink}\n\nVou te mandar um lembrete antes. Qualquer coisa é só me chamar aqui!`;
+                } else {
+                  responseMessage = `Perfeito! Confirmado então pra ${dayFormatted} às ${args.time}! 🎯\n\nVou te mandar um lembrete antes. Qualquer coisa é só me chamar aqui!`;
+                }
               }
             }
           }
