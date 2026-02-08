@@ -762,8 +762,11 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         });
       }
 
-      // TODOS os bairros de grandes cidades para cobertura MÁXIMA
+      // MAPEAMENTO COMPLETO DE BAIRROS - TODAS AS CAPITAIS E PRINCIPAIS CIDADES DO BRASIL
       const CITY_REGIONS: Record<string, string[]> = {
+        // ==================== REGIÃO SUDESTE ====================
+        
+        // SÃO PAULO - Capital e Região Metropolitana
         "São Paulo": [
           // Centro e regiões nobres
           "Centro", "Paulista", "Jardins", "Itaim Bibi", "Pinheiros", "Vila Madalena", "Perdizes",
@@ -771,90 +774,525 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
           // Zona Sul
           "Moema", "Vila Mariana", "Brooklin", "Campo Belo", "Santo Amaro", "Morumbi", "Vila Olímpia",
           "Saúde", "Jabaquara", "Ipiranga", "Cursino", "Vila Clementino", "Chácara Klabin",
-          "Interlagos", "Cidade Dutra", "Grajaú", "Socorro", "Jurubatuba",
+          "Interlagos", "Cidade Dutra", "Grajaú", "Socorro", "Jurubatuba", "Campo Limpo",
+          "Capão Redondo", "Jardim São Luís", "Jardim Ângela", "Parelheiros", "Marsilac",
           // Zona Oeste
           "Butantã", "Lapa", "Vila Leopoldina", "Jaguaré", "Rio Pequeno", "Raposo Tavares",
-          "Pirituba", "Perus", "Jaraguá", "Freguesia do Ó", "Casa Verde",
+          "Pirituba", "Perus", "Jaraguá", "Freguesia do Ó", "Casa Verde", "Cachoeirinha",
+          "Limão", "Vila Jaguara", "São Domingos", "Anhanguera",
           // Zona Norte
           "Santana", "Tucuruvi", "Mandaqui", "Tremembé", "Jaçanã", "Vila Guilherme",
-          "Vila Maria", "Cachoeirinha", "Brasilândia", "Vila Medeiros",
+          "Vila Maria", "Vila Medeiros", "Lauzane Paulista", "Parada Inglesa",
+          "Horto Florestal", "Vila Nova Cachoeirinha", "Brasilândia",
           // Zona Leste
           "Tatuapé", "Mooca", "Penha", "Vila Prudente", "Vila Formosa", "Carrão",
           "Aricanduva", "Vila Matilde", "Água Rasa", "Belém", "Brás", "Pari",
           "São Miguel", "Itaquera", "Guaianases", "São Mateus", "Sapopemba",
           "Ermelino Matarazzo", "Cangaíba", "Ponte Rasa", "Artur Alvim", "Cidade Líder",
+          "Vila Curuçá", "Lajeado", "Iguatemi", "São Rafael", "Jardim Helena",
+          "Itaim Paulista", "Cidade Tiradentes", "José Bonifácio",
           // Região Metropolitana
-          "Guarulhos", "Osasco", "Santo André", "São Bernardo", "São Caetano",
+          "Guarulhos", "Osasco", "Santo André", "São Bernardo do Campo", "São Caetano do Sul",
           "Diadema", "Mauá", "Suzano", "Mogi das Cruzes", "Barueri", "Alphaville",
-          "Cotia", "Taboão da Serra", "Embu das Artes", "Itapecerica da Serra"
+          "Cotia", "Taboão da Serra", "Embu das Artes", "Itapecerica da Serra",
+          "Ferraz de Vasconcelos", "Poá", "Itaquaquecetuba", "Arujá", "Carapicuíba",
+          "Jandira", "Itapevi", "Santana de Parnaíba", "Franco da Rocha", "Caieiras",
+          "Francisco Morato", "Ribeirão Pires", "Rio Grande da Serra", "Vargem Grande Paulista"
         ],
+        
+        // Interior de SP - Principais cidades
+        "Campinas": [
+          "Centro", "Cambuí", "Taquaral", "Barão Geraldo", "Sousas", "Nova Campinas",
+          "Guanabara", "Jardim das Paineiras", "Jardim Chapadão", "Vila Industrial",
+          "Ponte Preta", "Bosque", "Alto de Pinheiros", "Jardim Flamboyant",
+          "Parque Prado", "Jardim Proença", "Mansões Santo Antônio", "Cidade Universitária",
+          "Valinhos", "Vinhedo", "Sumaré", "Hortolândia", "Paulínia", "Americana", "Indaiatuba"
+        ],
+        "Santos": [
+          "Centro", "Gonzaga", "Boqueirão", "Embaré", "Aparecida", "Pompéia", "Ponta da Praia",
+          "José Menino", "Campo Grande", "Vila Belmiro", "Marapé", "Encruzilhada",
+          "São Vicente", "Guarujá", "Praia Grande", "Cubatão", "Bertioga"
+        ],
+        "Ribeirão Preto": [
+          "Centro", "Jardim Irajá", "Jardim Sumaré", "Alto da Boa Vista", "Jardim Canadá",
+          "Jardim São Luiz", "Jardim América", "Vila Tibério", "Campos Elíseos",
+          "Jardim Macedo", "Ribeirânia", "Lagoinha", "Santa Cruz", "Jardim Califórnia",
+          "Sertãozinho", "Jardinópolis", "Cravinhos", "Brodowski"
+        ],
+        "São José dos Campos": [
+          "Centro", "Jardim Aquarius", "Jardim das Indústrias", "Vila Adyana", "Urbanova",
+          "Jardim Esplanada", "Jardim São Dimas", "Santana", "Vila Industrial",
+          "Bosque dos Eucaliptos", "Jardim Satélite", "Eugênio de Melo",
+          "Jacareí", "Caçapava", "Taubaté", "Pindamonhangaba"
+        ],
+        "Sorocaba": [
+          "Centro", "Jardim Faculdade", "Campolim", "Parque Campolim", "Jardim Europa",
+          "Alto da Boa Vista", "Jardim Santa Rosália", "Jardim Vergueiro", "Vila Haro",
+          "Votorantim", "Itu", "Salto", "Araçoiaba da Serra"
+        ],
+        "Jundiaí": [
+          "Centro", "Anhangabaú", "Vila Arens", "Jardim Tamoio", "Chácara Urbana",
+          "Jardim São Bento", "Ponte São João", "Eloy Chaves", "Várzea Paulista", "Campo Limpo Paulista"
+        ],
+        "Piracicaba": [
+          "Centro", "São Dimas", "Cidade Alta", "Alto", "Vila Rezende", "Nova América",
+          "Castelinho", "Paulicéia", "Água Branca", "Jardim Elite"
+        ],
+        "Bauru": [
+          "Centro", "Jardim Estoril", "Jardim América", "Altos da Cidade", "Vila Universitária",
+          "Jardim Bela Vista", "Jardim Europa", "Vila Santa Tereza"
+        ],
+        "São José do Rio Preto": [
+          "Centro", "Jardim Vivendas", "Boa Vista", "Jardim Redentor", "Redentora",
+          "Higienópolis", "Jardim Yolanda", "Jardim Nazareth"
+        ],
+        "Franca": ["Centro", "Jardim Palma", "São José", "Jardim Francano", "Cidade Nova"],
+        "Marília": ["Centro", "Barbosa", "Palmital", "Jardim Cavalari", "Fragata"],
+        "Presidente Prudente": ["Centro", "Jardim Aviação", "Jardim das Rosas", "Vila Marcondes"],
+        "Araraquara": ["Centro", "Jardim das Hortênsias", "Carmo", "Santana", "Vila Xavier"],
+        "São Carlos": ["Centro", "Jardim São Carlos", "Vila Nery", "Parque Faber"],
+        "Limeira": ["Centro", "Jardim Piratininga", "Vila Claudia", "Jardim Morro Azul"],
+        "Taubaté": ["Centro", "Jardim das Nações", "Barranco", "Estiva", "Vila São José"],
+        "Guaratinguetá": ["Centro", "Pedregulho", "Santa Luzia", "Jardim do Vale"],
+        
+        // RIO DE JANEIRO - Capital e Região Metropolitana
         "Rio de Janeiro": [
+          // Zona Sul
           "Centro", "Copacabana", "Ipanema", "Leblon", "Botafogo", "Flamengo", "Catete",
           "Laranjeiras", "Humaitá", "Lagoa", "Gávea", "Jardim Botânico", "São Conrado",
-          "Tijuca", "Grajaú", "Vila Isabel", "Maracanã", "Andaraí",
-          "Barra da Tijuca", "Recreio", "Jacarepaguá", "Taquara", "Freguesia",
-          "Méier", "Madureira", "Penha", "Olaria", "Ramos", "Bonsucesso",
-          "Campo Grande", "Santa Cruz", "Bangu", "Realengo", "Padre Miguel",
-          "Niterói", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Nilópolis"
+          "Leme", "Urca", "Glória", "Santa Teresa", "Vidigal",
+          // Zona Norte
+          "Tijuca", "Grajaú", "Vila Isabel", "Maracanã", "Andaraí", "Méier", "Engenho Novo",
+          "Lins de Vasconcelos", "Cachambi", "Del Castilho", "Maria da Graça", "Higienópolis",
+          "Madureira", "Penha", "Olaria", "Ramos", "Bonsucesso", "Piedade", "Cascadura",
+          "Irajá", "Vicente de Carvalho", "Colégio", "Rocha Miranda", "Turiaçu", "Oswaldo Cruz",
+          "Vila da Penha", "Brás de Pina", "Cordovil", "Parada de Lucas",
+          // Zona Oeste
+          "Barra da Tijuca", "Recreio dos Bandeirantes", "Jacarepaguá", "Taquara", "Freguesia",
+          "Pechincha", "Tanque", "Curicica", "Gardênia Azul", "Cidade de Deus",
+          "Campo Grande", "Santa Cruz", "Bangu", "Realengo", "Padre Miguel", "Deodoro",
+          "Senador Camará", "Cosmos", "Inhoaíba", "Paciência", "Sepetiba", "Guaratiba",
+          // Centro e Portuária
+          "Lapa", "Caju", "Santo Cristo", "Saúde", "Gamboa",
+          // Região Metropolitana
+          "Niterói", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Nilópolis",
+          "Belford Roxo", "São João de Meriti", "Mesquita", "Magé", "Itaboraí",
+          "Maricá", "Queimados", "Japeri", "Seropédica", "Paracambi"
         ],
+        "Niterói": [
+          "Centro", "Icaraí", "Ingá", "Santa Rosa", "São Francisco", "Charitas",
+          "Piratininga", "Itaipu", "São Domingos", "Fonseca", "Barreto", "Pendotiba"
+        ],
+        "Campos dos Goytacazes": ["Centro", "Pelinca", "Parque Tamandaré", "Flamboyant", "Guarus"],
+        "Petrópolis": ["Centro", "Quitandinha", "Itaipava", "Corrêas", "Alto da Serra"],
+        "Volta Redonda": ["Centro", "Vila Santa Cecília", "Retiro", "Aterrado", "Niterói"],
+        "Nova Friburgo": ["Centro", "Olaria", "Cônego", "Conselheiro Paulino", "Mury"],
+        
+        // MINAS GERAIS - Capital e principais cidades
         "Belo Horizonte": [
           "Centro", "Savassi", "Funcionários", "Lourdes", "Sion", "Santo Antônio",
           "Pampulha", "Buritis", "Belvedere", "Cidade Nova", "Santa Efigênia",
           "Gutierrez", "Padre Eustáquio", "Prado", "Barroca", "Nova Suíça",
-          "Contagem", "Betim", "Nova Lima", "Lagoa Santa", "Santa Luzia"
+          "Anchieta", "Carmo", "Cruzeiro", "Floresta", "Santa Teresa", "Serra",
+          "Barro Preto", "Carlos Prates", "Coração Eucarístico", "Caiçaras",
+          "São Bento", "Santo Agostinho", "Sagrada Família", "Jaraguá", "Castelo",
+          "Ouro Preto", "Cidade Jardim", "Mangabeiras", "Santa Lúcia", "São Pedro",
+          "São Lucas", "Horto", "Santa Inês", "Silveira", "União",
+          // Região Metropolitana
+          "Contagem", "Betim", "Nova Lima", "Lagoa Santa", "Santa Luzia",
+          "Ribeirão das Neves", "Vespasiano", "Pedro Leopoldo", "Sabará", "Ibirité"
         ],
+        "Uberlândia": [
+          "Centro", "Santa Mônica", "Tibery", "Martins", "Saraiva", "Jardim Karaíba",
+          "Vigilato Pereira", "Santa Maria", "Brasil", "Umuarama", "Luizote de Freitas"
+        ],
+        "Juiz de Fora": [
+          "Centro", "São Mateus", "Cascatinha", "Bom Pastor", "Alto dos Passos",
+          "São Pedro", "Costa Carvalho", "Jardim Glória", "Granbery"
+        ],
+        "Contagem": ["Centro", "Eldorado", "Industrial", "Riacho", "Ressaca", "Jardim Riacho"],
+        "Betim": ["Centro", "Jardim Teresópolis", "Citrolândia", "Imbiruçu", "Angola"],
+        "Montes Claros": ["Centro", "Major Prates", "Ibituruna", "Santos Reis", "Todos os Santos"],
+        "Uberaba": ["Centro", "Mercês", "São Benedito", "Fabrício", "Estados Unidos"],
+        "Governador Valadares": ["Centro", "São Paulo", "Vila Bretas", "Santos Dumont"],
+        "Ipatinga": ["Centro", "Cidade Nobre", "Iguaçu", "Veneza", "Horto"],
+        "Sete Lagoas": ["Centro", "Várzea", "Progresso", "Santa Delfina", "Jardim Cambuí"],
+        "Divinópolis": ["Centro", "Niterói", "Afonso Pena", "Porto Velho", "Serra Verde"],
+        "Poços de Caldas": ["Centro", "Jardim Quisisana", "Jardim Country Club", "Santa Rosália"],
+        "Pouso Alegre": ["Centro", "Fátima", "São João", "São Geraldo", "Medicina"],
+        "Varginha": ["Centro", "Jardim Andere", "São Geraldo", "Centenário"],
+        "Barbacena": ["Centro", "São José", "Boa Morte", "Boa Vista"],
+        
+        // ESPÍRITO SANTO
+        "Vitória": [
+          "Centro", "Jardim da Penha", "Praia do Canto", "Jardim Camburi", "Mata da Praia",
+          "Santa Lúcia", "Bento Ferreira", "Enseada do Suá", "Ilha do Boi", "Santa Helena",
+          "Goiabeiras", "Barro Vermelho", "Consolação", "Jucutuquara", "Maruípe"
+        ],
+        "Vila Velha": [
+          "Centro", "Praia da Costa", "Itapuã", "Itaparica", "Praia de Itapoã",
+          "Glória", "Coqueiral de Itaparica", "Divino Espírito Santo", "Araçás"
+        ],
+        "Serra": ["Centro", "Laranjeiras", "Jacaraípe", "Manguinhos", "Carapina", "Novo Horizonte"],
+        "Cariacica": ["Centro", "Campo Grande", "Jardim América", "Itacibá", "Flexal"],
+        "Cachoeiro de Itapemirim": ["Centro", "Gilberto Machado", "Ferroviários", "BNH"],
+        "Linhares": ["Centro", "Movelar", "Interlagos", "Shell", "Três Barras"],
+        "Colatina": ["Centro", "São Silvano", "Marista", "Esplanada"],
+        
+        // ==================== REGIÃO SUL ====================
+        
+        // PARANÁ
         "Curitiba": [
           "Centro", "Batel", "Água Verde", "Bigorrilho", "Champagnat", "Juvevê",
           "Portão", "Santa Felicidade", "Cabral", "Alto da Glória", "Cristo Rei",
-          "Boa Vista", "Bacacheri", "Ahú", "Mercês", "Campo Comprido",
-          "Colombo", "São José dos Pinhais", "Araucária", "Pinhais"
+          "Boa Vista", "Bacacheri", "Ahú", "Mercês", "Campo Comprido", "Rebouças",
+          "Alto da XV", "Jardim Botânico", "Pilarzinho", "São Francisco", "Centro Cívico",
+          "Prado Velho", "Jardim Social", "Tarumã", "Capão Raso", "Xaxim",
+          "Novo Mundo", "Fazendinha", "Cidade Industrial", "Hauer", "Seminário",
+          // Região Metropolitana
+          "Colombo", "São José dos Pinhais", "Araucária", "Pinhais", "Campo Largo",
+          "Almirante Tamandaré", "Piraquara", "Fazenda Rio Grande", "Quatro Barras", "Campina Grande do Sul"
         ],
+        "Londrina": [
+          "Centro", "Gleba Palhano", "Bela Suíça", "Jardim Higienópolis", "Vila Brasil",
+          "Jardim Cláudia", "Antares", "Petrópolis", "Aurora", "Cadeião", "Shangri-lá",
+          "Cambé", "Ibiporã", "Rolândia"
+        ],
+        "Maringá": [
+          "Centro", "Zona 7", "Zona 5", "Zona 3", "Novo Centro", "Vila Esperança",
+          "Jardim Alvorada", "Jardim Aclimação", "Parque das Grevíleas", "Vila Morangueira",
+          "Sarandi", "Paiçandu", "Mandaguari"
+        ],
+        "Ponta Grossa": [
+          "Centro", "Estrela", "Jardim Carvalho", "Uvaranas", "Nova Rússia", "Olarias",
+          "Oficinas", "Ronda", "Boa Vista", "Neves"
+        ],
+        "Cascavel": [
+          "Centro", "Pioneiros Catarinenses", "Recanto Tropical", "Country", "São Cristóvão",
+          "Neva", "Tropical", "Esmeralda", "Brasília"
+        ],
+        "Foz do Iguaçu": [
+          "Centro", "Vila Portes", "Jardim América", "Morumbi", "Porto Meira",
+          "Jardim Central", "Vila Carimã", "Itaipu"
+        ],
+        "São José dos Pinhais": ["Centro", "Afonso Pena", "Boneca do Iguaçu", "Del Rey", "Guatupê"],
+        "Colombo": ["Centro", "Maracanã", "Atuba", "Jardim Guaraituba", "Alto Maracanã"],
+        "Guarapuava": ["Centro", "Trianon", "Batel", "Santa Cruz", "Alto da XV"],
+        "Paranaguá": ["Centro", "Vila Cruzeiro", "Tuiuti", "Leblon", "Vila Guarani"],
+        
+        // RIO GRANDE DO SUL
         "Porto Alegre": [
           "Centro", "Moinhos de Vento", "Cidade Baixa", "Menino Deus", "Petrópolis",
           "Mont Serrat", "Bela Vista", "Bom Fim", "Floresta", "Independência",
           "Rio Branco", "Auxiliadora", "Boa Vista", "Higienópolis", "Passo da Areia",
-          "Canoas", "Novo Hamburgo", "São Leopoldo", "Gravataí"
+          "Três Figueiras", "Jardim Botânico", "Cristal", "Santana", "Partenon",
+          "Ipanema", "Tristeza", "Cavalhada", "Vila Assunção", "Camaquã",
+          "Nonoai", "Teresópolis", "Azenha", "Praia de Belas", "Farroupilha",
+          // Região Metropolitana
+          "Canoas", "Novo Hamburgo", "São Leopoldo", "Gravataí", "Viamão",
+          "Cachoeirinha", "Alvorada", "Sapucaia do Sul", "Esteio", "Guaíba"
         ],
+        "Caxias do Sul": [
+          "Centro", "São Pelegrino", "Lourdes", "Pio X", "Exposição", "Panazzolo",
+          "Universitário", "Santa Catarina", "Nossa Senhora de Fátima", "Rio Branco"
+        ],
+        "Pelotas": [
+          "Centro", "Areal", "Laranjal", "Três Vendas", "Fragata", "Porto",
+          "Zona Norte", "São Gonçalo", "Simões Lopes"
+        ],
+        "Santa Maria": [
+          "Centro", "Nossa Senhora de Fátima", "Camobi", "Patronato", "Itararé",
+          "Medianeira", "Urlândia", "Tomazetti", "Passo d'Areia"
+        ],
+        "Novo Hamburgo": ["Centro", "Canudos", "Ideal", "Rio Branco", "Hamburgo Velho", "Primavera"],
+        "São Leopoldo": ["Centro", "Cristo Rei", "Scharlau", "Feitoria", "Rio dos Sinos"],
+        "Rio Grande": ["Centro", "Cidade Nova", "Cassino", "Parque", "Vila São João"],
+        "Passo Fundo": ["Centro", "Vera Cruz", "Petrópolis", "Boqueirão", "São José"],
+        "Canoas": ["Centro", "Nossa Senhora das Graças", "Marechal Rondon", "Niterói", "Mathias Velho"],
+        "Gravataí": ["Centro", "Barnabé", "Cohab", "Morada do Vale", "São Jerônimo"],
+        
+        // SANTA CATARINA
+        "Florianópolis": [
+          "Centro", "Trindade", "Itacorubi", "Lagoa da Conceição", "Ingleses",
+          "Canasvieiras", "Jurerê", "Jurerê Internacional", "Campeche", "Coqueiros",
+          "Estreito", "Abraão", "Capoeiras", "Córrego Grande", "Santa Mônica",
+          "Saco dos Limões", "Costeira", "Rio Tavares", "Tapera", "Ribeirão da Ilha",
+          "Santo Antônio de Lisboa", "Ratones", "Vargem Grande", "Vargem Pequena",
+          // Continente e Região
+          "São José", "Palhoça", "Biguaçu", "Santo Amaro da Imperatriz"
+        ],
+        "Joinville": [
+          "Centro", "América", "Bucarein", "Anita Garibaldi", "Santo Antônio",
+          "Glória", "Iririú", "Saguaçu", "Atiradores", "Bom Retiro", "Floresta",
+          "Costa e Silva", "Pirabeiraba", "Aventureiro", "Paranaguamirim"
+        ],
+        "Blumenau": [
+          "Centro", "Victor Konder", "Ponta Aguda", "Velha", "Itoupava Norte",
+          "Itoupava Seca", "Vila Nova", "Fortaleza", "Garcia", "Progresso",
+          "Gaspar", "Indaial", "Timbó"
+        ],
+        "São José": ["Centro", "Kobrasol", "Campinas", "Barreiros", "Forquilhinhas", "Ipiranga"],
+        "Criciúma": ["Centro", "Comerciário", "Michel", "Santa Bárbara", "Pinheirinho", "Pio Corrêa"],
+        "Chapecó": ["Centro", "Maria Goretti", "Presidente Médici", "São Cristóvão", "Efapi"],
+        "Itajaí": ["Centro", "Fazenda", "Dom Bosco", "São Vicente", "Ressacada"],
+        "Balneário Camboriú": ["Centro", "Pioneiros", "Barra Sul", "Vila Real", "Nações"],
+        "Lages": ["Centro", "Universitário", "Coral", "Santa Helena", "Copacabana"],
+        "Jaraguá do Sul": ["Centro", "Amizade", "Czerniewicz", "Rau", "Vila Lalau"],
+        "Palhoça": ["Centro", "Pagani", "Aririu", "São Sebastião", "Ponte do Imaruim"],
+        
+        // ==================== REGIÃO NORDESTE ====================
+        
+        // BAHIA
         "Salvador": [
           "Centro", "Barra", "Pituba", "Itaigara", "Ondina", "Rio Vermelho",
           "Brotas", "Graça", "Federação", "Caminho das Árvores", "Stiep",
-          "Paralela", "Imbuí", "Patamares", "Piatã", "Stella Maris",
-          "Lauro de Freitas", "Camaçari"
+          "Paralela", "Imbuí", "Patamares", "Piatã", "Stella Maris", "Jaguaribe",
+          "Costa Azul", "Armação", "Boca do Rio", "Iguatemi", "Cabula",
+          "Pernambués", "Sussuarana", "Cajazeiras", "Mussurunga", "Itapuã",
+          "Bairro da Paz", "Liberdade", "Nazaré", "Garcia", "Canela", "Vitória",
+          // Região Metropolitana
+          "Lauro de Freitas", "Camaçari", "Simões Filho", "Dias d'Ávila", "Candeias"
         ],
-        "Brasília": [
-          "Asa Sul", "Asa Norte", "Lago Sul", "Lago Norte", "Sudoeste", "Noroeste",
-          "Taguatinga", "Águas Claras", "Guará", "Cruzeiro", "Octogonal",
-          "Ceilândia", "Samambaia", "Planaltina", "Gama", "Sobradinho"
+        "Feira de Santana": [
+          "Centro", "Santa Mônica", "Tomba", "Cidade Nova", "Capuchinhos",
+          "SIM", "Ponto Central", "Sobradinho", "Brasília", "Santo Antônio dos Prazeres"
         ],
-        "Fortaleza": [
-          "Centro", "Aldeota", "Meireles", "Fátima", "Papicu", "Cocó",
-          "Dionísio Torres", "Varjota", "Mucuripe", "Praia de Iracema",
-          "Messejana", "Parangaba", "Montese", "Benfica", "Parquelândia"
-        ],
+        "Vitória da Conquista": ["Centro", "Recreio", "Candeias", "Jurema", "Brasil"],
+        "Camaçari": ["Centro", "Nova Vitória", "Phoc I", "Abrantes", "Catu de Abrantes"],
+        "Itabuna": ["Centro", "Pontalzinho", "Jardim Primavera", "Sarinha", "Conceição"],
+        "Juazeiro": ["Centro", "Country Club", "Alto do Cruzeiro", "João Paulo II"],
+        "Ilhéus": ["Centro", "Malhado", "Pontal", "São Francisco", "Conquista"],
+        "Lauro de Freitas": ["Centro", "Vilas do Atlântico", "Buraquinho", "Itinga", "Portão"],
+        
+        // PERNAMBUCO
         "Recife": [
           "Centro", "Boa Viagem", "Casa Forte", "Espinheiro", "Derby", "Graças",
-          "Aflitos", "Madalena", "Torre", "Encruzilhada", "Tamarineira",
-          "Olinda", "Jaboatão", "Paulista", "Camaragibe"
+          "Aflitos", "Madalena", "Torre", "Encruzilhada", "Tamarineira", "Jaqueira",
+          "Parnamirim", "Santana", "Poço", "Casa Amarela", "Apipucos", "Monteiro",
+          "Imbiribeira", "Pina", "Brasília Teimosa", "Arruda", "Campo Grande",
+          "Várzea", "Cidade Universitária", "Tejipió", "Barro", "Jordão", "Ibura",
+          // Região Metropolitana
+          "Olinda", "Jaboatão dos Guararapes", "Paulista", "Camaragibe", "Cabo de Santo Agostinho",
+          "Igarassu", "Abreu e Lima", "São Lourenço da Mata", "Moreno"
         ],
-        "Campinas": [
-          "Centro", "Cambuí", "Taquaral", "Barão Geraldo", "Sousas", "Nova Campinas",
-          "Jardim Chapadão", "Guanabara", "Bosque", "Ponte Preta", "Vila Industrial",
-          "Hortolândia", "Sumaré", "Indaiatuba", "Valinhos", "Vinhedo"
+        "Olinda": ["Centro", "Casa Caiada", "Bairro Novo", "Carmo", "Rio Doce", "Jardim Atlântico"],
+        "Jaboatão dos Guararapes": ["Centro", "Piedade", "Candeias", "Cavaleiro", "Prazeres"],
+        "Caruaru": ["Centro", "Maurício de Nassau", "Universitário", "Indianópolis", "Salgado"],
+        "Petrolina": ["Centro", "Centro", "Areia Branca", "Cohab Massangano", "Maria Auxiliadora"],
+        "Paulista": ["Centro", "Maranguape", "Pau Amarelo", "Janga", "Arthur Lundgren"],
+        "Cabo de Santo Agostinho": ["Centro", "Ponte dos Carvalhos", "Suape", "Gaibu"],
+        "Garanhuns": ["Centro", "Heliópolis", "Santo Antônio", "Boa Vista"],
+        
+        // CEARÁ
+        "Fortaleza": [
+          "Centro", "Aldeota", "Meireles", "Fátima", "Papicu", "Cocó",
+          "Dionísio Torres", "Varjota", "Mucuripe", "Praia de Iracema", "Joaquim Távora",
+          "Messejana", "Parangaba", "Montese", "Benfica", "Parquelândia",
+          "Luciano Cavalcante", "Guararapes", "Edson Queiroz", "Cambeba", "Água Fria",
+          "Jacarecanga", "Monte Castelo", "Barra do Ceará", "Carlito Pamplona",
+          "Maraponga", "Itaperi", "Serrinha", "Bom Jardim", "Mondubim",
+          // Região Metropolitana
+          "Caucaia", "Maracanaú", "Maranguape", "Pacatuba", "Eusébio", "Aquiraz"
         ],
-        "Goiânia": [
-          "Centro", "Setor Bueno", "Setor Oeste", "Setor Marista", "Jardim Goiás",
-          "Setor Sul", "Setor Aeroporto", "Campinas", "Jardim América",
-          "Aparecida de Goiânia", "Senador Canedo", "Trindade"
+        "Caucaia": ["Centro", "Jurema", "Parque Leblon", "Icaraí", "Cumbuco"],
+        "Maracanaú": ["Centro", "Jereissati", "Industrial", "Piratininga", "Pajuçara"],
+        "Juazeiro do Norte": ["Centro", "Triângulo", "Lagoa Seca", "Tiradentes", "Romeirão"],
+        "Sobral": ["Centro", "Derby", "Junco", "Dom Expedito", "Terrenos Novos"],
+        
+        // RIO GRANDE DO NORTE
+        "Natal": [
+          "Centro", "Ponta Negra", "Petrópolis", "Tirol", "Lagoa Nova", "Capim Macio",
+          "Candelária", "Alecrim", "Ribeira", "Cidade Alta", "Rocas",
+          "Cidade da Esperança", "Felipe Camarão", "Dix-Sept Rosado", "Nossa Senhora de Nazaré",
+          // Região Metropolitana
+          "Parnamirim", "São Gonçalo do Amarante", "Macaíba", "Extremoz", "Ceará-Mirim"
         ],
+        "Parnamirim": ["Centro", "Nova Parnamirim", "Emaús", "Passagem de Areia", "Liberdade"],
+        "Mossoró": ["Centro", "Nova Betânia", "Alto de São Manoel", "Abolição", "Doze Anos"],
+        
+        // PARAÍBA
+        "João Pessoa": [
+          "Centro", "Manaíra", "Tambaú", "Cabo Branco", "Brisamar", "Bessa",
+          "Estados", "Expedicionários", "Tambiá", "Torre", "Jardim Luna",
+          "Bancários", "Mangabeira", "Valentina", "Cristo Redentor", "Água Fria",
+          // Região Metropolitana
+          "Cabedelo", "Santa Rita", "Bayeux", "Conde"
+        ],
+        "Campina Grande": ["Centro", "Catolé", "Alto Branco", "Sandra Cavalcante", "Liberdade"],
+        
+        // PIAUÍ
+        "Teresina": [
+          "Centro", "Jóquei", "Fátima", "Ilhotas", "Cabral", "Piçarra",
+          "Ininga", "Morros", "Noivos", "São Cristóvão", "Primavera",
+          "Lourival Parente", "Santa Maria da Codipi", "Mocambinho", "Dirceu Arcoverde",
+          // Região Metropolitana
+          "Timon"
+        ],
+        "Parnaíba": ["Centro", "Piauí", "Nova Parnaíba", "Bom Princípio", "São Judas Tadeu"],
+        
+        // MARANHÃO
+        "São Luís": [
+          "Centro", "São Francisco", "Renascença", "Calhau", "Ponta d'Areia",
+          "Cohama", "Turu", "Cohab", "Vinhais", "Olho d'Água", "Ipase", "Anil",
+          "Jardim São Cristóvão", "Bequimão", "Angelim", "Aurora", "Cidade Operária",
+          // Região Metropolitana
+          "São José de Ribamar", "Paço do Lumiar", "Raposa"
+        ],
+        "Imperatriz": ["Centro", "Nova Imperatriz", "Três Poderes", "Santa Inês", "Juçara"],
+        "São José de Ribamar": ["Centro", "Cohabiano", "Araçagi", "Panaquatira"],
+        "Timon": ["Centro", "Parque Piauí", "São Benedito", "Formosa"],
+        
+        // ALAGOAS
+        "Maceió": [
+          "Centro", "Pajuçara", "Ponta Verde", "Jatiúca", "Mangabeiras",
+          "Farol", "Jaraguá", "Stella Maris", "Cruz das Almas", "Gruta de Lourdes",
+          "Jacintinho", "Serraria", "Benedito Bentes", "Tabuleiro", "Cidade Universitária"
+        ],
+        "Arapiraca": ["Centro", "Baixão", "Brasília", "Primavera", "Santa Esmeralda"],
+        
+        // SERGIPE
+        "Aracaju": [
+          "Centro", "Jardins", "Grageru", "Treze de Julho", "Salgado Filho",
+          "Farolândia", "Luzia", "Inácio Barbosa", "Atalaia", "Coroa do Meio",
+          "Aruana", "Jabotiana", "Ponto Novo", "Suíssa", "São José"
+        ],
+        
+        // ==================== REGIÃO NORTE ====================
+        
+        // AMAZONAS
         "Manaus": [
-          "Centro", "Adrianópolis", "Chapada", "Vieiralves", "Parque 10",
-          "Flores", "Cidade Nova", "Aleixo", "Dom Pedro", "Compensa"
+          "Centro", "Adrianópolis", "Parque 10", "Vieiralves", "Nossa Senhora das Graças",
+          "Praça 14 de Janeiro", "Chapada", "Flores", "Aleixo", "Dom Pedro",
+          "Ponta Negra", "Tarumã", "Cidade Nova", "Compensa", "Santo Antônio",
+          "São Jorge", "Alvorada", "Redenção", "Coroado", "Japiim", "Petrópolis",
+          "Cachoeirinha", "São Francisco", "Educandos", "Santa Luzia", "Morro da Liberdade",
+          "Betânia", "Colônia Oliveira Machado", "Novo Israel", "Monte das Oliveiras",
+          "Lírio do Vale", "Planalto", "Nova Cidade", "Cidade de Deus"
         ],
-        "Vitória": [
-          "Centro", "Praia do Canto", "Jardim da Penha", "Mata da Praia",
-          "Jardim Camburi", "Enseada do Suá", "Bento Ferreira",
-          "Vila Velha", "Serra", "Cariacica"
+        "Parintins": ["Centro", "Palmares", "Francesa", "Santa Rita", "São José"],
+        "Itacoatiara": ["Centro", "Jauari", "Pedreiras", "São Francisco", "Colônia"],
+        
+        // PARÁ
+        "Belém": [
+          "Centro", "Nazaré", "Umarizal", "Batista Campos", "Marco",
+          "Pedreira", "Telégrafo", "Sacramenta", "Fátima", "São Brás", "Canudos",
+          "Marambaia", "Val-de-Cans", "Guamá", "Terra Firme", "Cremação",
+          "Jurunas", "Condor", "Benguí", "Coqueiro", "Parque Verde", "Cidade Nova",
+          "Curió-Utinga", "Mangueirão", "Souza", "Tapanã", "Pratinha",
+          // Região Metropolitana
+          "Ananindeua", "Marituba", "Benevides", "Santa Bárbara do Pará", "Castanhal"
         ],
+        "Ananindeua": ["Centro", "Cidade Nova", "Coqueiro", "Guajará", "Águas Lindas", "PAAR"],
+        "Santarém": ["Centro", "Aldeia", "Aeroporto Velho", "Jardim Santarém", "Laguinho"],
+        "Marabá": ["Centro", "Nova Marabá", "Cidade Nova", "São Félix", "Morada Nova"],
+        "Parauapebas": ["Centro", "Rio Verde", "Cidade Nova", "Palmares", "Beira Rio"],
+        "Castanhal": ["Centro", "Ianetama", "Nova Olinda", "Saudade", "Apeú"],
+        
+        // TOCANTINS
+        "Palmas": [
+          "Centro", "Plano Diretor Norte", "Plano Diretor Sul", "Taquaralto",
+          "Aureny I", "Aureny II", "Aureny III", "Aureny IV", "Santa Bárbara",
+          "Jardim Aurora", "Setor Morada do Sol", "Arne", "Arso", "Taquari"
+        ],
+        "Araguaína": ["Centro", "Setor Central", "JK", "Urbano", "Couto Magalhães"],
+        "Gurupi": ["Centro", "Waldir Lins", "Sol Nascente", "Parque das Acácias"],
+        
+        // RONDÔNIA
+        "Porto Velho": [
+          "Centro", "Nossa Senhora das Graças", "Pedrinhas", "Olaria", "Caiari",
+          "Embratel", "Costa e Silva", "São Cristóvão", "Industrial", "Tancredo Neves",
+          "Cohab", "Nova Porto Velho", "Arigolândia", "Liberdade", "Lagoa"
+        ],
+        "Ji-Paraná": ["Centro", "Nova Brasília", "Dois de Abril", "Colina Park"],
+        "Ariquemes": ["Centro", "Setor Institucional", "Setor 1", "BNH", "Jardim Jorge Teixeira"],
+        
+        // ACRE
+        "Rio Branco": [
+          "Centro", "Bosque", "Estação Experimental", "Base", "Cadeia Velha",
+          "Bahia", "Bahia Nova", "Preventório", "Aviário", "Aeroporto Velho",
+          "Jardim Primavera", "Tucumã", "Abraão Alab", "Placas", "Quinze"
+        ],
+        
+        // RORAIMA
+        "Boa Vista": [
+          "Centro", "São Vicente", "Mecejana", "Canarinho", "São Francisco",
+          "Aparecida", "Primavera", "Paraviana", "Nova Cidade", "Jardim Floresta",
+          "Cambará", "Cauamé", "Pricumã", "Santa Tereza", "Asa Branca"
+        ],
+        
+        // AMAPÁ
+        "Macapá": [
+          "Centro", "Santa Rita", "Laguinho", "Trem", "Pacoval", "Buritizal",
+          "Jesus de Nazaré", "Central", "Beirol", "Novo Horizonte", "Fazendinha",
+          "Jardim Marco Zero", "Universidade", "Zerão", "Brasil Novo", "Congós",
+          // Região Metropolitana
+          "Santana"
+        ],
+        "Santana": ["Centro", "Área Portuária", "Remédios", "Fonte Nova", "Paraíso"],
+        
+        // ==================== REGIÃO CENTRO-OESTE ====================
+        
+        // DISTRITO FEDERAL
+        "Brasília": [
+          "Asa Sul", "Asa Norte", "Lago Sul", "Lago Norte", "Sudoeste", "Noroeste",
+          "Taguatinga", "Águas Claras", "Guará I", "Guará II", "Cruzeiro", "Octogonal",
+          "Ceilândia", "Samambaia", "Planaltina", "Gama", "Sobradinho", "Sobradinho II",
+          "Santa Maria", "Recanto das Emas", "Riacho Fundo", "Riacho Fundo II",
+          "Núcleo Bandeirante", "Candangolândia", "Park Way", "Jardim Botânico",
+          "Vicente Pires", "SIA", "SCIA", "Varjão", "Fercal", "Itapoã", "Paranoá",
+          "São Sebastião", "Brazlândia"
+        ],
+        
+        // GOIÁS
+        "Goiânia": [
+          "Centro", "Setor Oeste", "Setor Bueno", "Setor Marista", "Jardim Goiás",
+          "Setor Central", "Setor Sul", "Setor Leste Universitário", "Setor Coimbra",
+          "Setor Aeroporto", "Setor Nova Suíça", "Setor Bela Vista", "Setor Alto da Glória",
+          "Setor Jardim América", "Setor Pedro Ludovico", "Setor Cidade Jardim",
+          "Setor dos Funcionários", "Setor Campinas", "Vila Nova", "Parque Anhanguera",
+          "Jardim Europa", "Parque Amazônia", "Jardim Atlântico", "Eldorado",
+          // Região Metropolitana
+          "Aparecida de Goiânia", "Senador Canedo", "Trindade", "Goianira", "Nerópolis"
+        ],
+        "Aparecida de Goiânia": ["Centro", "Cidade Livre", "Garavelo", "Jardim Luz", "Papillon Park"],
+        "Anápolis": ["Centro", "Jundiaí", "Maracanã", "Vila São Jorge", "Jaiara"],
+        "Rio Verde": ["Centro", "Morada do Sol", "Jardim Goiás", "Promissão"],
+        "Luziânia": ["Centro", "Jardim Zuleika", "Parque JK", "Setor Sul"],
+        "Águas Lindas de Goiás": ["Centro", "Jardim Barragem", "Parque da Barragem"],
+        "Valparaíso de Goiás": ["Centro", "Parque São Bernardo", "Chácaras Anhanguera"],
+        "Catalão": ["Centro", "Santa Cruz", "Ipanema", "Setor Central"],
+        "Itumbiara": ["Centro", "Afonso Pena", "Jardim Goiás", "Santos Dumont"],
+        
+        // MATO GROSSO
+        "Cuiabá": [
+          "Centro", "Goiabeiras", "Jardim das Américas", "Bosque da Saúde", "Quilombo",
+          "Boa Esperança", "Araés", "Bandeirantes", "Popular", "Lixeira",
+          "Santa Rosa", "CPA I", "CPA II", "CPA III", "Morada do Ouro",
+          "Coxipó", "Pedra 90", "Jardim Imperial", "Barra do Pari", "Dom Aquino",
+          // Região Metropolitana
+          "Várzea Grande"
+        ],
+        "Várzea Grande": ["Centro", "Água Limpa", "Jardim Glória", "Marajoara", "Santa Maria"],
+        "Rondonópolis": ["Centro", "Vila Aurora", "Sagrada Família", "Jardim Iguaçu"],
+        "Sinop": ["Centro", "Jardim Botânico", "Setor Comercial", "Jardim Imperial"],
+        "Tangará da Serra": ["Centro", "Jardim Europa", "Vila Alta", "Jardim Paraíso"],
+        "Cáceres": ["Centro", "Jardim São Luiz", "COHAB Nova", "Marajoara"],
+        "Sorriso": ["Centro", "Bela Vista", "Jardim Carolina", "Industrial"],
+        
+        // MATO GROSSO DO SUL
+        "Campo Grande": [
+          "Centro", "Jardim dos Estados", "Chácara Cachoeira", "Vilas Boas", "Carandá Bosque",
+          "Santa Fé", "Tiradentes", "Monte Castelo", "São Francisco", "Coophatrabalho",
+          "Mata do Jacinto", "Taveirópolis", "Jardim Leblon", "Pioneiros", "Coronel Antonino",
+          "Nova Lima", "Santo Antônio", "Vila Alba", "Guanandi", "Aero Rancho",
+          "Los Angeles", "Moreninha", "Rita Vieira", "Parque do Lageado"
+        ],
+        "Dourados": ["Centro", "Jardim América", "Altos do Indaiá", "Vila Industrial", "Parque das Nações"],
+        "Três Lagoas": ["Centro", "Colinos", "Santa Rita", "Santa Luzia", "Vila Nova"],
+        "Corumbá": ["Centro", "Popular", "Dom Bosco", "Cristo Redentor"],
+        "Ponta Porã": ["Centro", "Jardim Europa", "Jardim Brasil", "Vila Militar"],
+        "Naviraí": ["Centro", "Centro", "Jardim União", "Boa Vista"],
+        "Nova Andradina": ["Centro", "Jardim América", "Jardim Europa", "Bairro Novo"]
       };
 
       // Helper function to search with Serper.dev
