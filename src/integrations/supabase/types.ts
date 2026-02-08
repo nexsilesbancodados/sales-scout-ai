@@ -891,6 +891,84 @@ export type Database = {
         }
         Relationships: []
       }
+      service_intelligence: {
+        Row: {
+          benefits: string[] | null
+          case_studies: string[] | null
+          closing_templates: string[] | null
+          conversion_rate: number | null
+          created_at: string
+          description: string | null
+          faq: Json | null
+          follow_up_templates: string[] | null
+          id: string
+          ideal_client_profile: string | null
+          objection_responses: Json | null
+          opening_templates: string[] | null
+          pain_points: string[] | null
+          pricing_info: string | null
+          remarketing_templates: string[] | null
+          service_name: string
+          service_slug: string
+          target_niches: string[] | null
+          total_meetings: number | null
+          total_responses: number | null
+          total_sent: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          benefits?: string[] | null
+          case_studies?: string[] | null
+          closing_templates?: string[] | null
+          conversion_rate?: number | null
+          created_at?: string
+          description?: string | null
+          faq?: Json | null
+          follow_up_templates?: string[] | null
+          id?: string
+          ideal_client_profile?: string | null
+          objection_responses?: Json | null
+          opening_templates?: string[] | null
+          pain_points?: string[] | null
+          pricing_info?: string | null
+          remarketing_templates?: string[] | null
+          service_name: string
+          service_slug: string
+          target_niches?: string[] | null
+          total_meetings?: number | null
+          total_responses?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          benefits?: string[] | null
+          case_studies?: string[] | null
+          closing_templates?: string[] | null
+          conversion_rate?: number | null
+          created_at?: string
+          description?: string | null
+          faq?: Json | null
+          follow_up_templates?: string[] | null
+          id?: string
+          ideal_client_profile?: string | null
+          objection_responses?: Json | null
+          opening_templates?: string[] | null
+          pain_points?: string[] | null
+          pricing_info?: string | null
+          remarketing_templates?: string[] | null
+          service_name?: string
+          service_slug?: string
+          target_niches?: string[] | null
+          total_meetings?: number | null
+          total_responses?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_invites: {
         Row: {
           created_at: string

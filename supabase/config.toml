@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.whatsapp-groups]
 verify_jwt = false
+
+[functions.generate-service-intelligence]
+verify_jwt = false
