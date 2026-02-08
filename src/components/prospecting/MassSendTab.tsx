@@ -45,6 +45,7 @@ import {
 
 // Available services for filtering
 const AVAILABLE_SERVICES = [
+  { id: 'auto', label: 'IA Automática', description: 'IA analisa o lead e oferece o serviço ideal' },
   { id: 'all', label: 'Todos os Serviços', description: 'Usar serviços configurados no perfil' },
   { id: 'trafego_pago', label: 'Tráfego Pago', description: 'Gestão de anúncios e campanhas pagas' },
   { id: 'automacao', label: 'Automação', description: 'Automação de processos e sistemas' },
@@ -53,6 +54,17 @@ const AVAILABLE_SERVICES = [
   { id: 'seo', label: 'SEO', description: 'Otimização para buscadores' },
   { id: 'design', label: 'Design Gráfico', description: 'Identidade visual e materiais' },
   { id: 'consultoria', label: 'Consultoria', description: 'Consultoria em marketing digital' },
+];
+
+// Lead filters for targeting
+const LEAD_FILTERS = [
+  { id: 'all', label: 'Todos os Leads', description: 'Sem filtro de características' },
+  { id: 'no_website', label: 'Sem Site', description: 'Empresas que não possuem website' },
+  { id: 'low_rating', label: 'Avaliação Baixa', description: 'Menos de 4 estrelas no Google' },
+  { id: 'few_reviews', label: 'Poucos Reviews', description: 'Menos de 10 avaliações' },
+  { id: 'no_social', label: 'Sem Redes Sociais', description: 'Sem Instagram/Facebook cadastrado' },
+  { id: 'small_business', label: 'Pequenos Negócios', description: 'Perfil de microempresa' },
+  { id: 'premium', label: 'Leads Premium', description: 'Alta avaliação e muitos reviews' },
 ];
 
 export function MassSendTab() {
@@ -70,7 +82,8 @@ export function MassSendTab() {
   const [previewMessage, setPreviewMessage] = useState<string>('');
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [sendMode, setSendMode] = useState<'template' | 'direct'>('template');
-  const [selectedService, setSelectedService] = useState<string>('all');
+  const [selectedService, setSelectedService] = useState<string>('auto');
+  const [leadFilter, setLeadFilter] = useState<string>('all');
   const [importedLeads, setImportedLeads] = useState<Lead[]>([]);
   const [isRemarketing, setIsRemarketing] = useState(false);
   const [viewMode, setViewMode] = useState<'pending' | 'sent' | 'history'>('pending');
@@ -137,9 +150,35 @@ export function MassSendTab() {
   // Use all leads from database when no imported leads
   const allLeads = importedLeads.length > 0 ? importedLeads : leads;
   
+  // Apply lead filter
+  const applyLeadFilter = (leadsToFilter: typeof allLeads) => {
+    switch (leadFilter) {
+      case 'no_website':
+        return leadsToFilter.filter(l => !l.website);
+      case 'low_rating':
+        return leadsToFilter.filter(l => l.rating !== null && l.rating < 4);
+      case 'few_reviews':
+        return leadsToFilter.filter(l => l.reviews_count !== null && l.reviews_count < 10);
+      case 'no_social':
+        return leadsToFilter.filter(l => !(l as any).instagram_url && !(l as any).facebook_url);
+      case 'small_business':
+        return leadsToFilter.filter(l => 
+          (l.reviews_count === null || l.reviews_count < 50) && 
+          !l.website
+        );
+      case 'premium':
+        return leadsToFilter.filter(l => 
+          l.rating !== null && l.rating >= 4.5 && 
+          l.reviews_count !== null && l.reviews_count >= 50
+        );
+      default:
+        return leadsToFilter;
+    }
+  };
+  
   // Separate leads by sent status
-  const pendingLeads = allLeads.filter(l => !l.message_sent);
-  const sentLeads = allLeads.filter(l => l.message_sent);
+  const pendingLeads = applyLeadFilter(allLeads.filter(l => !l.message_sent));
+  const sentLeads = applyLeadFilter(allLeads.filter(l => l.message_sent));
   
   // Display leads based on current view mode
   const displayLeads = viewMode === 'pending' ? pendingLeads : sentLeads;
@@ -331,6 +370,8 @@ export function MassSendTab() {
           location: lead?.location,
           rating: lead?.rating,
           reviews_count: lead?.reviews_count,
+          website: lead?.website,
+          has_website: !!lead?.website,
         };
       }).filter(l => l.phone);
     }
@@ -344,8 +385,9 @@ export function MassSendTab() {
       return;
     }
 
-    // Get the specific service to offer
-    const serviceToOffer = selectedService !== 'all' 
+    // Get the specific service to offer (auto mode = let AI decide)
+    const isAutoMode = selectedService === 'auto';
+    const serviceToOffer = (selectedService !== 'all' && selectedService !== 'auto')
       ? AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label 
       : null;
 
@@ -360,6 +402,8 @@ export function MassSendTab() {
         use_ai_personalization: sendMode === 'direct' ? true : useAIPersonalization,
         direct_ai_mode: sendMode === 'direct',
         is_remarketing: isRemarketing,
+        auto_service_mode: isAutoMode,
+        lead_filter: leadFilter,
         agent_settings: {
           agent_name: settings?.agent_name,
           agent_persona: settings?.agent_persona,
@@ -367,7 +411,8 @@ export function MassSendTab() {
           emoji_usage: settings?.emoji_usage,
           services_offered: serviceToOffer ? [serviceToOffer] : settings?.services_offered,
           knowledge_base: settings?.knowledge_base,
-          specific_service: serviceToOffer,
+          specific_service: isAutoMode ? null : serviceToOffer,
+          auto_detect_service: isAutoMode,
         },
       },
     });
@@ -800,7 +845,37 @@ export function MassSendTab() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Lead Filter */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Tipo de Empresa
+                </Label>
+                <Select value={leadFilter} onValueChange={setLeadFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um filtro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAD_FILTERS.map((filter) => (
+                      <SelectItem key={filter.id} value={filter.id}>
+                        <div className="flex flex-col">
+                          <span>{filter.label}</span>
+                          <span className="text-xs text-muted-foreground">{filter.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {leadFilter !== 'all' && (
+                  <Badge variant="outline" className="text-xs">
+                    <Filter className="h-3 w-3 mr-1" />
+                    {LEAD_FILTERS.find(f => f.id === leadFilter)?.label}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Service Selection */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
@@ -821,13 +896,31 @@ export function MassSendTab() {
                     ))}
                   </SelectContent>
                 </Select>
-                {selectedService !== 'all' && (
+                {selectedService === 'auto' && (
+                  <Alert className="py-2">
+                    <Sparkles className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      A IA vai analisar cada lead e oferecer o serviço mais adequado automaticamente
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {selectedService !== 'all' && selectedService !== 'auto' && (
                   <Badge variant="secondary" className="text-xs">
                     <Briefcase className="h-3 w-3 mr-1" />
                     Focado em: {AVAILABLE_SERVICES.find(s => s.id === selectedService)?.label}
                   </Badge>
                 )}
               </div>
+
+              {/* Smart suggestion based on filter + service */}
+              {leadFilter === 'no_website' && selectedService === 'auto' && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                  <p className="font-medium text-primary">💡 Sugestão Inteligente</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Para empresas sem site, considere selecionar "Sites e Landing Pages" diretamente
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
