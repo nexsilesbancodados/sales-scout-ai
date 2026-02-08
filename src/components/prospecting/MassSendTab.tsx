@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useBackgroundJobs } from '@/hooks/use-background-jobs';
+import { useProspectingHistory, ProspectingHistoryLead } from '@/hooks/use-prospecting-history';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Lead } from '@/types/database';
@@ -29,6 +30,8 @@ import {
   ChevronRight,
   CheckCircle,
   Clock,
+  History,
+  Database,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -58,6 +61,7 @@ export function MassSendTab() {
   const { settings } = useUserSettings();
   const { toast } = useToast();
   const { createJob, activeJobs, isCreating } = useBackgroundJobs();
+  const { history } = useProspectingHistory();
   
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [massMessage, setMassMessage] = useState('');
@@ -69,8 +73,34 @@ export function MassSendTab() {
   const [selectedService, setSelectedService] = useState<string>('all');
   const [importedLeads, setImportedLeads] = useState<Lead[]>([]);
   const [isRemarketing, setIsRemarketing] = useState(false);
-  const [viewMode, setViewMode] = useState<'pending' | 'sent'>('pending');
+  const [viewMode, setViewMode] = useState<'pending' | 'sent' | 'history'>('pending');
   const [expandedNiches, setExpandedNiches] = useState<Set<string>>(new Set());
+  const [selectedHistoryLeads, setSelectedHistoryLeads] = useState<ProspectingHistoryLead[]>([]);
+
+  // Extract all leads from history sessions grouped by niche
+  const historyLeadsByNiche = useMemo(() => {
+    const grouped: Record<string, { leads: ProspectingHistoryLead[]; sessionId: string; location: string | null }[]> = {};
+    
+    history.forEach(session => {
+      if (!session.leads_data || session.leads_data.length === 0) return;
+      
+      const niche = session.niche || 'Sem nicho';
+      if (!grouped[niche]) grouped[niche] = [];
+      
+      grouped[niche].push({
+        leads: session.leads_data,
+        sessionId: session.id,
+        location: session.location,
+      });
+    });
+    
+    return grouped;
+  }, [history]);
+
+  // Total leads in history
+  const totalHistoryLeads = useMemo(() => {
+    return history.reduce((acc, session) => acc + (session.leads_data?.length || 0), 0);
+  }, [history]);
 
   // Check for leads passed from Leads page via sessionStorage
   useEffect(() => {
@@ -392,14 +422,15 @@ export function MassSendTab() {
           <div className="space-y-4">
             {/* View mode tabs */}
             {importedLeads.length === 0 && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button
                   variant={viewMode === 'pending' ? 'default' : 'outline'}
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 min-w-[100px]"
                   onClick={() => {
                     setViewMode('pending');
                     setSelectedLeads([]);
+                    setSelectedHistoryLeads([]);
                   }}
                 >
                   <Clock className="h-4 w-4 mr-2" />
@@ -408,56 +439,207 @@ export function MassSendTab() {
                 <Button
                   variant={viewMode === 'sent' ? 'default' : 'outline'}
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 min-w-[100px]"
                   onClick={() => {
                     setViewMode('sent');
                     setSelectedLeads([]);
+                    setSelectedHistoryLeads([]);
                   }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Enviados ({sentLeads.length})
                 </Button>
+                <Button
+                  variant={viewMode === 'history' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1 min-w-[100px]"
+                  onClick={() => {
+                    setViewMode('history');
+                    setSelectedLeads([]);
+                    setSelectedHistoryLeads([]);
+                  }}
+                >
+                  <History className="h-4 w-4 mr-2" />
+                  Histórico ({totalHistoryLeads})
+                </Button>
               </div>
             )}
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {selectedLeads.length} de {displayLeads.length} selecionados
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (selectedLeads.length === displayLeads.length) {
-                    setSelectedLeads([]);
-                  } else {
-                    setSelectedLeads(displayLeads.map(l => l.id));
-                  }
-                }}
-              >
-                {selectedLeads.length === displayLeads.length ? 'Desmarcar todos' : 'Selecionar todos'}
-              </Button>
-            </div>
-            
-            {displayLeads.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">
-                  {viewMode === 'pending' 
-                    ? 'Nenhum lead pendente para envio'
-                    : 'Nenhum lead foi enviado ainda'
-                  }
-                </p>
-                <p className="text-sm mt-1">
-                  {viewMode === 'pending' 
-                    ? 'Capture leads na aba Captura ou importe via CSV/WhatsApp'
-                    : 'Envie mensagens para leads pendentes primeiro'
-                  }
-                </p>
-              </div>
+            {/* History View */}
+            {viewMode === 'history' ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {selectedHistoryLeads.length} leads selecionados do histórico
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedHistoryLeads.length > 0) {
+                        setSelectedHistoryLeads([]);
+                      } else {
+                        // Select all history leads
+                        const allHistoryLeads: ProspectingHistoryLead[] = [];
+                        Object.values(historyLeadsByNiche).forEach(sessions => {
+                          sessions.forEach(session => {
+                            allHistoryLeads.push(...session.leads);
+                          });
+                        });
+                        setSelectedHistoryLeads(allHistoryLeads);
+                      }
+                    }}
+                  >
+                    {selectedHistoryLeads.length > 0 ? 'Desmarcar todos' : 'Selecionar todos'}
+                  </Button>
+                </div>
+
+                {totalHistoryLeads === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="font-medium">Nenhum lead no histórico</p>
+                    <p className="text-sm mt-1">
+                      Capture leads na aba Captura para popular o histórico
+                    </p>
+                  </div>
+                ) : (
+                  <div className="max-h-[400px] overflow-y-auto space-y-2">
+                    {Object.entries(historyLeadsByNiche).map(([niche, sessions]) => {
+                      const isExpanded = expandedNiches.has(`history-${niche}`);
+                      const allNicheLeads = sessions.flatMap(s => s.leads);
+                      const selectedInNiche = allNicheLeads.filter(l => 
+                        selectedHistoryLeads.some(sl => sl.id === l.id)
+                      ).length;
+                      const allNicheSelected = selectedInNiche === allNicheLeads.length && allNicheLeads.length > 0;
+
+                      return (
+                        <div key={niche} className="border rounded-lg overflow-hidden">
+                          <div 
+                            className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                              allNicheSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => toggleNicheExpand(`history-${niche}`)}
+                          >
+                            <Checkbox
+                              checked={allNicheSelected}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedHistoryLeads([...selectedHistoryLeads, ...allNicheLeads.filter(l => 
+                                    !selectedHistoryLeads.some(sl => sl.id === l.id)
+                                  )]);
+                                } else {
+                                  setSelectedHistoryLeads(selectedHistoryLeads.filter(sl => 
+                                    !allNicheLeads.some(l => l.id === sl.id)
+                                  ));
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium truncate">{niche}</span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {allNicheLeads.length} lead{allNicheLeads.length !== 1 ? 's' : ''}
+                                </Badge>
+                              </div>
+                              {selectedInNiche > 0 && selectedInNiche < allNicheLeads.length && (
+                                <span className="text-xs text-muted-foreground">
+                                  {selectedInNiche} selecionado{selectedInNiche !== 1 ? 's' : ''}
+                                </span>
+                              )}
+                            </div>
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+
+                          {isExpanded && (
+                            <div className="border-t divide-y">
+                              {allNicheLeads.map((lead) => (
+                                <div
+                                  key={lead.id}
+                                  className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                                    selectedHistoryLeads.some(sl => sl.id === lead.id)
+                                      ? 'bg-primary/5'
+                                      : 'hover:bg-muted/30'
+                                  }`}
+                                  onClick={() => {
+                                    const isSelected = selectedHistoryLeads.some(sl => sl.id === lead.id);
+                                    if (isSelected) {
+                                      setSelectedHistoryLeads(selectedHistoryLeads.filter(sl => sl.id !== lead.id));
+                                    } else {
+                                      setSelectedHistoryLeads([...selectedHistoryLeads, lead]);
+                                    }
+                                  }}
+                                >
+                                  <div className="w-6" />
+                                  <Checkbox checked={selectedHistoryLeads.some(sl => sl.id === lead.id)} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium truncate text-sm">{lead.business_name}</p>
+                                    <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                                  </div>
+                                  <Badge 
+                                    variant={lead.status === 'sent' ? 'default' : lead.status === 'error' ? 'destructive' : 'secondary'}
+                                    className="text-xs"
+                                  >
+                                    {lead.status === 'pending' ? 'Pendente' : 
+                                     lead.status === 'sent' ? 'Enviado' : 
+                                     lead.status === 'error' ? 'Erro' : 
+                                     lead.status === 'duplicate' ? 'Duplicado' : 'Salvo'}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="max-h-[400px] overflow-y-auto space-y-2">
-                {sortedNiches.map(([niche, nicheLeads]) => {
+              /* Regular leads view (pending/sent) */
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {selectedLeads.length} de {displayLeads.length} selecionados
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedLeads.length === displayLeads.length) {
+                        setSelectedLeads([]);
+                      } else {
+                        setSelectedLeads(displayLeads.map(l => l.id));
+                      }
+                    }}
+                  >
+                    {selectedLeads.length === displayLeads.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                  </Button>
+                </div>
+                
+                {displayLeads.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="font-medium">
+                      {viewMode === 'pending' 
+                        ? 'Nenhum lead pendente para envio'
+                        : 'Nenhum lead foi enviado ainda'
+                      }
+                    </p>
+                    <p className="text-sm mt-1">
+                      {viewMode === 'pending' 
+                        ? 'Capture leads na aba Captura ou veja o Histórico'
+                        : 'Envie mensagens para leads pendentes primeiro'
+                      }
+                    </p>
+                  </div>
+                ) : (
+                  <div className="max-h-[400px] overflow-y-auto space-y-2">
+                    {sortedNiches.map(([niche, nicheLeads]) => {
                   const isExpanded = expandedNiches.has(niche);
                   const nicheLeadIds = nicheLeads.map(l => l.id);
                   const selectedInNiche = nicheLeadIds.filter(id => selectedLeads.includes(id)).length;
@@ -551,8 +733,10 @@ export function MassSendTab() {
                       )}
                     </div>
                   );
-                })}
-              </div>
+                    })}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </CardContent>
