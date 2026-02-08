@@ -124,6 +124,91 @@ export type Database = {
         }
         Relationships: []
       }
+      brazil_cep_ranges: {
+        Row: {
+          cep_end: string
+          cep_start: string
+          city_name: string | null
+          id: number
+          region_name: string | null
+          state_code: string
+        }
+        Insert: {
+          cep_end: string
+          cep_start: string
+          city_name?: string | null
+          id?: number
+          region_name?: string | null
+          state_code: string
+        }
+        Update: {
+          cep_end?: string
+          cep_start?: string
+          city_name?: string | null
+          id?: number
+          region_name?: string | null
+          state_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brazil_cep_ranges_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "brazil_states"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      brazil_cities: {
+        Row: {
+          ibge_code: number | null
+          id: number
+          name: string
+          state_code: string
+        }
+        Insert: {
+          ibge_code?: number | null
+          id?: number
+          name: string
+          state_code: string
+        }
+        Update: {
+          ibge_code?: number | null
+          id?: number
+          name?: string
+          state_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brazil_cities_state_code_fkey"
+            columns: ["state_code"]
+            isOneToOne: false
+            referencedRelation: "brazil_states"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      brazil_states: {
+        Row: {
+          code: string
+          id: number
+          name: string
+          region: string
+        }
+        Insert: {
+          code: string
+          id?: number
+          name: string
+          region: string
+        }
+        Update: {
+          code?: string
+          id?: number
+          name?: string
+          region?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           campaign_type: string
@@ -215,6 +300,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "chat_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_leads: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_leads_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
@@ -731,6 +848,36 @@ export type Database = {
           schedule_hour?: number | null
           total_leads_captured?: number | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          results_count: number | null
+          search_term: string
+          search_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          results_count?: number | null
+          search_term: string
+          search_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          results_count?: number | null
+          search_term?: string
+          search_type?: string
           user_id?: string
         }
         Relationships: []

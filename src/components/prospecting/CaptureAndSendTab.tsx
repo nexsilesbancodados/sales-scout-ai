@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { LeadQuantitySlider } from './LeadQuantitySlider';
+import { NicheAutocomplete } from './NicheAutocomplete';
+import { LocationAutocomplete } from './LocationAutocomplete';
 import {
   Select,
   SelectContent,
@@ -1598,7 +1600,7 @@ export function CaptureAndSendTab({
         </CardContent>
       </Card>
 
-      {/* Configuration */}
+      {/* Configuration - Niches and Locations with Autocomplete */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
@@ -1606,95 +1608,16 @@ export function CaptureAndSendTab({
               <Building2 className="h-4 w-4" />
               Nichos
             </CardTitle>
-            <CardDescription>Selecione ou digite nichos personalizados</CardDescription>
+            <CardDescription>Busque ou selecione nichos com autocomplete</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Custom input */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Digite nichos (separados por vírgula)..."
-                disabled={isProcessing}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const inputValue = (e.target as HTMLInputElement).value;
-                    // Support comma-separated values
-                    const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
-                    const newNiches = values.filter(v => !selectedNiches.includes(v));
-                    if (newNiches.length > 0) {
-                      setSelectedNiches(prev => [...prev, ...newNiches]);
-                      (e.target as HTMLInputElement).value = '';
-                    }
-                  }
-                }}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isProcessing}
-                onClick={(e) => {
-                  const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                  const inputValue = input.value;
-                  // Support comma-separated values
-                  const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
-                  const newNiches = values.filter(v => !selectedNiches.includes(v));
-                  if (newNiches.length > 0) {
-                    setSelectedNiches(prev => [...prev, ...newNiches]);
-                    input.value = '';
-                  }
-                }}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Selected niches */}
-            {selectedNiches.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-2 rounded-lg bg-muted/50">
-                {selectedNiches.map((niche) => (
-                  <Badge
-                    key={niche}
-                    variant="default"
-                    className="cursor-pointer gap-1"
-                    onClick={() => {
-                      if (!isProcessing) {
-                        setSelectedNiches(prev => prev.filter(n => n !== niche));
-                      }
-                    }}
-                  >
-                    {niche}
-                    <XCircle className="h-3 w-3" />
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            {/* Suggestions */}
-            <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-full justify-between">
-                  <span className="text-muted-foreground text-xs">Sugestões populares</span>
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {NICHES.filter(n => !selectedNiches.includes(n)).map((niche) => (
-                    <Badge
-                      key={niche}
-                      variant="outline"
-                      className="cursor-pointer text-xs"
-                      onClick={() => {
-                        if (!isProcessing) {
-                          setSelectedNiches(prev => [...prev, niche]);
-                        }
-                      }}
-                    >
-                      + {niche}
-                    </Badge>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+          <CardContent>
+            <NicheAutocomplete
+              value={selectedNiches}
+              onChange={setSelectedNiches}
+              placeholder="Digite para buscar nichos..."
+              disabled={isProcessing}
+              maxSelections={15}
+            />
           </CardContent>
         </Card>
 
@@ -1704,95 +1627,16 @@ export function CaptureAndSendTab({
               <MapPin className="h-4 w-4" />
               Locais
             </CardTitle>
-            <CardDescription>Selecione ou digite locais personalizados</CardDescription>
+            <CardDescription>Busque por cidade, estado ou CEP</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Custom input */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Digite cidades (separadas por vírgula)..."
-                disabled={isProcessing}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const inputValue = (e.target as HTMLInputElement).value;
-                    // Support comma-separated values
-                    const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
-                    const newLocations = values.filter(v => !selectedLocations.includes(v));
-                    if (newLocations.length > 0) {
-                      setSelectedLocations(prev => [...prev, ...newLocations]);
-                      (e.target as HTMLInputElement).value = '';
-                    }
-                  }
-                }}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isProcessing}
-                onClick={(e) => {
-                  const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                  const inputValue = input.value;
-                  // Support comma-separated values
-                  const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
-                  const newLocations = values.filter(v => !selectedLocations.includes(v));
-                  if (newLocations.length > 0) {
-                    setSelectedLocations(prev => [...prev, ...newLocations]);
-                    input.value = '';
-                  }
-                }}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Selected locations */}
-            {selectedLocations.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-2 rounded-lg bg-muted/50">
-                {selectedLocations.map((location) => (
-                  <Badge
-                    key={location}
-                    variant="default"
-                    className="cursor-pointer gap-1"
-                    onClick={() => {
-                      if (!isProcessing) {
-                        setSelectedLocations(prev => prev.filter(l => l !== location));
-                      }
-                    }}
-                  >
-                    {location}
-                    <XCircle className="h-3 w-3" />
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            {/* Suggestions */}
-            <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-full justify-between">
-                  <span className="text-muted-foreground text-xs">Cidades populares</span>
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {LOCATIONS.filter(l => !selectedLocations.includes(l)).map((location) => (
-                    <Badge
-                      key={location}
-                      variant="outline"
-                      className="cursor-pointer text-xs"
-                      onClick={() => {
-                        if (!isProcessing) {
-                          setSelectedLocations(prev => [...prev, location]);
-                        }
-                      }}
-                    >
-                      + {location}
-                    </Badge>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+          <CardContent>
+            <LocationAutocomplete
+              value={selectedLocations}
+              onChange={setSelectedLocations}
+              placeholder="Digite cidade, estado ou CEP..."
+              disabled={isProcessing}
+              maxSelections={15}
+            />
           </CardContent>
         </Card>
       </div>
