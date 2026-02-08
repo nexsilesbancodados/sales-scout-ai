@@ -91,6 +91,7 @@ async function processJobItem(
                       location: lead.location,
                       rating: lead.rating,
                       reviews_count: lead.reviews_count,
+                      website: lead.website, // Include website info for AI to know if they need a site
                     },
                     template: null, // Direct mode - no template
                     agentSettings: payload.agent_settings || {},
@@ -142,6 +143,7 @@ async function processJobItem(
                       location: lead.location,
                       rating: lead.rating,
                       reviews_count: lead.reviews_count,
+                      website: lead.website, // Include website info
                     },
                     template: payload.message_template,
                     agentSettings: payload.agent_settings || {},
