@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/auth';
 
 interface ChatMessageRaw {
   id: string;
@@ -35,8 +36,9 @@ export interface ConversationSummary {
 
 export function useConversations(search?: string) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['conversations', search],
     queryFn: async () => {
       // Get current user
@@ -126,13 +128,36 @@ export function useConversations(search?: string) {
 
       return conversations;
     },
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds as backup
+    staleTime: 2000, // Consider data stale after 2 seconds
   });
+
+  // Optimistic update handler for new messages
+  const handleRealtimeMessage = useCallback((payload: any) => {
+    console.log('🔔 Realtime message update:', payload.eventType, payload.new?.lead_id);
+    
+    // Immediately invalidate and refetch
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
+    
+    // Also trigger immediate refetch
+    refetch();
+  }, [queryClient, refetch]);
+
+  // Handler for lead updates
+  const handleRealtimeLead = useCallback((payload: any) => {
+    console.log('🔔 Realtime lead update:', payload.eventType, payload.new?.id);
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+  }, [queryClient]);
 
   // Subscribe to realtime updates for chat messages
   useEffect(() => {
+    if (!user?.id) return;
+
+    console.log('📡 Setting up realtime subscriptions for conversations...');
+
     const channel = supabase
-      .channel('conversations-updates')
+      .channel('conversations-realtime-sync')
       .on(
         'postgres_changes',
         {
@@ -140,10 +165,7 @@ export function useConversations(search?: string) {
           schema: 'public',
           table: 'chat_messages',
         },
-        (payload) => {
-          console.log('Conversation update:', payload.eventType);
-          queryClient.invalidateQueries({ queryKey: ['conversations'] });
-        }
+        handleRealtimeMessage
       )
       .on(
         'postgres_changes',
@@ -151,21 +173,24 @@ export function useConversations(search?: string) {
           event: '*',
           schema: 'public',
           table: 'leads',
+          filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
-          queryClient.invalidateQueries({ queryKey: ['conversations'] });
-        }
+        handleRealtimeLead
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Conversations realtime subscription status:', status);
+      });
 
     return () => {
+      console.log('📡 Cleaning up conversations realtime subscription');
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [user?.id, handleRealtimeMessage, handleRealtimeLead]);
 
   return {
     conversations: data || [],
     isLoading,
     error,
+    refetch,
   };
 }
