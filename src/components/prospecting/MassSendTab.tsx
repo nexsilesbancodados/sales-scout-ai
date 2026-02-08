@@ -257,8 +257,16 @@ export function MassSendTab() {
     }
   };
 
+  // Get total leads to send based on view mode
+  const leadsToSendCount = viewMode === 'history' 
+    ? selectedHistoryLeads.length 
+    : selectedLeads.length;
+
   const handleMassSend = async () => {
-    if (selectedLeads.length === 0) {
+    const isHistoryMode = viewMode === 'history';
+    const hasLeads = isHistoryMode ? selectedHistoryLeads.length > 0 : selectedLeads.length > 0;
+
+    if (!hasLeads) {
       toast({
         title: 'Selecione pelo menos um lead',
         variant: 'destructive',
@@ -283,19 +291,58 @@ export function MassSendTab() {
       return;
     }
 
-    // Prepare leads data for the job
-    const selectedLeadsData = selectedLeads.map(id => {
-      const lead = displayLeads.find(l => l.id === id);
-      return {
-        id: lead?.id,
-        phone: lead?.phone,
-        business_name: lead?.business_name,
-        niche: lead?.niche,
-        location: lead?.location,
-        rating: lead?.rating,
-        reviews_count: lead?.reviews_count,
-      };
-    }).filter(l => l.id);
+    // Prepare leads data for the job - from history or from database leads
+    let selectedLeadsData: any[] = [];
+
+    if (isHistoryMode) {
+      // Use leads from history - get niche/location from the parent session
+      // First, collect all sessions that have selected leads
+      const sessionMap = new Map<string, { niche: string | null; location: string | null }>();
+      history.forEach(session => {
+        session.leads_data?.forEach(lead => {
+          if (selectedHistoryLeads.some(sl => sl.phone === lead.phone)) {
+            sessionMap.set(lead.phone, {
+              niche: session.niche,
+              location: session.location,
+            });
+          }
+        });
+      });
+
+      selectedLeadsData = selectedHistoryLeads.map(lead => ({
+        id: null, // History leads don't have DB IDs yet
+        phone: lead.phone,
+        business_name: lead.business_name,
+        niche: sessionMap.get(lead.phone)?.niche || null,
+        location: sessionMap.get(lead.phone)?.location || null,
+        rating: null,
+        reviews_count: null,
+        from_history: true,
+      }));
+    } else {
+      // Use leads from database
+      selectedLeadsData = selectedLeads.map(id => {
+        const lead = displayLeads.find(l => l.id === id);
+        return {
+          id: lead?.id,
+          phone: lead?.phone,
+          business_name: lead?.business_name,
+          niche: lead?.niche,
+          location: lead?.location,
+          rating: lead?.rating,
+          reviews_count: lead?.reviews_count,
+        };
+      }).filter(l => l.phone);
+    }
+
+    if (selectedLeadsData.length === 0) {
+      toast({
+        title: 'Nenhum lead válido selecionado',
+        description: 'Os leads selecionados não possuem telefone.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Get the specific service to offer
     const serviceToOffer = selectedService !== 'all' 
@@ -331,6 +378,7 @@ export function MassSendTab() {
 
     // Clear selections
     setSelectedLeads([]);
+    setSelectedHistoryLeads([]);
     setMassMessage('');
     setPreviewMessage('');
     setPreviewLead(null);
@@ -360,8 +408,8 @@ export function MassSendTab() {
   };
 
   const canSend = sendMode === 'direct' 
-    ? selectedLeads.length > 0 
-    : selectedLeads.length > 0 && massMessage.trim();
+    ? leadsToSendCount > 0 
+    : leadsToSendCount > 0 && massMessage.trim();
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -870,7 +918,7 @@ export function MassSendTab() {
                   </div>
 
                   <div className="text-sm text-muted-foreground text-center">
-                    {selectedLeads.length} leads selecionados
+                    {leadsToSendCount} leads selecionados
                   </div>
                 </TabsContent>
               </Tabs>
@@ -913,8 +961,8 @@ export function MassSendTab() {
                 {hasActiveMassSend 
                   ? 'Envio em andamento...'
                   : sendMode === 'direct'
-                    ? `Disparar IA Direta para ${selectedLeads.length} leads`
-                    : `Enviar para ${selectedLeads.length} leads${useAIPersonalization ? ' (com IA)' : ''}`
+                    ? `Disparar IA Direta para ${leadsToSendCount} leads`
+                    : `Enviar para ${leadsToSendCount} leads${useAIPersonalization ? ' (com IA)' : ''}`
                 }
               </Button>
 
