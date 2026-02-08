@@ -275,7 +275,7 @@ export function CaptureAndSendTab({
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
   const [localLogs, setLocalLogs] = useState<string[]>([]);
   const [filters, setFilters] = useState<CaptureFilters>(DEFAULT_FILTERS);
-  const [maxLeadsToCapture, setMaxLeadsToCapture] = useState(300);
+  const [maxLeadsToCapture, setMaxLeadsToCapture] = useState(500);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentHistorySessionId, setCurrentHistorySessionId] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string>('all');

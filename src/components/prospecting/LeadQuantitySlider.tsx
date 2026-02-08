@@ -12,8 +12,8 @@ interface LeadQuantitySliderProps {
 
 export function LeadQuantitySlider({ value, onChange, disabled }: LeadQuantitySliderProps) {
   const getIntensityLevel = (val: number) => {
-    if (val <= 200) return { label: 'Básica', icon: Target, color: 'text-info', bg: 'bg-info/10' };
-    if (val <= 500) return { label: 'Moderada', icon: Zap, color: 'text-warning', bg: 'bg-warning/10' };
+    if (val <= 300) return { label: 'Básica', icon: Target, color: 'text-info', bg: 'bg-info/10' };
+    if (val <= 800) return { label: 'Moderada', icon: Zap, color: 'text-warning', bg: 'bg-warning/10' };
     return { label: 'Intensiva', icon: Rocket, color: 'text-destructive', bg: 'bg-destructive/10' };
   };
 
@@ -38,25 +38,25 @@ export function LeadQuantitySlider({ value, onChange, disabled }: LeadQuantitySl
           <Slider
             value={[value]}
             onValueChange={([val]) => onChange(val)}
-            min={50}
-            max={1000}
-            step={50}
+            min={100}
+            max={2000}
+            step={100}
             disabled={disabled}
             className="w-full"
           />
           
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>50</span>
-            <span>300</span>
+            <span>100</span>
             <span>500</span>
-            <span>750</span>
             <span>1000</span>
+            <span>1500</span>
+            <span>2000</span>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {value <= 200 && 'Busca rápida com resultados essenciais. Ideal para testes.'}
-            {value > 200 && value <= 500 && 'Busca equilibrada entre velocidade e volume. Recomendado para uso diário.'}
-            {value > 500 && 'Busca intensiva com máximo volume. Pode demorar mais.'}
+            {value <= 300 && 'Busca rápida com resultados essenciais. Ideal para testes.'}
+            {value > 300 && value <= 800 && 'Busca equilibrada entre velocidade e volume. Recomendado para uso diário.'}
+            {value > 800 && 'Busca intensiva com MÁXIMO volume. Cobre bairros e variações. Pode demorar mais.'}
           </p>
         </div>
       </CardContent>

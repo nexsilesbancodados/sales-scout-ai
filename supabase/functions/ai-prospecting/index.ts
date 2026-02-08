@@ -742,9 +742,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       }
     }
 
-    // Action: Search leads - NOW WITH SERPER.DEV SUPPORT
+    // Action: Search leads - MAXIMIZED COVERAGE
     if (action === "search_leads") {
-      const { niche, location, maxResults = 200 } = data;
+      const { niche, location, maxResults = 500 } = data;
       
       // Determine which API to use based on user preference
       const preferredApi = userSettings?.preferred_search_api || 'serper';
@@ -762,8 +762,22 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         });
       }
 
+      // Bairros e regiões de grandes cidades para expandir busca
+      const CITY_REGIONS: Record<string, string[]> = {
+        "São Paulo": ["Centro", "Paulista", "Pinheiros", "Vila Mariana", "Moema", "Itaim Bibi", "Jardins", "Brooklin", "Mooca", "Tatuapé", "Santana", "Lapa", "Perdizes", "Vila Madalena", "Bela Vista", "Consolação", "Liberdade", "Santo Amaro", "Campo Belo", "Morumbi", "Butantã", "Penha", "Vila Prudente", "Ipiranga", "Saúde", "Jabaquara"],
+        "Rio de Janeiro": ["Centro", "Copacabana", "Ipanema", "Leblon", "Botafogo", "Flamengo", "Tijuca", "Barra da Tijuca", "Recreio", "Méier", "Madureira", "Jacarepaguá", "Campo Grande", "Niterói"],
+        "Belo Horizonte": ["Centro", "Savassi", "Funcionários", "Lourdes", "Pampulha", "Contagem", "Betim"],
+        "Curitiba": ["Centro", "Batel", "Água Verde", "Portão", "Santa Felicidade", "Cabral", "Juvevê"],
+        "Porto Alegre": ["Centro", "Moinhos de Vento", "Cidade Baixa", "Menino Deus", "Petrópolis", "Mont Serrat"],
+        "Salvador": ["Centro", "Barra", "Pituba", "Itaigara", "Ondina", "Rio Vermelho", "Brotas"],
+        "Brasília": ["Asa Sul", "Asa Norte", "Lago Sul", "Lago Norte", "Sudoeste", "Noroeste", "Taguatinga", "Águas Claras"],
+        "Fortaleza": ["Centro", "Aldeota", "Meireles", "Fátima", "Papicu", "Cocó", "Dionísio Torres"],
+        "Recife": ["Centro", "Boa Viagem", "Casa Forte", "Espinheiro", "Derby", "Graças", "Aflitos"],
+        "Campinas": ["Centro", "Cambuí", "Taquaral", "Barão Geraldo", "Sousas", "Nova Campinas"],
+      };
+
       // Helper function to search with Serper.dev
-      async function searchWithSerper(searchQuery: string, start: number): Promise<any[]> {
+      async function searchWithSerper(searchQuery: string): Promise<any[]> {
         const response = await fetch('https://google.serper.dev/places', {
           method: 'POST',
           headers: {
@@ -774,6 +788,7 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
             q: searchQuery,
             gl: 'br',
             hl: 'pt-br',
+            num: 100, // Request max results
           }),
         });
 
@@ -910,84 +925,56 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         }
       }
       
-      // Remove duplicates and limit to 20 search terms for maximum coverage
+      // Remove duplicates
       const uniqueTerms = [...new Set(searchTerms)];
-      const limitedSearchTerms = uniqueTerms.slice(0, 20);
+      // Use up to 30 terms for MAXIMUM coverage
+      const limitedSearchTerms = uniqueTerms.slice(0, 30);
 
       // Determine which API to use (with fallback logic)
       let useSerper = preferredApi === 'serper' && serperApiKey;
       let useSerpApi = !useSerper && serpApiKey;
       let apiUsed = useSerper ? 'serper' : 'serpapi';
 
-      console.log(`Enhanced search for ${niche} in ${location} with ${limitedSearchTerms.length} terms (max: ${maxResults}) using ${apiUsed}`);
+      // Get city regions if available
+      const cityName = Object.keys(CITY_REGIONS).find(city => 
+        location.toLowerCase().includes(city.toLowerCase())
+      );
+      const regions = cityName ? CITY_REGIONS[cityName] : [];
 
+      // Build search locations: original location + specific neighborhoods for big cities
+      const searchLocations: string[] = [location];
+      if (regions.length > 0) {
+        // Add neighborhoods/regions for more targeted search
+        for (const region of regions.slice(0, 15)) {
+          searchLocations.push(`${region}, ${cityName}`);
+        }
+      }
+
+      console.log(`MAXIMIZED search for ${niche} in ${location}`);
+      console.log(`- ${limitedSearchTerms.length} search terms`);
+      console.log(`- ${searchLocations.length} location variations`);
+      console.log(`- Target: ${maxResults} leads`);
+      console.log(`- API: ${apiUsed}`);
+
+      // Process each search term with location variations
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
-        const searchQuery = `${searchTerm} em ${location}`;
-        
-        // For Serper, we do a single call per term (no pagination)
-        // For SerpAPI, we paginate
-        if (useSerper) {
-          try {
-            const results = await searchWithSerper(searchQuery, 0);
-            console.log(`Serper found ${results.length} results for "${searchTerm}"`);
-            
-            for (const result of results) {
-              if (allLeads.length >= maxResults) break;
-              if (!result.phoneNumber) continue;
-              
-              const normalizedPhone = result.phoneNumber.replace(/\D/g, "");
-              if (seenPhones.has(normalizedPhone)) continue;
-              
-              const normalizedName = (result.title || "").toLowerCase().trim();
-              if (seenNames.has(normalizedName)) continue;
+        for (const searchLocation of searchLocations) {
+          if (allLeads.length >= maxResults) break;
 
-              seenPhones.add(normalizedPhone);
-              seenNames.add(normalizedName);
-
-              allLeads.push({
-                business_name: result.title || "Empresa",
-                phone: result.phoneNumber,
-                address: result.address || null,
-                rating: result.rating || null,
-                reviews_count: result.ratingCount || null,
-                website: result.website || null,
-                google_maps_url: result.link || null,
-                place_id: result.placeId || null,
-                type: result.category || null,
-                subtype: searchTerm,
-              });
-            }
-            
-            await new Promise(r => setTimeout(r, 80));
-          } catch (error) {
-            console.error(`Serper error for ${searchTerm}:`, error);
-            // Try fallback to SerpAPI
-            if (serpApiKey) {
-              console.log('Falling back to SerpAPI...');
-              useSerper = false;
-              useSerpApi = true;
-              apiUsed = 'serpapi (fallback)';
-            }
-          }
-        }
-        
-        if (useSerpApi) {
-          // Search up to 10 pages (200 results per term) for MAXIMUM coverage
-          for (let start = 0; start < 200; start += 20) {
-            if (allLeads.length >= maxResults) break;
-
+          const searchQuery = `${searchTerm} em ${searchLocation}`;
+          
+          if (useSerper) {
             try {
-              const results = await searchWithSerpApi(searchQuery, start);
-              console.log(`SerpAPI found ${results.length} results for "${searchTerm}" at position ${start}`);
+              const results = await searchWithSerper(searchQuery);
+              console.log(`[Serper] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
               
-              if (results.length === 0) break;
-
               for (const result of results) {
-                if (!result.phone) continue;
+                if (allLeads.length >= maxResults) break;
+                if (!result.phoneNumber) continue;
                 
-                const normalizedPhone = result.phone.replace(/\D/g, "");
+                const normalizedPhone = result.phoneNumber.replace(/\D/g, "");
                 if (seenPhones.has(normalizedPhone)) continue;
                 
                 const normalizedName = (result.title || "").toLowerCase().trim();
@@ -998,24 +985,75 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
 
                 allLeads.push({
                   business_name: result.title || "Empresa",
-                  phone: result.phone,
+                  phone: result.phoneNumber,
                   address: result.address || null,
                   rating: result.rating || null,
-                  reviews_count: result.reviews || null,
+                  reviews_count: result.ratingCount || null,
                   website: result.website || null,
-                  google_maps_url: result.place_id 
-                    ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                    : null,
-                  place_id: result.place_id || null,
-                  type: result.type || null,
+                  google_maps_url: result.link || null,
+                  place_id: result.placeId || null,
+                  type: result.category || null,
                   subtype: searchTerm,
                 });
               }
-
-              // Small delay to respect rate limits
-              await new Promise(r => setTimeout(r, 80));
+              
+              await new Promise(r => setTimeout(r, 50));
             } catch (error) {
-              console.error(`SerpAPI error for ${searchTerm}:`, error);
+              console.error(`Serper error for ${searchTerm}:`, error);
+              // Try fallback to SerpAPI
+              if (serpApiKey) {
+                console.log('Falling back to SerpAPI...');
+                useSerper = false;
+                useSerpApi = true;
+                apiUsed = 'serpapi (fallback)';
+              }
+            }
+          }
+          
+          if (useSerpApi) {
+            // Search up to 10 pages (200 results per term) for MAXIMUM coverage
+            for (let start = 0; start < 200; start += 20) {
+              if (allLeads.length >= maxResults) break;
+
+              try {
+                const results = await searchWithSerpApi(searchQuery, start);
+                console.log(`[SerpAPI] "${searchTerm}" in "${searchLocation}" @${start}: ${results.length} results`);
+                
+                if (results.length === 0) break;
+
+                for (const result of results) {
+                  if (!result.phone) continue;
+                  
+                  const normalizedPhone = result.phone.replace(/\D/g, "");
+                  if (seenPhones.has(normalizedPhone)) continue;
+                  
+                  const normalizedName = (result.title || "").toLowerCase().trim();
+                  if (seenNames.has(normalizedName)) continue;
+
+                  seenPhones.add(normalizedPhone);
+                  seenNames.add(normalizedName);
+
+                  allLeads.push({
+                    business_name: result.title || "Empresa",
+                    phone: result.phone,
+                    address: result.address || null,
+                    rating: result.rating || null,
+                    reviews_count: result.reviews || null,
+                    website: result.website || null,
+                    google_maps_url: result.place_id 
+                      ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
+                      : null,
+                    place_id: result.place_id || null,
+                    type: result.type || null,
+                    subtype: searchTerm,
+                  });
+                }
+
+                // Small delay to respect rate limits
+                await new Promise(r => setTimeout(r, 50));
+              } catch (error) {
+                console.error(`SerpAPI error for ${searchTerm}:`, error);
+              }
             }
           }
         }
