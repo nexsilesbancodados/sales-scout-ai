@@ -16,6 +16,7 @@ import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
 import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
 import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { WhatsAppGroupImport } from '@/components/prospecting/WhatsAppGroupImport';
+import { AntiBanDashboard } from '@/components/antiban';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -36,6 +37,7 @@ import {
   Layers,
   LucideIcon,
   MessageCircle,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -92,6 +94,7 @@ const tabGroups: TabGroup[] = [
       { id: 'email-finder', icon: Mail, label: 'Emails' },
       { id: 'ab-testing', icon: FlaskConical, label: 'Teste A/B' },
       { id: 'ai-insights', icon: Brain, label: 'IA' },
+      { id: 'antiban', icon: Shield, label: 'Anti-Ban' },
       { id: 'history', icon: History, label: 'Histórico' },
     ],
   },
@@ -148,6 +151,7 @@ export default function ProspectingPage() {
       case 'email-finder': return <EmailFinderTab />;
       case 'ab-testing': return <ABTestingTab />;
       case 'ai-insights': return <AIInsightsTab />;
+      case 'antiban': return <AntiBanDashboard />;
       case 'history': return <ProspectingHistoryTab onReprospect={handleReprospectFromHistory} />;
       default: return null;
     }

@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.generate-proposal]
 verify_jwt = false
+
+[functions.antiban-queue-processor]
+verify_jwt = false

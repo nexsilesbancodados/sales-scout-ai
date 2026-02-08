@@ -102,6 +102,93 @@ export type Database = {
           },
         ]
       }
+      antiban_config: {
+        Row: {
+          blacklist_keywords: string[] | null
+          chip_health: string | null
+          created_at: string
+          daily_limit: number | null
+          hourly_limit: number | null
+          id: string
+          last_health_check_at: string | null
+          last_message_sent_at: string | null
+          last_rest_at: string | null
+          max_delay_seconds: number | null
+          max_typing_seconds: number | null
+          messages_before_rest: number | null
+          messages_sent_hour: number | null
+          messages_sent_today: number | null
+          min_delay_seconds: number | null
+          min_typing_seconds: number | null
+          rest_duration_minutes: number | null
+          rest_pause_enabled: boolean | null
+          typing_enabled: boolean | null
+          updated_at: string
+          user_id: string
+          warmup_daily_limit: number | null
+          warmup_day: number | null
+          warmup_enabled: boolean | null
+          warmup_increment_percent: number | null
+          warmup_start_date: string | null
+        }
+        Insert: {
+          blacklist_keywords?: string[] | null
+          chip_health?: string | null
+          created_at?: string
+          daily_limit?: number | null
+          hourly_limit?: number | null
+          id?: string
+          last_health_check_at?: string | null
+          last_message_sent_at?: string | null
+          last_rest_at?: string | null
+          max_delay_seconds?: number | null
+          max_typing_seconds?: number | null
+          messages_before_rest?: number | null
+          messages_sent_hour?: number | null
+          messages_sent_today?: number | null
+          min_delay_seconds?: number | null
+          min_typing_seconds?: number | null
+          rest_duration_minutes?: number | null
+          rest_pause_enabled?: boolean | null
+          typing_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+          warmup_daily_limit?: number | null
+          warmup_day?: number | null
+          warmup_enabled?: boolean | null
+          warmup_increment_percent?: number | null
+          warmup_start_date?: string | null
+        }
+        Update: {
+          blacklist_keywords?: string[] | null
+          chip_health?: string | null
+          created_at?: string
+          daily_limit?: number | null
+          hourly_limit?: number | null
+          id?: string
+          last_health_check_at?: string | null
+          last_message_sent_at?: string | null
+          last_rest_at?: string | null
+          max_delay_seconds?: number | null
+          max_typing_seconds?: number | null
+          messages_before_rest?: number | null
+          messages_sent_hour?: number | null
+          messages_sent_today?: number | null
+          min_delay_seconds?: number | null
+          min_typing_seconds?: number | null
+          rest_duration_minutes?: number | null
+          rest_pause_enabled?: boolean | null
+          typing_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+          warmup_daily_limit?: number | null
+          warmup_day?: number | null
+          warmup_enabled?: boolean | null
+          warmup_increment_percent?: number | null
+          warmup_start_date?: string | null
+        }
+        Relationships: []
+      }
       background_jobs: {
         Row: {
           completed_at: string | null
@@ -397,6 +484,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chip_health_logs: {
+        Row: {
+          connection_status: string | null
+          created_at: string
+          failed_messages_hour: number | null
+          health_status: string
+          id: string
+          messages_sent_day: number | null
+          messages_sent_hour: number | null
+          recommendations: string[] | null
+          risk_factors: Json | null
+          user_id: string
+        }
+        Insert: {
+          connection_status?: string | null
+          created_at?: string
+          failed_messages_hour?: number | null
+          health_status: string
+          id?: string
+          messages_sent_day?: number | null
+          messages_sent_hour?: number | null
+          recommendations?: string[] | null
+          risk_factors?: Json | null
+          user_id: string
+        }
+        Update: {
+          connection_status?: string | null
+          created_at?: string
+          failed_messages_hour?: number | null
+          health_status?: string
+          id?: string
+          messages_sent_day?: number | null
+          messages_sent_hour?: number | null
+          recommendations?: string[] | null
+          risk_factors?: Json | null
+          user_id?: string
+        }
+        Relationships: []
       }
       favorite_leads: {
         Row: {
@@ -968,6 +1094,36 @@ export type Database = {
           usage_count?: number | null
           user_id?: string
           variables?: string[] | null
+        }
+        Relationships: []
+      }
+      message_variations: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+          variations: string[]
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+          variations: string[]
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+          variations?: string[]
         }
         Relationships: []
       }
@@ -1620,17 +1776,141 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_blacklist: {
+        Row: {
+          created_at: string
+          id: string
+          keyword_matched: string | null
+          lead_id: string | null
+          phone: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keyword_matched?: string | null
+          lead_id?: string | null
+          phone: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keyword_matched?: string | null
+          lead_id?: string | null
+          phone?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_blacklist_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_queue: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          delay_seconds: number | null
+          error_message: string | null
+          id: string
+          lead_id: string | null
+          max_retries: number | null
+          original_content: string
+          phone: string
+          priority: number | null
+          processed_content: string | null
+          retry_count: number | null
+          scheduled_at: string | null
+          sent_at: string | null
+          simulate_typing: boolean | null
+          status: string | null
+          typing_duration_seconds: number | null
+          typing_started_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          delay_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          max_retries?: number | null
+          original_content: string
+          phone: string
+          priority?: number | null
+          processed_content?: string | null
+          retry_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          simulate_typing?: boolean | null
+          status?: string | null
+          typing_duration_seconds?: number | null
+          typing_started_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          delay_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          max_retries?: number | null
+          original_content?: string
+          phone?: string
+          priority?: number | null
+          processed_content?: string | null
+          retry_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          simulate_typing?: boolean | null
+          status?: string | null
+          typing_duration_seconds?: number | null
+          typing_started_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_queue_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       calculate_lead_score: { Args: { p_lead_id: string }; Returns: number }
+      get_current_daily_limit: { Args: { p_user_id: string }; Returns: number }
       get_user_team_ids: { Args: { p_user_id: string }; Returns: string[] }
       is_lead_owner: { Args: { p_lead_id: string }; Returns: boolean }
+      is_phone_blacklisted: {
+        Args: { p_phone: string; p_user_id: string }
+        Returns: boolean
+      }
       is_team_admin: {
         Args: { p_team_id: string; p_user_id: string }
         Returns: boolean
+      }
+      process_spintax: {
+        Args: { p_content: string; p_user_id: string }
+        Returns: string
       }
       recover_stale_jobs: { Args: never; Returns: number }
     }
