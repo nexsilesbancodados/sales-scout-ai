@@ -119,7 +119,7 @@ export function LeadFinderInterface() {
             body: {
               query: searchQuery,
               location: currentLocation,
-              num_results: 50,
+              num_results: 100, // Request maximum results
               search_type: 'places',
             },
           });

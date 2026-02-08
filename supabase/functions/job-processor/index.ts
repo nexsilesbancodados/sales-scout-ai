@@ -236,17 +236,21 @@ async function processJobItem(
 
         // Record prospecting stats for analytics
         const now = new Date();
-        await supabase.from("prospecting_stats").insert({
-          user_id: job.user_id,
-          niche: lead.niche || 'Geral',
-          location: lead.location || null,
-          hour_of_day: now.getHours(),
-          day_of_week: now.getDay(),
-          messages_sent: 1,
-          responses_received: 0,
-          positive_responses: 0,
-          date: now.toISOString().split('T')[0],
-        }).catch(err => console.error('[Job] Error recording stats:', err));
+        try {
+          await supabase.from("prospecting_stats").insert({
+            user_id: job.user_id,
+            niche: lead.niche || 'Geral',
+            location: lead.location || null,
+            hour_of_day: now.getHours(),
+            day_of_week: now.getDay(),
+            messages_sent: 1,
+            responses_received: 0,
+            positive_responses: 0,
+            date: now.toISOString().split('T')[0],
+          });
+        } catch (err) {
+          console.error('[Job] Error recording stats:', err);
+        }
 
         // Random delay between messages (anti-block)
         // Check job status during delay to allow pause/cancel to work
