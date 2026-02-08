@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProspectingDashboard } from '@/components/prospecting/ProspectingDashboard';
-import { CaptureAndSendTab } from '@/components/prospecting/CaptureAndSendTab';
+import { LeadFinderInterface } from '@/components/prospecting/LeadFinderInterface';
 import { WebSearchTab } from '@/components/prospecting/WebSearchTab';
 import { ImportTab } from '@/components/prospecting/ImportTab';
 import { MassSendTab } from '@/components/prospecting/MassSendTab';
@@ -145,16 +145,7 @@ export default function ProspectingPage() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'maps':
-        return (
-          <CaptureAndSendTab 
-            prefilledNiches={prefilledNiches}
-            prefilledLocations={prefilledLocations}
-            onPrefilledConsumed={() => {
-              setPrefilledNiches([]);
-              setPrefilledLocations([]);
-            }}
-          />
-        );
+        return <LeadFinderInterface />;
       case 'web-search': return <WebSearchTab />;
       case 'import': return <ImportTab />;
       case 'mass-send': return <MassSendTab />;
