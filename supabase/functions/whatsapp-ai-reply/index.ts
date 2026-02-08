@@ -327,7 +327,25 @@ async function executeToolCall(
 
   switch (toolName) {
     case "scheduleMeeting": {
-      const scheduledAt = new Date(`${args.date}T${args.time}:00`);
+      // Parse the date - if year is in the past, use current year
+      let dateStr = args.date;
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const parsedYear = parseInt(dateStr.split('-')[0]);
+      
+      // Fix if AI sends a past year
+      if (parsedYear < currentYear) {
+        dateStr = `${currentYear}-${dateStr.slice(5)}`;
+        console.log(`Fixed past year in date: ${args.date} -> ${dateStr}`);
+      }
+      
+      const scheduledAt = new Date(`${dateStr}T${args.time}:00`);
+      
+      // If the date is still in the past, add 1 year
+      if (scheduledAt < now) {
+        scheduledAt.setFullYear(scheduledAt.getFullYear() + 1);
+        console.log(`Date was in past, moved to next year: ${scheduledAt.toISOString()}`);
+      }
       
       const { data: meeting, error } = await supabase
         .from("meetings")

@@ -48,9 +48,25 @@ function buildAgentPrompt(settings: any, lead: any, conversationContext: any): s
   const mentionedPrice = conversationContext.mentionedPrice || false;
   const mentionedTime = conversationContext.mentionedTime || false;
 
+  // Current date and time
+  const now = new Date();
+  const currentDate = now.toISOString().split('T')[0];
+  const currentDateFormatted = now.toLocaleDateString('pt-BR', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  const currentHour = now.getHours();
+
   return `# IDENTIDADE
 Você é ${settings.agent_name || "um consultor de vendas"}, um ser humano real que trabalha como consultor.
 ${settings.agent_persona || ""}
+
+# DATA E HORA ATUAL
+- Data de HOJE: ${currentDateFormatted} (${currentDate})
+- Hora atual: ${currentHour}h
+- IMPORTANTE: Quando o cliente disser "hoje", use a data ${currentDate}. Quando disser "amanhã", some 1 dia.
 
 # PERSONALIDADE
 ${agentTypeDescriptions[settings.agent_type] || agentTypeDescriptions.consultivo}
@@ -574,7 +590,26 @@ Deno.serve(async (req) => {
             if (toolCall.function.name === "scheduleMeeting") {
               const args = JSON.parse(toolCall.function.arguments);
               
-              const scheduledAt = new Date(`${args.date}T${args.time}:00`);
+              // Fix date if AI sends a past year
+              let dateStr = args.date;
+              const now = new Date();
+              const currentYear = now.getFullYear();
+              const parsedYear = parseInt(dateStr.split('-')[0]);
+              
+              if (parsedYear < currentYear) {
+                dateStr = `${currentYear}-${dateStr.slice(5)}`;
+                console.log(`Fixed past year in date: ${args.date} -> ${dateStr}`);
+              }
+              
+              let scheduledAt = new Date(`${dateStr}T${args.time}:00`);
+              
+              // If still in past, move to next occurrence
+              if (scheduledAt < now) {
+                // If it's "today" but the time already passed, schedule for tomorrow
+                scheduledAt.setDate(scheduledAt.getDate() + 1);
+                console.log(`Date was in past, moved to tomorrow: ${scheduledAt.toISOString()}`);
+              }
+              
               const { data: meeting, error: meetingError } = await supabase
                 .from("meetings")
                 .insert({
