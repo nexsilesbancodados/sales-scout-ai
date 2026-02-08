@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
@@ -22,28 +21,17 @@ import { MeetingSettings } from '@/components/settings/MeetingSettings';
 import {
   Bot,
   MessageSquare,
-  Target,
   Bell,
   Webhook,
-  Plus,
-  X,
   Loader2,
   Check,
   Shield,
-  Key,
   Users,
   Download,
   Zap,
-  ChevronDown,
-  ChevronUp,
   Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 
 // Simplified tab structure - only 3 main tabs
 const settingsTabs = [
@@ -108,8 +96,6 @@ export default function SettingsPage() {
   const [agentPersona, setAgentPersona] = useState('');
   const [knowledgeBase, setKnowledgeBase] = useState('');
   const [selectedPreset, setSelectedPreset] = useState('consultor');
-  const [newNiche, setNewNiche] = useState('');
-  const [newLocation, setNewLocation] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
 
   // Initialize form values when settings load
@@ -141,36 +127,6 @@ export default function SettingsPage() {
       title: '✓ Agente atualizado',
       description: 'As configurações foram salvas.',
     });
-  };
-
-  const handleAddNiche = () => {
-    if (!newNiche.trim() || !settings) return;
-    const values = newNiche.split(',').map(v => v.trim()).filter(v => v.length > 0);
-    const newNiches = values.filter(v => !(settings.target_niches || []).includes(v));
-    if (newNiches.length > 0) {
-      updateSettings({ target_niches: [...(settings.target_niches || []), ...newNiches] });
-    }
-    setNewNiche('');
-  };
-
-  const handleRemoveNiche = (niche: string) => {
-    if (!settings) return;
-    updateSettings({ target_niches: (settings.target_niches || []).filter(n => n !== niche) });
-  };
-
-  const handleAddLocation = () => {
-    if (!newLocation.trim() || !settings) return;
-    const values = newLocation.split(',').map(v => v.trim()).filter(v => v.length > 0);
-    const newLocs = values.filter(v => !(settings.target_locations || []).includes(v));
-    if (newLocs.length > 0) {
-      updateSettings({ target_locations: [...(settings.target_locations || []), ...newLocs] });
-    }
-    setNewLocation('');
-  };
-
-  const handleRemoveLocation = (location: string) => {
-    if (!settings) return;
-    updateSettings({ target_locations: (settings.target_locations || []).filter(l => l !== location) });
   };
 
   const handleSaveWebhook = () => {
@@ -406,80 +362,6 @@ export default function SettingsPage() {
             {/* Service Intelligence - AI Training */}
             <ServiceIntelligenceManager />
 
-            {/* Target Niches & Locations - Compact */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />
-                    Nichos Alvo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newNiche}
-                      onChange={(e) => setNewNiche(e.target.value)}
-                      placeholder="Ex: Restaurantes, Clínicas"
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddNiche()}
-                      className="h-9"
-                    />
-                    <Button onClick={handleAddNiche} size="sm" variant="outline">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {settings?.target_niches?.map((niche, i) => (
-                      <Badge key={i} variant="secondary" className="pr-1 text-xs">
-                        {niche}
-                        <button onClick={() => handleRemoveNiche(niche)} className="ml-1.5 hover:text-destructive">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                    {!settings?.target_niches?.length && (
-                      <p className="text-xs text-muted-foreground">Nenhum nicho adicionado</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />
-                    Localizações
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newLocation}
-                      onChange={(e) => setNewLocation(e.target.value)}
-                      placeholder="Ex: São Paulo, Curitiba"
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddLocation()}
-                      className="h-9"
-                    />
-                    <Button onClick={handleAddLocation} size="sm" variant="outline">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {settings?.target_locations?.map((loc, i) => (
-                      <Badge key={i} variant="secondary" className="pr-1 text-xs">
-                        {loc}
-                        <button onClick={() => handleRemoveLocation(loc)} className="ml-1.5 hover:text-destructive">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                    {!settings?.target_locations?.length && (
-                      <p className="text-xs text-muted-foreground">Nenhuma localização adicionada</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         )}
 
