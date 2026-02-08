@@ -211,10 +211,10 @@ export default function ProspectingPage() {
       <ProspectingDashboard />
 
       {/* Navigation */}
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
         {/* Group Buttons - Compact */}
         <div className="flex flex-wrap gap-2">
-          {tabGroups.map((group) => {
+          {tabGroups.map((group, index) => {
             const isActive = activeGroup === group.id;
             const GroupIcon = group.icon;
             return (
@@ -227,9 +227,10 @@ export default function ProspectingPage() {
                   setActiveTab(group.tabs[0].id);
                 }}
                 className={cn(
-                  "gap-2",
-                  isActive && "shadow-md"
+                  "gap-2 transition-all duration-200",
+                  isActive && "shadow-md scale-[1.02]"
                 )}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <GroupIcon className="h-4 w-4" />
                 {group.label}
@@ -239,7 +240,7 @@ export default function ProspectingPage() {
         </div>
 
         {/* Tab Content */}
-        <Card>
+        <Card className="animate-fade-in overflow-hidden">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
@@ -253,7 +254,7 @@ export default function ProspectingPage() {
             </div>
             {/* Sub-tabs */}
             <div className="flex flex-wrap gap-1.5 pt-2">
-              {activeGroupData?.tabs.map((tab) => {
+              {activeGroupData?.tabs.map((tab, index) => {
                 const isActive = activeTab === tab.id;
                 const TabIcon = tab.icon;
                 return (
@@ -262,7 +263,10 @@ export default function ProspectingPage() {
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
                     onClick={() => setActiveTab(tab.id)}
-                    className="h-8 text-xs gap-1.5"
+                    className={cn(
+                      "h-8 text-xs gap-1.5 transition-all duration-200",
+                      isActive && "shadow-sm"
+                    )}
                   >
                     <TabIcon className="h-3.5 w-3.5" />
                     {tab.label}
@@ -272,7 +276,9 @@ export default function ProspectingPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            {renderTabContent()}
+            <div className="animate-fade-in" key={activeTab}>
+              {renderTabContent()}
+            </div>
           </CardContent>
         </Card>
       </div>

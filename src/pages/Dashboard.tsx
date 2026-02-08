@@ -8,6 +8,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { SectionHeader } from '@/components/ui/section-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/ui/loading-skeleton';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { useUserSettings } from '@/hooks/use-user-settings';
@@ -26,6 +27,7 @@ import {
   Zap,
   ArrowRight,
   Activity,
+  Sparkles,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -49,6 +51,15 @@ export default function DashboardPage() {
     return Object.entries(metrics?.leadsByStage || {});
   }, [metrics?.leadsByStage]);
 
+  // Show skeleton while initial data loads
+  if (metricsLoading && !metrics) {
+    return (
+      <DashboardLayout title="Dashboard" description="Visão geral da sua prospecção">
+        <DashboardSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout 
       title="Dashboard"
@@ -57,31 +68,38 @@ export default function DashboardPage() {
       <OnboardingWizard />
 
       {showChecklist && (
-        <div className="mb-6">
+        <div className="mb-6 animate-fade-in">
           <OnboardingChecklist onDismiss={() => setShowChecklist(false)} />
         </div>
       )}
 
-      {/* Quick Action - Simplified */}
-      <Card className="mb-6 overflow-hidden border-0 shadow-lg">
-        <div className="gradient-primary p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Quick Action - Enhanced with better animation */}
+      <Card className="mb-6 overflow-hidden border-0 shadow-lg animate-slide-up card-hover">
+        <div className="gradient-primary p-5 sm:p-6 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Capturar Leads</h3>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  Capturar Leads
+                  <Sparkles className="h-4 w-4 text-white/80" />
+                </h3>
                 <p className="text-white/80 text-sm">
                   Google Maps + mensagens automáticas
                 </p>
               </div>
             </div>
-            <Button asChild size="lg" variant="secondary" className="shadow-md w-full sm:w-auto">
+            <Button asChild size="lg" variant="secondary" className="shadow-md w-full sm:w-auto group">
               <Link to="/prospecting?tab=capture">
                 <Target className="h-5 w-5 mr-2" />
                 Iniciar
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
