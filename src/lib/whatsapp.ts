@@ -73,3 +73,39 @@ export async function sendWhatsAppMessage(
   if (error) throw new Error(error.message);
   return data;
 }
+
+export interface WhatsAppGroup {
+  id: string;
+  name: string;
+  memberCount: number;
+  description?: string;
+  createdAt?: string;
+}
+
+export interface GroupParticipant {
+  phone: string;
+  name: string;
+  groupId: string;
+  groupName: string;
+}
+
+export async function fetchWhatsAppGroups(instanceId: string): Promise<WhatsAppGroup[]> {
+  const { data, error } = await supabase.functions.invoke('whatsapp-groups', {
+    body: { action: 'list_groups', instanceId },
+  });
+
+  if (error) throw new Error(error.message);
+  return data.groups || [];
+}
+
+export async function fetchGroupParticipants(
+  instanceId: string, 
+  groupJids: string[]
+): Promise<GroupParticipant[]> {
+  const { data, error } = await supabase.functions.invoke('whatsapp-groups', {
+    body: { action: 'get_participants', instanceId, groupJids },
+  });
+
+  if (error) throw new Error(error.message);
+  return data.participants || [];
+}
