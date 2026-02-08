@@ -1456,6 +1456,7 @@ export type Database = {
           emoji_usage: string | null
           follow_up_tone: string | null
           gemini_api_key: string | null
+          google_meet_link: string | null
           greeting_style: string | null
           hourly_message_limit: number | null
           hunter_api_token: string | null
@@ -1516,6 +1517,7 @@ export type Database = {
           emoji_usage?: string | null
           follow_up_tone?: string | null
           gemini_api_key?: string | null
+          google_meet_link?: string | null
           greeting_style?: string | null
           hourly_message_limit?: number | null
           hunter_api_token?: string | null
@@ -1576,6 +1578,7 @@ export type Database = {
           emoji_usage?: string | null
           follow_up_tone?: string | null
           gemini_api_key?: string | null
+          google_meet_link?: string | null
           greeting_style?: string | null
           hourly_message_limit?: number | null
           hunter_api_token?: string | null
