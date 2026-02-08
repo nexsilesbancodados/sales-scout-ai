@@ -16,23 +16,13 @@ import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
 import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
 import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { NewCampaignForm } from '@/components/prospecting/NewCampaignForm';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Rocket,
   Send,
   Upload,
   MessageSquareText,
   Brain,
-  Plus,
   Target,
   RefreshCw,
   FlaskConical,
@@ -60,7 +50,6 @@ interface TabGroup {
   tabs: TabItem[];
 }
 
-// Simplified tab groups
 const tabGroups: TabGroup[] = [
   {
     id: 'capture',
@@ -111,11 +100,9 @@ export default function ProspectingPage() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('maps');
   const [activeGroup, setActiveGroup] = useState('capture');
-  const [isNewCampaignOpen, setIsNewCampaignOpen] = useState(false);
   const [prefilledNiches, setPrefilledNiches] = useState<string[]>([]);
   const [prefilledLocations, setPrefilledLocations] = useState<string[]>([]);
 
-  // Handle URL param for tab navigation
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) {
@@ -166,108 +153,82 @@ export default function ProspectingPage() {
     <DashboardLayout
       title="Prospecção"
       description="Capture leads e envie mensagens"
-      actions={
-        <div className="flex items-center gap-2">
-          <Button
-            size="default"
-            className="gradient-primary shadow-md"
-            onClick={() => {
-              setActiveTab('maps');
-              setActiveGroup('capture');
-            }}
-          >
-            <Target className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Capturar</span>
-          </Button>
-          <Dialog open={isNewCampaignOpen} onOpenChange={setIsNewCampaignOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Nova Campanha</DialogTitle>
-                <DialogDescription>
-                  Configure sua campanha de prospecção
-                </DialogDescription>
-              </DialogHeader>
-              <NewCampaignForm onSuccess={() => setIsNewCampaignOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        </div>
-      }
     >
       {/* Stats Dashboard */}
-      <ProspectingDashboard />
+      <div className="animate-fade-in">
+        <ProspectingDashboard />
+      </div>
 
       {/* Navigation */}
-      <div className="mt-6 space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
-        {/* Group Buttons - Compact */}
-        <div className="flex flex-wrap gap-2">
-          {tabGroups.map((group, index) => {
+      <div className="mt-8 space-y-4">
+        {/* Group Tabs */}
+        <div className="flex flex-wrap gap-2 p-1 bg-muted/50 rounded-xl border">
+          {tabGroups.map((group) => {
             const isActive = activeGroup === group.id;
             const GroupIcon = group.icon;
             return (
               <Button
                 key={group.id}
-                variant={isActive ? "default" : "outline"}
+                variant={isActive ? "default" : "ghost"}
                 size="sm"
                 onClick={() => {
                   setActiveGroup(group.id);
                   setActiveTab(group.tabs[0].id);
                 }}
                 className={cn(
-                  "gap-2 transition-all duration-200",
-                  isActive && "shadow-md scale-[1.02]"
+                  "gap-2 transition-all duration-200 h-10",
+                  isActive && "shadow-md"
                 )}
-                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <GroupIcon className="h-4 w-4" />
-                {group.label}
+                <span className="hidden sm:inline">{group.label}</span>
               </Button>
             );
           })}
         </div>
 
         {/* Tab Content */}
-        <Card className="animate-fade-in overflow-hidden">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
+        <Card className="overflow-hidden animate-fade-in">
+          {/* Sub-tabs Header */}
+          <div className="border-b bg-muted/30 p-3">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
                 {activeGroupData && (
                   <>
-                    <activeGroupData.icon className="h-4 w-4 text-primary" />
-                    {activeGroupData.label}
+                    <activeGroupData.icon className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">{activeGroupData.label}</h3>
                   </>
                 )}
-              </CardTitle>
+              </div>
+              
+              {/* Sub-tabs */}
+              <div className="flex flex-wrap gap-1.5">
+                {activeGroupData?.tabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  const TabIcon = tab.icon;
+                  return (
+                    <Button
+                      key={tab.id}
+                      variant={isActive ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={cn(
+                        "h-8 text-xs gap-1.5 transition-all",
+                        isActive && "shadow-sm bg-background"
+                      )}
+                    >
+                      <TabIcon className="h-3.5 w-3.5" />
+                      {tab.label}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
-            {/* Sub-tabs */}
-            <div className="flex flex-wrap gap-1.5 pt-2">
-              {activeGroupData?.tabs.map((tab, index) => {
-                const isActive = activeTab === tab.id;
-                const TabIcon = tab.icon;
-                return (
-                  <Button
-                    key={tab.id}
-                    variant={isActive ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      "h-8 text-xs gap-1.5 transition-all duration-200",
-                      isActive && "shadow-sm"
-                    )}
-                  >
-                    <TabIcon className="h-3.5 w-3.5" />
-                    {tab.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="animate-fade-in" key={activeTab}>
+          </div>
+          
+          {/* Content */}
+          <CardContent className="p-6">
+            <div key={activeTab} className="animate-fade-in">
               {renderTabContent()}
             </div>
           </CardContent>

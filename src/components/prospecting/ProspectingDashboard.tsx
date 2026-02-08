@@ -1,11 +1,14 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { useCampaigns } from '@/hooks/use-campaigns';
 import { useLeads } from '@/hooks/use-leads';
+import { cn } from '@/lib/utils';
 import {
   Search,
   Send,
   MessageSquare,
   TrendingUp,
+  Target,
+  Sparkles,
 } from 'lucide-react';
 
 export function ProspectingDashboard() {
@@ -23,16 +26,18 @@ export function ProspectingDashboard() {
     {
       icon: Search,
       value: totalLeadsProspected || leads.length,
-      label: 'Leads Encontrados',
+      label: 'Encontrados',
       color: 'text-primary',
       bgColor: 'bg-primary/10',
+      gradient: 'from-primary/5 to-primary/10',
     },
     {
       icon: Send,
       value: totalLeadsContacted,
-      label: 'Leads Contatados',
+      label: 'Contatados',
       color: 'text-info',
       bgColor: 'bg-info/10',
+      gradient: 'from-info/5 to-info/10',
     },
     {
       icon: MessageSquare,
@@ -40,28 +45,39 @@ export function ProspectingDashboard() {
       label: 'Respostas',
       color: 'text-success',
       bgColor: 'bg-success/10',
+      gradient: 'from-success/5 to-success/10',
     },
     {
       icon: TrendingUp,
       value: `${responseRate}%`,
-      label: 'Taxa de Resposta',
+      label: 'Taxa Resposta',
       color: 'text-warning',
       bgColor: 'bg-warning/10',
+      gradient: 'from-warning/5 to-warning/10',
     },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
         <Card 
           key={stat.label} 
-          className="card-hover overflow-hidden"
-          style={{ animationDelay: `${index * 0.05}s` }}
+          className="relative overflow-hidden group cursor-default animate-fade-in"
+          style={{ animationDelay: `${index * 50}ms` }}
         >
-          <CardContent className="p-5">
+          {/* Gradient overlay on hover */}
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+            stat.gradient
+          )} />
+          
+          <CardContent className="p-5 relative">
             <div className="flex items-center gap-4">
-              <div className={`p-3.5 rounded-xl ${stat.bgColor} transition-transform duration-200 hover:scale-110`}>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              <div className={cn(
+                "p-3 rounded-xl transition-transform duration-200 group-hover:scale-110",
+                stat.bgColor
+              )}>
+                <stat.icon className={cn("h-5 w-5", stat.color)} />
               </div>
               <div className="space-y-0.5">
                 <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
