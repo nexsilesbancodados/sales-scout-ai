@@ -59,3 +59,9 @@ verify_jwt = false
 
 [functions.generate-service-intelligence]
 verify_jwt = false
+
+[functions.analyze-patterns]
+verify_jwt = false
+
+[functions.generate-proposal]
+verify_jwt = false
