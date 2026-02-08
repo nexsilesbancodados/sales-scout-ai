@@ -15,6 +15,7 @@ import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
 import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
 import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
 import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
+import { WhatsAppGroupImport } from '@/components/prospecting/WhatsAppGroupImport';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -34,6 +35,7 @@ import {
   Zap,
   Layers,
   LucideIcon,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +60,7 @@ const tabGroups: TabGroup[] = [
     tabs: [
       { id: 'maps', icon: Target, label: 'Google Maps' },
       { id: 'web-search', icon: Globe, label: 'Pesquisa Web' },
+      { id: 'whatsapp-groups', icon: MessageCircle, label: 'WhatsApp' },
       { id: 'import', icon: Upload, label: 'Importar' },
     ],
   },
@@ -134,6 +137,7 @@ export default function ProspectingPage() {
       case 'maps':
         return <LeadFinderInterface />;
       case 'web-search': return <WebSearchTab />;
+      case 'whatsapp-groups': return <WhatsAppGroupImport />;
       case 'import': return <ImportTab />;
       case 'mass-send': return <MassSendTab />;
       case 'campaigns': return <CampaignsTab />;
