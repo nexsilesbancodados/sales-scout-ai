@@ -16,6 +16,7 @@ import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
 import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
+import { ServiceIntelligenceManager } from '@/components/settings/ServiceIntelligenceManager';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import {
   Bot,
@@ -369,6 +370,9 @@ export default function SettingsPage() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Service Intelligence - AI Training */}
+            <ServiceIntelligenceManager />
 
             {/* Target Niches & Locations - Compact */}
             <div className="grid gap-4 md:grid-cols-2">
