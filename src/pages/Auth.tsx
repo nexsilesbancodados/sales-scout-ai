@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { RocketTransition } from '@/components/auth/RocketTransition';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react';
 import authBackground from '@/assets/auth-background.jpg';
@@ -22,6 +23,7 @@ export default function AuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showRocketTransition, setShowRocketTransition] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -36,12 +38,15 @@ export default function AuthPage() {
     }
   }, [searchParams]);
 
+  const handleRocketComplete = useCallback(() => {
+    navigate('/dashboard');
+  }, [navigate]);
+
   // Redirect if already logged in
-  if (user && !showResetPassword) {
+  if (user && !showResetPassword && !showRocketTransition) {
     navigate('/dashboard');
     return null;
   }
-
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,11 +60,11 @@ export default function AuthPage() {
         description: error.message,
         variant: 'destructive',
       });
+      setIsSubmitting(false);
     } else {
-      navigate('/dashboard');
+      // Trigger rocket animation instead of immediate navigation
+      setShowRocketTransition(true);
     }
-    
-    setIsSubmitting(false);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -128,6 +133,12 @@ export default function AuthPage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      {/* Rocket Transition Animation */}
+      <RocketTransition 
+        isActive={showRocketTransition} 
+        onComplete={handleRocketComplete} 
+      />
+
       {/* Overlay with gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-primary/20 backdrop-blur-[2px]" />
       
