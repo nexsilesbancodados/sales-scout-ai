@@ -14,14 +14,26 @@ interface SearchResult {
   position: number;
 }
 
-// Search using Serper.dev API
+// Extended search result with more data
+interface ExtendedSearchResult extends SearchResult {
+  rating?: number;
+  reviews_count?: number;
+  website?: string;
+  address?: string;
+  google_maps_url?: string;
+  photo_url?: string;
+  thumbnail?: string;
+  category?: string;
+}
+
+// Search using Serper.dev API - NO LIMITS
 async function searchWithSerper(
   apiKey: string,
   searchQuery: string,
   numResults: number,
   searchType: string
-): Promise<{ results: SearchResult[]; searchInfo: any }> {
-  console.log('Using Serper.dev API for search...');
+): Promise<{ results: ExtendedSearchResult[]; searchInfo: any }> {
+  console.log('Using Serper.dev API for unlimited search...');
   
   let endpoint = 'https://google.serper.dev/search';
   if (searchType === 'news') {
@@ -32,138 +44,244 @@ async function searchWithSerper(
     endpoint = 'https://google.serper.dev/places';
   }
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'X-API-KEY': apiKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      q: searchQuery,
-      gl: 'br',
-      hl: 'pt-br',
-      num: Math.min(numResults, 100), // Request up to 100 results
-    }),
-  });
+  const allResults: ExtendedSearchResult[] = [];
+  const seenPhones = new Set<string>();
+  let page = 0;
+  const maxPages = 10; // Up to 10 pages = 1000 results max
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Serper API error:', errorText);
-    throw new Error(`Serper API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  // Normalize Serper response to match our internal format
-  const results: SearchResult[] = [];
-
-  // Handle organic results
-  if (data.organic) {
-    for (let idx = 0; idx < data.organic.length; idx++) {
-      const result = data.organic[idx];
-      const phoneMatch = result.snippet?.match(/\(?(\d{2})\)?\s*(\d{4,5})[-.\s]?(\d{4})/);
-      const emailMatch = result.snippet?.match(/[\w.-]+@[\w.-]+\.\w+/);
-
-      results.push({
-        title: result.title,
-        link: result.link,
-        snippet: result.snippet || '',
-        phone: phoneMatch ? phoneMatch[0] : undefined,
-        email: emailMatch ? emailMatch[0] : undefined,
-        position: idx + 1,
+  // Fetch multiple pages to get ALL available results
+  while (page < maxPages) {
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q: searchQuery,
+          gl: 'br',
+          hl: 'pt-br',
+          num: 100, // Max per request
+          page: page,
+        }),
       });
+
+      if (!response.ok) {
+        if (page === 0) {
+          const errorText = await response.text();
+          console.error('Serper API error:', errorText);
+          throw new Error(`Serper API error: ${response.status}`);
+        }
+        break; // Stop paginating on errors after first page
+      }
+
+      const data = await response.json();
+      let foundNewResults = false;
+
+      // Handle places/local results with full data
+      if (data.places && data.places.length > 0) {
+        for (const place of data.places) {
+          const phone = place.phoneNumber || place.phone;
+          if (!phone) continue;
+          
+          const normalizedPhone = phone.replace(/\D/g, '');
+          if (seenPhones.has(normalizedPhone)) continue;
+          seenPhones.add(normalizedPhone);
+          foundNewResults = true;
+
+          allResults.push({
+            title: place.title,
+            link: place.website || place.link || '',
+            snippet: place.address || '',
+            phone: phone,
+            position: allResults.length + 1,
+            rating: place.rating,
+            reviews_count: place.reviews || place.reviewsCount,
+            website: place.website,
+            address: place.address,
+            google_maps_url: place.cid ? `https://www.google.com/maps?cid=${place.cid}` : undefined,
+            photo_url: place.thumbnailUrl || place.imageUrl || place.thumbnail,
+            thumbnail: place.thumbnailUrl || place.imageUrl || place.thumbnail,
+            category: place.category || place.type,
+          });
+        }
+      }
+
+      // Handle organic results
+      if (data.organic && data.organic.length > 0) {
+        for (const result of data.organic) {
+          const phoneMatch = result.snippet?.match(/\(?(\d{2})\)?\s*(\d{4,5})[-.\s]?(\d{4})/);
+          const phone = phoneMatch ? phoneMatch[0] : undefined;
+          
+          if (phone) {
+            const normalizedPhone = phone.replace(/\D/g, '');
+            if (seenPhones.has(normalizedPhone)) continue;
+            seenPhones.add(normalizedPhone);
+            foundNewResults = true;
+
+            const emailMatch = result.snippet?.match(/[\w.-]+@[\w.-]+\.\w+/);
+            allResults.push({
+              title: result.title,
+              link: result.link,
+              snippet: result.snippet || '',
+              phone: phone,
+              email: emailMatch ? emailMatch[0] : undefined,
+              position: allResults.length + 1,
+              thumbnail: result.imageUrl || result.thumbnail,
+            });
+          }
+        }
+      }
+
+      // Stop if no new results found or reached desired count
+      if (!foundNewResults || (numResults > 0 && allResults.length >= numResults)) {
+        break;
+      }
+
+      page++;
+      // Small delay between pages
+      await new Promise(r => setTimeout(r, 100));
+    } catch (error) {
+      console.error(`Error fetching page ${page}:`, error);
+      break;
     }
   }
 
-  // Handle places/local results
-  if (data.places) {
-    for (let idx = 0; idx < data.places.length; idx++) {
-      const place = data.places[idx];
-      results.push({
-        title: place.title,
-        link: place.website || place.link || '',
-        snippet: place.address || '',
-        phone: place.phoneNumber,
-        position: results.length + 1,
-      });
-    }
-  }
+  console.log(`Serper: Found ${allResults.length} unique leads with phone numbers across ${page + 1} pages`);
 
   return {
-    results,
+    results: allResults,
     searchInfo: {
       query: searchQuery,
       search_type: searchType,
-      total_results: data.searchParameters?.totalResults || results.length,
-      credits_used: data.credits || 1,
+      total_results: allResults.length,
+      pages_fetched: page + 1,
     },
   };
 }
 
-// Search using SerpAPI
+// Search using SerpAPI with Google Maps engine - NO LIMITS
 async function searchWithSerpApi(
   apiKey: string,
   searchQuery: string,
   numResults: number,
   searchType: string
-): Promise<{ results: SearchResult[]; searchInfo: any }> {
-  console.log('Using SerpAPI for search...');
+): Promise<{ results: ExtendedSearchResult[]; searchInfo: any }> {
+  console.log('Using SerpAPI for unlimited Google Maps search...');
   
-  const serpUrl = new URL('https://serpapi.com/search.json');
-  serpUrl.searchParams.set('api_key', apiKey);
-  serpUrl.searchParams.set('q', searchQuery);
-  serpUrl.searchParams.set('num', String(numResults));
-  serpUrl.searchParams.set('hl', 'pt-br');
-  serpUrl.searchParams.set('gl', 'br');
+  const allResults: ExtendedSearchResult[] = [];
+  const seenPhones = new Set<string>();
+  let start = 0;
+  const maxPages = 10; // Up to 10 pages
 
-  if (searchType === 'google') {
-    serpUrl.searchParams.set('engine', 'google');
-  } else if (searchType === 'news') {
-    serpUrl.searchParams.set('engine', 'google_news');
-  } else if (searchType === 'images') {
-    serpUrl.searchParams.set('engine', 'google_images');
+  // Use Google Maps engine for places search
+  const engine = searchType === 'places' ? 'google_maps' : 'google';
+
+  while (start < maxPages * 20) {
+    try {
+      const serpUrl = new URL('https://serpapi.com/search.json');
+      serpUrl.searchParams.set('api_key', apiKey);
+      serpUrl.searchParams.set('q', searchQuery);
+      serpUrl.searchParams.set('hl', 'pt-br');
+      serpUrl.searchParams.set('gl', 'br');
+      serpUrl.searchParams.set('engine', engine);
+      
+      if (engine === 'google_maps') {
+        serpUrl.searchParams.set('type', 'search');
+        serpUrl.searchParams.set('start', String(start));
+      } else {
+        serpUrl.searchParams.set('num', '100');
+        serpUrl.searchParams.set('start', String(start));
+      }
+
+      const response = await fetch(serpUrl.toString());
+      const data = await response.json();
+
+      if (data.error) {
+        if (start === 0) {
+          console.error('SerpAPI error:', data.error);
+          throw new Error(data.error);
+        }
+        break;
+      }
+
+      let foundNewResults = false;
+
+      // Handle Google Maps local results
+      const localResults = data.local_results || [];
+      for (const place of localResults) {
+        const phone = place.phone;
+        if (!phone) continue;
+        
+        const normalizedPhone = phone.replace(/\D/g, '');
+        if (seenPhones.has(normalizedPhone)) continue;
+        seenPhones.add(normalizedPhone);
+        foundNewResults = true;
+
+        allResults.push({
+          title: place.title,
+          link: place.website || place.link,
+          snippet: place.address || '',
+          phone: phone,
+          position: allResults.length + 1,
+          rating: place.rating,
+          reviews_count: place.reviews,
+          website: place.website,
+          address: place.address,
+          google_maps_url: place.place_id ? `https://www.google.com/maps/place/?q=place_id:${place.place_id}` : undefined,
+          photo_url: place.thumbnail,
+          thumbnail: place.thumbnail,
+          category: place.type,
+        });
+      }
+
+      // Handle organic results
+      const organicResults = data.organic_results || [];
+      for (const result of organicResults) {
+        const phoneMatch = result.snippet?.match(/\(?(\d{2})\)?\s*(\d{4,5})[-.\s]?(\d{4})/);
+        const phone = phoneMatch ? phoneMatch[0] : undefined;
+        
+        if (phone) {
+          const normalizedPhone = phone.replace(/\D/g, '');
+          if (seenPhones.has(normalizedPhone)) continue;
+          seenPhones.add(normalizedPhone);
+          foundNewResults = true;
+
+          const emailMatch = result.snippet?.match(/[\w.-]+@[\w.-]+\.\w+/);
+          allResults.push({
+            title: result.title,
+            link: result.link,
+            snippet: result.snippet || '',
+            phone: phone,
+            email: emailMatch ? emailMatch[0] : undefined,
+            position: allResults.length + 1,
+            thumbnail: result.thumbnail,
+          });
+        }
+      }
+
+      // Stop if no new results or reached target
+      if (!foundNewResults || (numResults > 0 && allResults.length >= numResults)) {
+        break;
+      }
+
+      start += 20;
+      await new Promise(r => setTimeout(r, 100));
+    } catch (error) {
+      console.error(`Error fetching start ${start}:`, error);
+      break;
+    }
   }
 
-  const response = await fetch(serpUrl.toString());
-  const data = await response.json();
-
-  if (data.error) {
-    console.error('SerpAPI error:', data.error);
-    throw new Error(data.error);
-  }
-
-  // Extract organic results
-  const organicResults = data.organic_results || [];
-  const results: SearchResult[] = organicResults.map((result: any, idx: number) => {
-    const phoneMatch = result.snippet?.match(/\(?(\d{2})\)?\s*(\d{4,5})[-.\s]?(\d{4})/);
-    const emailMatch = result.snippet?.match(/[\w.-]+@[\w.-]+\.\w+/);
-
-    return {
-      title: result.title,
-      link: result.link,
-      snippet: result.snippet || '',
-      phone: phoneMatch ? phoneMatch[0] : undefined,
-      email: emailMatch ? emailMatch[0] : undefined,
-      position: idx + 1,
-    };
-  });
-
-  // Also check local results
-  const localResults = data.local_results?.places || [];
-  const localLeads = localResults.map((place: any, idx: number) => ({
-    title: place.title,
-    link: place.link || place.website,
-    snippet: place.address || '',
-    phone: place.phone,
-    position: results.length + idx + 1,
-  }));
+  console.log(`SerpAPI: Found ${allResults.length} unique leads with phone numbers`);
 
   return {
-    results: [...results, ...localLeads],
+    results: allResults,
     searchInfo: {
       query: searchQuery,
       search_type: searchType,
-      total_results: data.search_information?.total_results,
+      total_results: allResults.length,
     },
   };
 }

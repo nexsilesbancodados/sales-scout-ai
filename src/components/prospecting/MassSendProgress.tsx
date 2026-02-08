@@ -257,27 +257,37 @@ export function MassSendProgress() {
           {showAllLeads && (
             <ScrollArea className="h-[300px] border rounded-lg">
               <div className="p-2 space-y-1">
-                {leads.map((lead, index) => (
-                  <div
-                    key={lead.id}
-                    className={cn(
-                      "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                      index === currentIndex && isRunning && "bg-primary/10 border border-primary/30",
-                      lead.status === 'sent' && "bg-success/5",
-                      lead.status === 'failed' && "bg-destructive/5"
-                    )}
-                  >
-                    <span className="text-xs text-muted-foreground w-6">
-                      #{index + 1}
-                    </span>
-                    {getLeadStatusIcon(lead, index)}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{lead.business_name}</p>
-                      <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                {leads.map((lead, index) => {
+                  const isCurrentlySending = index === currentIndex && isRunning;
+                  return (
+                    <div
+                      key={lead.id}
+                      className={cn(
+                        "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                        isCurrentlySending && "bg-primary/10 border border-primary/30 animate-pulse",
+                        lead.status === 'sent' && "bg-success/5",
+                        lead.status === 'failed' && "bg-destructive/5"
+                      )}
+                    >
+                      <span className="text-xs text-muted-foreground w-6">
+                        #{index + 1}
+                      </span>
+                      {getLeadStatusIcon(lead, index)}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{lead.business_name}</p>
+                        <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isCurrentlySending && (
+                          <Badge className="bg-primary text-primary-foreground animate-bounce text-xs">
+                            AGORA
+                          </Badge>
+                        )}
+                        {getLeadStatusBadge(lead, index)}
+                      </div>
                     </div>
-                    {getLeadStatusBadge(lead, index)}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </ScrollArea>
           )}

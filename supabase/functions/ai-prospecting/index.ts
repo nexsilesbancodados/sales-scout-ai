@@ -330,6 +330,117 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Action: Qualify leads by groups - AI analyzes leads and categorizes them
+    if (action === "qualify_leads_by_group") {
+      const { leads } = data;
+      
+      if (!leads || leads.length === 0) {
+        return new Response(JSON.stringify({ qualified_leads: [] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const systemPrompt = `Você é um especialista em qualificação de leads para prospecção B2B no Brasil.
+
+Sua tarefa é analisar uma lista de leads e para CADA um:
+1. Classificar em um GRUPO baseado nas características (use exatamente estes grupos):
+   - "Sem Site" - negócios sem website
+   - "Avaliação Baixa" - rating abaixo de 3.5 estrelas
+   - "Pequeno Porte" - poucos reviews (<20) indica menor porte
+   - "Estabelecido" - muitos reviews (>50) e bom rating
+   - "Premium" - rating excelente (>4.5) e muitos reviews
+   - "Novo no Mercado" - poucos ou nenhum review
+   
+2. Identificar OPORTUNIDADES DE SERVIÇO baseado no que falta ao negócio:
+   - Sem site = "Criação de Site", "Landing Page"
+   - Avaliação baixa = "Gestão de Reputação", "Marketing Digital"
+   - Pequeno porte = "Automação", "Chatbot", "WhatsApp Business"
+   - Sem redes sociais = "Gestão de Redes Sociais"
+   - Estabelecido = "Expansão Digital", "Sistema de Gestão"
+   - Premium = "Fidelização", "Programa de Indicação"
+
+Responda em JSON válido com o formato:
+{
+  "qualified": [
+    {
+      "id": "id_do_lead",
+      "lead_group": "nome_do_grupo",
+      "service_opportunities": ["serviço1", "serviço2"]
+    }
+  ]
+}`;
+
+      const userPrompt = `Analise estes ${leads.length} leads e qualifique cada um:
+
+${leads.slice(0, 50).map((l: any, i: number) => `${i+1}. ${l.business_name}
+   - ID: ${l.id}
+   - Site: ${l.website ? 'Sim' : 'Não tem'}
+   - Rating: ${l.rating || 'N/A'}
+   - Reviews: ${l.reviews_count || 0}
+   - Nicho: ${l.niche || 'N/A'}
+`).join('\n')}
+
+Retorne APENAS o JSON, sem explicações.`;
+
+      try {
+        const response = await callAI(systemPrompt, userPrompt);
+        
+        // Parse the JSON response
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error("Invalid AI response format");
+        }
+        
+        const result = JSON.parse(jsonMatch[0]);
+        
+        return new Response(JSON.stringify({ 
+          qualified_leads: result.qualified || [],
+          total_analyzed: leads.length,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (error: any) {
+        console.error("Error qualifying leads:", error);
+        
+        // Fallback: do basic classification without AI
+        const fallbackQualified = leads.slice(0, 50).map((lead: any) => {
+          let group = "Novo no Mercado";
+          const opportunities: string[] = [];
+          
+          if (!lead.website) {
+            group = "Sem Site";
+            opportunities.push("Criação de Site", "Landing Page");
+          } else if (lead.rating && lead.rating < 3.5) {
+            group = "Avaliação Baixa";
+            opportunities.push("Gestão de Reputação", "Marketing Digital");
+          } else if (lead.reviews_count && lead.reviews_count > 50 && lead.rating >= 4.5) {
+            group = "Premium";
+            opportunities.push("Fidelização", "Expansão Digital");
+          } else if (lead.reviews_count && lead.reviews_count > 50) {
+            group = "Estabelecido";
+            opportunities.push("Sistema de Gestão", "Automação");
+          } else if (!lead.reviews_count || lead.reviews_count < 20) {
+            group = "Pequeno Porte";
+            opportunities.push("Chatbot", "WhatsApp Business", "Automação");
+          }
+          
+          return {
+            id: lead.id,
+            lead_group: group,
+            service_opportunities: opportunities,
+          };
+        });
+        
+        return new Response(JSON.stringify({ 
+          qualified_leads: fallbackQualified,
+          total_analyzed: leads.length,
+          used_fallback: true,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Action: Suggest template improvements
     if (action === "suggest_improvements") {
       const { template, responseRate, niche } = data;
