@@ -5,8 +5,145 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Fetch long-term memories for a lead
+async function getLeadMemories(supabase: any, leadId: string): Promise<string> {
+  const { data: memories } = await supabase
+    .from("lead_memory")
+    .select("memory_type, key, value, created_at")
+    .eq("lead_id", leadId)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+
+  if (!memories || memories.length === 0) return "";
+
+  const memoryGroups: Record<string, string[]> = {
+    context: [],
+    preference: [],
+    commitment: [],
+    personal: [],
+    objection: [],
+  };
+
+  for (const m of memories) {
+    const group = memoryGroups[m.memory_type] || memoryGroups.context;
+    group.push(`- ${m.key}: ${m.value}`);
+  }
+
+  let memoryText = "";
+  if (memoryGroups.personal.length > 0) {
+    memoryText += "\n## Informações Pessoais do Lead\n" + memoryGroups.personal.join("\n");
+  }
+  if (memoryGroups.preference.length > 0) {
+    memoryText += "\n## Preferências\n" + memoryGroups.preference.join("\n");
+  }
+  if (memoryGroups.commitment.length > 0) {
+    memoryText += "\n## Compromissos/Promessas\n" + memoryGroups.commitment.join("\n");
+  }
+  if (memoryGroups.objection.length > 0) {
+    memoryText += "\n## Objeções Anteriores\n" + memoryGroups.objection.join("\n");
+  }
+  if (memoryGroups.context.length > 0) {
+    memoryText += "\n## Contexto Geral\n" + memoryGroups.context.join("\n");
+  }
+
+  return memoryText;
+}
+
+// Extract and save memories from conversation using AI
+async function extractAndSaveMemories(
+  supabase: any, 
+  userId: string, 
+  leadId: string, 
+  messages: any[], 
+  apiKey: string | null
+): Promise<void> {
+  if (!apiKey || messages.length < 2) return;
+
+  try {
+    const recentMessages = messages.slice(-10).map(m => 
+      `${m.sender_type === "lead" ? "Cliente" : "Agente"}: ${m.content}`
+    ).join("\n");
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite",
+        messages: [{
+          role: "user",
+          content: `Analise esta conversa e extraia informações importantes para lembrar sobre o cliente.
+Retorne APENAS um JSON com arrays de objetos. Não inclua nada além do JSON.
+
+Conversa:
+${recentMessages}
+
+Retorne este formato exato:
+{
+  "memories": [
+    {"type": "personal", "key": "nome_contato", "value": "João"},
+    {"type": "preference", "key": "horario_preferido", "value": "manhã"},
+    {"type": "commitment", "key": "prometeu_retorno", "value": "ligar amanhã às 10h"},
+    {"type": "objection", "key": "preocupacao_preco", "value": "achou caro inicialmente"},
+    {"type": "context", "key": "interesse_servico", "value": "gestão de redes sociais"}
+  ]
+}
+
+Tipos válidos: personal (nome, cargo), preference (horários, canais), commitment (promessas feitas), objection (objeções levantadas), context (interesses, necessidades)
+
+Extraia apenas informações realmente mencionadas. Se não houver nada relevante, retorne {"memories": []}`
+        }],
+        max_tokens: 500,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "";
+      
+      // Parse JSON from response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        const memories = parsed.memories || [];
+
+        for (const mem of memories) {
+          if (mem.type && mem.key && mem.value) {
+            await supabase.rpc("upsert_lead_memory", {
+              p_user_id: userId,
+              p_lead_id: leadId,
+              p_memory_type: mem.type,
+              p_key: mem.key,
+              p_value: mem.value,
+              p_confidence: 0.9,
+              p_source: "ai_analysis",
+            });
+          }
+        }
+
+        console.log(`Saved ${memories.length} memories for lead ${leadId}`);
+      }
+    }
+  } catch (e) {
+    console.error("Error extracting memories:", e);
+  }
+}
+
+// Calculate days since first contact
+function getDaysSinceFirstContact(firstContactAt: string | null): string {
+  if (!firstContactAt) return "Primeiro contato";
+  const days = Math.floor((Date.now() - new Date(firstContactAt).getTime()) / (1000 * 60 * 60 * 24));
+  if (days === 0) return "Hoje";
+  if (days === 1) return "Ontem";
+  if (days < 7) return `${days} dias atrás`;
+  if (days < 30) return `${Math.floor(days / 7)} semanas atrás`;
+  return `${Math.floor(days / 30)} meses atrás`;
+}
+
 // Build comprehensive personality and behavior prompt
-function buildAgentPrompt(settings: any, lead: any, conversationContext: any): string {
+function buildAgentPrompt(settings: any, lead: any, conversationContext: any, longTermMemory: string = ""): string {
   const agentTypeDescriptions: Record<string, string> = {
     consultivo: "Você é um consultor que busca entender profundamente as necessidades antes de propor soluções. Faça perguntas abertas e escute ativamente.",
     agressivo: "Você é direto e focado em fechar negócios rapidamente. Crie senso de urgência, mas sem ser desrespeitoso.",
@@ -59,6 +196,9 @@ function buildAgentPrompt(settings: any, lead: any, conversationContext: any): s
   });
   const currentHour = now.getHours();
 
+  // Time since first contact
+  const timeSinceFirstContact = getDaysSinceFirstContact(lead.first_contact_at);
+
   return `# IDENTIDADE
 Você é ${settings.agent_name || "um consultor de vendas"}, um ser humano real que trabalha como consultor.
 ${settings.agent_persona || ""}
@@ -83,7 +223,12 @@ ${objectionDescriptions[settings.objection_handling] || objectionDescriptions.as
 - Localização: ${lead.location || "Não identificada"}
 - Avaliação: ${lead.rating ? `${lead.rating} estrelas` : "N/A"}
 - Status Atual: ${lead.stage} (${lead.temperature || "morno"})
-- Contatos anteriores: ${messageCount} mensagens trocadas
+- Primeiro contato: ${timeSinceFirstContact}
+- Total de mensagens: ${lead.total_messages_exchanged || messageCount} mensagens trocadas
+
+# MEMÓRIA DE LONGO PRAZO
+IMPORTANTE: Use estas informações para personalizar a conversa. O cliente espera que você lembre de tudo que foi discutido anteriormente, mesmo que tenham passado semanas.
+${longTermMemory || "Nenhuma memória anterior registrada."}
 
 # SEUS SERVIÇOS
 ${(settings.services_offered || []).join(", ") || "Soluções personalizadas para negócios"}
@@ -91,7 +236,7 @@ ${(settings.services_offered || []).join(", ") || "Soluções personalizadas par
 # BASE DE CONHECIMENTO
 ${settings.knowledge_base || "Você oferece soluções que ajudam empresas a crescer e se destacar no mercado."}
 
-# CONTEXTO DA CONVERSA
+# CONTEXTO DA CONVERSA ATUAL
 ${conversationContext.summary || "Primeiro contato ou conversa inicial."}
 
 # SEU OBJETIVO PRINCIPAL
@@ -455,12 +600,15 @@ Deno.serve(async (req) => {
       status: "delivered",
     });
 
-    // Update lead's last response time
+    // Update lead's last response time and message count
+    const messageCountUpdate = (lead.total_messages_exchanged || 0) + 1;
     await supabase
       .from("leads")
       .update({ 
         last_response_at: new Date().toISOString(),
         follow_up_count: 0, // Reset follow-up count since they responded
+        first_contact_at: lead.first_contact_at || new Date().toISOString(),
+        total_messages_exchanged: messageCountUpdate,
       })
       .eq("id", lead.id);
 
@@ -481,14 +629,21 @@ Deno.serve(async (req) => {
 
     const conversationContext = await analyzeConversation(messages, LOVABLE_API_KEY);
 
+    // Get long-term memory for this lead
+    const longTermMemory = await getLeadMemories(supabase, lead.id);
+    console.log(`Long-term memory for ${lead.id}: ${longTermMemory.length} chars`);
+
+    // Extract and save new memories from this conversation (async, don't wait)
+    extractAndSaveMemories(supabase, userId, lead.id, messages, LOVABLE_API_KEY);
+
     // Format chat history for AI (last 20 messages for context)
     const formattedHistory = messages.slice(-20).map((msg) => ({
       role: msg.sender_type === "lead" ? "user" : "assistant",
       content: msg.content,
     }));
 
-    // Build comprehensive agent prompt
-    const systemPrompt = buildAgentPrompt(settings, lead, conversationContext);
+    // Build comprehensive agent prompt with long-term memory
+    const systemPrompt = buildAgentPrompt(settings, lead, conversationContext, longTermMemory);
 
     // Generate response using AI
     let responseMessage = "";

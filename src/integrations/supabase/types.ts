@@ -761,6 +761,56 @@ export type Database = {
           },
         ]
       }
+      lead_memory: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          key: string
+          lead_id: string
+          memory_type: string
+          source: string | null
+          updated_at: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key: string
+          lead_id: string
+          memory_type?: string
+          source?: string | null
+          updated_at?: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key?: string
+          lead_id?: string
+          memory_type?: string
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_memory_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_qualification: {
         Row: {
           authority_confidence: number | null
@@ -844,6 +894,7 @@ export type Database = {
       leads: {
         Row: {
           address: string | null
+          ai_memory_summary: string | null
           analyzed_needs: Json | null
           assigned_to: string | null
           best_contact_hour: number | null
@@ -855,6 +906,7 @@ export type Database = {
           employee_count: string | null
           enriched_at: string | null
           facebook_url: string | null
+          first_contact_at: string | null
           follow_up_count: number | null
           founded_year: number | null
           google_maps_url: string | null
@@ -887,6 +939,7 @@ export type Database = {
           tags: string[] | null
           team_id: string | null
           temperature: string | null
+          total_messages_exchanged: number | null
           twitter_url: string | null
           updated_at: string
           user_id: string
@@ -894,6 +947,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          ai_memory_summary?: string | null
           analyzed_needs?: Json | null
           assigned_to?: string | null
           best_contact_hour?: number | null
@@ -905,6 +959,7 @@ export type Database = {
           employee_count?: string | null
           enriched_at?: string | null
           facebook_url?: string | null
+          first_contact_at?: string | null
           follow_up_count?: number | null
           founded_year?: number | null
           google_maps_url?: string | null
@@ -937,6 +992,7 @@ export type Database = {
           tags?: string[] | null
           team_id?: string | null
           temperature?: string | null
+          total_messages_exchanged?: number | null
           twitter_url?: string | null
           updated_at?: string
           user_id: string
@@ -944,6 +1000,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          ai_memory_summary?: string | null
           analyzed_needs?: Json | null
           assigned_to?: string | null
           best_contact_hour?: number | null
@@ -955,6 +1012,7 @@ export type Database = {
           employee_count?: string | null
           enriched_at?: string | null
           facebook_url?: string | null
+          first_contact_at?: string | null
           follow_up_count?: number | null
           founded_year?: number | null
           google_maps_url?: string | null
@@ -987,6 +1045,7 @@ export type Database = {
           tags?: string[] | null
           team_id?: string | null
           temperature?: string | null
+          total_messages_exchanged?: number | null
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
@@ -1913,6 +1972,18 @@ export type Database = {
         Returns: string
       }
       recover_stale_jobs: { Args: never; Returns: number }
+      upsert_lead_memory: {
+        Args: {
+          p_confidence?: number
+          p_key: string
+          p_lead_id: string
+          p_memory_type: string
+          p_source?: string
+          p_user_id: string
+          p_value: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
