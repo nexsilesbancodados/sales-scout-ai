@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
@@ -11,6 +10,8 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { NicheAutocomplete } from './NicheAutocomplete';
+import { LocationAutocomplete } from './LocationAutocomplete';
 import {
   Search,
   Loader2,
@@ -51,19 +52,14 @@ interface CapturedLead {
 
 type ProcessStatus = 'idle' | 'capturing' | 'completed' | 'stopped';
 
-const POPULAR_NICHES = [
-  'Restaurantes', 'Salões de Beleza', 'Academias', 'Clínicas Médicas',
-  'Clínicas Odontológicas', 'Pet Shops', 'Oficinas Mecânicas', 'Imobiliárias',
-];
-
 export function LeadFinderInterface() {
   const { settings } = useUserSettings();
   const { user } = useAuth();
   const { toast } = useToast();
   const { createJob, isCreating, activeJob } = useMassSendJob();
   
-  const [niche, setNiche] = useState('');
-  const [location, setLocation] = useState('');
+  const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [capturedLeads, setCapturedLeads] = useState<CapturedLead[]>([]);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [processStatus, setProcessStatus] = useState<ProcessStatus>('idle');
@@ -79,10 +75,10 @@ export function LeadFinderInterface() {
   const newCount = capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending').length;
 
   const handleSearch = async () => {
-    if (!niche.trim() || !location.trim()) {
+    if (selectedNiches.length === 0 || selectedLocations.length === 0) {
       toast({
         title: '⚠️ Preencha os campos',
-        description: 'Informe o tipo de negócio e a localização.',
+        description: 'Selecione pelo menos um nicho e uma localização.',
         variant: 'destructive',
       });
       return;
@@ -94,22 +90,19 @@ export function LeadFinderInterface() {
     setSelectedLeadIds([]);
 
     try {
-      const niches = niche.split(',').map(n => n.trim()).filter(n => n);
-      const locations = location.split(',').map(l => l.trim()).filter(l => l);
-      
-      setProgress({ current: 0, total: niches.length * locations.length, phase: 'Buscando...' });
+      setProgress({ current: 0, total: selectedNiches.length * selectedLocations.length, phase: 'Buscando...' });
 
       const allLeads: CapturedLead[] = [];
 
-      for (let ni = 0; ni < niches.length; ni++) {
-        for (let li = 0; li < locations.length; li++) {
+      for (let ni = 0; ni < selectedNiches.length; ni++) {
+        for (let li = 0; li < selectedLocations.length; li++) {
           if (isStoppedRef.current) break;
 
-          const currentNiche = niches[ni];
-          const currentLocation = locations[li];
+          const currentNiche = selectedNiches[ni];
+          const currentLocation = selectedLocations[li];
           setProgress({ 
-            current: ni * locations.length + li + 1, 
-            total: niches.length * locations.length,
+            current: ni * selectedLocations.length + li + 1, 
+            total: selectedNiches.length * selectedLocations.length,
             phase: `${currentNiche} em ${currentLocation}`
           });
 
@@ -329,57 +322,43 @@ export function LeadFinderInterface() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="relative sm:col-span-1">
-              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tipo de negócio (ex: Restaurantes)"
-                value={niche}
-                onChange={(e) => setNiche(e.target.value)}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Tipo de Negócio</p>
+              <NicheAutocomplete
+                value={selectedNiches}
+                onChange={setSelectedNiches}
+                placeholder="Digite ou selecione nichos..."
                 disabled={isSearching}
-                className="pl-10 h-12 bg-background border-2"
+                maxSelections={10}
               />
             </div>
             
-            <div className="relative sm:col-span-1">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Localização (ex: São Paulo, SP)"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Localização</p>
+              <LocationAutocomplete
+                value={selectedLocations}
+                onChange={setSelectedLocations}
+                placeholder="Cidade, estado ou CEP..."
                 disabled={isSearching}
-                className="pl-10 h-12 bg-background border-2"
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                maxSelections={10}
               />
             </div>
+          </div>
 
+          <div className="mt-4">
             <Button 
               onClick={handleSearch} 
-              disabled={isSearching || !niche.trim() || !location.trim()}
-              className="h-12 gap-2 gradient-primary shadow-lg text-base font-semibold"
+              disabled={isSearching || selectedNiches.length === 0 || selectedLocations.length === 0}
+              className="w-full h-12 gap-2 gradient-primary shadow-lg text-base font-semibold"
             >
               {isSearching ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Search className="h-5 w-5" />
               )}
-              Buscar Leads
+              Buscar Leads ({selectedNiches.length} nichos × {selectedLocations.length} locais)
             </Button>
-          </div>
-
-          {/* Quick Suggestions */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            <span className="text-xs text-muted-foreground mr-2">Sugestões:</span>
-            {POPULAR_NICHES.filter(n => !niche.includes(n)).slice(0, 5).map((n) => (
-              <Badge
-                key={n}
-                variant="outline"
-                className="cursor-pointer hover:bg-primary/10 hover:border-primary/50 transition-colors text-xs"
-                onClick={() => setNiche(prev => prev ? `${prev}, ${n}` : n)}
-              >
-                + {n}
-              </Badge>
-            ))}
           </div>
 
           {/* Progress */}
