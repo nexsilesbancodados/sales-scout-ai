@@ -25,6 +25,10 @@ import {
   Briefcase,
   RefreshCw,
   Users,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle,
+  Clock,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -65,6 +69,8 @@ export function MassSendTab() {
   const [selectedService, setSelectedService] = useState<string>('all');
   const [importedLeads, setImportedLeads] = useState<Lead[]>([]);
   const [isRemarketing, setIsRemarketing] = useState(false);
+  const [viewMode, setViewMode] = useState<'pending' | 'sent'>('pending');
+  const [expandedNiches, setExpandedNiches] = useState<Set<string>>(new Set());
 
   // Check for leads passed from Leads page via sessionStorage
   useEffect(() => {
@@ -98,8 +104,15 @@ export function MassSendTab() {
   // Check if there's an active mass_send job
   const hasActiveMassSend = activeJobs.some(j => j.job_type === 'mass_send');
 
-  // Combine imported leads with regular leads for display
-  const displayLeads = importedLeads.length > 0 ? importedLeads : leads;
+  // Use all leads from database when no imported leads
+  const allLeads = importedLeads.length > 0 ? importedLeads : leads;
+  
+  // Separate leads by sent status
+  const pendingLeads = allLeads.filter(l => !l.message_sent);
+  const sentLeads = allLeads.filter(l => l.message_sent);
+  
+  // Display leads based on current view mode
+  const displayLeads = viewMode === 'pending' ? pendingLeads : sentLeads;
 
   const generatePersonalizedMessage = async (lead: any, baseMessage: string): Promise<string> => {
     try {
@@ -301,6 +314,21 @@ export function MassSendTab() {
     return acc;
   }, {} as Record<string, typeof displayLeads>);
 
+  // Sort niches by lead count (descending)
+  const sortedNiches = Object.entries(leadsByNiche).sort((a, b) => b[1].length - a[1].length);
+
+  const toggleNicheExpand = (niche: string) => {
+    setExpandedNiches(prev => {
+      const next = new Set(prev);
+      if (next.has(niche)) {
+        next.delete(niche);
+      } else {
+        next.add(niche);
+      }
+      return next;
+    });
+  };
+
   const canSend = sendMode === 'direct' 
     ? selectedLeads.length > 0 
     : selectedLeads.length > 0 && massMessage.trim();
@@ -348,23 +376,53 @@ export function MassSendTab() {
       )}
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            {isRemarketing ? <RefreshCw className="h-5 w-5 text-blue-500" /> : <Send className="h-5 w-5" />}
+            {isRemarketing ? <RefreshCw className="h-5 w-5 text-primary" /> : <Send className="h-5 w-5" />}
             {isRemarketing ? 'Remarketing' : 'Selecionar Leads'}
           </CardTitle>
           <CardDescription>
             {isRemarketing 
-              ? 'Leads selecionados para remarketing (já foram contatados antes)'
-              : 'Escolha os leads para enviar mensagem em massa (agrupados por nicho)'
+              ? 'Leads selecionados para remarketing'
+              : `${allLeads.length} leads capturados • ${pendingLeads.length} pendentes • ${sentLeads.length} enviados`
             }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* View mode tabs */}
+            {importedLeads.length === 0 && (
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'pending' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    setViewMode('pending');
+                    setSelectedLeads([]);
+                  }}
+                >
+                  <Clock className="h-4 w-4 mr-2" />
+                  Pendentes ({pendingLeads.length})
+                </Button>
+                <Button
+                  variant={viewMode === 'sent' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    setViewMode('sent');
+                    setSelectedLeads([]);
+                  }}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Enviados ({sentLeads.length})
+                </Button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
-                {selectedLeads.length} leads selecionados
+                {selectedLeads.length} de {displayLeads.length} selecionados
               </span>
               <Button
                 variant="outline"
@@ -381,74 +439,121 @@ export function MassSendTab() {
               </Button>
             </div>
             
-            <div className="max-h-[400px] overflow-y-auto space-y-4">
-              {Object.entries(leadsByNiche).map(([niche, nicheLeads]) => (
-                <div key={niche} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium text-muted-foreground">{niche}</h4>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => {
-                        const nicheLeadIds = nicheLeads.map(l => l.id);
-                        const allSelected = nicheLeadIds.every(id => selectedLeads.includes(id));
-                        if (allSelected) {
-                          setSelectedLeads(selectedLeads.filter(id => !nicheLeadIds.includes(id)));
-                        } else {
-                          setSelectedLeads([...new Set([...selectedLeads, ...nicheLeadIds])]);
-                        }
-                      }}
-                    >
-                      {nicheLeads.every(l => selectedLeads.includes(l.id)) ? 'Desmarcar' : 'Selecionar'} nicho
-                    </Button>
-                  </div>
+            {displayLeads.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="font-medium">
+                  {viewMode === 'pending' 
+                    ? 'Nenhum lead pendente para envio'
+                    : 'Nenhum lead foi enviado ainda'
+                  }
+                </p>
+                <p className="text-sm mt-1">
+                  {viewMode === 'pending' 
+                    ? 'Capture leads na aba Captura ou importe via CSV/WhatsApp'
+                    : 'Envie mensagens para leads pendentes primeiro'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="max-h-[400px] overflow-y-auto space-y-2">
+                {sortedNiches.map(([niche, nicheLeads]) => {
+                  const isExpanded = expandedNiches.has(niche);
+                  const nicheLeadIds = nicheLeads.map(l => l.id);
+                  const selectedInNiche = nicheLeadIds.filter(id => selectedLeads.includes(id)).length;
+                  const allNicheSelected = selectedInNiche === nicheLeads.length;
                   
-                  {nicheLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        selectedLeads.includes(lead.id)
-                          ? 'border-primary bg-primary/5'
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => {
-                        if (selectedLeads.includes(lead.id)) {
-                          setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
-                        } else {
-                          setSelectedLeads([...selectedLeads, lead.id]);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Checkbox checked={selectedLeads.includes(lead.id)} />
+                  return (
+                    <div key={niche} className="border rounded-lg overflow-hidden">
+                      {/* Niche header - always visible */}
+                      <div 
+                        className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                          allNicheSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
+                        }`}
+                        onClick={() => toggleNicheExpand(niche)}
+                      >
+                        <Checkbox
+                          checked={allNicheSelected}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedLeads([...new Set([...selectedLeads, ...nicheLeadIds])]);
+                            } else {
+                              setSelectedLeads(selectedLeads.filter(id => !nicheLeadIds.includes(id)));
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{lead.business_name}</p>
-                          <p className="text-sm text-muted-foreground">{lead.phone}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {lead.location && (
-                            <span className="text-xs text-muted-foreground">{lead.location}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium truncate">{niche}</span>
+                            <Badge variant="secondary" className="text-xs">
+                              {nicheLeads.length} lead{nicheLeads.length !== 1 ? 's' : ''}
+                            </Badge>
+                          </div>
+                          {selectedInNiche > 0 && selectedInNiche < nicheLeads.length && (
+                            <span className="text-xs text-muted-foreground">
+                              {selectedInNiche} selecionado{selectedInNiche !== 1 ? 's' : ''}
+                            </span>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePreviewMessage(lead.id);
-                            }}
-                            disabled={sendMode === 'template' && !massMessage.trim()}
-                          >
-                            Prévia
-                          </Button>
                         </div>
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
                       </div>
+                      
+                      {/* Expanded leads list */}
+                      {isExpanded && (
+                        <div className="border-t divide-y">
+                          {nicheLeads.map((lead) => (
+                            <div
+                              key={lead.id}
+                              className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                                selectedLeads.includes(lead.id)
+                                  ? 'bg-primary/5'
+                                  : 'hover:bg-muted/30'
+                              }`}
+                              onClick={() => {
+                                if (selectedLeads.includes(lead.id)) {
+                                  setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
+                                } else {
+                                  setSelectedLeads([...selectedLeads, lead.id]);
+                                }
+                              }}
+                            >
+                              <div className="w-6" /> {/* Indent */}
+                              <Checkbox checked={selectedLeads.includes(lead.id)} />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate text-sm">{lead.business_name}</p>
+                                <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                {lead.location && (
+                                  <span className="text-xs text-muted-foreground">{lead.location}</span>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePreviewMessage(lead.id);
+                                  }}
+                                  disabled={sendMode === 'template' && !massMessage.trim()}
+                                >
+                                  Prévia
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
