@@ -99,7 +99,6 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('connections');
 
   // Collapsible states
-  const [showAntiBlock, setShowAntiBlock] = useState(false);
   const [showAdvancedAgent, setShowAdvancedAgent] = useState(false);
 
   // Basic settings
@@ -265,32 +264,23 @@ export default function SettingsPage() {
             {/* API Keys - Compact */}
             <ApiKeysSettings />
 
-            {/* Anti-Block - Collapsible */}
-            <Collapsible open={showAntiBlock} onOpenChange={setShowAntiBlock}>
-              <Card>
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-primary" />
-                        <div>
-                          <CardTitle className="text-base">Segurança Anti-Bloqueio</CardTitle>
-                          <CardDescription className="text-xs">
-                            Limites de envio, intervalos e warmup
-                          </CardDescription>
-                        </div>
-                      </div>
-                      {showAntiBlock ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                    </div>
-                  </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <CardContent className="pt-0">
-                    <AntiBlockSettings />
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
+            {/* Anti-Block Settings - Always visible */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle className="text-base">Proteção Anti-Bloqueio</CardTitle>
+                    <CardDescription className="text-xs">
+                      Configure limites e intervalos para evitar banimento
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <AntiBlockSettings />
+              </CardContent>
+            </Card>
           </div>
         )}
 
