@@ -742,9 +742,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       }
     }
 
-    // Action: Search leads - MAXIMIZED COVERAGE
+    // Action: Search leads - MÁXIMA COBERTURA SEM LIMITES
     if (action === "search_leads") {
-      const { niche, location, maxResults = 500 } = data;
+      const { niche, location, maxResults = 1000 } = data;
       
       // Determine which API to use based on user preference
       const preferredApi = userSettings?.preferred_search_api || 'serper';
@@ -762,18 +762,99 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         });
       }
 
-      // Bairros e regiões de grandes cidades para expandir busca
+      // TODOS os bairros de grandes cidades para cobertura MÁXIMA
       const CITY_REGIONS: Record<string, string[]> = {
-        "São Paulo": ["Centro", "Paulista", "Pinheiros", "Vila Mariana", "Moema", "Itaim Bibi", "Jardins", "Brooklin", "Mooca", "Tatuapé", "Santana", "Lapa", "Perdizes", "Vila Madalena", "Bela Vista", "Consolação", "Liberdade", "Santo Amaro", "Campo Belo", "Morumbi", "Butantã", "Penha", "Vila Prudente", "Ipiranga", "Saúde", "Jabaquara"],
-        "Rio de Janeiro": ["Centro", "Copacabana", "Ipanema", "Leblon", "Botafogo", "Flamengo", "Tijuca", "Barra da Tijuca", "Recreio", "Méier", "Madureira", "Jacarepaguá", "Campo Grande", "Niterói"],
-        "Belo Horizonte": ["Centro", "Savassi", "Funcionários", "Lourdes", "Pampulha", "Contagem", "Betim"],
-        "Curitiba": ["Centro", "Batel", "Água Verde", "Portão", "Santa Felicidade", "Cabral", "Juvevê"],
-        "Porto Alegre": ["Centro", "Moinhos de Vento", "Cidade Baixa", "Menino Deus", "Petrópolis", "Mont Serrat"],
-        "Salvador": ["Centro", "Barra", "Pituba", "Itaigara", "Ondina", "Rio Vermelho", "Brotas"],
-        "Brasília": ["Asa Sul", "Asa Norte", "Lago Sul", "Lago Norte", "Sudoeste", "Noroeste", "Taguatinga", "Águas Claras"],
-        "Fortaleza": ["Centro", "Aldeota", "Meireles", "Fátima", "Papicu", "Cocó", "Dionísio Torres"],
-        "Recife": ["Centro", "Boa Viagem", "Casa Forte", "Espinheiro", "Derby", "Graças", "Aflitos"],
-        "Campinas": ["Centro", "Cambuí", "Taquaral", "Barão Geraldo", "Sousas", "Nova Campinas"],
+        "São Paulo": [
+          // Centro e regiões nobres
+          "Centro", "Paulista", "Jardins", "Itaim Bibi", "Pinheiros", "Vila Madalena", "Perdizes",
+          "Higienópolis", "Consolação", "Bela Vista", "Liberdade", "Aclimação", "Paraíso",
+          // Zona Sul
+          "Moema", "Vila Mariana", "Brooklin", "Campo Belo", "Santo Amaro", "Morumbi", "Vila Olímpia",
+          "Saúde", "Jabaquara", "Ipiranga", "Cursino", "Vila Clementino", "Chácara Klabin",
+          "Interlagos", "Cidade Dutra", "Grajaú", "Socorro", "Jurubatuba",
+          // Zona Oeste
+          "Butantã", "Lapa", "Vila Leopoldina", "Jaguaré", "Rio Pequeno", "Raposo Tavares",
+          "Pirituba", "Perus", "Jaraguá", "Freguesia do Ó", "Casa Verde",
+          // Zona Norte
+          "Santana", "Tucuruvi", "Mandaqui", "Tremembé", "Jaçanã", "Vila Guilherme",
+          "Vila Maria", "Cachoeirinha", "Brasilândia", "Vila Medeiros",
+          // Zona Leste
+          "Tatuapé", "Mooca", "Penha", "Vila Prudente", "Vila Formosa", "Carrão",
+          "Aricanduva", "Vila Matilde", "Água Rasa", "Belém", "Brás", "Pari",
+          "São Miguel", "Itaquera", "Guaianases", "São Mateus", "Sapopemba",
+          "Ermelino Matarazzo", "Cangaíba", "Ponte Rasa", "Artur Alvim", "Cidade Líder",
+          // Região Metropolitana
+          "Guarulhos", "Osasco", "Santo André", "São Bernardo", "São Caetano",
+          "Diadema", "Mauá", "Suzano", "Mogi das Cruzes", "Barueri", "Alphaville",
+          "Cotia", "Taboão da Serra", "Embu das Artes", "Itapecerica da Serra"
+        ],
+        "Rio de Janeiro": [
+          "Centro", "Copacabana", "Ipanema", "Leblon", "Botafogo", "Flamengo", "Catete",
+          "Laranjeiras", "Humaitá", "Lagoa", "Gávea", "Jardim Botânico", "São Conrado",
+          "Tijuca", "Grajaú", "Vila Isabel", "Maracanã", "Andaraí",
+          "Barra da Tijuca", "Recreio", "Jacarepaguá", "Taquara", "Freguesia",
+          "Méier", "Madureira", "Penha", "Olaria", "Ramos", "Bonsucesso",
+          "Campo Grande", "Santa Cruz", "Bangu", "Realengo", "Padre Miguel",
+          "Niterói", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Nilópolis"
+        ],
+        "Belo Horizonte": [
+          "Centro", "Savassi", "Funcionários", "Lourdes", "Sion", "Santo Antônio",
+          "Pampulha", "Buritis", "Belvedere", "Cidade Nova", "Santa Efigênia",
+          "Gutierrez", "Padre Eustáquio", "Prado", "Barroca", "Nova Suíça",
+          "Contagem", "Betim", "Nova Lima", "Lagoa Santa", "Santa Luzia"
+        ],
+        "Curitiba": [
+          "Centro", "Batel", "Água Verde", "Bigorrilho", "Champagnat", "Juvevê",
+          "Portão", "Santa Felicidade", "Cabral", "Alto da Glória", "Cristo Rei",
+          "Boa Vista", "Bacacheri", "Ahú", "Mercês", "Campo Comprido",
+          "Colombo", "São José dos Pinhais", "Araucária", "Pinhais"
+        ],
+        "Porto Alegre": [
+          "Centro", "Moinhos de Vento", "Cidade Baixa", "Menino Deus", "Petrópolis",
+          "Mont Serrat", "Bela Vista", "Bom Fim", "Floresta", "Independência",
+          "Rio Branco", "Auxiliadora", "Boa Vista", "Higienópolis", "Passo da Areia",
+          "Canoas", "Novo Hamburgo", "São Leopoldo", "Gravataí"
+        ],
+        "Salvador": [
+          "Centro", "Barra", "Pituba", "Itaigara", "Ondina", "Rio Vermelho",
+          "Brotas", "Graça", "Federação", "Caminho das Árvores", "Stiep",
+          "Paralela", "Imbuí", "Patamares", "Piatã", "Stella Maris",
+          "Lauro de Freitas", "Camaçari"
+        ],
+        "Brasília": [
+          "Asa Sul", "Asa Norte", "Lago Sul", "Lago Norte", "Sudoeste", "Noroeste",
+          "Taguatinga", "Águas Claras", "Guará", "Cruzeiro", "Octogonal",
+          "Ceilândia", "Samambaia", "Planaltina", "Gama", "Sobradinho"
+        ],
+        "Fortaleza": [
+          "Centro", "Aldeota", "Meireles", "Fátima", "Papicu", "Cocó",
+          "Dionísio Torres", "Varjota", "Mucuripe", "Praia de Iracema",
+          "Messejana", "Parangaba", "Montese", "Benfica", "Parquelândia"
+        ],
+        "Recife": [
+          "Centro", "Boa Viagem", "Casa Forte", "Espinheiro", "Derby", "Graças",
+          "Aflitos", "Madalena", "Torre", "Encruzilhada", "Tamarineira",
+          "Olinda", "Jaboatão", "Paulista", "Camaragibe"
+        ],
+        "Campinas": [
+          "Centro", "Cambuí", "Taquaral", "Barão Geraldo", "Sousas", "Nova Campinas",
+          "Jardim Chapadão", "Guanabara", "Bosque", "Ponte Preta", "Vila Industrial",
+          "Hortolândia", "Sumaré", "Indaiatuba", "Valinhos", "Vinhedo"
+        ],
+        "Goiânia": [
+          "Centro", "Setor Bueno", "Setor Oeste", "Setor Marista", "Jardim Goiás",
+          "Setor Sul", "Setor Aeroporto", "Campinas", "Jardim América",
+          "Aparecida de Goiânia", "Senador Canedo", "Trindade"
+        ],
+        "Manaus": [
+          "Centro", "Adrianópolis", "Chapada", "Vieiralves", "Parque 10",
+          "Flores", "Cidade Nova", "Aleixo", "Dom Pedro", "Compensa"
+        ],
+        "Vitória": [
+          "Centro", "Praia do Canto", "Jardim da Penha", "Mata da Praia",
+          "Jardim Camburi", "Enseada do Suá", "Bento Ferreira",
+          "Vila Velha", "Serra", "Cariacica"
+        ],
       };
 
       // Helper function to search with Serper.dev
@@ -925,10 +1006,10 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         }
       }
       
-      // Remove duplicates
+      // Remove duplicates - SEM LIMITE de termos para cobertura MÁXIMA
       const uniqueTerms = [...new Set(searchTerms)];
-      // Use up to 30 terms for MAXIMUM coverage
-      const limitedSearchTerms = uniqueTerms.slice(0, 30);
+      // Use TODOS os termos disponíveis (até 50 para garantir cobertura total)
+      const limitedSearchTerms = uniqueTerms.slice(0, 50);
 
       // Determine which API to use (with fallback logic)
       let useSerper = preferredApi === 'serper' && serperApiKey;
@@ -941,19 +1022,20 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       );
       const regions = cityName ? CITY_REGIONS[cityName] : [];
 
-      // Build search locations: original location + specific neighborhoods for big cities
+      // Build search locations: original location + TODOS os bairros para cobertura MÁXIMA
       const searchLocations: string[] = [location];
       if (regions.length > 0) {
-        // Add neighborhoods/regions for more targeted search
-        for (const region of regions.slice(0, 15)) {
+        // Adicionar TODOS os bairros disponíveis (sem limite)
+        for (const region of regions) {
           searchLocations.push(`${region}, ${cityName}`);
         }
       }
 
-      console.log(`MAXIMIZED search for ${niche} in ${location}`);
-      console.log(`- ${limitedSearchTerms.length} search terms`);
-      console.log(`- ${searchLocations.length} location variations`);
-      console.log(`- Target: ${maxResults} leads`);
+      console.log(`🚀 BUSCA MÁXIMA SEM LIMITES para ${niche} em ${location}`);
+      console.log(`- ${limitedSearchTerms.length} termos de busca`);
+      console.log(`- ${searchLocations.length} variações de localização`);
+      console.log(`- Total de combinações: ${limitedSearchTerms.length * searchLocations.length}`);
+      console.log(`- Meta: ${maxResults} leads`);
       console.log(`- API: ${apiUsed}`);
 
       // Process each search term with location variations
