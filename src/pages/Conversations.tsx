@@ -9,10 +9,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { EmptyState } from '@/components/ui/empty-state';
-import { useLeads } from '@/hooks/use-leads';
+import { useConversations, ConversationSummary } from '@/hooks/use-conversations';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { useUserSettings } from '@/hooks/use-user-settings';
-import { Lead } from '@/types/database';
 import { LeadDetailsModal } from '@/components/leads/LeadDetailsModal';
 import { QuickReplies } from '@/components/chat/QuickReplies';
 import { MediaUpload } from '@/components/chat/MediaUpload';
@@ -27,21 +26,34 @@ import {
   Loader2,
   Eye,
   Sparkles,
+  MessageCircle,
+  CheckCheck,
+  Clock,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function ConversationsPage() {
   const [search, setSearch] = useState('');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationSummary | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [autoReplyEnabled, setAutoReplyEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { leads, isLoading: leadsLoading } = useLeads({ search: search || undefined });
-  const { messages, isLoading: messagesLoading, sendMessage, isSending } = useChatMessages(selectedLead?.id || null);
+  const { conversations, isLoading: conversationsLoading } = useConversations(search || undefined);
+  const { messages, isLoading: messagesLoading, sendMessage, isSending } = useChatMessages(selectedConversation?.lead.id || null);
   const { settings } = useUserSettings();
+
+  // Auto-select first conversation with messages
+  useEffect(() => {
+    if (!selectedConversation && conversations.length > 0) {
+      const firstWithMessages = conversations.find(c => c.hasMessages);
+      if (firstWithMessages) {
+        setSelectedConversation(firstWithMessages);
+      }
+    }
+  }, [conversations, selectedConversation]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -51,7 +63,7 @@ export default function ConversationsPage() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedLead) return;
+    if (!newMessage.trim() || !selectedConversation) return;
     sendMessage({ content: newMessage, senderType: 'user' });
     setNewMessage('');
   };
@@ -64,7 +76,7 @@ export default function ConversationsPage() {
   };
 
   const handleViewDetails = () => {
-    if (selectedLead) {
+    if (selectedConversation) {
       setDetailsOpen(true);
     }
   };
@@ -81,15 +93,33 @@ export default function ConversationsPage() {
     .filter(m => m.sender_type === 'lead')
     .slice(-1)[0]?.content;
 
+  // Filter conversations - show all but highlight those with messages
+  const activeConversations = conversations.filter(c => c.hasMessages);
+  const inactiveConversations = conversations.filter(c => !c.hasMessages);
+
   return (
     <DashboardLayout
       title="Conversas"
-      description="Visualize e gerencie conversas com seus leads"
+      description="Conversas do WhatsApp em tempo real"
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] animate-fade-in">
         {/* Conversations List */}
         <Card className="lg:col-span-1 overflow-hidden">
           <CardHeader className="pb-3 bg-muted/30 border-b">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-primary" />
+                <span className="font-semibold">WhatsApp</span>
+                {settings?.whatsapp_connected && (
+                  <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs">
+                    Conectado
+                  </Badge>
+                )}
+              </div>
+              {activeConversations.length > 0 && (
+                <Badge className="rounded-full">{activeConversations.length} ativas</Badge>
+              )}
+            </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -102,47 +132,63 @@ export default function ConversationsPage() {
           </CardHeader>
           <CardContent className="p-0">
             <ScrollArea className="h-[calc(100vh-340px)]">
-              {leadsLoading ? (
+              {conversationsLoading ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
-              ) : leads.length === 0 ? (
+              ) : conversations.length === 0 ? (
                 <EmptyState
                   icon={MessageSquare}
                   title="Nenhuma conversa"
-                  description="Capture leads para iniciar conversas"
+                  description="Conecte o WhatsApp e capture leads para ver conversas"
                   className="py-12"
                 />
               ) : (
                 <div className="divide-y">
-                  {leads.map((lead, index) => (
+                  {/* Active conversations with messages */}
+                  {activeConversations.map((conv, index) => (
                     <button
-                      key={lead.id}
-                      onClick={() => setSelectedLead(lead)}
+                      key={conv.lead.id}
+                      onClick={() => setSelectedConversation(conv)}
                       className={`w-full p-4 text-left transition-all duration-200 ${
-                        selectedLead?.id === lead.id 
+                        selectedConversation?.lead.id === conv.lead.id 
                           ? 'bg-primary/5 border-l-2 border-l-primary' 
                           : 'hover:bg-muted/50'
                       }`}
                       style={{ animationDelay: `${index * 0.03}s` }}
                     >
                       <div className="flex items-start gap-3">
-                        <Avatar className="h-11 w-11 ring-2 ring-offset-2 ring-transparent transition-all group-hover:ring-primary/20">
-                          <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                            {lead.business_name[0]}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="relative">
+                          <Avatar className="h-11 w-11 ring-2 ring-offset-2 ring-transparent transition-all">
+                            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                              {conv.lead.business_name[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          {conv.unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold">
+                              {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold truncate">{lead.business_name}</p>
-                            {temperatureIconsSmall[lead.temperature]}
+                            <p className={`font-semibold truncate ${conv.unreadCount > 0 ? 'text-foreground' : ''}`}>
+                              {conv.lead.business_name}
+                            </p>
+                            {temperatureIconsSmall[conv.lead.temperature || 'morno']}
                           </div>
-                          <p className="text-sm text-muted-foreground truncate mt-0.5">
-                            {lead.conversation_summary || 'Sem mensagens'}
-                          </p>
-                          {lead.last_contact_at && (
-                            <p className="text-xs text-muted-foreground mt-1.5">
-                              {formatDistanceToNow(new Date(lead.last_contact_at), {
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {conv.lastMessage?.sender_type !== 'lead' && (
+                              <CheckCheck className="h-3 w-3 text-primary shrink-0" />
+                            )}
+                            <p className={`text-sm truncate ${conv.unreadCount > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                              {conv.lastMessage?.content || 'Sem mensagens'}
+                            </p>
+                          </div>
+                          {conv.lastMessage && (
+                            <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {formatDistanceToNow(new Date(conv.lastMessage.sent_at), {
                                 addSuffix: true,
                                 locale: ptBR,
                               })}
@@ -150,8 +196,40 @@ export default function ConversationsPage() {
                           )}
                         </div>
                         <Badge variant="secondary" className="shrink-0 rounded-full text-xs">
-                          {lead.stage}
+                          {conv.lead.stage}
                         </Badge>
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* Separator if there are both active and inactive */}
+                  {activeConversations.length > 0 && inactiveConversations.length > 0 && (
+                    <div className="px-4 py-2 bg-muted/50">
+                      <span className="text-xs text-muted-foreground">Leads sem conversas</span>
+                    </div>
+                  )}
+
+                  {/* Inactive conversations (no messages) */}
+                  {inactiveConversations.slice(0, 10).map((conv) => (
+                    <button
+                      key={conv.lead.id}
+                      onClick={() => setSelectedConversation(conv)}
+                      className={`w-full p-3 text-left transition-all duration-200 opacity-60 hover:opacity-100 ${
+                        selectedConversation?.lead.id === conv.lead.id 
+                          ? 'bg-primary/5 border-l-2 border-l-primary' 
+                          : 'hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                            {conv.lead.business_name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{conv.lead.business_name}</p>
+                          <p className="text-xs text-muted-foreground">{conv.lead.phone}</p>
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -163,18 +241,18 @@ export default function ConversationsPage() {
 
         {/* Chat Area */}
         <Card className="lg:col-span-2 flex flex-col overflow-hidden">
-          {selectedLead ? (
+          {selectedConversation ? (
             <>
               <CardHeader className="border-b bg-muted/30 py-4">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-11 w-11 ring-2 ring-primary/20">
                     <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {selectedLead.business_name[0]}
+                      {selectedConversation.lead.business_name[0]}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{selectedLead.business_name}</CardTitle>
-                    <p className="text-sm text-muted-foreground font-mono">{selectedLead.phone}</p>
+                    <CardTitle className="text-lg">{selectedConversation.lead.business_name}</CardTitle>
+                    <p className="text-sm text-muted-foreground font-mono">{selectedConversation.lead.phone}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     {/* Auto-reply toggle */}
@@ -190,8 +268,8 @@ export default function ConversationsPage() {
                         Auto
                       </Label>
                     </div>
-                    {temperatureIconsSmall[selectedLead.temperature]}
-                    <Badge className="rounded-full">{selectedLead.stage}</Badge>
+                    {temperatureIconsSmall[selectedConversation.lead.temperature || 'morno']}
+                    <Badge className="rounded-full">{selectedConversation.lead.stage}</Badge>
                     <Button variant="outline" size="sm" onClick={handleViewDetails} className="rounded-full">
                       <Eye className="h-4 w-4 mr-1.5" />
                       Detalhes
@@ -237,7 +315,7 @@ export default function ConversationsPage() {
                               ) : message.sender_type === 'user' ? (
                                 <User className="h-4 w-4" />
                               ) : (
-                                selectedLead.business_name[0]
+                                selectedConversation.lead.business_name[0]
                               )}
                             </AvatarFallback>
                           </Avatar>
@@ -257,18 +335,19 @@ export default function ConversationsPage() {
                               </div>
                             )}
                             <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                            <p
-                              className={`text-xs mt-2 ${
-                                message.sender_type === 'lead'
-                                  ? 'text-muted-foreground'
-                                  : 'opacity-70'
-                              }`}
-                            >
-                              {formatDistanceToNow(new Date(message.sent_at), {
-                                addSuffix: true,
-                                locale: ptBR,
-                              })}
-                            </p>
+                            <div className={`flex items-center gap-1 mt-2 ${
+                              message.sender_type === 'lead' ? 'text-muted-foreground' : 'opacity-70'
+                            }`}>
+                              <span className="text-xs">
+                                {formatDistanceToNow(new Date(message.sent_at), {
+                                  addSuffix: true,
+                                  locale: ptBR,
+                                })}
+                              </span>
+                              {message.sender_type !== 'lead' && message.status === 'sent' && (
+                                <CheckCheck className="h-3 w-3 text-primary" />
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -279,7 +358,7 @@ export default function ConversationsPage() {
                 {/* Quick Replies */}
                 <QuickReplies 
                   onSelectReply={handleQuickReply} 
-                  leadName={selectedLead.business_name}
+                  leadName={selectedConversation.lead.business_name}
                 />
 
                 {/* Message Input */}
@@ -288,7 +367,7 @@ export default function ConversationsPage() {
                     {/* Media Upload */}
                     {settings?.whatsapp_instance_id && (
                       <MediaUpload
-                        leadPhone={selectedLead.phone}
+                        leadPhone={selectedConversation.lead.phone}
                         instanceId={settings.whatsapp_instance_id}
                         onMediaSent={() => {}}
                       />
@@ -296,7 +375,7 @@ export default function ConversationsPage() {
 
                     {/* AI Reply Button */}
                     <AIReplyButton
-                      leadId={selectedLead.id}
+                      leadId={selectedConversation.lead.id}
                       lastMessage={lastLeadMessage}
                       onUseReply={handleAIReply}
                     />
@@ -338,7 +417,7 @@ export default function ConversationsPage() {
 
       {/* Lead Details Modal */}
       <LeadDetailsModal
-        lead={selectedLead}
+        lead={selectedConversation?.lead as any}
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
       />
