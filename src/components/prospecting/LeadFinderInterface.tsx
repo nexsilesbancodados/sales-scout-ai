@@ -45,8 +45,11 @@ interface CapturedLead {
   niche: string;
   location: string;
   google_maps_url?: string;
+  photo_url?: string;
   qualityScore?: number;
   isDuplicate?: boolean;
+  lead_group?: string;
+  service_opportunities?: string[];
   status: 'pending' | 'sending' | 'sent' | 'failed' | 'duplicate';
 }
 
@@ -124,19 +127,22 @@ export function LeadFinderInterface() {
                 id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 business_name: result.title,
                 phone: result.phone,
-                address: result.snippet,
-                rating: undefined,
-                reviews_count: undefined,
-                website: result.link,
+                address: result.snippet || result.address,
+                rating: result.rating,
+                reviews_count: result.reviews_count,
+                website: result.website || result.link,
                 niche: currentNiche,
                 location: currentLocation,
-                google_maps_url: result.link?.includes('maps.google') ? result.link : undefined,
+                google_maps_url: result.google_maps_url || (result.link?.includes('maps.google') ? result.link : undefined),
+                photo_url: result.photo_url || result.thumbnail,
                 status: 'pending' as const,
                 qualityScore: calculateQualityScore({ 
                   title: result.title, 
                   phone: result.phone, 
-                  website: result.link,
-                  address: result.snippet 
+                  website: result.website || result.link,
+                  address: result.snippet || result.address,
+                  rating: result.rating,
+                  reviews_count: result.reviews_count,
                 }),
               }));
 
@@ -152,7 +158,11 @@ export function LeadFinderInterface() {
 
       const checkedLeads = await checkDuplicatesInDatabase(uniqueLeads);
       
-      const sortedLeads = checkedLeads.sort((a, b) => {
+      // Qualify leads by groups using AI
+      setProgress({ current: 0, total: 1, phase: 'Qualificando leads com IA...' });
+      const qualifiedLeads = await qualifyLeadsWithAI(checkedLeads);
+      
+      const sortedLeads = qualifiedLeads.sort((a, b) => {
         if (a.isDuplicate && !b.isDuplicate) return 1;
         if (!a.isDuplicate && b.isDuplicate) return -1;
         return (b.qualityScore || 0) - (a.qualityScore || 0);
@@ -166,9 +176,22 @@ export function LeadFinderInterface() {
       }
 
       setProcessStatus('completed');
+      
+      // Summary by groups
+      const groups = newLeads.reduce((acc, l) => {
+        const g = l.lead_group || 'Outros';
+        acc[g] = (acc[g] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const groupSummary = Object.entries(groups)
+        .map(([g, c]) => `${c} ${g}`)
+        .slice(0, 3)
+        .join(', ');
+      
       toast({
         title: '✅ Busca concluída!',
-        description: `${newLeads.length} leads novos encontrados.`,
+        description: `${newLeads.length} leads novos: ${groupSummary}`,
       });
 
     } catch (error: any) {
@@ -218,6 +241,75 @@ export function LeadFinderInterface() {
     }
   };
 
+  const qualifyLeadsWithAI = async (leads: CapturedLead[]): Promise<CapturedLead[]> => {
+    if (leads.length === 0) return leads;
+    
+    try {
+      const response = await supabase.functions.invoke('ai-prospecting', {
+        body: {
+          action: 'qualify_leads_by_group',
+          data: {
+            leads: leads.map(l => ({
+              id: l.id,
+              business_name: l.business_name,
+              website: l.website,
+              rating: l.rating,
+              reviews_count: l.reviews_count,
+              niche: l.niche,
+            })),
+          },
+        },
+      });
+
+      if (response.data?.qualified_leads) {
+        const qualifiedMap = new Map(
+          response.data.qualified_leads.map((q: any) => [q.id, q])
+        );
+        
+        return leads.map(lead => {
+          const qualification = qualifiedMap.get(lead.id) as any;
+          if (qualification) {
+            return {
+              ...lead,
+              lead_group: qualification.lead_group,
+              service_opportunities: qualification.service_opportunities,
+            };
+          }
+          return lead;
+        });
+      }
+      
+      return leads;
+    } catch (error) {
+      console.error('Error qualifying leads with AI:', error);
+      
+      // Fallback: basic classification without AI
+      return leads.map(lead => {
+        let group = 'Novo';
+        const opportunities: string[] = [];
+        
+        if (!lead.website) {
+          group = 'Sem Site';
+          opportunities.push('Criação de Site');
+        } else if (lead.rating && lead.rating < 3.5) {
+          group = 'Avaliação Baixa';
+          opportunities.push('Marketing Digital');
+        } else if (lead.reviews_count && lead.reviews_count > 50 && lead.rating && lead.rating >= 4.5) {
+          group = 'Premium';
+          opportunities.push('Fidelização');
+        } else if (lead.reviews_count && lead.reviews_count > 50) {
+          group = 'Estabelecido';
+          opportunities.push('Automação');
+        } else if (!lead.reviews_count || lead.reviews_count < 20) {
+          group = 'Pequeno Porte';
+          opportunities.push('Chatbot');
+        }
+        
+        return { ...lead, lead_group: group, service_opportunities: opportunities };
+      });
+    }
+  };
+
   const saveLeadsToDatabase = async (leads: CapturedLead[]) => {
     if (!user?.id) return;
 
@@ -232,6 +324,9 @@ export function LeadFinderInterface() {
       reviews_count: lead.reviews_count || null,
       website: lead.website || null,
       google_maps_url: lead.google_maps_url || null,
+      photo_url: lead.photo_url || null,
+      lead_group: lead.lead_group || null,
+      service_opportunities: lead.service_opportunities || [],
       stage: 'Novo',
       temperature: 'frio',
       source: 'lead_finder',
@@ -427,82 +522,158 @@ export function LeadFinderInterface() {
 
           {/* Leads Grid */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {capturedLeads.map((lead, index) => (
-              <Card 
-                key={lead.id}
-                className={cn(
-                  "group cursor-pointer transition-all duration-200 animate-fade-in",
-                  selectedLeadIds.includes(lead.id) && "ring-2 ring-primary border-primary",
-                  lead.isDuplicate && "opacity-60"
-                )}
-                style={{ animationDelay: `${index * 30}ms` }}
-                onClick={() => !lead.isDuplicate && toggleLeadSelection(lead.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Checkbox
-                      checked={selectedLeadIds.includes(lead.id)}
-                      disabled={lead.isDuplicate}
-                      className="mt-1"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold text-sm truncate">{lead.business_name}</h4>
-                        {lead.qualityScore && (
-                          <Badge 
-                            variant={lead.qualityScore >= 70 ? "default" : "secondary"}
-                            className="shrink-0 text-xs"
-                          >
-                            {lead.qualityScore}%
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="mt-2 space-y-1.5">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Phone className="h-3.5 w-3.5" />
-                          <span className="truncate">{lead.phone}</span>
+            {capturedLeads.map((lead, index) => {
+              const isCurrentlySending = activeJob?.status === 'running' && 
+                activeJob.payload?.leads?.[activeJob.current_index || 0]?.phone === lead.phone;
+              
+              return (
+                <Card 
+                  key={lead.id}
+                  className={cn(
+                    "group cursor-pointer transition-all duration-200 animate-fade-in overflow-hidden",
+                    selectedLeadIds.includes(lead.id) && "ring-2 ring-primary border-primary",
+                    lead.isDuplicate && "opacity-60",
+                    isCurrentlySending && "ring-2 ring-success border-success animate-pulse"
+                  )}
+                  style={{ animationDelay: `${index * 30}ms` }}
+                  onClick={() => !lead.isDuplicate && toggleLeadSelection(lead.id)}
+                >
+                  <CardContent className="p-0">
+                    {/* Photo Header */}
+                    <div className="relative h-24 bg-gradient-to-br from-muted to-muted/50 overflow-hidden">
+                      {lead.photo_url ? (
+                        <img 
+                          src={lead.photo_url} 
+                          alt={lead.business_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Building2 className="h-10 w-10 text-muted-foreground/50" />
                         </div>
-                        
-                        {lead.address && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <MapPin className="h-3.5 w-3.5" />
-                            <span className="truncate">{lead.address}</span>
+                      )}
+                      
+                      {/* Sending indicator overlay */}
+                      {isCurrentlySending && (
+                        <div className="absolute inset-0 bg-success/20 flex items-center justify-center">
+                          <div className="bg-success text-success-foreground px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-lg">
+                            <Send className="h-3 w-3 animate-bounce" />
+                            Enviando agora...
                           </div>
-                        )}
-                        
-                        {lead.website && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                            <a 
-                              href={lead.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline truncate"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {lead.website.replace(/^https?:\/\//, '').slice(0, 30)}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-3">
-                        <Badge variant="outline" className="text-xs">
-                          {lead.niche}
+                        </div>
+                      )}
+                      
+                      {/* Quality score badge */}
+                      {lead.qualityScore && (
+                        <Badge 
+                          variant={lead.qualityScore >= 70 ? "default" : "secondary"}
+                          className="absolute top-2 right-2 text-xs shadow-md"
+                        >
+                          {lead.qualityScore}%
                         </Badge>
-                        {lead.isDuplicate && (
-                          <Badge variant="secondary" className="text-xs">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Existente
-                          </Badge>
-                        )}
+                      )}
+                      
+                      {/* Rating badge */}
+                      {lead.rating && (
+                        <div className="absolute top-2 left-2 bg-background/90 rounded-full px-2 py-0.5 flex items-center gap-1 text-xs shadow-md">
+                          <Star className="h-3 w-3 text-warning fill-warning" />
+                          <span className="font-medium">{lead.rating}</span>
+                          {lead.reviews_count && (
+                            <span className="text-muted-foreground">({lead.reviews_count})</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-4">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedLeadIds.includes(lead.id)}
+                          disabled={lead.isDuplicate}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm truncate">{lead.business_name}</h4>
+                          
+                          <div className="mt-2 space-y-1.5">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5" />
+                              <span className="truncate">{lead.phone}</span>
+                            </div>
+                            
+                            {lead.address && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <MapPin className="h-3.5 w-3.5" />
+                                <span className="truncate">{lead.address}</span>
+                              </div>
+                            )}
+                            
+                            {lead.website && (
+                              <div className="flex items-center gap-2 text-xs">
+                                <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                                <a 
+                                  href={lead.website} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline truncate"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {lead.website.replace(/^https?:\/\//, '').slice(0, 25)}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                            <Badge variant="outline" className="text-xs">
+                              {lead.niche}
+                            </Badge>
+                            {lead.lead_group && (
+                              <Badge variant="secondary" className="text-xs">
+                                {lead.lead_group}
+                              </Badge>
+                            )}
+                            {lead.isDuplicate && (
+                              <Badge variant="secondary" className="text-xs bg-warning/10 text-warning border-warning/20">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                Existente
+                              </Badge>
+                            )}
+                            {isCurrentlySending && (
+                              <Badge className="text-xs bg-success text-success-foreground animate-pulse">
+                                <Send className="h-3 w-3 mr-1" />
+                                Enviando
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          {/* Service opportunities */}
+                          {lead.service_opportunities && lead.service_opportunities.length > 0 && (
+                            <div className="mt-2 pt-2 border-t">
+                              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                Oportunidades:
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {lead.service_opportunities.slice(0, 2).map((opp, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
+                                    {opp}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}

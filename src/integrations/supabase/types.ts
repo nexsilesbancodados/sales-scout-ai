@@ -441,6 +441,7 @@ export type Database = {
           last_contact_at: string | null
           last_response_at: string | null
           last_scored_at: string | null
+          lead_group: string | null
           lead_score: number | null
           linkedin_url: string | null
           location: string | null
@@ -450,10 +451,12 @@ export type Database = {
           notes: string | null
           pain_points: string[] | null
           phone: string
+          photo_url: string | null
           quality_score: number | null
           rating: number | null
           reviews_count: number | null
           score_factors: Json | null
+          service_opportunities: string[] | null
           source: string | null
           stage: string
           tags: string[] | null
@@ -488,6 +491,7 @@ export type Database = {
           last_contact_at?: string | null
           last_response_at?: string | null
           last_scored_at?: string | null
+          lead_group?: string | null
           lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
@@ -497,10 +501,12 @@ export type Database = {
           notes?: string | null
           pain_points?: string[] | null
           phone: string
+          photo_url?: string | null
           quality_score?: number | null
           rating?: number | null
           reviews_count?: number | null
           score_factors?: Json | null
+          service_opportunities?: string[] | null
           source?: string | null
           stage?: string
           tags?: string[] | null
@@ -535,6 +541,7 @@ export type Database = {
           last_contact_at?: string | null
           last_response_at?: string | null
           last_scored_at?: string | null
+          lead_group?: string | null
           lead_score?: number | null
           linkedin_url?: string | null
           location?: string | null
@@ -544,10 +551,12 @@ export type Database = {
           notes?: string | null
           pain_points?: string[] | null
           phone?: string
+          photo_url?: string | null
           quality_score?: number | null
           rating?: number | null
           reviews_count?: number | null
           score_factors?: Json | null
+          service_opportunities?: string[] | null
           source?: string | null
           stage?: string
           tags?: string[] | null
