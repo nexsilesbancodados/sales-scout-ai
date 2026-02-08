@@ -335,10 +335,19 @@ export function CaptureAndSendTab({
     // Has WhatsApp (phone starting with country code or specific patterns)
     if (filters.hasWhatsApp) {
       const phone = lead.phone?.replace(/\D/g, '') || '';
-      // Brazilian WhatsApp numbers typically start with 55 and have 12-13 digits
-      // Or are mobile numbers starting with 9
-      const isMobile = phone.length >= 10 && (phone.startsWith('55') || /^[1-9][1-9]9/.test(phone));
-      if (!isMobile) return false;
+      // Brazilian phone validation:
+      // - With country code: 55 + DDD (2 digits) + 9 + number (8 digits) = 13 digits
+      // - Without country code: DDD (2 digits) + 9 + number (8 digits) = 11 digits
+      // - Or DDD + number (8 digits) = 10 digits for landlines converted to mobile
+      const hasCountryCode = phone.startsWith('55');
+      const phoneWithoutCountry = hasCountryCode ? phone.slice(2) : phone;
+      
+      // Check if it's a mobile number (starts with 9 after DDD)
+      const isMobile = phoneWithoutCountry.length >= 10 && 
+        (phoneWithoutCountry.length === 11 && phoneWithoutCountry[2] === '9' || // 11 digits with 9
+         phoneWithoutCountry.length === 10); // 10 digits (older format)
+      
+      if (!isMobile && phone.length < 10) return false;
     }
 
     // Minimum rating filter
@@ -695,9 +704,15 @@ export function CaptureAndSendTab({
       return index === self.findIndex(l => l.phone.replace(/\D/g, '') === normalizedPhone);
     });
 
+    addLog(`📊 Total acumulado: ${allLeads.length} leads brutos → ${uniqueLeads.length} únicos após deduplicação`);
+
     // Apply capture filters
     const filteredLeads = uniqueLeads.filter(applyFilters);
     const filteredCount = uniqueLeads.length - filteredLeads.length;
+
+    if (filteredCount > 0) {
+      addLog(`🔍 Filtros aplicados: ${filteredCount} leads removidos por filtros`);
+    }
 
     // Check for duplicates in database and calculate quality scores
     addLog('🔍 Verificando duplicatas no banco de dados...');
@@ -720,6 +735,8 @@ export function CaptureAndSendTab({
     const newLeads = sortedLeads.filter(l => !l.isDuplicate);
     const newLeadsCount = newLeads.length;
     
+    addLog(`📊 Resultado final: ${newLeadsCount} novos + ${duplicateCount} já existentes no banco`);
+    
     setCapturedLeads(sortedLeads);
     
     if (filters.enabled && filteredCount > 0) {
@@ -732,6 +749,8 @@ export function CaptureAndSendTab({
 
     // Save new leads to database only if autoSaveLeads is enabled
     let savedCount = 0;
+    console.log(`[Capture] autoSaveLeads: ${autoSaveLeads}, newLeadsCount: ${newLeadsCount}, user?.id: ${user?.id}`);
+    
     if (autoSaveLeads && newLeadsCount > 0 && user?.id) {
       addLog(`💾 Salvando ${newLeadsCount} leads novos no banco de dados...`);
       
@@ -751,7 +770,10 @@ export function CaptureAndSendTab({
           temperature: 'frio',
           source: 'prospecting_capture',
           quality_score: lead.qualityScore || null,
+          message_sent: false,
         }));
+
+        console.log(`[Capture] Saving ${leadsToSave.length} leads to database`);
 
         const { data: savedLeads, error: saveError } = await supabase
           .from('leads')
@@ -763,6 +785,7 @@ export function CaptureAndSendTab({
           addLog(`❌ Erro ao salvar leads: ${saveError.message}`);
         } else {
           savedCount = savedLeads?.length || 0;
+          console.log(`[Capture] Successfully saved ${savedCount} leads`);
           addLog(`✅ ${savedCount} leads salvos no banco de dados`);
         }
       } catch (error: any) {
@@ -772,6 +795,10 @@ export function CaptureAndSendTab({
     } else if (!autoSaveLeads && newLeadsCount > 0) {
       addLog(`ℹ️ ${newLeadsCount} leads capturados (não salvos - salvamento automático desativado)`);
       addLog(`💡 Use o botão "Salvar Leads" para salvar manualmente quando quiser`);
+    } else if (newLeadsCount === 0) {
+      addLog(`⚠️ Nenhum lead novo para salvar (todos já existem ou foram filtrados)`);
+    } else if (!user?.id) {
+      addLog(`❌ Erro: usuário não autenticado, leads não salvos`);
     }
     
     addLog(`✅ Captura concluída: ${newLeadsCount} leads novos + ${duplicateCount} duplicados`);
