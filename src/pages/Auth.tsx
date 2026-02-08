@@ -9,14 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Lock, User, Chrome, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react';
 import authBackground from '@/assets/auth-background.jpg';
 import logoImage from '@/assets/logo.png';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading, user } = useAuth();
+  const { signInWithEmail, signUpWithEmail, loading, user } = useAuth();
   const { toast } = useToast();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,17 +42,6 @@ export default function AuthPage() {
     return null;
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      toast({
-        title: 'Erro no login',
-        description: 'Não foi possível fazer login com Google.',
-        variant: 'destructive',
-      });
-    }
-  };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,27 +217,6 @@ export default function AuthPage() {
                 </TabsList>
 
                 <TabsContent value="login" className="space-y-5 mt-0">
-                  {/* Google Login */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-12 text-base font-medium hover:bg-muted transition-colors"
-                    onClick={handleGoogleLogin}
-                    disabled={loading || isSubmitting}
-                  >
-                    <Chrome className="w-5 h-5 mr-3" />
-                    Continuar com Google
-                  </Button>
-
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-3 text-muted-foreground font-medium">ou</span>
-                    </div>
-                  </div>
-
                   <form onSubmit={handleEmailLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-email" className="text-sm font-medium">E-mail</Label>
@@ -310,27 +278,6 @@ export default function AuthPage() {
                 </TabsContent>
 
                 <TabsContent value="signup" className="space-y-5 mt-0">
-                  {/* Google Signup */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-12 text-base font-medium hover:bg-muted transition-colors"
-                    onClick={handleGoogleLogin}
-                    disabled={loading || isSubmitting}
-                  >
-                    <Chrome className="w-5 h-5 mr-3" />
-                    Cadastrar com Google
-                  </Button>
-
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-3 text-muted-foreground font-medium">ou</span>
-                    </div>
-                  </div>
-
                   <form onSubmit={handleSignup} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="signup-name" className="text-sm font-medium">Nome completo</Label>
