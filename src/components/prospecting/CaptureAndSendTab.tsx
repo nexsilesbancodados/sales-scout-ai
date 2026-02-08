@@ -29,6 +29,7 @@ import { useProspectingHistory, ProspectingHistoryLead } from '@/hooks/use-prosp
 import { useMassSendJob, formatPhoneForWhatsApp } from '@/hooks/use-mass-send-job';
 import { useJobLogs } from '@/hooks/use-job-logs';
 import { MassSendProgress } from './MassSendProgress';
+import { WhatsAppGroupImport } from './WhatsAppGroupImport';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -1970,6 +1971,9 @@ export function CaptureAndSendTab({
           </CollapsibleContent>
         </Collapsible>
       </Card>
+
+      {/* WhatsApp Group Import */}
+      <WhatsAppGroupImport disabled={isProcessing} />
 
       {/* Lead Quantity Slider */}
       <LeadQuantitySlider
