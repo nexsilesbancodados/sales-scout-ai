@@ -35,7 +35,6 @@ import {
   Settings,
   LogOut,
   ChevronUp,
-  Zap,
   BookOpen,
 } from 'lucide-react';
 import logoImage from '@/assets/logo.png';
@@ -53,14 +52,7 @@ const menuItems = [
     title: 'Prospecção', 
     icon: Target, 
     path: '/prospecting',
-    description: 'Capturar leads'
-  },
-  { 
-    title: 'Capturar', 
-    icon: Zap, 
-    path: '/prospecting?tab=capture', 
-    highlight: true,
-    description: 'Iniciar captura'
+    description: 'Capturar e enviar leads'
   },
 ];
 
@@ -111,9 +103,7 @@ export function AppSidebar() {
               isActive={active}
               className={cn(
                 "transition-all duration-200 rounded-lg h-10",
-                item.highlight 
-                  ? "bg-primary/10 text-primary hover:bg-primary/20 font-medium border border-primary/20" 
-                  : active
+                active
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "hover:bg-muted"
               )}
@@ -121,7 +111,7 @@ export function AppSidebar() {
               <Link to={item.path} className="flex items-center gap-3">
                 <item.icon className={cn(
                   "h-4 w-4",
-                  active && !item.highlight ? 'text-primary-foreground' : item.highlight ? 'text-primary' : ''
+                  active ? 'text-primary-foreground' : ''
                 )} />
                 <span className="font-medium truncate">{item.title}</span>
               </Link>
