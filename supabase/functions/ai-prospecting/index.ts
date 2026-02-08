@@ -58,8 +58,8 @@ async function processSearchLeadsInBackground(
     // Get subniches for this niche, or use the niche itself
     const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
     
-    // Limit search terms to avoid timeout (5 terms max for background)
-    const limitedSearchTerms = searchTerms.slice(0, 5);
+    // Increased to 10 terms for better coverage
+    const limitedSearchTerms = searchTerms.slice(0, 10);
     
     console.log(`[Job ${jobId}] Searching for ${niche} with ${limitedSearchTerms.length} variations in ${location} (max: ${maxResults})`);
 
@@ -70,8 +70,8 @@ async function processSearchLeadsInBackground(
       // Stop if we have enough leads
       if (allLeads.length >= maxResults) break;
 
-      // Search with limited pagination (3 pages per term to avoid timeout)
-      for (let start = 0; start < 60; start += 20) {
+      // Search with expanded pagination (5 pages per term = 100 results per term)
+      for (let start = 0; start < 100; start += 20) {
         if (allLeads.length >= maxResults) break;
 
         const searchQuery = `${searchTerm} em ${location}`;
@@ -803,33 +803,116 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       const seenPhones = new Set<string>();
       const seenNames = new Set<string>();
 
-      // Extended subniches for better coverage
+      // EXTENSIVE subniches for MAXIMUM coverage - all variations and subcategories
       const SUBNICHES: Record<string, string[]> = {
-        "Restaurantes": ["restaurante", "restaurantes", "comida", "lanchonete", "self-service", "rodízio", "buffet", "churrascaria", "pizzaria", "hamburgueria"],
-        "Salões de Beleza": ["salão de beleza", "cabeleireiro", "cabelo", "manicure", "esmalteria", "estética", "maquiagem", "sobrancelha", "depilação"],
-        "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "personal trainer", "ginástica"],
-        "Clínicas Médicas": ["clínica médica", "consultório médico", "médico", "centro médico", "dermatologista", "cardiologista", "ortopedista"],
-        "Clínicas Odontológicas": ["dentista", "odontologia", "clínica odontológica", "ortodontista", "implante dentário"],
-        "Escritórios de Advocacia": ["advogado", "advocacia", "escritório de advocacia", "advogados", "escritório jurídico", "consultoria jurídica"],
-        "Imobiliárias": ["imobiliária", "corretor de imóveis", "imóveis", "casas à venda", "apartamentos"],
-        "Pet Shops": ["pet shop", "petshop", "veterinário", "banho e tosa", "clínica veterinária", "ração"],
-        "Oficinas Mecânicas": ["oficina mecânica", "mecânico", "auto center", "funilaria", "elétrica automotiva"],
-        "Escolas e Cursos": ["escola", "curso", "escola de idiomas", "inglês", "escola de música", "informática"],
-        "Lojas de Roupas": ["loja de roupas", "boutique", "moda", "vestuário", "loja feminina", "loja masculina"],
-        "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação"],
-        "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "resort"],
-        "Estúdios de Tatuagem": ["tatuagem", "tattoo", "tatuador", "piercing"],
-        "Barbearias": ["barbearia", "barbeiro", "barber shop"],
-        "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais"],
-        "Padarias": ["padaria", "panificadora", "confeitaria", "bolos"],
-        "Pizzarias": ["pizzaria", "pizza", "delivery pizza"],
-        "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete"],
-        "Cafeterias": ["cafeteria", "café", "coffee shop", "confeitaria"],
+        // Alimentação
+        "Restaurantes": ["restaurante", "restaurantes", "comida", "gastronomia", "self-service", "rodízio", "buffet", "lanchonete", "cantina", "bistrô", "comida caseira", "comida japonesa", "sushi", "temaki", "comida italiana", "comida mexicana", "comida árabe", "comida chinesa", "churrascaria", "frutos do mar", "seafood", "comida vegana", "vegetariano", "marmita", "quentinha", "delivery comida", "food truck"],
+        "Pizzarias": ["pizzaria", "pizza", "delivery pizza", "rodízio de pizza", "pizza artesanal", "pizza delivery", "pizzaria delivery", "esfiha", "esfiharia"],
+        "Hamburguerias": ["hamburgueria", "hambúrguer", "burger", "lanchonete", "fast food", "smash burger", "artesanal", "hot dog", "cachorro quente", "sanduíche", "sanduicheria"],
+        "Cafeterias": ["cafeteria", "café", "coffee shop", "expresso", "cappuccino", "latte", "brunch", "confeitaria", "doceria", "casa de chá", "padaria café"],
+        "Padarias": ["padaria", "panificadora", "pão", "confeitaria", "bolos", "tortas", "doces", "salgados", "café da manhã", "padoca", "panificação", "padaria artesanal"],
+        "Bares": ["bar", "bares", "boteco", "pub", "choperia", "cervejaria", "happy hour", "drinks", "coquetelaria", "balada", "boate", "casa noturna", "lounge"],
+        "Açougues": ["açougue", "casa de carnes", "carnes", "frigorífico", "boutique de carnes", "churrasco"],
+        "Sorveterias": ["sorveteria", "sorvete", "açaí", "gelato", "frozen", "milkshake", "picolé", "açaiteria"],
+        
+        // Beleza e Estética
+        "Salões de Beleza": ["salão de beleza", "salão", "cabeleireiro", "cabeleireira", "cabelo", "hair stylist", "manicure", "pedicure", "esmalteria", "nail designer", "alongamento de unhas", "unhas em gel", "maquiagem", "maquiador", "estética", "centro de estética", "sobrancelha", "design de sobrancelhas", "depilação", "massagem", "spa", "day spa", "limpeza de pele", "peeling", "botox", "preenchimento", "harmonização facial", "escova progressiva", "coloração", "penteado"],
+        "Barbearias": ["barbearia", "barbeiro", "barber shop", "barba", "corte masculino", "cabelo masculino", "barbershop", "navalha", "aparar barba"],
+        "Estúdios de Tatuagem": ["estúdio de tatuagem", "tatuagem", "tattoo", "tatuador", "piercing", "body piercing", "micropigmentação", "tattoo studio", "tatuagens"],
+        "Clínicas de Estética": ["clínica de estética", "estética avançada", "procedimentos estéticos", "drenagem linfática", "massagem modeladora", "criolipólise", "lipocavitação", "radiofrequência", "carboxiterapia"],
+        
+        // Saúde
+        "Clínicas Médicas": ["clínica médica", "clínica", "consultório médico", "médico", "centro médico", "policlínica", "clínica geral", "dermatologista", "cardiologista", "ortopedista", "ginecologista", "pediatra", "oftalmologista", "neurologista", "psiquiatra", "endocrinologista", "urologista", "otorrino", "clínica popular", "pronto atendimento", "urgência", "emergência"],
+        "Clínicas Odontológicas": ["clínica odontológica", "dentista", "odontologia", "consultório dentário", "ortodontista", "implante dentário", "clareamento dental", "prótese dentária", "endodontia", "periodontia", "odontopediatra", "cirurgião dentista", "odonto", "aparelho dentário", "facetas", "lentes de contato dental"],
+        "Farmácias": ["farmácia", "drogaria", "farmácia de manipulação", "medicamentos", "perfumaria", "dermocosméticos", "farmácia popular", "farmácia 24h"],
+        "Óticas": ["ótica", "óculos", "lentes", "lentes de contato", "armações", "optometrista", "oftalmologista"],
+        "Psicólogos": ["psicólogo", "psicóloga", "psicologia", "terapia", "terapeuta", "psicanálise", "consultório psicológico", "saúde mental"],
+        "Nutricionistas": ["nutricionista", "nutrição", "consultório nutricional", "dieta", "emagrecimento", "reeducação alimentar"],
+        "Fisioterapia": ["fisioterapia", "fisioterapeuta", "clínica de fisioterapia", "reabilitação", "pilates clínico", "RPG", "quiropraxia", "osteopatia", "acupuntura"],
+        
+        // Fitness
+        "Academias": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "funcional", "treino", "personal trainer", "ginástica", "spinning", "natação", "artes marciais", "luta", "boxe", "muay thai", "jiu jitsu", "karate", "judô", "taekwondo", "mma", "academia 24h", "smart fit", "bio ritmo", "bodytech"],
+        "Estúdios de Pilates": ["pilates", "estúdio de pilates", "pilates solo", "pilates reformer", "mat pilates"],
+        "Estúdios de Yoga": ["yoga", "estúdio de yoga", "meditação", "mindfulness", "hatha yoga", "vinyasa", "ashtanga"],
+        "Personal Trainer": ["personal trainer", "personal", "treinador pessoal", "treino personalizado", "treino funcional", "treino ao ar livre"],
+        
+        // Serviços Profissionais
+        "Escritórios de Advocacia": ["escritório de advocacia", "advogado", "advocacia", "advogados", "escritório jurídico", "consultoria jurídica", "advogado trabalhista", "advogado criminal", "advogado civil", "advogado família", "advogado empresarial", "advogado imobiliário", "defensoria", "assessoria jurídica"],
+        "Contadores": ["contador", "contabilidade", "escritório de contabilidade", "contábil", "assessoria contábil", "abertura de empresa", "declaração de imposto", "IRPF", "MEI"],
+        "Arquitetos": ["arquiteto", "arquitetura", "escritório de arquitetura", "design de interiores", "decoração", "decorador", "paisagismo", "projeto arquitetônico"],
+        "Engenheiros": ["engenheiro", "engenharia", "escritório de engenharia", "projeto estrutural", "laudo técnico", "ART", "RRT"],
+        "Consultórios": ["consultório", "médico", "profissional de saúde", "especialista"],
+        
+        // Imóveis e Construção
+        "Imobiliárias": ["imobiliária", "imobiliárias", "corretor de imóveis", "corretor", "imóveis", "venda de imóveis", "aluguel de imóveis", "locação", "casas à venda", "apartamentos", "empreendimentos", "lançamentos", "imóveis comerciais", "galpão"],
+        "Construtoras": ["construtora", "construção", "empreiteira", "obras", "reforma", "mestre de obras", "pedreiro", "construção civil"],
+        "Lojas de Materiais de Construção": ["material de construção", "loja de construção", "ferragens", "tintas", "pisos", "revestimentos", "elétrica", "hidráulica", "cimento", "areia", "madeireira"],
+        "Marcenarias": ["marcenaria", "marceneiro", "móveis planejados", "móveis sob medida", "armários", "cozinha planejada"],
+        "Vidraçarias": ["vidraçaria", "vidraceiro", "vidros", "espelhos", "box", "janelas", "portas de vidro", "blindex"],
+        "Serralheria": ["serralheria", "serralheiro", "portão", "grades", "ferro", "metalúrgica", "estrutura metálica"],
+        
+        // Pets
+        "Pet Shops": ["pet shop", "petshop", "loja de animais", "banho e tosa", "clínica veterinária", "veterinário", "ração", "acessórios pet", "hotel para pets", "creche para cães", "adestramento", "dog walker", "pet", "cachorro", "gato", "animais"],
+        "Clínicas Veterinárias": ["veterinário", "clínica veterinária", "hospital veterinário", "vet", "cirurgia veterinária", "castração", "vacinas pet"],
+        
+        // Automotivo
+        "Oficinas Mecânicas": ["oficina mecânica", "mecânica", "mecânico", "auto center", "autocenter", "funilaria", "pintura automotiva", "elétrica automotiva", "troca de óleo", "alinhamento", "balanceamento", "suspensão", "freios", "ar condicionado automotivo", "injeção eletrônica", "escapamento", "retífica", "borracharia"],
+        "Lava Rápido": ["lava rápido", "lava jato", "lavagem de carro", "estética automotiva", "polimento", "vitrificação", "higienização"],
+        "Concessionárias": ["concessionária", "revenda de carros", "seminovos", "carros usados", "veículos", "multimarcas", "loja de carros"],
+        "Autopeças": ["autopeças", "peças automotivas", "peças de carro", "acessórios automotivos", "som automotivo", "rodas", "pneus"],
+        
+        // Educação
+        "Escolas e Cursos": ["escola", "curso", "cursos", "escola de idiomas", "inglês", "espanhol", "escola de música", "aula de música", "escola de dança", "informática", "curso técnico", "preparatório", "vestibular", "reforço escolar", "educação infantil", "creche", "berçário", "colégio", "faculdade", "centro educacional", "aulas particulares"],
+        "Autoescolas": ["autoescola", "auto escola", "cfc", "habilitação", "CNH", "aula de direção", "simulador"],
+        
+        // Varejo
+        "Lojas de Roupas": ["loja de roupas", "roupas", "moda", "boutique", "vestuário", "confecção", "loja feminina", "loja masculina", "moda feminina", "moda masculina", "moda infantil", "loja de calçados", "sapatos", "acessórios", "bolsas", "lingerie", "moda praia", "fitness wear", "plus size", "brechó"],
+        "Supermercados": ["supermercado", "mercado", "mercearia", "atacado", "atacarejo", "minimercado", "empório", "hortifruti", "sacolão", "feira"],
+        "Lojas de Móveis": ["loja de móveis", "móveis", "colchões", "estofados", "sofá", "cama", "eletrodomésticos", "móveis usados", "decoração"],
+        "Papelarias": ["papelaria", "livraria", "material escolar", "escritório", "xerox", "gráfica rápida", "impressão"],
+        "Floriculturas": ["floricultura", "flores", "florista", "arranjos florais", "buquê", "decoração floral", "plantas", "jardim", "paisagismo", "garden center"],
+        "Joalherias": ["joalheria", "joias", "relógios", "semi joias", "bijuterias", "ótica joalheria", "conserto de relógios", "ourives"],
+        "Óticas": ["ótica", "óculos", "lentes de contato", "armação", "óculos de sol"],
+        
+        // Hospedagem
+        "Hotéis e Pousadas": ["hotel", "pousada", "hospedagem", "motel", "resort", "hostel", "albergue", "flat", "apart hotel", "airbnb", "chalé", "camping", "glamping"],
+        
+        // Tecnologia e Serviços
+        "Assistência Técnica": ["assistência técnica", "conserto de celular", "manutenção de computador", "informática", "reparo", "conserto", "técnico"],
+        "Gráficas": ["gráfica", "impressão", "banner", "adesivos", "cartão de visita", "panfletos", "plotagem", "comunicação visual"],
+        "Fotógrafos": ["fotógrafo", "fotografia", "estúdio fotográfico", "fotos", "ensaio fotográfico", "foto e vídeo", "filmagem", "casamento", "eventos"],
+        
+        // Outros Serviços
+        "Lavanderias": ["lavanderia", "lava e seca", "lavagem de roupa", "passadoria", "tinturaria"],
+        "Despachantes": ["despachante", "documentação", "licenciamento", "transferência", "emplacamento", "detran"],
+        "Chaveiros": ["chaveiro", "chaves", "fechaduras", "cópias de chave", "cofres", "carimbos"],
+        "Dedetizadoras": ["dedetizadora", "dedetização", "controle de pragas", "descupinização", "desratização"],
+        "Seguradoras": ["seguradora", "seguros", "corretor de seguros", "seguro auto", "seguro vida", "plano de saúde"],
+        "Escritórios Virtuais": ["escritório virtual", "coworking", "sala de reunião", "endereço comercial", "espaço compartilhado"],
       };
 
-      const searchTerms = SUBNICHES[niche] || [niche.toLowerCase()];
-      // Use more search terms (up to 8) for better coverage
-      const limitedSearchTerms = searchTerms.slice(0, 8);
+      // Get base search terms
+      let searchTerms = SUBNICHES[niche] || [];
+      
+      // If niche not in predefined list, use it as main term and try to find related terms
+      if (searchTerms.length === 0) {
+        // Check if any subniches contain this term
+        const nicheNormalized = niche.toLowerCase().trim();
+        for (const [category, terms] of Object.entries(SUBNICHES)) {
+          if (category.toLowerCase().includes(nicheNormalized) || 
+              terms.some(t => t.includes(nicheNormalized))) {
+            searchTerms = [...searchTerms, ...terms];
+          }
+        }
+        // If still empty, just use the input niche in multiple forms
+        if (searchTerms.length === 0) {
+          searchTerms = [nicheNormalized, `${nicheNormalized}s`, `loja de ${nicheNormalized}`, `empresa de ${nicheNormalized}`];
+        }
+      }
+      
+      // Remove duplicates and limit to 20 search terms for maximum coverage
+      const uniqueTerms = [...new Set(searchTerms)];
+      const limitedSearchTerms = uniqueTerms.slice(0, 20);
 
       // Determine which API to use (with fallback logic)
       let useSerper = preferredApi === 'serper' && serperApiKey;
@@ -891,8 +974,8 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         }
         
         if (useSerpApi) {
-          // Search up to 5 pages (100 results per term)
-          for (let start = 0; start < 100; start += 20) {
+          // Search up to 10 pages (200 results per term) for MAXIMUM coverage
+          for (let start = 0; start < 200; start += 20) {
             if (allLeads.length >= maxResults) break;
 
             try {
