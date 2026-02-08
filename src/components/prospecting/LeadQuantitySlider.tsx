@@ -12,9 +12,9 @@ interface LeadQuantitySliderProps {
 
 export function LeadQuantitySlider({ value, onChange, disabled }: LeadQuantitySliderProps) {
   const getIntensityLevel = (val: number) => {
-    if (val <= 300) return { label: 'Básica', icon: Target, color: 'text-info', bg: 'bg-info/10' };
-    if (val <= 800) return { label: 'Moderada', icon: Zap, color: 'text-warning', bg: 'bg-warning/10' };
-    return { label: 'Intensiva', icon: Rocket, color: 'text-destructive', bg: 'bg-destructive/10' };
+    if (val <= 500) return { label: 'Básica', icon: Target, color: 'text-info', bg: 'bg-info/10' };
+    if (val <= 2000) return { label: 'Moderada', icon: Zap, color: 'text-warning', bg: 'bg-warning/10' };
+    return { label: 'MÁXIMA', icon: Rocket, color: 'text-destructive', bg: 'bg-destructive/10' };
   };
 
   const intensity = getIntensityLevel(value);
@@ -39,7 +39,7 @@ export function LeadQuantitySlider({ value, onChange, disabled }: LeadQuantitySl
             value={[value]}
             onValueChange={([val]) => onChange(val)}
             min={100}
-            max={2000}
+            max={5000}
             step={100}
             disabled={disabled}
             className="w-full"
@@ -47,16 +47,16 @@ export function LeadQuantitySlider({ value, onChange, disabled }: LeadQuantitySl
           
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>100</span>
-            <span>500</span>
             <span>1000</span>
-            <span>1500</span>
             <span>2000</span>
+            <span>3000</span>
+            <span>5000</span>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {value <= 300 && 'Busca rápida com resultados essenciais. Ideal para testes.'}
-            {value > 300 && value <= 800 && 'Busca equilibrada entre velocidade e volume. Recomendado para uso diário.'}
-            {value > 800 && 'Busca intensiva com MÁXIMO volume. Cobre bairros e variações. Pode demorar mais.'}
+            {value <= 500 && 'Busca rápida com resultados essenciais. Ideal para testes.'}
+            {value > 500 && value <= 2000 && 'Busca abrangente cobrindo múltiplos bairros e variações.'}
+            {value > 2000 && '🚀 Busca MÁXIMA! Cobre TODOS os bairros, variações e subnichos. Captura TUDO que existir.'}
           </p>
         </div>
       </CardContent>
