@@ -26,31 +26,77 @@ interface ExtendedSearchResult extends SearchResult {
   category?: string;
 }
 
-// Search using Serper.dev API - NO LIMITS
+// Subniches for expanded search - variations of each main niche
+const SUBNICHES: Record<string, string[]> = {
+  "restaurantes": ["restaurante", "restaurantes", "comida", "lanchonete", "self-service", "rodízio", "buffet", "churrascaria", "pizzaria", "hamburgueria", "sushi", "japonês", "italiana", "mexicana", "árabe", "bistrô", "cafeteria", "padaria", "bar e restaurante", "delivery comida"],
+  "salão de beleza": ["salão de beleza", "cabeleireiro", "cabelo", "manicure", "esmalteria", "estética", "maquiagem", "sobrancelha", "depilação", "spa", "nail designer", "hair stylist"],
+  "academia": ["academia", "fitness", "musculação", "crossfit", "pilates", "yoga", "personal trainer", "ginástica", "natação", "artes marciais", "funcional"],
+  "clínica": ["clínica médica", "consultório médico", "médico", "centro médico", "dermatologista", "cardiologista", "ortopedista", "fisioterapia", "psicólogo", "nutricionista"],
+  "dentista": ["dentista", "odontologia", "clínica odontológica", "ortodontista", "implante dentário", "clareamento dental"],
+  "advogado": ["advogado", "advocacia", "escritório de advocacia", "advogados", "escritório jurídico", "consultoria jurídica"],
+  "pet shop": ["pet shop", "petshop", "banho e tosa", "clínica veterinária", "veterinário", "ração", "acessórios pet"],
+  "oficina": ["oficina mecânica", "mecânica", "mecânico", "auto center", "funilaria", "elétrica automotiva", "troca de óleo", "alinhamento"],
+  "loja": ["loja de roupas", "roupas", "moda", "boutique", "vestuário", "calçados", "sapatos", "acessórios"],
+  "imobiliária": ["imobiliária", "corretor de imóveis", "imóveis", "venda de imóveis", "aluguel"],
+  "hotel": ["hotel", "pousada", "hospedagem", "resort", "hostel", "airbnb"],
+  "escola": ["escola", "curso", "cursos", "escola de idiomas", "inglês", "escola de música", "informática", "reforço escolar"],
+  "floricultura": ["floricultura", "flores", "florista", "plantas", "jardim", "paisagismo"],
+  "farmácia": ["farmácia", "drogaria", "farmácia de manipulação", "medicamentos"],
+  "barbearia": ["barbearia", "barbeiro", "barber shop", "corte masculino"],
+};
+
+// Get search variations for a niche
+function getSearchVariations(niche: string): string[] {
+  const nicheLower = niche.toLowerCase().trim();
+  
+  // Check if niche matches any key
+  for (const [key, variations] of Object.entries(SUBNICHES)) {
+    if (nicheLower.includes(key) || key.includes(nicheLower)) {
+      return variations;
+    }
+  }
+  
+  // Check if niche matches any variation
+  for (const [_, variations] of Object.entries(SUBNICHES)) {
+    if (variations.some(v => nicheLower.includes(v) || v.includes(nicheLower))) {
+      return variations;
+    }
+  }
+  
+  // Return the niche itself if no match
+  return [niche];
+}
+
+// Search using Serper.dev API with expanded variations
 async function searchWithSerper(
   apiKey: string,
   searchQuery: string,
+  location: string,
   numResults: number,
-  searchType: string
+  searchType: string,
+  expandSearch: boolean = true
 ): Promise<{ results: ExtendedSearchResult[]; searchInfo: any }> {
-  console.log('Using Serper.dev API for unlimited search...');
+  console.log(`Using Serper.dev API for ${expandSearch ? 'expanded' : 'single'} search...`);
   
-  let endpoint = 'https://google.serper.dev/search';
-  if (searchType === 'news') {
-    endpoint = 'https://google.serper.dev/news';
-  } else if (searchType === 'images') {
-    endpoint = 'https://google.serper.dev/images';
-  } else if (searchType === 'places') {
-    endpoint = 'https://google.serper.dev/places';
-  }
-
   const allResults: ExtendedSearchResult[] = [];
   const seenPhones = new Set<string>();
-  let page = 0;
-  const maxPages = 10; // Up to 10 pages = 1000 results max
-
-  // Fetch multiple pages to get ALL available results
-  while (page < maxPages) {
+  const seenNames = new Set<string>();
+  
+  // Get search variations if expanded search is enabled
+  const searchTerms = expandSearch ? getSearchVariations(searchQuery) : [searchQuery];
+  console.log(`Search terms: ${searchTerms.slice(0, 5).join(', ')}... (${searchTerms.length} total)`);
+  
+  const endpoint = searchType === 'places' 
+    ? 'https://google.serper.dev/places'
+    : 'https://google.serper.dev/search';
+  
+  for (const term of searchTerms) {
+    // Stop if we have enough results
+    if (numResults > 0 && allResults.length >= numResults) break;
+    
+    const fullQuery = location ? `${term} ${location}` : term;
+    console.log(`Searching: "${fullQuery}"`);
+    
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -59,36 +105,36 @@ async function searchWithSerper(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          q: searchQuery,
+          q: fullQuery,
           gl: 'br',
           hl: 'pt-br',
-          num: 100, // Max per request
-          page: page,
+          num: 100,
         }),
       });
 
       if (!response.ok) {
-        if (page === 0) {
-          const errorText = await response.text();
-          console.error('Serper API error:', errorText);
-          throw new Error(`Serper API error: ${response.status}`);
-        }
-        break; // Stop paginating on errors after first page
+        console.warn(`Serper error for "${term}": ${response.status}`);
+        continue;
       }
 
       const data = await response.json();
-      let foundNewResults = false;
 
       // Handle places/local results with full data
       if (data.places && data.places.length > 0) {
+        console.log(`Found ${data.places.length} places for "${term}"`);
+        
         for (const place of data.places) {
           const phone = place.phoneNumber || place.phone;
           if (!phone) continue;
           
           const normalizedPhone = phone.replace(/\D/g, '');
           if (seenPhones.has(normalizedPhone)) continue;
+          
+          const normalizedName = (place.title || '').toLowerCase().trim();
+          if (seenNames.has(normalizedName)) continue;
+          
           seenPhones.add(normalizedPhone);
-          foundNewResults = true;
+          seenNames.add(normalizedName);
 
           allResults.push({
             title: place.title,
@@ -108,7 +154,7 @@ async function searchWithSerper(
         }
       }
 
-      // Handle organic results
+      // Handle organic results as fallback
       if (data.organic && data.organic.length > 0) {
         for (const result of data.organic) {
           const phoneMatch = result.snippet?.match(/\(?(\d{2})\)?\s*(\d{4,5})[-.\s]?(\d{4})/);
@@ -118,7 +164,6 @@ async function searchWithSerper(
             const normalizedPhone = phone.replace(/\D/g, '');
             if (seenPhones.has(normalizedPhone)) continue;
             seenPhones.add(normalizedPhone);
-            foundNewResults = true;
 
             const emailMatch = result.snippet?.match(/[\w.-]+@[\w.-]+\.\w+/);
             allResults.push({
@@ -134,29 +179,24 @@ async function searchWithSerper(
         }
       }
 
-      // Stop if no new results found or reached desired count
-      if (!foundNewResults || (numResults > 0 && allResults.length >= numResults)) {
-        break;
-      }
-
-      page++;
-      // Small delay between pages
-      await new Promise(r => setTimeout(r, 100));
+      // Small delay between searches
+      await new Promise(r => setTimeout(r, 150));
     } catch (error) {
-      console.error(`Error fetching page ${page}:`, error);
-      break;
+      console.error(`Error searching "${term}":`, error);
+      continue;
     }
   }
 
-  console.log(`Serper: Found ${allResults.length} unique leads with phone numbers across ${page + 1} pages`);
+  console.log(`Serper: Found ${allResults.length} unique leads with phone numbers using ${searchTerms.length} search terms`);
 
   return {
     results: allResults,
     searchInfo: {
       query: searchQuery,
+      location: location,
       search_type: searchType,
       total_results: allResults.length,
-      pages_fetched: page + 1,
+      search_terms_used: searchTerms.length,
     },
   };
 }
@@ -325,7 +365,7 @@ Deno.serve(async (req) => {
 
     console.log(`User preferred API: ${preferredApi}, Serper key: ${serperApiKey ? 'set' : 'not set'}, SerpAPI key: ${serpApiKey ? 'set' : 'not set'}`);
 
-    const { query, location, num_results = 20, search_type = 'google' } = await req.json();
+    const { query, location, num_results = 0, search_type = 'places', expand_search = true } = await req.json();
 
     if (!query) {
       return new Response(
@@ -334,22 +374,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Build search query
-    let searchQuery = query;
-    if (location) {
-      searchQuery = `${query} ${location}`;
-    }
+    console.log(`Web search: query="${query}" location="${location || 'Brasil'}", type: ${search_type}, expand: ${expand_search}, preferred: ${preferredApi}`);
 
-    console.log(`Web search: "${searchQuery}" in ${location || 'Brazil'}, type: ${search_type}, preferred: ${preferredApi}`);
-
-    let searchResult: { results: SearchResult[]; searchInfo: any } | null = null;
+    let searchResult: { results: ExtendedSearchResult[]; searchInfo: any } | null = null;
     let apiUsed = '';
     let fallbackReason = '';
 
     // Try preferred API first
     if (preferredApi === 'serper' && serperApiKey) {
       try {
-        searchResult = await searchWithSerper(serperApiKey, searchQuery, num_results, search_type);
+        searchResult = await searchWithSerper(serperApiKey, query, location || 'Brasil', num_results, search_type, expand_search);
         apiUsed = 'serper';
       } catch (error: any) {
         console.warn('Serper API failed, trying fallback:', error.message);
@@ -358,7 +392,8 @@ Deno.serve(async (req) => {
     } else if (preferredApi === 'serpapi' && (serpApiKey || GLOBAL_SERPAPI_KEY)) {
       try {
         const apiKey = serpApiKey || GLOBAL_SERPAPI_KEY!;
-        searchResult = await searchWithSerpApi(apiKey, searchQuery, num_results, search_type);
+        const fullQuery = location ? `${query} ${location}` : query;
+        searchResult = await searchWithSerpApi(apiKey, fullQuery, num_results, search_type);
         apiUsed = 'serpapi';
       } catch (error: any) {
         console.warn('SerpAPI failed, trying fallback:', error.message);
@@ -373,7 +408,8 @@ Deno.serve(async (req) => {
         const fallbackKey = serpApiKey || GLOBAL_SERPAPI_KEY;
         if (fallbackKey) {
           try {
-            searchResult = await searchWithSerpApi(fallbackKey, searchQuery, num_results, search_type);
+            const fullQuery = location ? `${query} ${location}` : query;
+            searchResult = await searchWithSerpApi(fallbackKey, fullQuery, num_results, search_type);
             apiUsed = 'serpapi (fallback)';
           } catch (error: any) {
             console.error('SerpAPI fallback also failed:', error.message);
@@ -383,7 +419,7 @@ Deno.serve(async (req) => {
         // Try Serper as fallback
         if (serperApiKey) {
           try {
-            searchResult = await searchWithSerper(serperApiKey, searchQuery, num_results, search_type);
+            searchResult = await searchWithSerper(serperApiKey, query, location || 'Brasil', num_results, search_type, expand_search);
             apiUsed = 'serper (fallback)';
           } catch (error: any) {
             console.error('Serper fallback also failed:', error.message);
