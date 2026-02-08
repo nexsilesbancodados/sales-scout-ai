@@ -5,7 +5,8 @@ import { NichePerformanceAnalytics } from '@/components/analytics/NichePerforman
 import { LeadScoring } from '@/components/analytics/LeadScoring';
 import { ConversionFunnel } from '@/components/analytics/ConversionFunnel';
 import { SentimentAnalysis } from '@/components/analytics/SentimentAnalysis';
-import { Loader2, BarChart3, Target, Trophy, TrendingUp, Sparkles } from 'lucide-react';
+import { AgentIntelligenceDashboard } from '@/components/analytics/AgentIntelligenceDashboard';
+import { Loader2, BarChart3, Target, Trophy, TrendingUp, Sparkles, Brain } from 'lucide-react';
 import { useLeads } from '@/hooks/use-leads';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,6 +20,7 @@ export default function AnalyticsPage() {
 
   const tabs = [
     { id: 'overview', icon: BarChart3, label: 'Visão Geral' },
+    { id: 'intelligence', icon: Brain, label: 'Inteligência IA' },
     { id: 'funnel', icon: TrendingUp, label: 'Funil de Conversão' },
     { id: 'sentiment', icon: Sparkles, label: 'Sentimento' },
     { id: 'niches', icon: Target, label: 'Análise de Nichos' },
@@ -54,6 +56,10 @@ export default function AnalyticsPage() {
 
           <TabsContent value="overview" className="animate-fade-in mt-6">
             <AdvancedAnalytics />
+          </TabsContent>
+
+          <TabsContent value="intelligence" className="animate-fade-in mt-6">
+            <AgentIntelligenceDashboard />
           </TabsContent>
 
           <TabsContent value="funnel" className="animate-fade-in mt-6">

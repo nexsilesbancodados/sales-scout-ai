@@ -52,6 +52,56 @@ export type Database = {
           },
         ]
       }
+      agent_escalations: {
+        Row: {
+          context: string | null
+          created_at: string
+          escalation_reason: string
+          id: string
+          lead_id: string
+          priority: string | null
+          recommended_action: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          escalation_reason: string
+          id?: string
+          lead_id: string
+          priority?: string | null
+          recommended_action?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          escalation_reason?: string
+          id?: string
+          lead_id?: string
+          priority?: string | null
+          recommended_action?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_escalations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       background_jobs: {
         Row: {
           completed_at: string | null
@@ -208,6 +258,47 @@ export type Database = {
           region?: string
         }
         Relationships: []
+      }
+      buying_signals: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          signal_strength: number | null
+          signal_text: string | null
+          signal_type: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          signal_strength?: number | null
+          signal_text?: string | null
+          signal_type: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          signal_strength?: number | null
+          signal_text?: string | null
+          signal_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buying_signals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campaigns: {
         Row: {
@@ -378,6 +469,134 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_proposals: {
+        Row: {
+          created_at: string
+          deliverables: Json | null
+          executive_summary: string | null
+          id: string
+          identified_needs: Json | null
+          lead_id: string
+          pricing_breakdown: Json | null
+          proposal_title: string
+          proposed_solution: string | null
+          response_at: string | null
+          sent_at: string | null
+          service_id: string | null
+          status: string | null
+          terms_conditions: string | null
+          timeline: string | null
+          updated_at: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deliverables?: Json | null
+          executive_summary?: string | null
+          id?: string
+          identified_needs?: Json | null
+          lead_id: string
+          pricing_breakdown?: Json | null
+          proposal_title: string
+          proposed_solution?: string | null
+          response_at?: string | null
+          sent_at?: string | null
+          service_id?: string | null
+          status?: string | null
+          terms_conditions?: string | null
+          timeline?: string | null
+          updated_at?: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deliverables?: Json | null
+          executive_summary?: string | null
+          id?: string
+          identified_needs?: Json | null
+          lead_id?: string
+          pricing_breakdown?: Json | null
+          proposal_title?: string
+          proposed_solution?: string | null
+          response_at?: string | null
+          sent_at?: string | null
+          service_id?: string | null
+          status?: string | null
+          terms_conditions?: string | null
+          timeline?: string | null
+          updated_at?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_proposals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_intelligence"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intelligent_followups: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          message_sent: string | null
+          message_template: string | null
+          result: string | null
+          scheduled_at: string
+          sent_at: string | null
+          status: string | null
+          trigger_reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          message_sent?: string | null
+          message_template?: string | null
+          result?: string | null
+          scheduled_at: string
+          sent_at?: string | null
+          status?: string | null
+          trigger_reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          message_sent?: string | null
+          message_template?: string | null
+          result?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string | null
+          trigger_reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intelligent_followups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_logs: {
         Row: {
           created_at: string
@@ -412,6 +631,86 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "background_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_qualification: {
+        Row: {
+          authority_confidence: number | null
+          authority_details: string | null
+          authority_status: string | null
+          budget_confidence: number | null
+          budget_details: string | null
+          budget_status: string | null
+          close_probability: number | null
+          created_at: string
+          deal_value_estimate: number | null
+          id: string
+          lead_id: string
+          need_confidence: number | null
+          need_details: string | null
+          need_status: string | null
+          predicted_close_date: string | null
+          qualification_score: number | null
+          timeline_confidence: number | null
+          timeline_details: string | null
+          timeline_status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          authority_confidence?: number | null
+          authority_details?: string | null
+          authority_status?: string | null
+          budget_confidence?: number | null
+          budget_details?: string | null
+          budget_status?: string | null
+          close_probability?: number | null
+          created_at?: string
+          deal_value_estimate?: number | null
+          id?: string
+          lead_id: string
+          need_confidence?: number | null
+          need_details?: string | null
+          need_status?: string | null
+          predicted_close_date?: string | null
+          qualification_score?: number | null
+          timeline_confidence?: number | null
+          timeline_details?: string | null
+          timeline_status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          authority_confidence?: number | null
+          authority_details?: string | null
+          authority_status?: string | null
+          budget_confidence?: number | null
+          budget_details?: string | null
+          budget_status?: string | null
+          close_probability?: number | null
+          created_at?: string
+          deal_value_estimate?: number | null
+          id?: string
+          lead_id?: string
+          need_confidence?: number | null
+          need_details?: string | null
+          need_status?: string | null
+          predicted_close_date?: string | null
+          qualification_score?: number | null
+          timeline_confidence?: number | null
+          timeline_details?: string | null
+          timeline_status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_qualification_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -669,6 +968,69 @@ export type Database = {
           usage_count?: number | null
           user_id?: string
           variables?: string[] | null
+        }
+        Relationships: []
+      }
+      niche_patterns: {
+        Row: {
+          avg_messages_to_convert: number | null
+          best_contact_hours: number[] | null
+          best_follow_up_interval_days: number | null
+          best_opening_style: string | null
+          common_objections: Json | null
+          conversion_rate: number | null
+          created_at: string
+          id: string
+          location: string | null
+          niche: string
+          response_rate: number | null
+          response_rate_by_hour: Json | null
+          successful_responses: Json | null
+          total_contacts: number | null
+          total_conversions: number | null
+          total_responses: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_messages_to_convert?: number | null
+          best_contact_hours?: number[] | null
+          best_follow_up_interval_days?: number | null
+          best_opening_style?: string | null
+          common_objections?: Json | null
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          niche: string
+          response_rate?: number | null
+          response_rate_by_hour?: Json | null
+          successful_responses?: Json | null
+          total_contacts?: number | null
+          total_conversions?: number | null
+          total_responses?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_messages_to_convert?: number | null
+          best_contact_hours?: number[] | null
+          best_follow_up_interval_days?: number | null
+          best_opening_style?: string | null
+          common_objections?: Json | null
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          niche?: string
+          response_rate?: number | null
+          response_rate_by_hour?: Json | null
+          successful_responses?: Json | null
+          total_contacts?: number | null
+          total_conversions?: number | null
+          total_responses?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
