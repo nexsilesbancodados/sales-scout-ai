@@ -1585,13 +1585,16 @@ export function CaptureAndSendTab({
             {/* Custom input */}
             <div className="flex gap-2">
               <Input
-                placeholder="Digite um nicho personalizado..."
+                placeholder="Digite nichos (separados por vírgula)..."
                 disabled={isProcessing}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    const value = (e.target as HTMLInputElement).value.trim();
-                    if (value && !selectedNiches.includes(value)) {
-                      setSelectedNiches(prev => [...prev, value]);
+                    const inputValue = (e.target as HTMLInputElement).value;
+                    // Support comma-separated values
+                    const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
+                    const newNiches = values.filter(v => !selectedNiches.includes(v));
+                    if (newNiches.length > 0) {
+                      setSelectedNiches(prev => [...prev, ...newNiches]);
                       (e.target as HTMLInputElement).value = '';
                     }
                   }
@@ -1603,9 +1606,12 @@ export function CaptureAndSendTab({
                 disabled={isProcessing}
                 onClick={(e) => {
                   const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                  const value = input.value.trim();
-                  if (value && !selectedNiches.includes(value)) {
-                    setSelectedNiches(prev => [...prev, value]);
+                  const inputValue = input.value;
+                  // Support comma-separated values
+                  const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
+                  const newNiches = values.filter(v => !selectedNiches.includes(v));
+                  if (newNiches.length > 0) {
+                    setSelectedNiches(prev => [...prev, ...newNiches]);
                     input.value = '';
                   }
                 }}
@@ -1677,13 +1683,16 @@ export function CaptureAndSendTab({
             {/* Custom input */}
             <div className="flex gap-2">
               <Input
-                placeholder="Digite uma cidade ou região..."
+                placeholder="Digite cidades (separadas por vírgula)..."
                 disabled={isProcessing}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    const value = (e.target as HTMLInputElement).value.trim();
-                    if (value && !selectedLocations.includes(value)) {
-                      setSelectedLocations(prev => [...prev, value]);
+                    const inputValue = (e.target as HTMLInputElement).value;
+                    // Support comma-separated values
+                    const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
+                    const newLocations = values.filter(v => !selectedLocations.includes(v));
+                    if (newLocations.length > 0) {
+                      setSelectedLocations(prev => [...prev, ...newLocations]);
                       (e.target as HTMLInputElement).value = '';
                     }
                   }
@@ -1695,9 +1704,12 @@ export function CaptureAndSendTab({
                 disabled={isProcessing}
                 onClick={(e) => {
                   const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                  const value = input.value.trim();
-                  if (value && !selectedLocations.includes(value)) {
-                    setSelectedLocations(prev => [...prev, value]);
+                  const inputValue = input.value;
+                  // Support comma-separated values
+                  const values = inputValue.split(',').map(v => v.trim()).filter(v => v.length > 0);
+                  const newLocations = values.filter(v => !selectedLocations.includes(v));
+                  if (newLocations.length > 0) {
+                    setSelectedLocations(prev => [...prev, ...newLocations]);
                     input.value = '';
                   }
                 }}
