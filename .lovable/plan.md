@@ -1,101 +1,146 @@
 
 
-# Acessar Google Maps Diretamente para Prospecção
+# Importar Leads do WhatsApp
 
-## Situação Atual
+Adicionar funcionalidade para extrair contatos diretamente de grupos do WhatsApp conectado, permitindo prospectar leads sem usar APIs externas de busca.
 
-Seu sistema **já tem integração com Google Maps** via SerpAPI implementada! A edge function `web-search` já usa o engine `google_maps` quando você configura uma chave SerpAPI.
+## O que será criado
 
-## O que você precisa fazer
+Uma nova seção na aba de **Importar** que permite:
+1. Listar todos os grupos do WhatsApp conectado
+2. Selecionar quais grupos deseja importar
+3. Extrair automaticamente os participantes como leads
+4. Importar em lote para o sistema
 
-Para ativar o acesso ao Google Maps:
+## Benefícios
 
-1. **Obter uma chave SerpAPI** (se ainda não tiver)
-   - Acesse [serpapi.com](https://serpapi.com)
-   - Crie uma conta gratuita (100 buscas/mês grátis)
-   - Copie sua API Key do painel
+- **100% Gratuito**: Não usa créditos de APIs externas
+- **Leads Qualificados**: Pessoas já engajadas em grupos do seu nicho
+- **Rápido**: Importação instantânea de centenas de contatos
+- **Sem Limite**: Importe quantos contatos quiser
 
-2. **Configurar nas suas configurações**
-   - Você já está na página de Configurações
-   - Cole a chave no campo "SerpAPI"
-   - Clique em "Testar" para validar
-   - Clique em "Salvar"
+## Fluxo do Usuário
 
-3. **Opcional: Definir como API preferida**
-   - Na seção "API de Busca Preferida", selecione "SerpAPI (Google Maps)"
-   - Isso garantirá que o Google Maps seja usado como fonte primária
-
-## Benefícios do Google Maps via SerpAPI
-
-| Dados Capturados | Disponível |
-|------------------|------------|
-| Nome do negócio | Sim |
-| Telefone | Sim |
-| Endereço completo | Sim |
-| Website | Sim |
-| Avaliação (estrelas) | Sim |
-| Número de reviews | Sim |
-| Foto do estabelecimento | Sim |
-| Categoria/Tipo | Sim |
-| Horário de funcionamento | Sim |
-| Coordenadas GPS | Sim |
-
-## Comparativo: Serper.dev vs SerpAPI (Google Maps)
-
-| Característica | Serper.dev | SerpAPI |
-|----------------|------------|---------|
-| Buscas grátis/mês | 2.500 | 100 |
-| Acesso Google Maps | Places (limitado) | Completo |
-| Qualidade dos dados | Boa | Excelente |
-| Fotos de estabelecimentos | Às vezes | Sempre |
-| Telefones | Frequente | Quase sempre |
-| Melhor para | Volume alto | Qualidade alta |
-
-## Recomendação
-
-Use **ambas as APIs** em conjunto:
-- **Serper.dev** como padrão (maior volume gratuito)
-- **SerpAPI** quando precisar de dados mais completos do Google Maps
-
-O sistema já faz **fallback automático** - se uma API falhar, tenta a outra.
+```text
++--------------------------------------------------+
+|                   FLUXO DE USO                   |
++--------------------------------------------------+
+|                                                  |
+|  1. Usuário vai para Prospecção > Importar       |
+|                    |                             |
+|                    v                             |
+|  2. Clica em "Importar do WhatsApp"              |
+|                    |                             |
+|                    v                             |
+|  3. Sistema lista todos os grupos                |
+|     [x] Grupo Empresários SP (234 membros)       |
+|     [x] Marketing Digital (156 membros)          |
+|     [ ] Família (12 membros)                     |
+|                    |                             |
+|                    v                             |
+|  4. Usuário seleciona grupos e clica "Importar"  |
+|                    |                             |
+|                    v                             |
+|  5. Contatos são salvos como leads               |
+|     - Nome do participante                       |
+|     - Número de telefone                         |
+|     - Grupo de origem (como tag)                 |
+|                                                  |
++--------------------------------------------------+
+```
 
 ## Detalhes Técnicos
 
-O código em `supabase/functions/web-search/index.ts` já implementa:
+### 1. Nova Edge Function: `whatsapp-groups`
+
+Cria função para buscar grupos e participantes usando a Evolution API:
+
+| Endpoint Evolution API | Ação |
+|------------------------|------|
+| `GET /group/fetchAllGroups/{instance}` | Lista todos os grupos |
+| `GET /group/participants/{instance}?groupJid={jid}` | Lista participantes |
+
+Ações suportadas:
+- `list_groups` - Retorna lista de grupos com nome e quantidade de membros
+- `get_participants` - Retorna participantes de grupos selecionados
+
+### 2. Atualização do Frontend: `ImportTab.tsx`
+
+Adiciona nova seção com:
+- Botão "Importar do WhatsApp"
+- Modal com lista de grupos (checkbox para seleção múltipla)
+- Contador de membros por grupo
+- Opção de definir nicho/tag para os leads importados
+- Barra de progresso durante importação
+- Filtro para excluir grupos pessoais/família
+
+### 3. Atualização da Biblioteca: `src/lib/whatsapp.ts`
+
+Novas funções:
+- `fetchWhatsAppGroups()` - Lista grupos disponíveis
+- `fetchGroupParticipants(groupIds: string[])` - Busca participantes
+
+### 4. Integração com Leads
+
+Os contatos importados terão:
+- `source`: `whatsapp_group`
+- `niche`: Nome do grupo ou nicho definido pelo usuário
+- `stage`: "Contato"
+- `temperature`: "frio"
+
+## Arquivos a Modificar
+
+| Arquivo | Ação |
+|---------|------|
+| `supabase/functions/whatsapp-groups/index.ts` | Criar (nova edge function) |
+| `supabase/config.toml` | Adicionar configuração da função |
+| `src/lib/whatsapp.ts` | Adicionar funções de grupos |
+| `src/components/prospecting/ImportTab.tsx` | Adicionar seção WhatsApp |
+
+## Requisitos
+
+- WhatsApp deve estar conectado na plataforma
+- Evolution API configurada com as credenciais
+
+## Interface Visual
+
+A aba de Importar terá duas opções principais:
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│         Fluxo de Busca de Leads                         │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  1. Usuário faz busca ("Restaurantes em São Paulo")     │
-│                         │                               │
-│                         ▼                               │
-│  2. Sistema verifica preferred_search_api               │
-│     ├─ serper → Serper.dev Places API                   │
-│     └─ serpapi → SerpAPI Google Maps Engine             │
-│                         │                               │
-│                         ▼                               │
-│  3. Se falhar → tenta API alternativa (fallback)        │
-│                         │                               │
-│                         ▼                               │
-│  4. Retorna leads com telefone, foto, rating, etc.      │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
++-----------------------------------------------+
+|              IMPORTAR LEADS                   |
++-----------------------------------------------+
+|                                               |
+|  +------------------+  +------------------+   |
+|  |                  |  |                  |   |
+|  |   📁 Arquivo     |  |   📱 WhatsApp    |   |
+|  |      CSV         |  |     Grupos       |   |
+|  |                  |  |                  |   |
+|  +------------------+  +------------------+   |
+|                                               |
++-----------------------------------------------+
 ```
 
-Campos extraídos do Google Maps:
-- `title` → Nome do negócio
-- `phone` → Telefone
-- `address` → Endereço
-- `website` → Site
-- `rating` → Avaliação (1-5 estrelas)
-- `reviews` → Quantidade de avaliações
-- `thumbnail` → Foto do estabelecimento
-- `type` → Categoria do negócio
-- `place_id` → Link direto para Google Maps
+Ao clicar em "WhatsApp Grupos":
 
-## Ação Necessária
-
-Basta configurar sua chave SerpAPI na aba de configurações onde você está agora. Não é necessário nenhuma alteração no código - tudo já está implementado e funcionando.
+```text
++-----------------------------------------------+
+|     IMPORTAR CONTATOS DO WHATSAPP             |
++-----------------------------------------------+
+|                                               |
+|  Selecione os grupos para importar:           |
+|                                               |
+|  [x] Grupo Empresários SP       234 membros   |
+|  [x] Marketing Digital BR       156 membros   |
+|  [ ] Vendas Online             89 membros     |
+|  [ ] Networking Profissional   312 membros    |
+|                                               |
+|  Nicho (opcional): [________________]         |
+|                                               |
+|  Total selecionado: 390 contatos              |
+|                                               |
+|  [Cancelar]              [Importar Contatos]  |
+|                                               |
++-----------------------------------------------+
+```
 
