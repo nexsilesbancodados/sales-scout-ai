@@ -126,29 +126,41 @@ export function LeadFinderInterface() {
             phase: `${currentNiche} em ${currentLocation}`
           });
 
+          // Build search query - the web-search function expects 'query' and optionally 'location'
+          const searchQuery = `${currentNiche} em ${currentLocation}`;
+          
           const response = await supabase.functions.invoke('web-search', {
             body: {
-              niche: currentNiche,
+              query: searchQuery,
               location: currentLocation,
-              maxResults: 100,
+              num_results: 50,
+              search_type: 'places', // Use places search for business leads
             },
           });
 
-          if (response.data?.leads) {
-            const leads = response.data.leads.map((lead: any) => ({
-              id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              business_name: lead.business_name || lead.title,
-              phone: lead.phone,
-              address: lead.address,
-              rating: lead.rating,
-              reviews_count: lead.reviews_count,
-              website: lead.website,
-              niche: currentNiche,
-              location: currentLocation,
-              google_maps_url: lead.google_maps_url,
-              status: 'pending' as const,
-              qualityScore: calculateQualityScore(lead),
-            })).filter((l: CapturedLead) => l.phone);
+          // web-search returns 'results' array with title, link, snippet, phone, email
+          if (response.data?.results) {
+            const leads = response.data.results
+              .filter((result: any) => result.phone) // Only results with phone numbers
+              .map((result: any) => ({
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                business_name: result.title,
+                phone: result.phone,
+                address: result.snippet, // Snippet often contains address for places
+                rating: undefined,
+                reviews_count: undefined,
+                website: result.link,
+                niche: currentNiche,
+                location: currentLocation,
+                google_maps_url: result.link?.includes('maps.google') ? result.link : undefined,
+                status: 'pending' as const,
+                qualityScore: calculateQualityScore({ 
+                  title: result.title, 
+                  phone: result.phone, 
+                  website: result.link,
+                  address: result.snippet 
+                }),
+              }));
 
             allLeads.push(...leads);
           }
