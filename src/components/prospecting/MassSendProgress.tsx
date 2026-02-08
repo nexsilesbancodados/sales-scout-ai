@@ -77,7 +77,7 @@ export function MassSendProgress() {
     }
     switch (lead.status) {
       case 'sent':
-        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-success" />;
       case 'failed':
         return <XCircle className="h-4 w-4 text-destructive" />;
       case 'sending':
@@ -95,7 +95,7 @@ export function MassSendProgress() {
     }
     switch (lead.status) {
       case 'sent':
-        return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Enviado</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">Enviado</Badge>;
       case 'failed':
         return <Badge variant="destructive">Falhou</Badge>;
       case 'sending':
@@ -117,7 +117,7 @@ export function MassSendProgress() {
           </CardTitle>
           <div className="flex items-center gap-2">
             {isRunning && (
-              <Badge className="animate-pulse bg-emerald-500 text-emerald-50">● Executando</Badge>
+              <Badge className="animate-pulse bg-success text-success-foreground">● Executando</Badge>
             )}
             {isPaused && (
               <Badge variant="secondary">⏸ Pausado</Badge>
@@ -139,8 +139,8 @@ export function MassSendProgress() {
           </div>
           
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
-            <div className="p-2 rounded-lg bg-emerald-500/10">
-              <p className="text-2xl font-bold text-emerald-600">{activeJob.processed_items - (activeJob.failed_items || 0)}</p>
+            <div className="p-2 rounded-lg bg-success/10">
+              <p className="text-2xl font-bold text-success">{activeJob.processed_items - (activeJob.failed_items || 0)}</p>
               <p className="text-xs text-muted-foreground">Enviados</p>
             </div>
             <div className="p-2 rounded-lg bg-destructive/10">
@@ -263,7 +263,7 @@ export function MassSendProgress() {
                     className={cn(
                       "flex items-center gap-3 p-2 rounded-lg transition-colors",
                       index === currentIndex && isRunning && "bg-primary/10 border border-primary/30",
-                      lead.status === 'sent' && "bg-emerald-500/5",
+                      lead.status === 'sent' && "bg-success/5",
                       lead.status === 'failed' && "bg-destructive/5"
                     )}
                   >

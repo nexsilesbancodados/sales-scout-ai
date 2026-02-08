@@ -42,7 +42,7 @@ async function searchWithSerper(
       q: searchQuery,
       gl: 'br',
       hl: 'pt-br',
-      num: numResults,
+      num: Math.min(numResults, 100), // Request up to 100 results
     }),
   });
 
