@@ -44,13 +44,34 @@ Deno.serve(async (req) => {
     const userId = settings.user_id;
     console.log(`Hunter agent started for user: ${userId}`);
 
-    // Get target niches and locations
-    const niches = settings.target_niches || [];
-    const locations = settings.target_locations || [];
+    // Parse request body to get optional niches and locations
+    let requestNiches: string[] = [];
+    let requestLocations: string[] = [];
+    
+    try {
+      const body = await req.json();
+      requestNiches = body.niches || [];
+      requestLocations = body.locations || [];
+      console.log(`Request body received - niches: ${requestNiches.length}, locations: ${requestLocations.length}`);
+    } catch {
+      // No body or invalid JSON - will use settings
+      console.log("No request body, using user settings");
+    }
+
+    // Get target niches and locations (prefer request body, fallback to user settings)
+    const niches = requestNiches.length > 0 ? requestNiches : (settings.target_niches || []);
+    const locations = requestLocations.length > 0 ? requestLocations : (settings.target_locations || []);
+
+    console.log(`Using niches: ${niches.join(', ')} | locations: ${locations.join(', ')}`);
 
     if (niches.length === 0 || locations.length === 0) {
       return new Response(
-        JSON.stringify({ error: "No niches or locations configured" }),
+        JSON.stringify({ 
+          error: "No niches or locations configured",
+          hint: "Passe 'niches' e 'locations' no body da requisição ou configure target_niches e target_locations nas suas configurações.",
+          hasNiches: niches.length > 0,
+          hasLocations: locations.length > 0,
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

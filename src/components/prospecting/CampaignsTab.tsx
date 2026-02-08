@@ -71,6 +71,10 @@ export function CampaignsTab() {
         headers: {
           Authorization: `Bearer ${settings?.hunter_api_token}`,
         },
+        body: {
+          niches: campaign.niches || [],
+          locations: campaign.locations || [],
+        },
       });
 
       if (response.error) throw response.error;
