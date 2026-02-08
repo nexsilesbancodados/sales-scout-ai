@@ -304,7 +304,10 @@ Deno.serve(async (req) => {
     // Support multiple webhook formats from Evolution API
     let phone = body.phone || body.data?.key?.remoteJid?.replace("@s.whatsapp.net", "") || "";
     let message = body.message || body.data?.message?.conversation || body.data?.message?.extendedTextMessage?.text || "";
-    const instanceId = body.instance_id || body.instance?.instanceName || "";
+    // Evolution API sends instance name as string in "instance" field
+    const instanceId = body.instance_id || (typeof body.instance === 'string' ? body.instance : body.instance?.instanceName) || "";
+    
+    console.log("Extracted instanceId:", instanceId);
 
     // Clean phone number
     phone = phone.replace(/\D/g, "");
