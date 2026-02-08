@@ -4,7 +4,7 @@ import { ChatMessage, MessageSenderType } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useLead } from '@/hooks/use-leads';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
 export function useChatMessages(leadId: string | null) {
   const { toast } = useToast();
@@ -12,7 +12,7 @@ export function useChatMessages(leadId: string | null) {
   const { settings } = useUserSettings();
   const { data: lead } = useLead(leadId);
 
-  const { data: messages, isLoading, error } = useQuery({
+  const { data: messages, isLoading, error, refetch } = useQuery({
     queryKey: ['chat-messages', leadId],
     queryFn: async () => {
       if (!leadId) throw new Error('Lead ID required');
@@ -27,14 +27,30 @@ export function useChatMessages(leadId: string | null) {
       return data as ChatMessage[];
     },
     enabled: !!leadId,
+    staleTime: 1000, // Consider data stale after 1 second
+    refetchInterval: 3000, // Backup polling every 3 seconds
   });
+
+  // Handle realtime updates
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+    console.log('💬 Chat message realtime:', payload.eventType, payload.new?.id);
+    
+    // Immediately refetch for this lead
+    queryClient.invalidateQueries({ queryKey: ['chat-messages', leadId] });
+    refetch();
+    
+    // Also update conversations list
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+  }, [leadId, queryClient, refetch]);
 
   // Subscribe to realtime updates for chat messages
   useEffect(() => {
     if (!leadId) return;
 
+    console.log('📡 Setting up chat realtime for lead:', leadId);
+
     const channel = supabase
-      .channel(`chat-messages-${leadId}`)
+      .channel(`chat-messages-realtime-${leadId}`)
       .on(
         'postgres_changes',
         {
@@ -43,17 +59,17 @@ export function useChatMessages(leadId: string | null) {
           table: 'chat_messages',
           filter: `lead_id=eq.${leadId}`,
         },
-        (payload) => {
-          console.log('Chat message realtime update:', payload.eventType);
-          queryClient.invalidateQueries({ queryKey: ['chat-messages', leadId] });
-        }
+        handleRealtimeUpdate
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`📡 Chat realtime subscription status for ${leadId}:`, status);
+      });
 
     return () => {
+      console.log('📡 Cleaning up chat realtime for lead:', leadId);
       supabase.removeChannel(channel);
     };
-  }, [leadId, queryClient]);
+  }, [leadId, handleRealtimeUpdate]);
 
   const sendMessage = useMutation({
     mutationFn: async ({ content, senderType }: { content: string; senderType: MessageSenderType }) => {
@@ -62,7 +78,7 @@ export function useChatMessages(leadId: string | null) {
 
       // If it's a user/agent message and WhatsApp is connected, send via WhatsApp first
       if ((senderType === 'user' || senderType === 'agent') && settings?.whatsapp_connected && settings?.whatsapp_instance_id) {
-        console.log('Sending message via WhatsApp to:', lead.phone);
+        console.log('📤 Sending message via WhatsApp to:', lead.phone);
         
         const whatsappResponse = await supabase.functions.invoke('whatsapp-send', {
           body: {
@@ -77,9 +93,9 @@ export function useChatMessages(leadId: string | null) {
           throw new Error(`Erro ao enviar WhatsApp: ${whatsappResponse.error.message}`);
         }
 
-        console.log('WhatsApp response:', whatsappResponse.data);
+        console.log('✅ WhatsApp response:', whatsappResponse.data);
       } else if (senderType === 'user' || senderType === 'agent') {
-        console.warn('WhatsApp not connected - message will only be saved locally');
+        console.warn('⚠️ WhatsApp not connected - message will only be saved locally');
         toast({
           title: 'Atenção',
           description: 'WhatsApp não conectado. A mensagem foi salva mas não enviada.',
@@ -109,8 +125,32 @@ export function useChatMessages(leadId: string | null) {
 
       return data as ChatMessage;
     },
+    onMutate: async ({ content, senderType }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['chat-messages', leadId] });
+
+      // Snapshot previous value
+      const previousMessages = queryClient.getQueryData(['chat-messages', leadId]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['chat-messages', leadId], (old: ChatMessage[] = []) => [
+        ...old,
+        {
+          id: `temp-${Date.now()}`,
+          lead_id: leadId,
+          content,
+          sender_type: senderType,
+          sent_at: new Date().toISOString(),
+          status: 'sending',
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      return { previousMessages };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-messages', leadId] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       
       toast({
@@ -118,7 +158,12 @@ export function useChatMessages(leadId: string | null) {
         description: 'A mensagem foi enviada com sucesso.',
       });
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      // Rollback on error
+      if (context?.previousMessages) {
+        queryClient.setQueryData(['chat-messages', leadId], context.previousMessages);
+      }
+      
       toast({
         title: 'Erro ao enviar mensagem',
         description: error.message,
@@ -133,5 +178,6 @@ export function useChatMessages(leadId: string | null) {
     error,
     sendMessage: sendMessage.mutate,
     isSending: sendMessage.isPending,
+    refetch,
   };
 }
