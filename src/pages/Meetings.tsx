@@ -18,6 +18,7 @@ import {
   CalendarPlus,
   History,
   CalendarDays,
+  Trash2,
 } from 'lucide-react';
 import { format, isToday, isTomorrow, isThisWeek, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -50,7 +51,7 @@ const statusConfig = {
 };
 
 export default function MeetingsPage() {
-  const { meetings, isLoading, updateMeeting } = useMeetings();
+  const { meetings, isLoading, updateMeeting, deleteMeeting } = useMeetings();
   const [activeTab, setActiveTab] = useState('upcoming');
 
   // Separate upcoming and past/historical meetings
@@ -162,34 +163,51 @@ export default function MeetingsPage() {
               </div>
             </div>
             
-            {showActions && meeting.status === 'scheduled' && (
+            {showActions && (
               <div className="flex flex-col gap-2 shrink-0">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateMeeting({ id: meeting.id, status: 'completed' })}
-                  className="text-success hover:text-success hover:bg-success/10"
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                  Concluir
-                </Button>
+                {meeting.status === 'scheduled' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateMeeting({ id: meeting.id, status: 'completed' })}
+                      className="text-success hover:text-success hover:bg-success/10"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                      Concluir
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateMeeting({ id: meeting.id, status: 'no_show' })}
+                      className="text-warning hover:text-warning hover:bg-warning/10"
+                    >
+                      <AlertCircle className="h-4 w-4 mr-1.5" />
+                      Não Veio
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateMeeting({ id: meeting.id, status: 'cancelled' })}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <XCircle className="h-4 w-4 mr-1.5" />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => updateMeeting({ id: meeting.id, status: 'no_show' })}
-                  className="text-warning hover:text-warning hover:bg-warning/10"
+                  onClick={() => {
+                    if (confirm('Tem certeza que deseja excluir esta reunião?')) {
+                      deleteMeeting(meeting.id);
+                    }
+                  }}
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 >
-                  <AlertCircle className="h-4 w-4 mr-1.5" />
-                  Não Veio
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => updateMeeting({ id: meeting.id, status: 'cancelled' })}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <XCircle className="h-4 w-4 mr-1.5" />
-                  Cancelar
+                  <Trash2 className="h-4 w-4 mr-1.5" />
+                  Excluir
                 </Button>
               </div>
             )}

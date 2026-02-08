@@ -128,13 +128,40 @@ export function useMeetings(filters?: {
     },
   });
 
+  const deleteMeeting = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('meetings')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meetings', user?.id] });
+      toast({
+        title: 'Reunião excluída',
+        description: 'A reunião foi excluída com sucesso.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao excluir reunião',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
   return {
     meetings: meetings || [],
     isLoading,
     error,
     createMeeting: createMeeting.mutate,
     updateMeeting: updateMeeting.mutate,
+    deleteMeeting: deleteMeeting.mutate,
     isCreating: createMeeting.isPending,
     isUpdating: updateMeeting.isPending,
+    isDeleting: deleteMeeting.isPending,
   };
 }
