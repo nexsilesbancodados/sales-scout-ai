@@ -463,7 +463,18 @@ Deno.serve(async (req) => {
     console.log("Webhook received:", JSON.stringify(body).substring(0, 500));
 
     // Support multiple webhook formats from Evolution API
-    let phone = body.phone || body.data?.key?.remoteJid?.replace("@s.whatsapp.net", "") || "";
+    const remoteJid = body.data?.key?.remoteJid || "";
+    
+    // IGNORE GROUP MESSAGES - only respond to individual chats
+    if (remoteJid.endsWith("@g.us") || remoteJid.includes("@g.us")) {
+      console.log("Ignoring group message from:", remoteJid);
+      return new Response(JSON.stringify({ status: "ignored_group_message" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    let phone = body.phone || remoteJid.replace("@s.whatsapp.net", "") || "";
     let message = body.message || body.data?.message?.conversation || body.data?.message?.extendedTextMessage?.text || "";
     // Evolution API sends instance name as string in "instance" field
     const instanceId = body.instance_id || (typeof body.instance === 'string' ? body.instance : body.instance?.instanceName) || "";
