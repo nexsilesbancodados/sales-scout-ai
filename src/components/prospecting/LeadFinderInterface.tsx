@@ -642,25 +642,24 @@ export function LeadFinderInterface() {
               >
                 Selecionar Novos ({newCount})
               </Button>
-              {!autoSave && newCount > 0 && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={async () => {
-                    const newLeads = capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending');
-                    if (newLeads.length === 0) return;
-                    await saveLeadsToDatabase(newLeads);
-                    toast({
-                      title: '✅ Leads salvos!',
-                      description: `${newLeads.length} leads salvos no banco de dados.`,
-                    });
-                  }}
-                  className="gap-2"
-                >
-                  <CheckCircle2 className="h-4 w-4" />
-                  Salvar Leads ({newCount})
-                </Button>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  const newLeads = capturedLeads.filter(l => !l.isDuplicate && l.status === 'pending');
+                  if (newLeads.length === 0) return;
+                  await saveLeadsToDatabase(newLeads);
+                  toast({
+                    title: '✅ Leads salvos!',
+                    description: `${newLeads.length} leads salvos no banco de dados.`,
+                  });
+                }}
+                disabled={newCount === 0}
+                className="gap-2"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Salvar Leads ({newCount})
+              </Button>
               <Button
                 size="sm"
                 onClick={handleSendMessages}
