@@ -61,21 +61,21 @@ const outreachItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
 ];
 
 const crmItems = [
-  { title: 'Leads', icon: Users, path: '/leads' },
-  { title: 'Pipeline', icon: Kanban, path: '/funnel' },
+  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline' },
+  { title: 'Contatos', icon: Users, path: '/crm/contacts' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
-  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Atividades', icon: Calendar, path: '/crm/activities' },
 ];
 
 const toolItems = [
+  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
   { title: 'Histórico', icon: History, path: '/prospecting-history' },
   { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
-  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
