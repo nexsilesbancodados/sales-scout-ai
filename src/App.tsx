@@ -24,6 +24,7 @@ const MassSendPage = lazy(() => import("./pages/MassSend"));
 const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
+const ABTestingPage = lazy(() => import("./pages/ABTesting"));
 const LeadsPage = lazy(() => import("./pages/Leads"));
 const FunnelPage = lazy(() => import("./pages/Funnel"));
 const ConversationsPage = lazy(() => import("./pages/Conversations"));
