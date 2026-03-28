@@ -43,6 +43,8 @@ import {
   Building2,
   Globe,
   Bot,
+  CreditCard,
+  Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -78,6 +80,8 @@ const toolItems = [
   { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'Planos', icon: CreditCard, path: '/billing' },
+  { title: 'API', icon: Code2, path: '/api-reference' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
