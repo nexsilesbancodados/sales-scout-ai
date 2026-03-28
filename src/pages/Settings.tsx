@@ -32,6 +32,7 @@ import {
   Download,
   Zap,
   Settings2,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
