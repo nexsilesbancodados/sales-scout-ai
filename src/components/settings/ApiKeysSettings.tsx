@@ -960,6 +960,55 @@ export function ApiKeysSettings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Apify Token */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-pink-500" />
+              Apify Token
+            </CardTitle>
+            <CardDescription>
+              Necessário para o Extrator Instagram. Gratuito em apify.com
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Token Apify</Label>
+              <Input
+                type="password"
+                placeholder="apify_api_..."
+                onChange={(e) => {
+                  if (e.target.value && !e.target.value.includes('••••')) {
+                    // Will save on blur or button
+                    (window as any).__apifyToken = e.target.value;
+                  }
+                }}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => {
+                  const token = (window as any).__apifyToken;
+                  if (!token) return;
+                  supabase.from('user_settings').update({ apify_token: token } as any).eq('user_id', user?.id).then(() => {
+                    toast({ title: '✓ Token Apify salvo' });
+                  });
+                }}
+              >
+                <Key className="h-4 w-4 mr-2" />
+                Salvar
+              </Button>
+            </div>
+            <div className="pt-2 border-t">
+              <a href="https://apify.com" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />
+                Criar conta gratuita no Apify →
+              </a>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Alert variant="default">

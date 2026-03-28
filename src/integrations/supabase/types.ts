@@ -902,6 +902,7 @@ export type Database = {
           company_description: string | null
           conversation_summary: string | null
           created_at: string
+          deal_value: number | null
           email: string | null
           employee_count: string | null
           enriched_at: string | null
@@ -937,6 +938,7 @@ export type Database = {
           source: string | null
           stage: string
           tags: string[] | null
+          tasks: Json | null
           team_id: string | null
           temperature: string | null
           total_messages_exchanged: number | null
@@ -955,6 +957,7 @@ export type Database = {
           company_description?: string | null
           conversation_summary?: string | null
           created_at?: string
+          deal_value?: number | null
           email?: string | null
           employee_count?: string | null
           enriched_at?: string | null
@@ -990,6 +993,7 @@ export type Database = {
           source?: string | null
           stage?: string
           tags?: string[] | null
+          tasks?: Json | null
           team_id?: string | null
           temperature?: string | null
           total_messages_exchanged?: number | null
@@ -1008,6 +1012,7 @@ export type Database = {
           company_description?: string | null
           conversation_summary?: string | null
           created_at?: string
+          deal_value?: number | null
           email?: string | null
           employee_count?: string | null
           enriched_at?: string | null
@@ -1043,6 +1048,7 @@ export type Database = {
           source?: string | null
           stage?: string
           tags?: string[] | null
+          tasks?: Json | null
           team_id?: string | null
           temperature?: string | null
           total_messages_exchanged?: number | null

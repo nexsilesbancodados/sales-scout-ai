@@ -152,9 +152,27 @@ export interface Lead {
   assigned_to: string | null;
   // Message Status
   message_sent: boolean;
+  // Deal & Tasks
+  deal_value: number | null;
+  tasks: any[] | null;
+  notes: string | null;
   // Timestamps
   created_at: string;
   updated_at: string;
+}
+
+export interface LeadTask {
+  id: string;
+  text: string;
+  priority: 'alta' | 'media' | 'baixa';
+  due_date: string | null;
+  done: boolean;
+  created_at: string;
+}
+
+export interface LeadNote {
+  text: string;
+  created_at: string;
 }
 
 export interface ChatMessage {

@@ -37,6 +37,9 @@ const SettingsPage = lazy(() => import("./pages/Settings"));
 const TutorialPage = lazy(() => import("./pages/Tutorial"));
 const TestsPage = lazy(() => import("./pages/Tests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const CNPJRadarPage = lazy(() => import("./pages/CNPJRadar"));
+const InstagramExtractorPage = lazy(() => import("./pages/InstagramExtractor"));
+const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +98,9 @@ const App = () => (
                   <Route path="/antiban" element={<ProtectedRoute><AntiBanPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="/tests" element={<ProtectedRoute><TestsPage /></ProtectedRoute>} />
+                  <Route path="/cnpj-radar" element={<ProtectedRoute><CNPJRadarPage /></ProtectedRoute>} />
+                  <Route path="/instagram-extractor" element={<ProtectedRoute><InstagramExtractorPage /></ProtectedRoute>} />
+                  <Route path="/sdr-agent" element={<ProtectedRoute><SDRAgentPage /></ProtectedRoute>} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>

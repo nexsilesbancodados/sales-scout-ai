@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Lead, LeadStage, LeadTemperature } from '@/types/database';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Lead, LeadStage, LeadTemperature, LeadTask, LeadNote } from '@/types/database';
 import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
@@ -40,6 +41,11 @@ import {
   Loader2,
   Bot,
   User,
+  StickyNote,
+  Trash2,
+  Plus,
+  CheckSquare,
+  DollarSign,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -48,6 +54,28 @@ interface LeadDetailsModalProps {
   lead: Lead | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+function parseNotes(notes: string | null): LeadNote[] {
+  if (!notes) return [];
+  try {
+    const parsed = JSON.parse(notes);
+    if (Array.isArray(parsed)) return parsed;
+    return [{ text: notes, created_at: new Date().toISOString() }];
+  } catch {
+    if (notes.trim()) return [{ text: notes, created_at: new Date().toISOString() }];
+    return [];
+  }
+}
+
+function parseTasks(tasks: any[] | null): LeadTask[] {
+  if (!tasks || !Array.isArray(tasks)) return [];
+  return tasks as LeadTask[];
+}
+
+function formatCurrency(value: number | null): string {
+  if (!value) return '';
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
 export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalProps) {
@@ -65,7 +93,18 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     location: '',
     stage: 'Contato' as LeadStage,
     temperature: 'morno' as LeadTemperature,
+    deal_value: null as number | null,
   });
+
+  // Notes state
+  const [notesList, setNotesList] = useState<LeadNote[]>([]);
+  const [newNote, setNewNote] = useState('');
+
+  // Tasks state
+  const [tasksList, setTasksList] = useState<LeadTask[]>([]);
+  const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState<'alta' | 'media' | 'baixa'>('media');
+  const [newTaskDueDate, setNewTaskDueDate] = useState('');
 
   useEffect(() => {
     if (lead) {
@@ -79,8 +118,13 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
         location: lead.location || '',
         stage: lead.stage,
         temperature: lead.temperature,
+        deal_value: (lead as any).deal_value || null,
       });
+      setNotesList(parseNotes(lead.notes));
+      setTasksList(parseTasks((lead as any).tasks));
       setEditMode(false);
+      setNewNote('');
+      setNewTaskText('');
     }
   }, [lead]);
 
@@ -89,8 +133,62 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     updateLead({
       id: lead.id,
       ...formData,
-    });
+    } as any);
     setEditMode(false);
+  };
+
+  const handleAddNote = () => {
+    if (!lead || !newNote.trim()) return;
+    const updated = [{ text: newNote.trim(), created_at: new Date().toISOString() }, ...notesList];
+    setNotesList(updated);
+    setNewNote('');
+    updateLead({ id: lead.id, notes: JSON.stringify(updated) } as any);
+  };
+
+  const handleDeleteNote = (index: number) => {
+    if (!lead) return;
+    const updated = notesList.filter((_, i) => i !== index);
+    setNotesList(updated);
+    updateLead({ id: lead.id, notes: JSON.stringify(updated) } as any);
+  };
+
+  const handleAddTask = () => {
+    if (!lead || !newTaskText.trim()) return;
+    const task: LeadTask = {
+      id: crypto.randomUUID(),
+      text: newTaskText.trim(),
+      priority: newTaskPriority,
+      due_date: newTaskDueDate || null,
+      done: false,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [task, ...tasksList];
+    setTasksList(updated);
+    setNewTaskText('');
+    setNewTaskDueDate('');
+    updateLead({ id: lead.id, tasks: updated } as any);
+  };
+
+  const handleToggleTask = (taskId: string) => {
+    if (!lead) return;
+    const updated = tasksList.map(t => t.id === taskId ? { ...t, done: !t.done } : t);
+    // Sort: incomplete first
+    updated.sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
+    setTasksList(updated);
+    updateLead({ id: lead.id, tasks: updated } as any);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (!lead) return;
+    const updated = tasksList.filter(t => t.id !== taskId);
+    setTasksList(updated);
+    updateLead({ id: lead.id, tasks: updated } as any);
+  };
+
+  const priorityColors: Record<string, string> = {
+    alta: 'bg-destructive/10 text-destructive border-destructive/20',
+    media: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+    baixa: 'bg-muted text-muted-foreground border-muted',
   };
 
   if (!lead) return null;
@@ -114,6 +212,12 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                     {lead.stage}
                   </Badge>
                   {lead.niche && <Badge variant="secondary">{lead.niche}</Badge>}
+                  {(lead as any).deal_value && (
+                    <Badge variant="outline" className="text-primary border-primary/30">
+                      <DollarSign className="h-3 w-3 mr-0.5" />
+                      {formatCurrency((lead as any).deal_value)}
+                    </Badge>
+                  )}
                 </DialogDescription>
               </div>
             </div>
@@ -138,118 +242,84 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
         </DialogHeader>
 
         <Tabs defaultValue="details" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="conversation">Conversa ({messages.length})</TabsTrigger>
+            <TabsTrigger value="notes">Notas ({notesList.length})</TabsTrigger>
+            <TabsTrigger value="tasks">Tarefas ({tasksList.length})</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="flex-1 overflow-auto">
             <div className="grid gap-4 py-4">
               {editMode ? (
-                // Edit Mode
                 <div className="grid gap-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="business_name">Nome da Empresa</Label>
-                      <Input
-                        id="business_name"
-                        value={formData.business_name}
-                        onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      />
+                      <Input id="business_name" value={formData.business_name} onChange={(e) => setFormData({ ...formData, business_name: e.target.value })} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Telefone</Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      />
+                      <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">E-mail</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      />
+                      <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="website">Website</Label>
-                      <Input
-                        id="website"
-                        value={formData.website}
-                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      />
+                      <Input id="website" value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="niche">Nicho</Label>
-                      <Input
-                        id="niche"
-                        value={formData.niche}
-                        onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
-                      />
+                      <Input id="niche" value={formData.niche} onChange={(e) => setFormData({ ...formData, niche: e.target.value })} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="location">Localização</Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      />
+                      <Input id="location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="address">Endereço Completo</Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    />
+                    <Input id="address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Estágio</Label>
                       <Select value={formData.stage} onValueChange={(v) => setFormData({ ...formData, stage: v as LeadStage })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {allStages.map((stage) => (
-                            <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                          ))}
+                          {allStages.map((stage) => (<SelectItem key={stage} value={stage}>{stage}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
                       <Label>Temperatura</Label>
                       <Select value={formData.temperature} onValueChange={(v) => setFormData({ ...formData, temperature: v as LeadTemperature })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {allTemperatures.map((temp) => (
-                            <SelectItem key={temp} value={temp} className="capitalize">{temp}</SelectItem>
-                          ))}
+                          {allTemperatures.map((temp) => (<SelectItem key={temp} value={temp} className="capitalize">{temp}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label>Valor do Deal (R$)</Label>
+                      <Input
+                        type="number"
+                        placeholder="0,00"
+                        value={formData.deal_value || ''}
+                        onChange={(e) => setFormData({ ...formData, deal_value: e.target.value ? parseFloat(e.target.value) : null })}
+                      />
+                    </div>
                   </div>
-
                 </div>
               ) : (
-                // View Mode
                 <div className="space-y-6">
-                  {/* Contact Info */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                       <Phone className="h-5 w-5 text-muted-foreground" />
@@ -266,7 +336,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       </div>
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                       <Globe className="h-5 w-5 text-muted-foreground" />
@@ -277,9 +346,7 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                             {lead.website.replace(/https?:\/\//, '')}
                             <ExternalLink className="h-3 w-3" />
                           </a>
-                        ) : (
-                          <p className="font-medium">-</p>
-                        )}
+                        ) : (<p className="font-medium">-</p>)}
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
@@ -290,8 +357,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       </div>
                     </div>
                   </div>
-
-                  {/* Business Info */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                       <Tag className="h-5 w-5 text-muted-foreground" />
@@ -301,15 +366,13 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
+                      <DollarSign className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Fonte</p>
-                        <p className="font-medium">{lead.source || 'Manual'}</p>
+                        <p className="text-sm text-muted-foreground">Valor do Deal</p>
+                        <p className="font-medium">{formatCurrency((lead as any).deal_value) || '-'}</p>
                       </div>
                     </div>
                   </div>
-
-                  {/* Summary */}
                   {lead.conversation_summary && (
                     <div className="p-4 rounded-lg border bg-card">
                       <p className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -319,16 +382,8 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       <p className="text-sm text-muted-foreground">{lead.conversation_summary}</p>
                     </div>
                   )}
-
-
-                  {/* Google Maps Link */}
                   {lead.google_maps_url && (
-                    <a
-                      href={lead.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    >
+                    <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
                       <MapPin className="h-4 w-4" />
                       Ver no Google Maps
                       <ExternalLink className="h-3 w-3" />
@@ -353,50 +408,19 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
               ) : (
                 <div className="space-y-4">
                   {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex items-start gap-2 ${
-                        message.sender_type === 'lead' ? '' : 'flex-row-reverse'
-                      }`}
-                    >
+                    <div key={message.id} className={`flex items-start gap-2 ${message.sender_type === 'lead' ? '' : 'flex-row-reverse'}`}>
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback
-                          className={
-                            message.sender_type === 'agent'
-                              ? 'bg-primary text-primary-foreground'
-                              : message.sender_type === 'user'
-                              ? 'bg-secondary text-secondary-foreground'
-                              : 'bg-muted'
-                          }
-                        >
-                          {message.sender_type === 'agent' ? (
-                            <Bot className="h-4 w-4" />
-                          ) : message.sender_type === 'user' ? (
-                            <User className="h-4 w-4" />
-                          ) : (
-                            lead.business_name[0]
-                          )}
+                        <AvatarFallback className={
+                          message.sender_type === 'agent' ? 'bg-primary text-primary-foreground'
+                            : message.sender_type === 'user' ? 'bg-secondary text-secondary-foreground' : 'bg-muted'
+                        }>
+                          {message.sender_type === 'agent' ? <Bot className="h-4 w-4" /> : message.sender_type === 'user' ? <User className="h-4 w-4" /> : lead.business_name[0]}
                         </AvatarFallback>
                       </Avatar>
-                      <div
-                        className={`max-w-[70%] p-3 rounded-lg ${
-                          message.sender_type === 'lead'
-                            ? 'bg-muted'
-                            : 'bg-primary text-primary-foreground'
-                        }`}
-                      >
+                      <div className={`max-w-[70%] p-3 rounded-lg ${message.sender_type === 'lead' ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
                         <p className="text-sm">{message.content}</p>
-                        <p
-                          className={`text-xs mt-1 ${
-                            message.sender_type === 'lead'
-                              ? 'text-muted-foreground'
-                              : 'text-primary-foreground/70'
-                          }`}
-                        >
-                          {formatDistanceToNow(new Date(message.sent_at), {
-                            addSuffix: true,
-                            locale: ptBR,
-                          })}
+                        <p className={`text-xs mt-1 ${message.sender_type === 'lead' ? 'text-muted-foreground' : 'text-primary-foreground/70'}`}>
+                          {formatDistanceToNow(new Date(message.sent_at), { addSuffix: true, locale: ptBR })}
                         </p>
                       </div>
                     </div>
@@ -404,6 +428,128 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                 </div>
               )}
             </ScrollArea>
+          </TabsContent>
+
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="flex-1 overflow-hidden">
+            <div className="p-4 space-y-4">
+              <div className="flex gap-2">
+                <Textarea
+                  placeholder="Adicione uma observação sobre este lead..."
+                  value={newNote}
+                  onChange={e => setNewNote(e.target.value)}
+                  rows={2}
+                  className="flex-1"
+                />
+                <Button onClick={handleAddNote} disabled={!newNote.trim()} className="self-end">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Salvar
+                </Button>
+              </div>
+
+              <ScrollArea className="h-[320px]">
+                {notesList.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <StickyNote className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">Nenhuma nota adicionada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {notesList.map((note, i) => (
+                      <div key={i} className="p-3 rounded-lg border bg-card group">
+                        <div className="flex items-start justify-between">
+                          <p className="text-sm flex-1">{note.text}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-destructive"
+                            onClick={() => handleDeleteNote(i)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(note.created_at), "d 'de' MMM 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </TabsContent>
+
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="flex-1 overflow-hidden">
+            <div className="p-4 space-y-4">
+              <div className="flex gap-2 items-end">
+                <div className="flex-1 space-y-1">
+                  <Input
+                    placeholder="Descrição da tarefa..."
+                    value={newTaskText}
+                    onChange={e => setNewTaskText(e.target.value)}
+                  />
+                </div>
+                <Select value={newTaskPriority} onValueChange={(v: any) => setNewTaskPriority(v)}>
+                  <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="media">Média</SelectItem>
+                    <SelectItem value="baixa">Baixa</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="date"
+                  className="w-36"
+                  value={newTaskDueDate}
+                  onChange={e => setNewTaskDueDate(e.target.value)}
+                />
+                <Button onClick={handleAddTask} disabled={!newTaskText.trim()}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <ScrollArea className="h-[320px]">
+                {tasksList.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CheckSquare className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                    <p className="text-sm">Nenhuma tarefa adicionada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tasksList.map(task => (
+                      <div key={task.id} className={`flex items-center gap-3 p-3 rounded-lg border group ${task.done ? 'opacity-60' : ''}`}>
+                        <Checkbox
+                          checked={task.done}
+                          onCheckedChange={() => handleToggleTask(task.id)}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm ${task.done ? 'line-through text-muted-foreground' : ''}`}>
+                            {task.text}
+                          </p>
+                          {task.due_date && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Prazo: {format(new Date(task.due_date + 'T00:00:00'), "d 'de' MMM", { locale: ptBR })}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant="outline" className={`text-xs ${priorityColors[task.priority]}`}>
+                          {task.priority === 'alta' ? 'Alta' : task.priority === 'media' ? 'Média' : 'Baixa'}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-destructive"
+                          onClick={() => handleDeleteTask(task.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-auto">
@@ -417,7 +563,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                   </p>
                 </div>
               </div>
-              
               {lead.last_contact_at && (
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                   <MessageSquare className="h-5 w-5 text-muted-foreground" />
@@ -429,7 +574,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                   </div>
                 </div>
               )}
-              
               {lead.last_response_at && (
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                   <MessageSquare className="h-5 w-5 text-primary" />
@@ -441,7 +585,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                   </div>
                 </div>
               )}
-
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 <div>
@@ -449,7 +592,6 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                   <p className="font-medium">{lead.follow_up_count || 0}</p>
                 </div>
               </div>
-
               {lead.next_follow_up_at && (
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
                   <Calendar className="h-5 w-5 text-primary" />
