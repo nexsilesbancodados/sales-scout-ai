@@ -71,7 +71,7 @@ async function extractAndSaveMemories(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "deepseek-chat",
         messages: [{
           role: "user",
           content: `Analise esta conversa e extraia informações importantes para lembrar sobre o cliente.
@@ -318,7 +318,7 @@ async function analyzeSentiment(message: string, apiKey: string | null): Promise
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "deepseek-chat",
         messages: [{
           role: "user",
           content: `Classifique o sentimento desta mensagem de um lead em uma conversa de vendas. Responda APENAS com: positive, neutral ou negative
@@ -398,7 +398,7 @@ async function analyzeConversation(messages: any[], apiKey: string | null): Prom
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "deepseek-chat",
           messages: [{
             role: "user",
             content: `Resuma em 2-3 frases o estado atual desta conversa de vendas. O que o cliente quer? Quais objeções teve? Está próximo de fechar?
@@ -718,7 +718,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: "deepseek-chat",
             messages: [
               { role: "system", content: systemPrompt },
               ...formattedHistory,

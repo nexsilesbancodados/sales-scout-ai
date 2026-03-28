@@ -203,7 +203,7 @@ Responda APENAS com a mensagem, sem explicações.` }],
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-2.5-flash",
+              model: "deepseek-chat",
               messages: [
                 {
                   role: "system",

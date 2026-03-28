@@ -234,7 +234,7 @@ Responda APENAS com a mensagem.`;
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                   model: "google/gemini-2.5-flash",
+                   model: "deepseek-chat",
                   messages: [{ role: "user", content: prompt }],
                   temperature: 0.9,
                 }),
