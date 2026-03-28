@@ -4,22 +4,25 @@ import { Shield } from 'lucide-react';
 
 export default function SettingsAntiBlock() {
   return (
-    <div className="p-6 space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold">Proteção Anti-Bloqueio</h1>
-        <p className="text-muted-foreground text-sm">Configure limites e intervalos para evitar banimento</p>
-      </div>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
+    <div className="p-8 space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <Shield className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle className="text-base">Configurações de Proteção</CardTitle>
-              <CardDescription className="text-xs">
-                Ajuste limites de envio, intervalos e comportamento anti-ban
-              </CardDescription>
-            </div>
           </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Proteção Anti-Bloqueio</h1>
+            <p className="text-sm text-muted-foreground">Configure limites e intervalos para evitar banimento</p>
+          </div>
+        </div>
+      </div>
+
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg">Configurações de Proteção</CardTitle>
+          <CardDescription>
+            Ajuste limites de envio, intervalos e comportamento anti-ban para manter seu chip seguro
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <AntiBlockSettings />
