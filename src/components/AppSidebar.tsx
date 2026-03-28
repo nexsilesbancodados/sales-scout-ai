@@ -67,6 +67,7 @@ const outreachItems = [
 ];
 
 const crmItems = [
+  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', highlight: true },
   { title: 'Leads', icon: Users, path: '/leads' },
   { title: 'Pipeline', icon: Kanban, path: '/funnel' },
   { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },

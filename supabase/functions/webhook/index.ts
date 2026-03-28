@@ -458,9 +458,27 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Meta Lead Ads webhook verification (GET request)
+  if (req.method === "GET") {
+    const url = new URL(req.url);
+    const mode = url.searchParams.get("hub.mode");
+    const token = url.searchParams.get("hub.verify_token");
+    const challenge = url.searchParams.get("hub.challenge");
+    if (mode === "subscribe" && token === "nexaprospect_meta_verify") {
+      return new Response(challenge, { status: 200 });
+    }
+    return new Response("Forbidden", { status: 403 });
+  }
+
   try {
     const body = await req.json();
     console.log("Webhook received:", JSON.stringify(body).substring(0, 500));
+
+    // Meta Lead Ads webhook POST
+    if (body.object === "page" && body.entry) {
+      console.log("Meta Lead Ads webhook received");
+      return new Response("OK", { status: 200, headers: corsHeaders });
+    }
 
     // Support multiple webhook formats from Evolution API
     const remoteJid = body.data?.key?.remoteJid || "";
