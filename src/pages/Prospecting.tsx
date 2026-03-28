@@ -6,38 +6,24 @@ import { LeadFinderInterface } from '@/components/prospecting/LeadFinderInterfac
 import { WebSearchTab } from '@/components/prospecting/WebSearchTab';
 import { ImportTab } from '@/components/prospecting/ImportTab';
 import { MassSendTab } from '@/components/prospecting/MassSendTab';
-import { CampaignsTab } from '@/components/prospecting/CampaignsTab';
 import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
-import { FollowUpManager } from '@/components/followup/FollowUpManager';
-import { FollowUpSequencesTab } from '@/components/prospecting/FollowUpSequencesTab';
-import { TemplatesTab } from '@/components/prospecting/TemplatesTab';
-import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
-import { ABTestingTab } from '@/components/prospecting/ABTestingTab';
-import { AIInsightsTab } from '@/components/prospecting/AIInsightsTab';
-import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { WhatsAppGroupImport } from '@/components/prospecting/WhatsAppGroupImport';
-import { AntiBanDashboard } from '@/components/antiban';
+import { EmailFinderTab } from '@/components/prospecting/EmailFinderTab';
+import { ProspectingHistoryTab } from '@/components/prospecting/ProspectingHistoryTab';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  Rocket,
   Send,
   Upload,
-  MessageSquareText,
-  Brain,
   Target,
-  RefreshCw,
-  FlaskConical,
   Calendar,
   Mail,
   Globe,
   History,
   Search,
   Zap,
-  Layers,
   LucideIcon,
   MessageCircle,
-  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -72,17 +58,7 @@ const tabGroups: TabGroup[] = [
     icon: Send,
     tabs: [
       { id: 'mass-send', icon: Send, label: 'Em Massa' },
-      { id: 'campaigns', icon: Rocket, label: 'Campanhas' },
       { id: 'scheduled', icon: Calendar, label: 'Agendado' },
-    ],
-  },
-  {
-    id: 'followup',
-    label: 'Follow-up',
-    icon: RefreshCw,
-    tabs: [
-      { id: 'follow-up', icon: RefreshCw, label: 'Pendentes' },
-      { id: 'sequences', icon: Layers, label: 'Sequências' },
     ],
   },
   {
@@ -90,11 +66,7 @@ const tabGroups: TabGroup[] = [
     label: 'Ferramentas',
     icon: Zap,
     tabs: [
-      { id: 'templates', icon: MessageSquareText, label: 'Templates' },
       { id: 'email-finder', icon: Mail, label: 'Emails' },
-      { id: 'ab-testing', icon: FlaskConical, label: 'Teste A/B' },
-      { id: 'ai-insights', icon: Brain, label: 'IA' },
-      { id: 'antiban', icon: Shield, label: 'Anti-Ban' },
       { id: 'history', icon: History, label: 'Histórico' },
     ],
   },
@@ -143,15 +115,8 @@ export default function ProspectingPage() {
       case 'whatsapp-groups': return <WhatsAppGroupImport />;
       case 'import': return <ImportTab />;
       case 'mass-send': return <MassSendTab />;
-      case 'campaigns': return <CampaignsTab />;
       case 'scheduled': return <ScheduledProspectingTab />;
-      case 'follow-up': return <FollowUpManager />;
-      case 'sequences': return <FollowUpSequencesTab />;
-      case 'templates': return <TemplatesTab />;
       case 'email-finder': return <EmailFinderTab />;
-      case 'ab-testing': return <ABTestingTab />;
-      case 'ai-insights': return <AIInsightsTab />;
-      case 'antiban': return <AntiBanDashboard />;
       case 'history': return <ProspectingHistoryTab onReprospect={handleReprospectFromHistory} />;
       default: return null;
     }
