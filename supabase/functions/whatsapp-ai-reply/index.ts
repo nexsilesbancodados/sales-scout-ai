@@ -968,24 +968,24 @@ ${qualification?.close_probability && qualification.close_probability >= 70 ? "\
       content: message_content,
     });
 
-    // Call AI
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+    // Call DeepSeek AI
+    const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+    if (!DEEPSEEK_API_KEY) {
+      throw new Error("DEEPSEEK_API_KEY not configured");
     }
 
-    console.log(`Processing intelligent reply for lead ${lead_id}`);
+    console.log(`Processing intelligent reply for lead ${lead_id} via DeepSeek`);
 
     const aiResponse = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      "https://api.deepseek.com/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "deepseek-chat",
           messages: [
             { role: "system", content: systemPrompt },
             ...conversationHistory,
@@ -1048,15 +1048,15 @@ ${qualification?.close_probability && qualification.close_probability >= 70 ? "\
       ];
 
       const followUpResponse = await fetch(
-        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        "https://api.deepseek.com/v1/chat/completions",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
+            model: "deepseek-chat",
             messages: [
               { role: "system", content: systemPrompt },
               ...followUpMessages,
