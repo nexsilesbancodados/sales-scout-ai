@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Sparkles, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logoImg from "@/assets/logo.png";
 
 interface PupilProps {
   size?: number;
@@ -286,10 +287,7 @@ export function AnimatedCharactersLogin({
       <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-primary/90 via-primary to-primary/80 p-12 text-primary-foreground">
         <div className="relative z-20">
           <div className="flex items-center gap-2 text-lg font-semibold">
-            <div className="size-8 rounded-lg bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="size-4" />
-            </div>
-            <span>{brandName}</span>
+            <img src={logoImg} alt={brandName} className="h-10 w-auto drop-shadow-lg" />
           </div>
         </div>
 
@@ -419,11 +417,8 @@ export function AnimatedCharactersLogin({
       {/* Right Login Section */}
       <div className="flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-[420px]">
-          <div className="lg:hidden flex items-center justify-center gap-2 text-lg font-semibold mb-12">
-            <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Sparkles className="size-4 text-primary" />
-            </div>
-            <span>{brandName}</span>
+          <div className="lg:hidden flex items-center justify-center mb-12">
+            <img src={logoImg} alt={brandName} className="h-12 w-auto" />
           </div>
 
           <div className="text-center mb-10">
