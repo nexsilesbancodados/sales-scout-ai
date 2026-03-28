@@ -36,6 +36,14 @@ import {
   RefreshCw,
   MessageSquareText,
   Shield,
+  MapPin,
+  Globe,
+  MessageCircle,
+  Upload,
+  Send,
+  Clock,
+  Mail,
+  History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -45,7 +53,18 @@ import { useState } from 'react';
 
 const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { title: 'Prospecção', icon: Target, path: '/prospecting' },
+];
+
+const captureItems = [
+  { title: 'Google Maps', icon: MapPin, path: '/google-maps' },
+  { title: 'Pesquisa Web', icon: Globe, path: '/web-search' },
+  { title: 'Grupos WhatsApp', icon: MessageCircle, path: '/whatsapp-groups' },
+  { title: 'Importar', icon: Upload, path: '/import-leads' },
+];
+
+const outreachItems = [
+  { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
+  { title: 'Agendamento', icon: Clock, path: '/scheduled-prospecting' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
 ];
 
@@ -64,6 +83,8 @@ const automationItems = [
 const toolItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
@@ -122,10 +143,8 @@ export function TopNavigation({ children }: TopNavigationProps) {
         <div className="container flex h-[60px] items-center px-4">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 mr-6">
-            <div className="h-7 w-7 rounded-lg gradient-primary flex items-center justify-center">
-              <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-            </div>
-            <span className="text-sm font-bold text-gradient hidden sm:inline">NexaProspect</span>
+            <img src="/logo.png" alt="Prospecte" className="h-7 w-7 rounded-lg object-contain" />
+            <span className="text-sm font-bold text-gradient hidden sm:inline">Prospecte</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -148,6 +167,65 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </NavigationMenuItem>
               ))}
 
+              {/* Captura dropdown */}
+              <NavigationMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "flex items-center gap-2 h-10",
+                        captureItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
+                      )}
+                    >
+                      <Target className="h-4 w-4" />
+                      Captura
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    {captureItems.map((item) => (
+                      <DropdownMenuItem key={item.path} asChild>
+                        <Link to={item.path} className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          {item.title}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </NavigationMenuItem>
+
+              {/* Disparo dropdown */}
+              <NavigationMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "flex items-center gap-2 h-10",
+                        outreachItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
+                      )}
+                    >
+                      <Send className="h-4 w-4" />
+                      Disparo
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    {outreachItems.map((item) => (
+                      <DropdownMenuItem key={item.path} asChild>
+                        <Link to={item.path} className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          {item.title}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </NavigationMenuItem>
+
+              {/* CRM dropdown */}
               <NavigationMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -176,6 +254,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </DropdownMenu>
               </NavigationMenuItem>
 
+              {/* Ferramentas dropdown */}
               <NavigationMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -202,7 +281,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
-                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Análise</p>
+                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Análise & Outros</p>
                     {toolItems.map((item) => (
                       <DropdownMenuItem key={item.path} asChild>
                         <Link to={item.path} className="flex items-center gap-2">
@@ -278,12 +357,28 @@ export function TopNavigation({ children }: TopNavigationProps) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 p-4">
+              <SheetContent side="right" className="w-72 p-4 overflow-y-auto">
                 <nav className="flex flex-col gap-4 mt-4">
                   <div className="space-y-1">
                     {mainItems.map((item) => (
                       <NavLink key={item.path} item={item} mobile />
                     ))}
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Captura</p>
+                    <div className="space-y-1">
+                      {captureItems.map((item) => (
+                        <NavLink key={item.path} item={item} mobile />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Disparo</p>
+                    <div className="space-y-1">
+                      {outreachItems.map((item) => (
+                        <NavLink key={item.path} item={item} mobile />
+                      ))}
+                    </div>
                   </div>
                   <div className="border-t pt-4">
                     <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">CRM</p>

@@ -37,6 +37,14 @@ import {
   RefreshCw,
   MessageSquareText,
   Shield,
+  MapPin,
+  Globe,
+  MessageCircle,
+  Upload,
+  Send,
+  Clock,
+  Mail,
+  History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -44,9 +52,22 @@ const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
 ];
 
-const prospectingItems = [
-  { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
+const captureItems = [
+  { title: 'Google Maps', icon: MapPin, path: '/google-maps' },
+  { title: 'Pesquisa Web', icon: Globe, path: '/web-search' },
+  { title: 'Grupos WhatsApp', icon: MessageCircle, path: '/whatsapp-groups' },
+  { title: 'Importar Leads', icon: Upload, path: '/import-leads' },
+];
+
+const outreachItems = [
+  { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
+  { title: 'Agendamento', icon: Clock, path: '/scheduled-prospecting' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+];
+
+const toolsProspectingItems = [
+  { title: 'Buscar Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
 ];
 
 const crmItems = [
@@ -147,9 +168,23 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
+        <SectionLabel>Captura</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {captureItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Disparo</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {outreachItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
         <SectionLabel>Prospecção</SectionLabel>
         <SidebarMenu className="space-y-0.5">
-          {prospectingItems.map((item) => (
+          {toolsProspectingItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
