@@ -1660,6 +1660,7 @@ export type Database = {
           agent_name: string | null
           agent_persona: string | null
           agent_type: string | null
+          apify_token: string | null
           auto_end_hour: number | null
           auto_prospecting_enabled: boolean | null
           auto_slowdown: boolean | null
@@ -1721,6 +1722,7 @@ export type Database = {
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
+          apify_token?: string | null
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
           auto_slowdown?: boolean | null
@@ -1782,6 +1784,7 @@ export type Database = {
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
+          apify_token?: string | null
           auto_end_hour?: number | null
           auto_prospecting_enabled?: boolean | null
           auto_slowdown?: boolean | null
