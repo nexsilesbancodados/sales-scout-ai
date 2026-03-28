@@ -117,7 +117,7 @@ serve(async (req) => {
     }
 
     // DELETE USER
-    if (action === "delete" && req.method === "POST") {
+    if (action === "delete" && (req.method === "POST" || req.method === "GET")) {
       const body = await req.json();
       const targetUserId = body.user_id;
       if (!targetUserId) {
