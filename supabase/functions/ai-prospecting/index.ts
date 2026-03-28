@@ -243,8 +243,34 @@ Deno.serve(async (req) => {
     const GEMINI_API_KEY = userSettings?.gemini_api_key;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    // Helper function to call AI (prefers user's Gemini, falls back to Lovable)
+    // Helper function to call AI via DeepSeek (primary), falls back to user's Gemini
     async function callAI(systemPrompt: string, userPrompt: string) {
+      const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+      
+      if (DEEPSEEK_API_KEY) {
+        const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+          }),
+        });
+
+        if (response.ok) {
+          const aiData = await response.json();
+          return aiData.choices?.[0]?.message?.content || "";
+        }
+        console.error("DeepSeek error, trying fallback...");
+      }
+
+      // Fallback to user's Gemini key
       if (GEMINI_API_KEY) {
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -265,9 +291,9 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Fallback to Lovable AI
+      // Final fallback to Lovable AI
       if (!LOVABLE_API_KEY) {
-        throw new Error("Nenhuma API de IA configurada. Configure sua chave Gemini em Configurações > APIs.");
+        throw new Error("Nenhuma API de IA configurada (DeepSeek, Gemini ou Lovable).");
       }
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
