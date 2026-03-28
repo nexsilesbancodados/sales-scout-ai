@@ -11,11 +11,19 @@ import { RealtimeNotificationsProvider } from "@/components/RealtimeNotification
 import { PageLoadingFallback } from "@/components/ui/page-loading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Lazy load pages for better performance
+// Lazy load pages
 const AuthPage = lazy(() => import("./pages/Auth"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
+const GoogleMapsPage = lazy(() => import("./pages/GoogleMaps"));
+const WebSearchPage = lazy(() => import("./pages/WebSearch"));
+const WhatsAppGroupsPage = lazy(() => import("./pages/WhatsAppGroups"));
+const ImportLeadsPage = lazy(() => import("./pages/ImportLeads"));
+const MassSendPage = lazy(() => import("./pages/MassSend"));
+const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
+const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
+const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
 const LeadsPage = lazy(() => import("./pages/Leads"));
 const FunnelPage = lazy(() => import("./pages/Funnel"));
 const ConversationsPage = lazy(() => import("./pages/Conversations"));
@@ -29,7 +37,6 @@ const TutorialPage = lazy(() => import("./pages/Tutorial"));
 const TestsPage = lazy(() => import("./pages/Tests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Optimized query client with better defaults
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -53,27 +60,40 @@ const App = () => (
               <BrowserRouter>
                 <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
-                  {/* Public routes */}
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/auth" element={<AuthPage />} />
 
-                  {/* Protected routes */}
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                   <Route path="/tutorial" element={<ProtectedRoute><TutorialPage /></ProtectedRoute>} />
+                  
+                  {/* Prospecção */}
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
+                  <Route path="/google-maps" element={<ProtectedRoute><GoogleMapsPage /></ProtectedRoute>} />
+                  <Route path="/web-search" element={<ProtectedRoute><WebSearchPage /></ProtectedRoute>} />
+                  <Route path="/whatsapp-groups" element={<ProtectedRoute><WhatsAppGroupsPage /></ProtectedRoute>} />
+                  <Route path="/import-leads" element={<ProtectedRoute><ImportLeadsPage /></ProtectedRoute>} />
+                  <Route path="/mass-send" element={<ProtectedRoute><MassSendPage /></ProtectedRoute>} />
+                  <Route path="/scheduled-prospecting" element={<ProtectedRoute><ScheduledProspectingPage /></ProtectedRoute>} />
+                  <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
+                  <Route path="/prospecting-history" element={<ProtectedRoute><ProspectingHistoryPage /></ProtectedRoute>} />
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
+
+                  {/* CRM */}
                   <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
                   <Route path="/funnel" element={<ProtectedRoute><FunnelPage /></ProtectedRoute>} />
                   <Route path="/conversations" element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
+
+                  {/* Automação */}
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
+
+                  {/* Ferramentas */}
                   <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
                   <Route path="/antiban" element={<ProtectedRoute><AntiBanPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="/tests" element={<ProtectedRoute><TestsPage /></ProtectedRoute>} />
 
-                  {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
