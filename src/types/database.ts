@@ -154,7 +154,7 @@ export interface Lead {
   message_sent: boolean;
   // Deal & Tasks
   deal_value: number | null;
-  tasks: LeadTask[] | null;
+  tasks: any[] | null;
   notes: string | null;
   // Timestamps
   created_at: string;
