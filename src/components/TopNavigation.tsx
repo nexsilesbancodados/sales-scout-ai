@@ -36,6 +36,14 @@ import {
   RefreshCw,
   MessageSquareText,
   Shield,
+  MapPin,
+  Globe,
+  MessageCircle,
+  Upload,
+  Send,
+  Clock,
+  Mail,
+  History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -45,7 +53,18 @@ import { useState } from 'react';
 
 const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { title: 'Prospecção', icon: Target, path: '/prospecting' },
+];
+
+const captureItems = [
+  { title: 'Google Maps', icon: MapPin, path: '/google-maps' },
+  { title: 'Pesquisa Web', icon: Globe, path: '/web-search' },
+  { title: 'Grupos WhatsApp', icon: MessageCircle, path: '/whatsapp-groups' },
+  { title: 'Importar', icon: Upload, path: '/import-leads' },
+];
+
+const outreachItems = [
+  { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
+  { title: 'Agendamento', icon: Clock, path: '/scheduled-prospecting' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
 ];
 
@@ -64,6 +83,8 @@ const automationItems = [
 const toolItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
