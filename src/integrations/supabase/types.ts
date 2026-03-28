@@ -1667,10 +1667,10 @@ export type Database = {
           created_at: string
           daily_message_limit: number | null
           daily_report_enabled: boolean | null
+          deepseek_api_key: string | null
           email_notifications: boolean | null
           emoji_usage: string | null
           follow_up_tone: string | null
-          gemini_api_key: string | null
           google_meet_link: string | null
           greeting_style: string | null
           hourly_message_limit: number | null
@@ -1728,10 +1728,10 @@ export type Database = {
           created_at?: string
           daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
+          deepseek_api_key?: string | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
           follow_up_tone?: string | null
-          gemini_api_key?: string | null
           google_meet_link?: string | null
           greeting_style?: string | null
           hourly_message_limit?: number | null
@@ -1789,10 +1789,10 @@ export type Database = {
           created_at?: string
           daily_message_limit?: number | null
           daily_report_enabled?: boolean | null
+          deepseek_api_key?: string | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
           follow_up_tone?: string | null
-          gemini_api_key?: string | null
           google_meet_link?: string | null
           greeting_style?: string | null
           hourly_message_limit?: number | null

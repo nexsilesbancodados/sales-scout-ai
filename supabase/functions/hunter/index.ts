@@ -131,13 +131,13 @@ Deno.serve(async (req) => {
     const leadsWithPhone = foundLeads.filter((lead: any) => lead.phone);
     console.log(`${leadsWithPhone.length} leads have phone numbers`);
 
-    // Generate first message using AI (user's Gemini key or fallback to Lovable)
-    const GEMINI_API_KEY = settings.gemini_api_key;
+    // Generate first message using AI (user's DeepSeek key or fallback to Lovable)
+    const DEEPSEEK_API_KEY = settings.deepseek_api_key || Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
-    if (!GEMINI_API_KEY && !LOVABLE_API_KEY) {
+    if (!DEEPSEEK_API_KEY && !LOVABLE_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "Nenhuma API de IA configurada. Configure sua chave Gemini em Configurações > APIs." }),
+        JSON.stringify({ error: "Nenhuma API de IA configurada. Configure sua chave DeepSeek em Configurações > APIs." }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -154,20 +154,20 @@ Deno.serve(async (req) => {
         messageVariations[Math.floor(Math.random() * messageVariations.length)];
       firstMessage = randomVariation.template || randomVariation;
     } else {
-      // Generate message with AI - prefer user's Gemini, fallback to Lovable
+      // Generate message with AI - prefer user's DeepSeek, fallback to Lovable
       let aiResponse;
       
-      if (GEMINI_API_KEY) {
-        // Use user's Gemini API key
-        aiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
+      if (DEEPSEEK_API_KEY) {
+        // Use DeepSeek API
+        aiResponse = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [{ role: "user", content: `Você é ${settings.agent_name}, um especialista em vendas consultivas.
 ${settings.agent_persona}
 
 Seu objetivo é criar uma primeira mensagem de prospecção que:
@@ -180,20 +180,19 @@ Serviços oferecidos: ${(settings.services_offered || []).join(", ")}
 Base de conhecimento: ${settings.knowledge_base || ""}
 
 Crie uma mensagem de primeiro contato para uma empresa do nicho "${niches[0]}" localizada em "${locations[0]}".
-Responda APENAS com a mensagem, sem explicações.`
-                }]
-              }]
-            }),
-          }
-        );
+Responda APENAS com a mensagem, sem explicações.` }],
+            max_tokens: 500,
+            temperature: 0.9,
+          }),
+        });
 
         if (aiResponse.ok) {
           const aiData = await aiResponse.json();
-          firstMessage = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          firstMessage = aiData.choices?.[0]?.message?.content || "";
         }
       }
       
-      // Fallback to Lovable AI if Gemini failed or not configured
+      // Fallback to Lovable AI if DeepSeek failed or not configured
       if (!firstMessage && LOVABLE_API_KEY) {
         aiResponse = await fetch(
           "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -204,7 +203,7 @@ Responda APENAS com a mensagem, sem explicações.`
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-3-flash-preview",
+              model: "google/gemini-2.5-flash",
               messages: [
                 {
                   role: "system",
