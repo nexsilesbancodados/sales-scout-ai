@@ -47,11 +47,13 @@ import {
   CreditCard,
   Code2,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Automações', icon: Zap, path: '/automations', highlight: true },
 ];
 
 const captureItems = [

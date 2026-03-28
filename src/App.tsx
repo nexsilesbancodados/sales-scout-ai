@@ -62,6 +62,7 @@ const CRMActivitiesPage = lazy(() => import("./pages/crm/CRMActivities"));
 const CRMAnalyticsPage = lazy(() => import("./pages/crm/CRMAnalytics"));
 const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
 const AdminPage = lazy(() => import("./pages/Admin"));
+const AutomationsPage = lazy(() => import("./pages/Automations"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +111,9 @@ const App = () => (
                   <Route path="/funnel" element={<ProtectedRoute><FunnelPage /></ProtectedRoute>} />
                   <Route path="/conversations" element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
+
+                  {/* Automações */}
+                  <Route path="/automations" element={<ProtectedRoute><AutomationsPage /></ProtectedRoute>} />
 
                   {/* Automação */}
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />

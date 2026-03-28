@@ -641,6 +641,13 @@ Deno.serve(async (req) => {
       })
       .eq("id", lead.id);
 
+    // Fire intent-pipeline for automatic stage movement (fire-and-forget)
+    if (userId && lead.id && message) {
+      supabase.functions.invoke("intent-pipeline", {
+        body: { lead_id: lead.id, message, user_id: userId },
+      }).catch((e: any) => console.error("Intent pipeline invoke error:", e));
+    }
+
     // Get full chat history for memory
     const { data: chatHistory } = await supabase
       .from("chat_messages")

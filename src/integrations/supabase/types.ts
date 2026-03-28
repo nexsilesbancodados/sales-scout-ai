@@ -1683,7 +1683,12 @@ export type Database = {
           agent_type: string | null
           apify_token: string | null
           auto_end_hour: number | null
+          auto_first_message_enabled: boolean | null
+          auto_followup_enabled: boolean | null
+          auto_lead_scoring: boolean | null
+          auto_pipeline_enabled: boolean | null
           auto_prospecting_enabled: boolean | null
+          auto_reactivation_enabled: boolean | null
           auto_slowdown: boolean | null
           auto_start_hour: number | null
           batch_size: number | null
@@ -1710,6 +1715,8 @@ export type Database = {
           message_interval_seconds: number | null
           message_variations: Json | null
           objection_handling: string | null
+          onboarding_completed: boolean | null
+          onboarding_niche: string | null
           operate_all_day: boolean | null
           pause_duration_minutes: number | null
           pause_on_error: boolean | null
@@ -1719,6 +1726,7 @@ export type Database = {
           randomize_order: boolean | null
           read_receipt_delay: boolean | null
           response_length: string | null
+          sdr_agent_enabled: boolean | null
           serpapi_api_key: string | null
           serper_api_key: string | null
           services_offered: string[] | null
@@ -1735,6 +1743,7 @@ export type Database = {
           warmup_start_date: string | null
           webhook_events: string[] | null
           webhook_url: string | null
+          weekly_report_enabled: boolean | null
           whatsapp_connected: boolean | null
           whatsapp_instance_id: string | null
           work_days_only: boolean | null
@@ -1745,7 +1754,12 @@ export type Database = {
           agent_type?: string | null
           apify_token?: string | null
           auto_end_hour?: number | null
+          auto_first_message_enabled?: boolean | null
+          auto_followup_enabled?: boolean | null
+          auto_lead_scoring?: boolean | null
+          auto_pipeline_enabled?: boolean | null
           auto_prospecting_enabled?: boolean | null
+          auto_reactivation_enabled?: boolean | null
           auto_slowdown?: boolean | null
           auto_start_hour?: number | null
           batch_size?: number | null
@@ -1772,6 +1786,8 @@ export type Database = {
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_niche?: string | null
           operate_all_day?: boolean | null
           pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
@@ -1781,6 +1797,7 @@ export type Database = {
           randomize_order?: boolean | null
           read_receipt_delay?: boolean | null
           response_length?: string | null
+          sdr_agent_enabled?: boolean | null
           serpapi_api_key?: string | null
           serper_api_key?: string | null
           services_offered?: string[] | null
@@ -1797,6 +1814,7 @@ export type Database = {
           warmup_start_date?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
+          weekly_report_enabled?: boolean | null
           whatsapp_connected?: boolean | null
           whatsapp_instance_id?: string | null
           work_days_only?: boolean | null
@@ -1807,7 +1825,12 @@ export type Database = {
           agent_type?: string | null
           apify_token?: string | null
           auto_end_hour?: number | null
+          auto_first_message_enabled?: boolean | null
+          auto_followup_enabled?: boolean | null
+          auto_lead_scoring?: boolean | null
+          auto_pipeline_enabled?: boolean | null
           auto_prospecting_enabled?: boolean | null
+          auto_reactivation_enabled?: boolean | null
           auto_slowdown?: boolean | null
           auto_start_hour?: number | null
           batch_size?: number | null
@@ -1834,6 +1857,8 @@ export type Database = {
           message_interval_seconds?: number | null
           message_variations?: Json | null
           objection_handling?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_niche?: string | null
           operate_all_day?: boolean | null
           pause_duration_minutes?: number | null
           pause_on_error?: boolean | null
@@ -1843,6 +1868,7 @@ export type Database = {
           randomize_order?: boolean | null
           read_receipt_delay?: boolean | null
           response_length?: string | null
+          sdr_agent_enabled?: boolean | null
           serpapi_api_key?: string | null
           serper_api_key?: string | null
           services_offered?: string[] | null
@@ -1859,6 +1885,7 @@ export type Database = {
           warmup_start_date?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
+          weekly_report_enabled?: boolean | null
           whatsapp_connected?: boolean | null
           whatsapp_instance_id?: string | null
           work_days_only?: boolean | null

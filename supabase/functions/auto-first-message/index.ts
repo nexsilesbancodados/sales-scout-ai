@@ -1,0 +1,108 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    // Get users with auto first message enabled
+    const { data: usersWithAutoMsg } = await supabase
+      .from("user_settings")
+      .select("user_id, whatsapp_connected, whatsapp_instance_id, onboarding_niche, auto_start_hour, auto_end_hour, work_days_only, auto_first_message_enabled")
+      .eq("auto_first_message_enabled", true)
+      .eq("whatsapp_connected", true);
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentDay = now.getDay();
+    const results: any[] = [];
+
+    for (const userSettings of usersWithAutoMsg || []) {
+      const startHour = userSettings.auto_start_hour || 9;
+      const endHour = userSettings.auto_end_hour || 18;
+      const workDaysOnly = userSettings.work_days_only !== false;
+
+      if (workDaysOnly && (currentDay === 0 || currentDay === 6)) continue;
+      if (currentHour < startHour || currentHour >= endHour) continue;
+
+      // Get new leads for this user
+      const { data: newLeads } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("user_id", userSettings.user_id)
+        .eq("message_sent", false)
+        .eq("stage", "Contato")
+        .gte("created_at", oneHourAgo)
+        .not("phone", "is", null)
+        .limit(10);
+
+      for (const lead of newLeads || []) {
+        // Get first contact template
+        const { data: template } = await supabase
+          .from("message_templates")
+          .select("content")
+          .eq("user_id", lead.user_id)
+          .ilike("name", "1º Contato%")
+          .single();
+
+        let message = template?.content || `Olá! Vi o ${lead.business_name} e gostaria de apresentar uma solução que pode te interessar. Posso falar mais?`;
+
+        message = message
+          .replace(/\{nome_empresa\}/g, lead.business_name)
+          .replace(/\{localização\}/g, lead.location || "")
+          .replace(/\{nicho\}/g, lead.niche || "");
+
+        const { error } = await supabase.functions.invoke("whatsapp-send", {
+          body: {
+            phone: lead.phone,
+            message,
+            instance_id: userSettings.whatsapp_instance_id,
+          },
+        });
+
+        if (!error) {
+          await supabase
+            .from("leads")
+            .update({
+              message_sent: true,
+              first_contact_at: now.toISOString(),
+              last_contact_at: now.toISOString(),
+              next_follow_up_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            })
+            .eq("id", lead.id);
+
+          await supabase.from("activity_log").insert({
+            user_id: lead.user_id,
+            lead_id: lead.id,
+            activity_type: "automated_message",
+            description: `Primeira mensagem automática enviada para ${lead.business_name}`,
+          });
+
+          results.push({ lead_id: lead.id, name: lead.business_name, status: "sent" });
+        }
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ sent: results.length, results }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Auto first message error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

@@ -13,128 +13,152 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useAuth } from '@/lib/auth';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { NICHE_CONFIGS, NICHE_LIST } from '@/constants/niche-configs';
 import {
   Rocket,
-  MessageSquare,
   Zap,
-  Target,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
   Sparkles,
   Bot,
-  Shield,
   Phone,
-  Settings2,
-  Play,
   PartyPopper,
+  MapPin,
+  X,
 } from 'lucide-react';
 
-interface OnboardingStep {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-}
-
-const ONBOARDING_STEPS: OnboardingStep[] = [
-  {
-    id: 'welcome',
-    title: 'Bem-vindo ao Prospecte! 🎉',
-    description: 'Vamos configurar sua conta em 5 minutos',
-    icon: <Rocket className="h-8 w-8" />,
-  },
-  {
-    id: 'agent',
-    title: 'Configure seu Agente IA',
-    description: 'Defina como a IA vai se comunicar',
-    icon: <Bot className="h-8 w-8" />,
-  },
-  {
-    id: 'profile',
-    title: 'Perfil de Envio',
-    description: 'Escolha sua estratégia de prospecção',
-    icon: <Shield className="h-8 w-8" />,
-  },
-  {
-    id: 'whatsapp',
-    title: 'Conectar WhatsApp',
-    description: 'Vincule seu número para começar',
-    icon: <Phone className="h-8 w-8" />,
-  },
-  {
-    id: 'complete',
-    title: 'Tudo Pronto!',
-    description: 'Você está pronto para prospectar',
-    icon: <PartyPopper className="h-8 w-8" />,
-  },
+const STEPS = [
+  { id: 'niche', title: 'Escolha seu nicho', description: 'Tudo será pré-configurado para você', icon: <Sparkles className="h-8 w-8" /> },
+  { id: 'location', title: 'Onde você prospecta?', description: 'Cidades alvo para captura de leads', icon: <MapPin className="h-8 w-8" /> },
+  { id: 'agent', title: 'Seu Agente IA', description: 'Personalize a identidade do agente', icon: <Bot className="h-8 w-8" /> },
+  { id: 'whatsapp', title: 'Conectar WhatsApp', description: 'Vincule seu número para enviar mensagens', icon: <Phone className="h-8 w-8" /> },
+  { id: 'automations', title: 'Automações', description: 'Ative o que quiser com 1 clique', icon: <Zap className="h-8 w-8" /> },
+  { id: 'complete', title: 'Tudo Pronto! 🎉', description: 'Suas automações estão ativas', icon: <PartyPopper className="h-8 w-8" /> },
 ];
 
-const AGENT_STYLES = [
-  { id: 'consultivo', name: '💡 Consultor', desc: 'Oferece valor antes de vender' },
-  { id: 'amigavel', name: '🤝 Amigável', desc: 'Tom leve e próximo' },
-  { id: 'direto', name: '🎯 Direto', desc: 'Objetivo e claro' },
-];
+const DEFAULT_AUTOMATIONS: Record<string, boolean> = {
+  weekly_prospecting: true,
+  auto_first_message: true,
+  auto_followup: true,
+  ai_auto_reply: false,
+  intent_pipeline: true,
+  cold_reactivation: false,
+  lead_scoring: true,
+  daily_report: false,
+  weekly_report: true,
+};
 
-const SEND_PROFILES = [
-  { id: 'conservador', name: '🛡️ Conservador', desc: '20 msgs/dia, máxima segurança' },
-  { id: 'equilibrado', name: '⚖️ Equilibrado', desc: '40 msgs/dia, bom volume' },
-  { id: 'agressivo', name: '🚀 Agressivo', desc: '80 msgs/dia, alto volume' },
-];
+const AUTOMATION_LABELS: Record<string, string> = {
+  weekly_prospecting: '🎯 Prospecção semanal automática',
+  auto_first_message: '📩 Primeira mensagem automática',
+  auto_followup: '🔄 Follow-up automático',
+  ai_auto_reply: '🤖 Resposta automática da IA',
+  intent_pipeline: '📋 Pipeline automático por intenção',
+  cold_reactivation: '🔥 Reativação de leads frios',
+  lead_scoring: '⭐ Pontuação automática de leads',
+  daily_report: '📧 Relatório diário por email',
+  weekly_report: '📊 Relatório semanal',
+};
 
 export function OnboardingWizard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { settings, updateSettings, isUpdating } = useUserSettings();
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [agentName, setAgentName] = useState('');
-  const [agentStyle, setAgentStyle] = useState('consultivo');
-  const [sendProfile, setSendProfile] = useState('equilibrado');
-  const [knowledgeBase, setKnowledgeBase] = useState('');
 
-  // Check if user needs onboarding
+  const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [selectedNiche, setSelectedNiche] = useState<string | null>(null);
+  const [locations, setLocations] = useState<string[]>([]);
+  const [locationInput, setLocationInput] = useState('');
+  const [agentName, setAgentName] = useState('');
+  const [agentKnowledge, setAgentKnowledge] = useState('');
+  const [automations, setAutomations] = useState(DEFAULT_AUTOMATIONS);
+
   useEffect(() => {
     if (settings && !settings.knowledge_base && !settings.agent_name) {
-      // New user, show onboarding
       const hasSeenOnboarding = localStorage.getItem(`onboarding_${user?.id}`);
-      if (!hasSeenOnboarding) {
-        setIsOpen(true);
-      }
+      if (!hasSeenOnboarding) setIsOpen(true);
     }
   }, [settings, user?.id]);
 
-  const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;
-
-  const handleNext = () => {
-    if (currentStep < ONBOARDING_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+  // Pre-fill when niche is selected
+  useEffect(() => {
+    if (selectedNiche && NICHE_CONFIGS[selectedNiche]) {
+      const config = NICHE_CONFIGS[selectedNiche];
+      setLocations(config.defaultLocations.slice(0, 3));
+      setAgentName(config.agentPersonality.name);
+      setAgentKnowledge(config.agentPersonality.knowledge_base);
     }
-  };
+  }, [selectedNiche]);
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+  const progress = ((step + 1) / STEPS.length) * 100;
+  const currentStep = STEPS[step];
+
+  const addLocation = () => {
+    const trimmed = locationInput.trim();
+    if (trimmed && locations.length < 3 && !locations.includes(trimmed)) {
+      setLocations([...locations, trimmed]);
+      setLocationInput('');
     }
   };
 
   const handleComplete = async () => {
-    // Save settings
+    if (!selectedNiche || !user) return;
+    const config = NICHE_CONFIGS[selectedNiche];
+    if (!config) return;
+
     await updateSettings({
       agent_name: agentName || 'Assistente',
-      agent_type: agentStyle as any,
-      knowledge_base: knowledgeBase,
-      // Apply preset based on sendProfile
-      daily_message_limit: sendProfile === 'conservador' ? 20 : sendProfile === 'equilibrado' ? 40 : 80,
-      message_interval_seconds: sendProfile === 'conservador' ? 120 : sendProfile === 'equilibrado' ? 90 : 60,
-    });
+      knowledge_base: agentKnowledge,
+      agent_type: config.agentPersonality.tone as any,
+      services_offered: config.agentPersonality.services,
+      target_niches: [config.label],
+      target_locations: locations,
+      auto_start_hour: config.bestHours.start,
+      auto_end_hour: config.bestHours.end,
+      work_days_only: true,
+      auto_prospecting_enabled: automations.weekly_prospecting,
+      daily_report_enabled: automations.daily_report,
+    } as any);
 
-    // Mark onboarding as complete
-    localStorage.setItem(`onboarding_${user?.id}`, 'true');
+    // Save new automation columns (cast to any since types not yet regenerated)
+    await supabase.from('user_settings').update({
+      auto_first_message_enabled: automations.auto_first_message,
+      auto_followup_enabled: automations.auto_followup,
+      auto_pipeline_enabled: automations.intent_pipeline,
+      auto_reactivation_enabled: automations.cold_reactivation,
+      auto_lead_scoring: automations.lead_scoring,
+      sdr_agent_enabled: automations.ai_auto_reply,
+      weekly_report_enabled: automations.weekly_report,
+      onboarding_completed: true,
+      onboarding_niche: selectedNiche,
+    }).eq('user_id', user.id);
+
+    // Create message templates
+    const templates = [
+      { name: `1º Contato — ${config.label}`, content: config.messageTemplates.first_contact },
+      { name: `Follow-up 1 — ${config.label}`, content: config.messageTemplates.followup_1 },
+      { name: `Follow-up 2 — ${config.label}`, content: config.messageTemplates.followup_2 },
+      { name: `Reativação — ${config.label}`, content: config.messageTemplates.reactivation },
+    ];
+    for (const t of templates) {
+      await supabase.from('message_templates').insert({
+        user_id: user.id,
+        name: t.name,
+        niche: config.label,
+        content: t.content,
+        variables: ['nome_empresa'],
+        is_default: true,
+      });
+    }
+
+    localStorage.setItem(`onboarding_${user.id}`, 'true');
     setIsOpen(false);
   };
 
@@ -143,199 +167,149 @@ export function OnboardingWizard() {
     setIsOpen(false);
   };
 
-  const handleGoToWhatsApp = () => {
-    localStorage.setItem(`onboarding_${user?.id}`, 'true');
-    setIsOpen(false);
-    navigate('/settings?tab=conexao');
+  const canProceed = () => {
+    if (step === 0) return !!selectedNiche;
+    if (step === 1) return locations.length > 0;
+    return true;
   };
-
-  const handleGoToProspecting = () => {
-    localStorage.setItem(`onboarding_${user?.id}`, 'true');
-    setIsOpen(false);
-    navigate('/prospecting?tab=capture');
-  };
-
-  const currentStepData = ONBOARDING_STEPS[currentStep];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                {currentStepData.icon}
-              </div>
+              <div className="p-2 rounded-xl bg-primary/10 text-primary">{currentStep.icon}</div>
               <div>
-                <DialogTitle>{currentStepData.title}</DialogTitle>
-                <DialogDescription>{currentStepData.description}</DialogDescription>
+                <DialogTitle>{currentStep.title}</DialogTitle>
+                <DialogDescription>{currentStep.description}</DialogDescription>
               </div>
             </div>
-            <Badge variant="secondary">
-              {currentStep + 1}/{ONBOARDING_STEPS.length}
-            </Badge>
+            <Badge variant="secondary">{step + 1}/{STEPS.length}</Badge>
           </div>
           <Progress value={progress} className="h-2 mt-4" />
         </DialogHeader>
 
         <div className="py-4">
-          {/* Step 0: Welcome */}
-          {currentStep === 0 && (
-            <div className="text-center space-y-6">
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-                <Sparkles className="h-16 w-16 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold mb-2">
-                  Olá! Eu sou o Prospecte 👋
-                </h3>
-                <p className="text-muted-foreground">
-                  Vou te ajudar a capturar leads automaticamente e iniciar conversas 
-                  inteligentes via WhatsApp para agendar reuniões.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-3 rounded-xl bg-muted/50">
-                  <Target className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs font-medium">Captura Automática</p>
-                </div>
-                <div className="p-3 rounded-xl bg-muted/50">
-                  <MessageSquare className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs font-medium">IA Conversacional</p>
-                </div>
-                <div className="p-3 rounded-xl bg-muted/50">
-                  <Zap className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs font-medium">Follow-up Inteligente</p>
-                </div>
-              </div>
+          {/* Step 0: Niche selection */}
+          {step === 0 && (
+            <div className="grid grid-cols-2 gap-3">
+              {NICHE_LIST.map((niche) => (
+                <button
+                  key={niche.id}
+                  onClick={() => setSelectedNiche(niche.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-xl border text-center transition-all",
+                    selectedNiche === niche.id
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                      : "border-border hover:border-primary/50"
+                  )}
+                >
+                  <span className="text-3xl">{niche.emoji}</span>
+                  <span className="text-sm font-medium leading-tight">{niche.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{niche.weeklyLeadTarget} leads/semana</span>
+                  {selectedNiche === niche.id && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                </button>
+              ))}
             </div>
           )}
 
-          {/* Step 1: Agent Configuration */}
-          {currentStep === 1 && (
+          {/* Step 1: Locations */}
+          {step === 1 && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Nome do seu Agente</Label>
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Ex: Ana, Carlos, Assistente..."
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
+                  placeholder="Ex: São Paulo, SP"
+                  value={locationInput}
+                  onChange={(e) => setLocationInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addLocation()}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Como a IA vai se apresentar nas conversas
-                </p>
+                <Button onClick={addLocation} disabled={locations.length >= 3} size="sm">Adicionar</Button>
               </div>
-
-              <div className="space-y-2">
-                <Label>Estilo de Comunicação</Label>
-                <div className="grid gap-2">
-                  {AGENT_STYLES.map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() => setAgentStyle(style.id)}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl border text-left transition-all",
-                        agentStyle === style.id
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border hover:border-primary/50"
-                      )}
-                    >
-                      <span className="text-2xl">{style.name.split(' ')[0]}</span>
-                      <div>
-                        <p className="font-medium text-sm">{style.name.split(' ').slice(1).join(' ')}</p>
-                        <p className="text-xs text-muted-foreground">{style.desc}</p>
-                      </div>
-                      {agentStyle === style.id && (
-                        <CheckCircle2 className="h-5 w-5 text-primary ml-auto" />
-                      )}
+              <div className="flex flex-wrap gap-2">
+                {locations.map((loc) => (
+                  <Badge key={loc} variant="secondary" className="gap-1 px-3 py-1.5">
+                    <MapPin className="h-3 w-3" /> {loc}
+                    <button onClick={() => setLocations(locations.filter(l => l !== loc))}>
+                      <X className="h-3 w-3" />
                     </button>
-                  ))}
-                </div>
+                  </Badge>
+                ))}
               </div>
-
-              <div className="space-y-2">
-                <Label>Sobre seu Negócio (opcional)</Label>
-                <textarea
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  placeholder="Ex: Oferecemos gestão de tráfego pago para negócios locais..."
-                  value={knowledgeBase}
-                  onChange={(e) => setKnowledgeBase(e.target.value)}
-                />
-              </div>
+              <p className="text-xs text-muted-foreground">Máximo 3 cidades</p>
             </div>
           )}
 
-          {/* Step 2: Send Profile */}
-          {currentStep === 2 && (
+          {/* Step 2: Agent */}
+          {step === 2 && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground text-center">
-                Defina o volume e velocidade de envio de mensagens
-              </p>
-              
-              <div className="grid gap-3">
-                {SEND_PROFILES.map((profile) => (
-                  <button
-                    key={profile.id}
-                    onClick={() => setSendProfile(profile.id)}
-                    className={cn(
-                      "flex items-center gap-3 p-4 rounded-xl border text-left transition-all",
-                      sendProfile === profile.id
-                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <span className="text-3xl">{profile.name.split(' ')[0]}</span>
-                    <div>
-                      <p className="font-medium">{profile.name.split(' ').slice(1).join(' ')}</p>
-                      <p className="text-sm text-muted-foreground">{profile.desc}</p>
-                    </div>
-                    {sendProfile === profile.id && (
-                      <CheckCircle2 className="h-5 w-5 text-primary ml-auto" />
-                    )}
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <Label>Nome do Agente</Label>
+                <Input value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="Ex: Ana, Carlos..." />
+              </div>
+              <div className="space-y-2">
+                <Label>Sobre seus serviços</Label>
+                <textarea
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={agentKnowledge}
+                  onChange={(e) => setAgentKnowledge(e.target.value)}
+                />
               </div>
             </div>
           )}
 
           {/* Step 3: WhatsApp */}
-          {currentStep === 3 && (
+          {step === 3 && (
             <div className="text-center space-y-6">
-              <div className="p-6 rounded-2xl bg-green-500/10 border border-green-500/20">
-                <Phone className="h-12 w-12 mx-auto mb-4 text-green-500" />
+              <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                <Phone className="h-12 w-12 mx-auto mb-4 text-emerald-500" />
                 <h3 className="font-bold mb-2">Conecte seu WhatsApp</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Para enviar mensagens, você precisa vincular seu número de WhatsApp
-                </p>
-                <Button onClick={handleGoToWhatsApp} className="bg-green-600 hover:bg-green-700">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Conectar Agora
+                <p className="text-sm text-muted-foreground mb-4">Para enviar mensagens automáticas</p>
+                <Button
+                  onClick={() => { handleSkip(); navigate('/settings/connections'); }}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Phone className="h-4 w-4 mr-2" /> Conectar Agora
                 </Button>
               </div>
-              
-              <Button variant="ghost" onClick={handleNext} className="text-muted-foreground">
+              <Button variant="ghost" onClick={() => setStep(step + 1)} className="text-muted-foreground">
                 Configurar depois →
               </Button>
             </div>
           )}
 
-          {/* Step 4: Complete */}
-          {currentStep === 4 && (
+          {/* Step 4: Automations */}
+          {step === 4 && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Ative as automações que deseja. Você pode mudar a qualquer momento em <strong>Automações</strong>.
+              </p>
+              {Object.entries(AUTOMATION_LABELS).map(([key, label]) => (
+                <div key={key} className="flex items-center justify-between p-3 rounded-lg border">
+                  <span className="text-sm">{label}</span>
+                  <Switch
+                    checked={automations[key]}
+                    onCheckedChange={(v) => setAutomations({ ...automations, [key]: v })}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Step 5: Complete */}
+          {step === 5 && (
             <div className="text-center space-y-6">
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/20">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
                 <PartyPopper className="h-16 w-16 mx-auto mb-4 text-primary" />
                 <h3 className="text-xl font-bold mb-2">Parabéns! 🎊</h3>
                 <p className="text-muted-foreground">
-                  Sua conta está configurada. Agora é só começar a capturar leads!
+                  {Object.values(automations).filter(Boolean).length} automações ativas. O NexaProspect já está trabalhando por você!
                 </p>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" onClick={() => setIsOpen(false)}>
-                  Explorar Dashboard
-                </Button>
-                <Button onClick={handleGoToProspecting}>
-                  <Play className="h-4 w-4 mr-2" />
-                  Capturar Leads
+                <Button variant="outline" onClick={() => setIsOpen(false)}>Explorar Dashboard</Button>
+                <Button onClick={() => { setIsOpen(false); navigate('/automations'); }}>
+                  <Zap className="h-4 w-4 mr-2" /> Ver Automações
                 </Button>
               </div>
             </div>
@@ -343,17 +317,16 @@ export function OnboardingWizard() {
         </div>
 
         {/* Navigation */}
-        {currentStep < 4 && currentStep !== 3 && (
+        {step < 5 && step !== 3 && (
           <div className="flex justify-between pt-4 border-t">
-            <Button
-              variant="ghost"
-              onClick={currentStep === 0 ? handleSkip : handleBack}
-            >
-              {currentStep === 0 ? 'Pular' : <><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</>}
+            <Button variant="ghost" onClick={step === 0 ? handleSkip : () => setStep(step - 1)}>
+              {step === 0 ? 'Pular' : <><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</>}
             </Button>
-
-            <Button onClick={currentStep === 2 ? handleComplete : handleNext} disabled={isUpdating}>
-              {currentStep === 2 ? 'Salvar e Continuar' : 'Próximo'}
+            <Button
+              onClick={step === 4 ? handleComplete : () => setStep(step + 1)}
+              disabled={!canProceed() || isUpdating}
+            >
+              {step === 4 ? 'Finalizar' : 'Próximo'}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>

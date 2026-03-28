@@ -103,6 +103,29 @@ Deno.serve(async (req) => {
       results.cleaned_jobs = count || 0;
     }
 
+    // Task 6: Auto first message (runs every 30min via cron)
+    if (!task || task === "auto_first_message") {
+      try {
+        await supabase.functions.invoke("auto-first-message", { body: {} });
+        results.auto_first_message = "triggered";
+      } catch (e) {
+        console.error("Auto first message error:", e);
+      }
+    }
+
+    // Task 7: Cold reactivation (1x per day, 10h-11h BRT = 13h-14h UTC)
+    if (!task || task === "cold_reactivation") {
+      const hour = new Date().getUTCHours();
+      if (hour >= 13 && hour < 14) {
+        try {
+          await supabase.functions.invoke("cold-reactivation", { body: {} });
+          results.cold_reactivation = "triggered";
+        } catch (e) {
+          console.error("Cold reactivation error:", e);
+        }
+      }
+    }
+
     // Task 5: Send daily reports
     if (!task || task === "send_reports") {
       const now = new Date();
