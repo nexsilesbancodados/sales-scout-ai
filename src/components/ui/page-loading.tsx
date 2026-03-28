@@ -1,21 +1,12 @@
-import { Loader2, Zap } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 export function PageLoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4 animate-fade-in">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-          <div className="relative p-4 rounded-full bg-primary/10">
-            <Zap className="h-8 w-8 text-primary animate-pulse" />
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
-        </div>
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <img src={logoImg} alt="Logo" className="h-14 w-auto animate-pulse" />
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
       </div>
     </div>
   );
