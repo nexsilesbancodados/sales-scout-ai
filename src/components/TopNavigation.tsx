@@ -357,12 +357,28 @@ export function TopNavigation({ children }: TopNavigationProps) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 p-4">
+              <SheetContent side="right" className="w-72 p-4 overflow-y-auto">
                 <nav className="flex flex-col gap-4 mt-4">
                   <div className="space-y-1">
                     {mainItems.map((item) => (
                       <NavLink key={item.path} item={item} mobile />
                     ))}
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Captura</p>
+                    <div className="space-y-1">
+                      {captureItems.map((item) => (
+                        <NavLink key={item.path} item={item} mobile />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Disparo</p>
+                    <div className="space-y-1">
+                      {outreachItems.map((item) => (
+                        <NavLink key={item.path} item={item} mobile />
+                      ))}
+                    </div>
                   </div>
                   <div className="border-t pt-4">
                     <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">CRM</p>
