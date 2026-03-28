@@ -11,27 +11,32 @@ export default function SettingsNotifications() {
   const { user } = useAuth();
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold">Notificações</h1>
-        <p className="text-muted-foreground text-sm">Configure alertas e relatórios por email</p>
+    <div className="p-8 space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Bell className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Notificações</h1>
+            <p className="text-sm text-muted-foreground">Configure alertas e relatórios automáticos</p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Bell className="h-4 w-4 text-primary" />
-            Alertas
-          </CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg">Alertas em Tempo Real</CardTitle>
+          <CardDescription>Receba notificações sobre eventos importantes</CardDescription>
         </CardHeader>
         <CardContent>
           <NotificationSettings />
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
             <Mail className="h-4 w-4 text-primary" />
             Relatório Diário
           </CardTitle>
@@ -40,8 +45,8 @@ export default function SettingsNotifications() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label>Ativar relatório diário</Label>
-              <p className="text-sm text-muted-foreground">Enviado todo dia às 8h no seu email</p>
+              <Label className="text-sm font-medium">Ativar relatório diário</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Enviado todo dia às 8h no seu email</p>
             </div>
             <Switch
               checked={settings?.daily_report_enabled || false}
@@ -49,8 +54,8 @@ export default function SettingsNotifications() {
             />
           </div>
           {settings?.daily_report_enabled && (
-            <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-              Relatório ativo — você receberá um email diário em <strong>{user?.email}</strong> com métricas de prospecção, leads novos e atividades do dia anterior.
+            <div className="p-3.5 bg-primary/5 border border-primary/10 rounded-lg text-sm text-muted-foreground">
+              ✉️ Relatório ativo — você receberá um email diário em <strong className="text-foreground">{user?.email}</strong> com métricas de prospecção, leads novos e atividades do dia anterior.
             </div>
           )}
         </CardContent>
