@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,8 +31,8 @@ import {
   ChevronUp,
   BookOpen,
   Sparkles,
+  Zap,
 } from 'lucide-react';
-import logoImage from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
@@ -85,7 +84,7 @@ export function AppSidebar() {
           className={cn(
             "relative h-10 rounded-lg transition-all duration-200 group/item",
             active
-              ? "bg-primary text-primary-foreground shadow-sm"
+              ? "gradient-primary text-primary-foreground shadow-md"
               : "hover:bg-accent text-muted-foreground hover:text-accent-foreground"
           )}
         >
@@ -96,7 +95,7 @@ export function AppSidebar() {
             )} />
             <span className={cn(
               "text-[13px] font-medium truncate",
-              active ? "text-primary-foreground" : ""
+              active ? "text-primary-foreground font-semibold" : ""
             )}>
               {item.title}
             </span>
@@ -110,20 +109,21 @@ export function AppSidebar() {
   };
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="px-4 pt-4 pb-1.5 text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
+    <p className="px-4 pt-5 pb-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em]">
       {children}
     </p>
   );
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-5 pb-4">
+      <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img 
-            src={logoImage} 
-            alt="Prospecte" 
-            className="h-8 w-auto transition-transform duration-300 group-hover:scale-[1.03]" 
-          />
+          <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-md">
+            <Zap className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <div>
+            <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
+          </div>
         </Link>
       </SidebarHeader>
 
@@ -152,13 +152,13 @@ export function AppSidebar() {
       <SidebarFooter className="p-3 border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              asChild 
+            <SidebarMenuButton
+              asChild
               isActive={isActive('/settings')}
               className={cn(
                 "rounded-lg h-10 transition-all duration-200",
-                isActive('/settings') 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                isActive('/settings')
+                  ? 'gradient-primary text-primary-foreground shadow-md'
                   : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
               )}
             >
@@ -172,18 +172,18 @@ export function AppSidebar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="w-full justify-start gap-3 h-auto py-2.5 mt-1 rounded-lg hover:bg-accent transition-colors"
             >
-              <Avatar className="h-8 w-8 ring-2 ring-primary/10">
+              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                <AvatarFallback className="gradient-primary text-primary-foreground text-xs font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-[13px] font-medium truncate">
+                <p className="text-[13px] font-semibold truncate">
                   {user?.user_metadata?.full_name || 'Usuário'}
                 </p>
                 <p className="text-[11px] text-muted-foreground truncate">
