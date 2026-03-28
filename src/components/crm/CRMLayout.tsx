@@ -1,81 +1,81 @@
-import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/AppSidebar';
-import { Separator } from '@/components/ui/separator';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
-  Kanban,
-  Users,
-  CalendarDays,
-  BarChart3,
-  Megaphone,
+  Kanban, Users, CheckSquare, MessageSquare,
+  BarChart3, Megaphone, ArrowLeft, Database,
 } from 'lucide-react';
 
-const crmNavItems = [
-  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline' },
-  { title: 'Contatos', icon: Users, path: '/crm/contacts' },
-  { title: 'Atividades', icon: CalendarDays, path: '/crm/activities' },
-  { title: 'Analytics', icon: BarChart3, path: '/crm/analytics' },
-  { title: 'Meta Ads', icon: Megaphone, path: '/crm/meta-ads' },
+const crmNav = [
+  { to: '/crm/pipeline', icon: Kanban, label: 'Pipeline' },
+  { to: '/crm/contacts', icon: Users, label: 'Contatos' },
+  { to: '/crm/activities', icon: CheckSquare, label: 'Atividades' },
+  { to: '/crm/analytics', icon: BarChart3, label: 'Analytics' },
+  { to: '/crm/meta-ads', icon: Megaphone, label: 'Meta Ads' },
 ];
 
-interface CRMLayoutProps {
-  children: ReactNode;
-  title: string;
-  description?: string;
-  actions?: ReactNode;
-}
+export default function CRMLayout() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-export function CRMLayout({ children, title, description, actions }: CRMLayoutProps) {
-  const location = useLocation();
+  const initials = user?.user_metadata?.full_name
+    ?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    || user?.email?.[0].toUpperCase() || '?';
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
-        {/* Top bar */}
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center border-b bg-background/80 backdrop-blur-xl">
-          <div className="flex items-center gap-2 flex-1 px-4 sm:px-6">
-            <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
-            <Separator orientation="vertical" className="mx-2 h-4 hidden sm:block" />
-            <span className="font-semibold text-sm truncate">{title}</span>
-            <div className="ml-auto flex items-center gap-2">{actions}</div>
+    <div className="flex h-screen overflow-hidden bg-background">
+      <aside className="w-[220px] flex-shrink-0 border-r border-border flex flex-col bg-sidebar">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
+              <Database className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-sm text-gradient">CRM</span>
           </div>
-        </header>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+            onClick={() => navigate('/dashboard')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao app
+          </Button>
+        </div>
 
-        {/* CRM Sub-navigation */}
-        <nav className="border-b bg-background/50 px-4 sm:px-6">
-          <div className="flex items-center gap-1 overflow-x-auto py-1">
-            {crmNavItems.map((item) => {
-              const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap',
-                    active
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.title}
-                </Link>
-              );
-            })}
-          </div>
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+          {crmNav.map(({ to, icon: Icon, label }) => (
+            <NavLink key={to} to={to}>
+              {({ isActive }) => (
+                <div className={cn(
+                  'flex items-center gap-3 px-3 h-10 rounded-lg text-[13px] font-medium transition-all',
+                  isActive
+                    ? 'gradient-primary text-primary-foreground shadow-md'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}>
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="flex-1">{label}</span>
+                </div>
+              )}
+            </NavLink>
+          ))}
         </nav>
 
-        {/* Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in">
-          {description && (
-            <p className="text-muted-foreground mb-4 text-sm">{description}</p>
-          )}
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        <div className="p-3 border-t border-border">
+          <div className="flex items-center gap-2 px-2 mt-1">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="gradient-primary text-primary-foreground text-xs">{initials}</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-muted-foreground truncate">{user?.user_metadata?.full_name || user?.email}</span>
+          </div>
+        </div>
+      </aside>
+
+      <main className="flex-1 overflow-y-auto">
+        <Outlet />
+      </main>
+    </div>
   );
 }
