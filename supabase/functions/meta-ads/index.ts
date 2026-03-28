@@ -100,6 +100,24 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (action === "get_lead_forms") {
+      if (!payload?.page_id) {
+        return new Response(JSON.stringify({ error: "page_id necessário" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const res = await fetch(`${base}/${payload.page_id}/leadgen_forms?fields=id,name,leads_count&access_token=${access_token}`);
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (action === "get_audiences") {
+      if (!ad_account_id) {
+        return new Response(JSON.stringify({ error: "ad_account_id necessário" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const res = await fetch(`${base}/${ad_account_id}/customaudiences?fields=id,name,approximate_count,time_updated&access_token=${access_token}`);
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(JSON.stringify({ error: "Ação inválida" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -82,7 +82,7 @@ export default function CRMContactsPage() {
   };
 
   return (
-    <CRMLayout title="Contatos CRM">
+    <div className="p-6">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
@@ -191,6 +191,6 @@ export default function CRMContactsPage() {
           ))}
         </div>
       )}
-    </CRMLayout>
+    </div>
   );
 }

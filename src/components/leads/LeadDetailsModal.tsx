@@ -20,12 +20,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lead, LeadStage, LeadTemperature, LeadTask, LeadNote } from '@/types/database';
 import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import {
   Building2,
   Phone,
@@ -46,6 +49,8 @@ import {
   Plus,
   CheckSquare,
   DollarSign,
+  FileText,
+  Copy,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -81,8 +86,12 @@ function formatCurrency(value: number | null): string {
 export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalProps) {
   const { updateLead, isUpdating } = useLeads();
   const { messages, isLoading: messagesLoading } = useChatMessages(lead?.id || null);
+  const { toast } = useToast();
   
   const [editMode, setEditMode] = useState(false);
+  const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
+  const [proposalText, setProposalText] = useState('');
+  const [proposalOpen, setProposalOpen] = useState(false);
   const [formData, setFormData] = useState({
     business_name: '',
     phone: '',
@@ -183,6 +192,29 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     const updated = tasksList.filter(t => t.id !== taskId);
     setTasksList(updated);
     updateLead({ id: lead.id, tasks: updated } as any);
+  };
+
+  const handleGenerateProposal = async () => {
+    if (!lead) return;
+    setIsGeneratingProposal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-proposal', {
+        body: {
+          lead_id: lead.id,
+          business_name: lead.business_name,
+          niche: lead.niche || '',
+          location: lead.location || '',
+          phone: lead.phone,
+        },
+      });
+      if (error) throw error;
+      setProposalText(data?.proposal || data?.content || JSON.stringify(data));
+      setProposalOpen(true);
+    } catch (err) {
+      toast({ title: 'Erro ao gerar proposta', description: 'Tente novamente', variant: 'destructive' });
+    } finally {
+      setIsGeneratingProposal(false);
+    }
   };
 
   const priorityColors: Record<string, string> = {
@@ -389,6 +421,17 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
+                  <Button
+                    variant="outline"
+                    onClick={handleGenerateProposal}
+                    disabled={isGeneratingProposal}
+                    className="w-full gap-2 mt-4"
+                  >
+                    {isGeneratingProposal
+                      ? <><Loader2 className="h-4 w-4 animate-spin" />Gerando proposta...</>
+                      : <><FileText className="h-4 w-4" />Gerar Proposta com IA</>
+                    }
+                  </Button>
                 </div>
               )}
             </div>
@@ -606,6 +649,44 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Proposal Sheet */}
+        <Sheet open={proposalOpen} onOpenChange={setProposalOpen}>
+          <SheetContent className="w-[500px] sm:max-w-[500px]">
+            <SheetHeader>
+              <SheetTitle>Proposta para {lead?.business_name}</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(100vh-180px)] mt-4">
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">
+                {proposalText}
+              </div>
+            </ScrollArea>
+            <div className="flex gap-2 mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => navigator.clipboard.writeText(proposalText).then(() =>
+                  toast({ title: 'Proposta copiada!' })
+                )}
+              >
+                <Copy className="h-4 w-4 mr-2" />Copiar
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  if (!lead) return;
+                  const updated = [{ text: `Proposta gerada:\n${proposalText}`, created_at: new Date().toISOString() }, ...notesList];
+                  setNotesList(updated);
+                  updateLead({ id: lead.id, notes: JSON.stringify(updated) } as any);
+                  setProposalOpen(false);
+                  toast({ title: 'Proposta salva nas notas!' });
+                }}
+              >
+                <Save className="h-4 w-4 mr-2" />Salvar como nota
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </DialogContent>
     </Dialog>
   );

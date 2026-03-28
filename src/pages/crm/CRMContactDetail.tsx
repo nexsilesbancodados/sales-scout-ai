@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -125,16 +125,16 @@ export default function CRMContactDetailPage() {
   };
 
   if (isLoading || !lead) {
-    return <CRMLayout title="Carregando..."><div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></CRMLayout>;
+    return <div className="p-6"><div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></div>;
   }
 
   const bantScore = lead.analyzed_needs?.bantScore || 0;
   const sortedTasks = [...tasks].sort((a, b) => Number(a.done) - Number(b.done));
 
   return (
-    <CRMLayout title={lead.business_name} actions={
-      <Button variant="ghost" size="sm" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4 mr-1" />Voltar</Button>
-    }>
+    <div className="p-6"><div className="flex items-center justify-between mb-4">
+      <Button variant="ghost" size="sm" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4 mr-1" />Voltar</Button></div>
+
       <div className="flex gap-6 flex-col lg:flex-row">
         {/* Col 1 — Profile */}
         <div className="w-full lg:w-[280px] shrink-0 space-y-4">
@@ -409,6 +409,6 @@ export default function CRMContactDetailPage() {
           </Card>
         </div>
       </div>
-    </CRMLayout>
+    </div>
   );
 }

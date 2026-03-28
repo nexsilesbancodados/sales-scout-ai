@@ -44,6 +44,8 @@ const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
 const BillingPage = lazy(() => import("./pages/Billing"));
 const APIReferencePage = lazy(() => import("./pages/APIReference"));
 const SocialExtractorPage = lazy(() => import("./pages/SocialExtractor"));
+const FacebookExtractorPage = lazy(() => import("./pages/FacebookExtractor"));
+const CRMLayout = lazy(() => import("./components/crm/CRMLayout"));
 const CRMPipelinePage = lazy(() => import("./pages/crm/CRMPipeline"));
 const CRMContactsPage = lazy(() => import("./pages/crm/CRMContacts"));
 const CRMContactDetailPage = lazy(() => import("./pages/crm/CRMContactDetail"));
@@ -114,14 +116,18 @@ const App = () => (
                   <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
                   <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
                   <Route path="/social-extractor" element={<ProtectedRoute><SocialExtractorPage /></ProtectedRoute>} />
+                  <Route path="/facebook-extractor" element={<ProtectedRoute><FacebookExtractorPage /></ProtectedRoute>} />
 
                   {/* CRM Module */}
-                  <Route path="/crm/pipeline" element={<ProtectedRoute><CRMPipelinePage /></ProtectedRoute>} />
-                  <Route path="/crm/contacts" element={<ProtectedRoute><CRMContactsPage /></ProtectedRoute>} />
-                  <Route path="/crm/contacts/:id" element={<ProtectedRoute><CRMContactDetailPage /></ProtectedRoute>} />
-                  <Route path="/crm/activities" element={<ProtectedRoute><CRMActivitiesPage /></ProtectedRoute>} />
-                  <Route path="/crm/analytics" element={<ProtectedRoute><CRMAnalyticsPage /></ProtectedRoute>} />
-                  <Route path="/crm/meta-ads" element={<ProtectedRoute><CRMMetaAdsPage /></ProtectedRoute>} />
+                  <Route path="/crm" element={<ProtectedRoute><CRMLayout /></ProtectedRoute>}>
+                    <Route index element={<Navigate to="/crm/pipeline" replace />} />
+                    <Route path="pipeline" element={<CRMPipelinePage />} />
+                    <Route path="contacts" element={<CRMContactsPage />} />
+                    <Route path="contacts/:id" element={<CRMContactDetailPage />} />
+                    <Route path="activities" element={<CRMActivitiesPage />} />
+                    <Route path="analytics" element={<CRMAnalyticsPage />} />
+                    <Route path="meta-ads" element={<CRMMetaAdsPage />} />
+                  </Route>
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
