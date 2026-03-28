@@ -58,7 +58,7 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const action = url.searchParams.get("action") || "list";
+    const action = url.searchParams.get("action") || req.headers.get("x-action") || "list";
 
     // LIST USERS
     if (action === "list") {

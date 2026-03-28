@@ -69,8 +69,9 @@ export function useAdminUsers() {
 
   const deleteUser = useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase.functions.invoke('admin-users?action=delete', {
+      const { data, error } = await supabase.functions.invoke('admin-users', {
         body: { user_id: userId },
+        headers: { 'x-action': 'delete' },
       });
       if (error) throw error;
       return data;
