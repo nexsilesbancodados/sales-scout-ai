@@ -16,7 +16,7 @@ import { useBackgroundJobs, BackgroundJob } from '@/hooks/use-background-jobs';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  Activity,
+  Sparkles,
   Pause,
   Play,
   X,
@@ -83,14 +83,14 @@ export function BackgroundJobsMonitor() {
         <Button
           variant="outline"
           size="sm"
-          className="relative"
+          className="relative h-8 gap-1.5 rounded-lg border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-all"
         >
-          <Activity className="h-4 w-4 mr-2" />
-          Tarefas
+          <Sparkles className="h-3.5 w-3.5" />
+          <span className="text-xs font-medium">Tarefas</span>
           {activeJobs.length > 0 && (
             <Badge
               variant="default"
-              className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1.5 -right-1.5 h-4 min-w-4 p-0 flex items-center justify-center text-[10px] font-bold"
             >
               {activeJobs.length}
             </Badge>
