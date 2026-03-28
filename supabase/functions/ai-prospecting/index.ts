@@ -236,16 +236,16 @@ Deno.serve(async (req) => {
     // Get user settings to retrieve their API keys
     const { data: userSettings } = await supabase
       .from("user_settings")
-      .select("gemini_api_key, serpapi_api_key, serper_api_key, preferred_search_api")
+      .select("deepseek_api_key, serpapi_api_key, serper_api_key, preferred_search_api")
       .eq("user_id", effectiveUserId)
       .single();
 
-    const GEMINI_API_KEY = userSettings?.gemini_api_key;
+    const USER_DEEPSEEK_KEY = userSettings?.deepseek_api_key;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    // Helper function to call AI via DeepSeek (primary), falls back to user's Gemini
+    // Helper function to call AI via DeepSeek (primary), falls back to Lovable AI
     async function callAI(systemPrompt: string, userPrompt: string) {
-      const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+      const DEEPSEEK_API_KEY = USER_DEEPSEEK_KEY || Deno.env.get("DEEPSEEK_API_KEY");
       
       if (DEEPSEEK_API_KEY) {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -270,30 +270,9 @@ Deno.serve(async (req) => {
         console.error("DeepSeek error, trying fallback...");
       }
 
-      // Fallback to user's Gemini key
-      if (GEMINI_API_KEY) {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }]
-              }]
-            }),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        }
-      }
-
-      // Final fallback to Lovable AI
+      // Fallback to Lovable AI
       if (!LOVABLE_API_KEY) {
-        throw new Error("Nenhuma API de IA configurada (DeepSeek, Gemini ou Lovable).");
+        throw new Error("Nenhuma API de IA configurada (DeepSeek ou Lovable).");
       }
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -303,7 +282,7 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.5-flash",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
