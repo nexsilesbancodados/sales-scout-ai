@@ -369,14 +369,6 @@ export function TopNavigation({ children }: TopNavigationProps) {
                     </div>
                   </div>
                   <div className="border-t pt-4">
-                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Automação</p>
-                    <div className="space-y-1">
-                      {automationItems.map((item) => (
-                        <NavLink key={item.path} item={item} mobile />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t pt-4">
                     <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Ferramentas</p>
                     <div className="space-y-1">
                       {toolItems.map((item) => (
