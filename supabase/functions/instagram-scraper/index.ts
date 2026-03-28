@@ -15,7 +15,6 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Validate JWT
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Missing authorization" }), {
@@ -38,29 +37,19 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { niche, location, quantity, contactOnly } = await req.json();
-
-    if (!niche) {
-      return new Response(
-        JSON.stringify({ error: "Niche is required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    const { queries, limit = 30, search_type = "hashtag", niche, location, quantity, contactOnly } = await req.json();
 
     // Get user's Apify token from settings
     const { data: settings } = await supabase
       .from("user_settings")
-      .select("*")
+      .select("apify_token")
       .eq("user_id", user.id)
       .single();
 
     const apifyToken = (settings as any)?.apify_token;
     if (!apifyToken) {
       return new Response(
-        JSON.stringify({ error: "Apify token not configured" }),
+        JSON.stringify({ error: "Apify token não configurado. Adicione em Configurações > APIs." }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -68,22 +57,25 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Build search queries
-    const searchQueries = [niche];
-    if (location) {
-      searchQueries.push(`${niche} ${location}`);
-    }
+    // Support both old format (niche/location) and new format (queries)
+    const searchQueries = queries
+      ? (Array.isArray(queries) ? queries : [queries])
+      : [niche, location ? `${niche} ${location}` : null].filter(Boolean);
 
-    // Call Apify Instagram scraper
+    const resultsLimit = Math.min(limit || quantity || 30, 100);
+
+    // Call Apify Instagram Search Scraper
+    const actorId = "apify~instagram-search-scraper";
     const apifyResponse = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=120`,
+      `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apifyToken}&timeout=120&memory=512`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          hashtags: searchQueries,
-          resultsLimit: quantity || 30,
-          searchType: "hashtag",
+          searchType: search_type,
+          searchQueries,
+          resultsLimit,
+          addParentData: false,
         }),
       }
     );
@@ -92,7 +84,7 @@ Deno.serve(async (req: Request) => {
       const errorText = await apifyResponse.text();
       console.error("Apify error:", errorText);
       return new Response(
-        JSON.stringify({ error: "Failed to fetch from Apify", details: errorText }),
+        JSON.stringify({ error: `Erro Apify: ${errorText}` }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -100,39 +92,63 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const rawProfiles = await apifyResponse.json();
+    const raw = await apifyResponse.json();
+    const items = Array.isArray(raw) ? raw : (raw.items || []);
 
-    // Deduplicate by username and map
+    // Deduplicate by username and normalize
     const seen = new Set<string>();
-    let profiles = (rawProfiles || [])
-      .filter((p: any) => {
-        const username = p.ownerUsername || p.username || "";
+    let profiles = items
+      .filter((item: any) => {
+        const username = item.ownerUsername || item.username || "";
         if (!username || seen.has(username)) return false;
         seen.add(username);
         return true;
       })
-      .map((p: any) => ({
-        username: p.ownerUsername || p.username || "",
-        fullName: p.ownerFullName || p.fullName || "",
-        biography: p.caption || p.biography || "",
-        followersCount: p.followersCount || p.likesCount || 0,
-        profilePicUrl: p.profilePicUrl || p.displayUrl || "",
-        externalUrl: p.externalUrl || null,
-        phone: p.businessPhoneNumber || null,
-        email: p.businessEmail || null,
-        isBusinessAccount: p.isBusinessAccount || false,
-      }));
+      .map((item: any) => {
+        const username = item.ownerUsername || item.username || "";
+        const fullName = item.fullName || item.ownerFullName || item.name || username;
+        const bio = item.biography || item.bio || item.caption || item.description || "";
+        const followers = item.followersCount || item.followers || item.likesCount || 0;
+        const externalUrl = item.externalUrl || item.url || item.website || "";
+        const isVerified = item.verified || item.isVerified || false;
+        const profilePicUrl = item.profilePicUrl || item.profilePic || item.displayUrl || "";
+        const category = item.businessCategoryName || item.category || "";
+        const itemLocation = item.cityName || item.location || "";
+
+        // Extract phone and email from bio
+        const phoneMatch = bio.match(/(\(?\d{2}\)?\s?)?(\d{4,5}[-\s]?\d{4})/);
+        const emailMatch = bio.match(/[\w.-]+@[\w.-]+\.\w{2,}/);
+
+        const phone = item.businessPhoneNumber || item.phone || (phoneMatch ? phoneMatch[0].replace(/\s/g, "") : "");
+        const email = item.businessEmail || item.email || (emailMatch ? emailMatch[0] : "");
+
+        return {
+          username,
+          full_name: fullName,
+          bio,
+          followers,
+          external_url: externalUrl,
+          profile_pic_url: profilePicUrl,
+          is_verified: isVerified,
+          category,
+          location: itemLocation,
+          instagram_url: `https://instagram.com/${username}`,
+          phone,
+          email,
+          has_contact: !!(phone || email || externalUrl),
+          is_business: item.isBusinessAccount || false,
+        };
+      });
 
     // Filter contact only if requested
     if (contactOnly) {
-      profiles = profiles.filter(
-        (p: any) => p.phone || p.email || p.externalUrl
-      );
+      profiles = profiles.filter((p: any) => p.has_contact);
     }
 
-    return new Response(JSON.stringify({ profiles }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ profiles, total: profiles.length }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error: any) {
     console.error("Instagram scraper error:", error);
     return new Response(
