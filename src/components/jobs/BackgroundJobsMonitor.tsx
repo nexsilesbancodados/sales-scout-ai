@@ -102,7 +102,7 @@ export function BackgroundJobsMonitor() {
           <div className="flex items-center justify-between">
             <div>
               <SheetTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
+                <Sparkles className="h-5 w-5" />
                 Tarefas em Segundo Plano
               </SheetTitle>
               <SheetDescription>
@@ -138,7 +138,7 @@ export function BackgroundJobsMonitor() {
               </div>
             ) : jobs.length === 0 ? (
               <div className="text-center py-8">
-                <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
                   Nenhuma tarefa registrada
                 </p>
