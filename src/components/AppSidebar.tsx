@@ -56,7 +56,7 @@ const captureItems = [
   { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
   { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
-  { title: 'Instagram', icon: Globe, path: '/instagram-extractor' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
   { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 

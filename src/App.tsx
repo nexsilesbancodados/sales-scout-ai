@@ -43,6 +43,7 @@ const InstagramExtractorPage = lazy(() => import("./pages/InstagramExtractor"));
 const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
 const BillingPage = lazy(() => import("./pages/Billing"));
 const APIReferencePage = lazy(() => import("./pages/APIReference"));
+const SocialExtractorPage = lazy(() => import("./pages/SocialExtractor"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +107,7 @@ const App = () => (
                   <Route path="/sdr-agent" element={<ProtectedRoute><SDRAgentPage /></ProtectedRoute>} />
                   <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
                   <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
+                  <Route path="/social-extractor" element={<ProtectedRoute><SocialExtractorPage /></ProtectedRoute>} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
