@@ -531,7 +531,7 @@ Por favor, analise e sugira melhorias.`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.5-flash",
           tools: [
             {
               type: "function",
@@ -1973,7 +1973,7 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.5-flash",
           response_format: { type: "json_object" },
           messages: [
             {
@@ -2055,7 +2055,7 @@ Responda em JSON com:
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                model: "google/gemini-3-flash-preview",
+                model: "google/gemini-2.5-flash",
                 response_format: { type: "json_object" },
                 messages: [
                   {
