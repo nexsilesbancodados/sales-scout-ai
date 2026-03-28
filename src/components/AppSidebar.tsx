@@ -32,23 +32,37 @@ import {
   BookOpen,
   Sparkles,
   Zap,
+  Rocket,
+  RefreshCw,
+  MessageSquareText,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const menuItems = [
+const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+];
+
+const prospectingItems = [
   { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
 ];
 
 const crmItems = [
   { title: 'Leads', icon: Users, path: '/leads' },
-  { title: 'Funil', icon: Kanban, path: '/funnel' },
+  { title: 'Pipeline', icon: Kanban, path: '/funnel' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
 
+const automationItems = [
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
+];
+
 const toolItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
@@ -129,7 +143,14 @@ export function AppSidebar() {
 
       <SidebarContent className="px-3">
         <SidebarMenu className="space-y-0.5">
-          {menuItems.map((item) => (
+          {mainItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Prospecção</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {prospectingItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
@@ -137,6 +158,13 @@ export function AppSidebar() {
         <SectionLabel>CRM</SectionLabel>
         <SidebarMenu className="space-y-0.5">
           {crmItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Automação</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {automationItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>

@@ -32,6 +32,10 @@ import {
   Sun,
   Menu,
   Zap,
+  Rocket,
+  RefreshCw,
+  MessageSquareText,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -39,20 +43,27 @@ import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
 
-const menuItems = [
+const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { title: 'Prospecção', icon: Target, path: '/prospecting' },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
 ];
 
 const crmItems = [
   { title: 'Leads', icon: Users, path: '/leads' },
-  { title: 'Funil', icon: Kanban, path: '/funnel' },
+  { title: 'Pipeline', icon: Kanban, path: '/funnel' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
 
+const automationItems = [
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
+];
+
 const toolItems = [
-  { title: 'Análise', icon: BarChart3, path: '/analytics' },
+  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
@@ -85,7 +96,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const NavLink = ({ item, mobile = false }: { item: typeof menuItems[0]; mobile?: boolean }) => {
+  const NavLink = ({ item, mobile = false }: { item: typeof mainItems[0]; mobile?: boolean }) => {
     const active = isActive(item.path);
     return (
       <Link
@@ -120,7 +131,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList className="gap-1">
-              {menuItems.map((item) => (
+              {mainItems.map((item) => (
                 <NavigationMenuItem key={item.path}>
                   <NavigationMenuLink
                     asChild
@@ -172,15 +183,26 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       variant="ghost"
                       className={cn(
                         "flex items-center gap-2 h-10",
-                        toolItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
+                        [...automationItems, ...toolItems].some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
                       )}
                     >
-                      <BarChart3 className="h-4 w-4" />
+                      <Zap className="h-4 w-4" />
                       Ferramentas
                       <ChevronDown className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-48">
+                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Automação</p>
+                    {automationItems.map((item) => (
+                      <DropdownMenuItem key={item.path} asChild>
+                        <Link to={item.path} className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          {item.title}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Análise</p>
                     {toolItems.map((item) => (
                       <DropdownMenuItem key={item.path} asChild>
                         <Link to={item.path} className="flex items-center gap-2">
@@ -259,7 +281,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
               <SheetContent side="right" className="w-72 p-4">
                 <nav className="flex flex-col gap-4 mt-4">
                   <div className="space-y-1">
-                    {menuItems.map((item) => (
+                    {mainItems.map((item) => (
                       <NavLink key={item.path} item={item} mobile />
                     ))}
                   </div>
@@ -267,6 +289,14 @@ export function TopNavigation({ children }: TopNavigationProps) {
                     <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">CRM</p>
                     <div className="space-y-1">
                       {crmItems.map((item) => (
+                        <NavLink key={item.path} item={item} mobile />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Automação</p>
+                    <div className="space-y-1">
+                      {automationItems.map((item) => (
                         <NavLink key={item.path} item={item} mobile />
                       ))}
                     </div>
