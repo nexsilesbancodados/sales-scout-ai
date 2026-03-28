@@ -253,7 +253,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       variant="ghost"
                       className={cn(
                         "flex items-center gap-2 h-10",
-                        [...automationItems, ...toolItems].some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
+                        toolItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
                       )}
                     >
                       <Zap className="h-4 w-4" />
@@ -262,17 +262,6 @@ export function TopNavigation({ children }: TopNavigationProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-48">
-                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Automação</p>
-                    {automationItems.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                    <p className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Análise & Outros</p>
                     {toolItems.map((item) => (
                       <DropdownMenuItem key={item.path} asChild>
                         <Link to={item.path} className="flex items-center gap-2">
