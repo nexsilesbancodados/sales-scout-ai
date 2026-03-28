@@ -156,6 +156,24 @@ export interface Lead {
   deal_value: number | null;
   tasks: any[] | null;
   notes: string | null;
+  // Social URLs
+  instagram_url: string | null;
+  facebook_url: string | null;
+  linkedin_url: string | null;
+  twitter_url: string | null;
+  // Company info
+  employee_count: string | null;
+  founded_year: number | null;
+  company_description: string | null;
+  service_opportunities: string[] | null;
+  total_messages_exchanged: number | null;
+  photo_url: string | null;
+  industry: string | null;
+  hunter_email: string | null;
+  hunter_email_confidence: number | null;
+  enriched_at: string | null;
+  ai_memory_summary: string | null;
+  lead_group: string | null;
   // Timestamps
   created_at: string;
   updated_at: string;
