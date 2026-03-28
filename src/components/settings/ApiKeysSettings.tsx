@@ -31,20 +31,20 @@ export function ApiKeysSettings() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
   
-  const [geminiKey, setGeminiKey] = useState('');
+  const [deepseekKey, setDeepseekKey] = useState('');
   const [serpApiKey, setSerpApiKey] = useState('');
   const [serperKey, setSerperKey] = useState('');
   const [hunterKey, setHunterKey] = useState('');
   const [preferredApi, setPreferredApi] = useState<'serper' | 'serpapi'>('serper');
-  const [showGemini, setShowGemini] = useState(false);
+  const [showDeepseek, setShowDeepseek] = useState(false);
   const [showSerpApi, setShowSerpApi] = useState(false);
   const [showSerper, setShowSerper] = useState(false);
   const [showHunter, setShowHunter] = useState(false);
-  const [testingGemini, setTestingGemini] = useState(false);
+  const [testingDeepseek, setTestingDeepseek] = useState(false);
   const [testingSerpApi, setTestingSerpApi] = useState(false);
   const [testingSerper, setTestingSerper] = useState(false);
   const [testingHunter, setTestingHunter] = useState(false);
-  const [geminiStatus, setGeminiStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
+  const [deepseekStatus, setDeepseekStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [serpApiStatus, setSerpApiStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [serperStatus, setSerperStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [hunterStatus, setHunterStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
@@ -53,15 +53,15 @@ export function ApiKeysSettings() {
   useEffect(() => {
     if (settings) {
       // Show masked version if key exists
-      const gemini = (settings as any).gemini_api_key;
+      const gemini = (settings as any).deepseek_api_key;
       const serp = (settings as any).serpapi_api_key;
       const serper = (settings as any).serper_api_key;
       const hunter = (settings as any).hunter_api_token;
       const preferred = (settings as any).preferred_search_api || 'serper';
       
       if (gemini) {
-        setGeminiKey('••••••••••••••••' + gemini.slice(-4));
-        setGeminiStatus('valid');
+        setDeepseekKey('••••••••••••••••' + gemini.slice(-4));
+        setDeepseekStatus('valid');
       }
       if (serp) {
         setSerpApiKey('••••••••••••••••' + serp.slice(-4));
@@ -79,8 +79,8 @@ export function ApiKeysSettings() {
     }
   }, [settings]);
 
-  const handleSaveGemini = async () => {
-    if (!geminiKey || geminiKey.includes('••••')) {
+  const handleSaveDeepseek = async () => {
+    if (!deepseekKey || deepseekKey.includes('••••')) {
       toast({
         title: 'Chave inválida',
         description: 'Digite uma chave de API válida.',
@@ -92,18 +92,18 @@ export function ApiKeysSettings() {
     try {
       const { error } = await supabase
         .from('user_settings')
-        .update({ gemini_api_key: geminiKey })
+        .update({ deepseek_api_key: deepseekKey })
         .eq('user_id', user?.id);
 
       if (error) throw error;
 
       toast({
-        title: '✓ Chave Gemini salva',
+        title: '✓ Chave DeepSeek salva',
         description: 'Sua chave de API do Gemini foi salva com segurança.',
       });
       
-      setGeminiKey('••••••••••••••••' + geminiKey.slice(-4));
-      setGeminiStatus('valid');
+      setDeepseekKey('••••••••••••••••' + deepseekKey.slice(-4));
+      setDeepseekStatus('valid');
     } catch (error: any) {
       toast({
         title: 'Erro ao salvar',
@@ -204,8 +204,8 @@ export function ApiKeysSettings() {
     }
   };
 
-  const testGeminiKey = async () => {
-    if (!geminiKey || geminiKey.includes('••••')) {
+  const testDeepseekKey = async () => {
+    if (!deepseekKey || deepseekKey.includes('••••')) {
       toast({
         title: 'Digite uma chave',
         description: 'Insira uma nova chave para testar.',
@@ -214,33 +214,33 @@ export function ApiKeysSettings() {
       return;
     }
 
-    setTestingGemini(true);
+    setTestingDeepseek(true);
     try {
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + geminiKey);
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions',
       
       if (response.ok) {
-        setGeminiStatus('valid');
+        setDeepseekStatus('valid');
         toast({
           title: '✓ Chave válida',
-          description: 'Sua chave do Gemini está funcionando!',
+          description: 'Sua chave da DeepSeek está funcionando!',
         });
       } else {
-        setGeminiStatus('invalid');
+        setDeepseekStatus('invalid');
         toast({
           title: 'Chave inválida',
-          description: 'A chave do Gemini não é válida.',
+          description: 'A chave da DeepSeek não é válida.',
           variant: 'destructive',
         });
       }
     } catch (error) {
-      setGeminiStatus('invalid');
+      setDeepseekStatus('invalid');
       toast({
         title: 'Erro ao testar',
         description: 'Não foi possível validar a chave.',
         variant: 'destructive',
       });
     } finally {
-      setTestingGemini(false);
+      setTestingDeepseek(false);
     }
   };
 
@@ -337,18 +337,18 @@ export function ApiKeysSettings() {
     }
   };
 
-  const clearGeminiKey = async () => {
+  const clearDeepseekKey = async () => {
     try {
       const { error } = await supabase
         .from('user_settings')
-        .update({ gemini_api_key: null })
+        .update({ deepseek_api_key: null })
         .eq('user_id', user?.id);
 
       if (error) throw error;
 
-      setGeminiKey('');
-      setGeminiStatus('unknown');
-      toast({ title: 'Chave Gemini removida' });
+      setDeepseekKey('');
+      setDeepseekStatus('unknown');
+      toast({ title: 'Chave DeepSeek removida' });
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
     }
@@ -657,14 +657,14 @@ export function ApiKeysSettings() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-500" />
-              Google Gemini API
-              {geminiStatus === 'valid' && (
+              DeepSeek API
+              {deepseekStatus === 'valid' && (
                 <Badge variant="default" className="bg-green-500">
                   <Check className="h-3 w-3 mr-1" />
                   Configurada
                 </Badge>
               )}
-              {geminiStatus === 'invalid' && (
+              {deepseekStatus === 'invalid' && (
                 <Badge variant="destructive">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   Inválida
@@ -672,21 +672,21 @@ export function ApiKeysSettings() {
               )}
             </CardTitle>
             <CardDescription>
-              Usada para personalização de mensagens com IA
+              Usada para personalizar mensagens, gerar respostas automáticas e insights de prospecção
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Chave de API do Gemini</Label>
+              <Label>Chave de API da DeepSeek</Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
-                    type={showGemini ? 'text' : 'password'}
-                    placeholder="AIza..."
-                    value={geminiKey}
+                    type={showDeepseek ? 'text' : 'password'}
+                    placeholder="sk-..."
+                    value={deepseekKey}
                     onChange={(e) => {
-                      setGeminiKey(e.target.value);
-                      setGeminiStatus('unknown');
+                      setDeepseekKey(e.target.value);
+                      setDeepseekStatus('unknown');
                     }}
                   />
                   <Button
@@ -694,9 +694,9 @@ export function ApiKeysSettings() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowGemini(!showGemini)}
+                    onClick={() => setShowDeepseek(!showDeepseek)}
                   >
-                    {showGemini ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showDeepseek ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
@@ -706,10 +706,10 @@ export function ApiKeysSettings() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={testGeminiKey}
-                disabled={testingGemini || !geminiKey}
+                onClick={testDeepseekKey}
+                disabled={testingDeepseek || !deepseekKey}
               >
-                {testingGemini ? (
+                {testingDeepseek ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Check className="h-4 w-4 mr-2" />
@@ -718,17 +718,17 @@ export function ApiKeysSettings() {
               </Button>
               <Button
                 size="sm"
-                onClick={handleSaveGemini}
-                disabled={!geminiKey || geminiKey.includes('••••')}
+                onClick={handleSaveDeepseek}
+                disabled={!deepseekKey || deepseekKey.includes('••••')}
               >
                 <Key className="h-4 w-4 mr-2" />
                 Salvar
               </Button>
-              {geminiStatus === 'valid' && (
+              {deepseekStatus === 'valid' && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearGeminiKey}
+                  onClick={clearDeepseekKey}
                   className="text-destructive"
                 >
                   Remover
