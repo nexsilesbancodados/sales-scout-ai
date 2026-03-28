@@ -48,7 +48,6 @@ export function useAdminUsers() {
     queryKey: ['admin-users'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: null,
         method: 'GET',
       });
       if (error) throw error;
@@ -59,9 +58,9 @@ export function useAdminUsers() {
   const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('admin-users?action=stats', {
-        body: null,
+      const { data, error } = await supabase.functions.invoke('admin-users', {
         method: 'GET',
+        headers: { 'x-action': 'stats' },
       });
       if (error) throw error;
       return data as AdminStats;
