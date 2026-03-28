@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
-import { Moon, Sun, PanelLeft, PanelTop } from 'lucide-react';
+import { Moon, Sun, PanelLeft, PanelTop, Bell } from 'lucide-react';
 import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
 import {
   Tooltip,
@@ -85,19 +85,27 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
-          <header className="sticky top-0 z-20 flex h-13 sm:h-14 shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 px-3 sm:px-5 safe-top">
+          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6 safe-top">
             <SidebarTrigger className="-ml-1 tap-target" />
             <Separator orientation="vertical" className="mr-2 h-4 hide-mobile" />
             <Breadcrumb className="flex-1 min-w-0">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-semibold truncate text-sm sm:text-[15px]">{title}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-semibold truncate text-sm">{title}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               {actions}
               <BackgroundJobsMonitor />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 relative">
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Notificações</TooltipContent>
+              </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -117,9 +125,9 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
               </Button>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-5 lg:p-6 animate-fade-in safe-bottom">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in safe-bottom">
             {description && (
-              <p className="text-muted-foreground mb-5 text-[13px] sm:text-sm">{description}</p>
+              <p className="text-muted-foreground mb-6 text-[13px] sm:text-sm">{description}</p>
             )}
             {children}
           </main>
