@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ export default function CRMActivitiesPage() {
   };
 
   return (
-    <CRMLayout title="Atividades CRM">
+    <div className="p-6">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card><CardContent className="pt-4 text-center"><p className="text-2xl font-bold">{todayMeetingsCount}</p><p className="text-xs text-muted-foreground">Reuniões hoje</p></CardContent></Card>
@@ -124,6 +124,6 @@ export default function CRMActivitiesPage() {
           </Card>
         </div>
       </div>
-    </CRMLayout>
+    </div>
   );
 }

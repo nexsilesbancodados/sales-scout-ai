@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -106,7 +106,7 @@ export default function CRMMetaAdsPage() {
   const metaLeadsCount = leads.filter(l => l.source === 'meta_lead_ads').length;
 
   return (
-    <CRMLayout title="Meta Ads">
+    <div className="p-6">
       {/* LGPD Alert */}
       <Alert className="mb-6 border-blue-500/30 bg-blue-500/5">
         <Shield className="h-4 w-4 text-blue-500" />
@@ -269,6 +269,6 @@ export default function CRMMetaAdsPage() {
           </CardContent>
         </Card>
       </div>
-    </CRMLayout>
+    </div>
   );
 }

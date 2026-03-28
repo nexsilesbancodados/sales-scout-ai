@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CRMLayout } from '@/components/crm/CRMLayout';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLeads } from '@/hooks/use-leads';
 import { LeadStage } from '@/types/database';
@@ -56,10 +56,10 @@ export default function CRMAnalyticsPage() {
 
   const fmt = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
 
-  if (isLoading) return <CRMLayout title="Analytics CRM"><div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></CRMLayout>;
+  if (isLoading) return <div className="p-6"><div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></div>;
 
   return (
-    <CRMLayout title="Analytics CRM">
+    <div className="p-6">
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
@@ -132,6 +132,6 @@ export default function CRMAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    </CRMLayout>
+    </div>
   );
 }
