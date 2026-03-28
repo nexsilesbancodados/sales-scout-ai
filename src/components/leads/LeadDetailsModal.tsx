@@ -86,8 +86,12 @@ function formatCurrency(value: number | null): string {
 export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalProps) {
   const { updateLead, isUpdating } = useLeads();
   const { messages, isLoading: messagesLoading } = useChatMessages(lead?.id || null);
+  const { toast } = useToast();
   
   const [editMode, setEditMode] = useState(false);
+  const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
+  const [proposalText, setProposalText] = useState('');
+  const [proposalOpen, setProposalOpen] = useState(false);
   const [formData, setFormData] = useState({
     business_name: '',
     phone: '',
