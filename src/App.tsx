@@ -34,7 +34,16 @@ const FollowUpPage = lazy(() => import("./pages/FollowUp"));
 const TemplatesPage = lazy(() => import("./pages/Templates"));
 const AnalyticsPage = lazy(() => import("./pages/Analytics"));
 const AntiBanPage = lazy(() => import("./pages/AntiBan"));
-const SettingsPage = lazy(() => import("./pages/Settings"));
+const SettingsLayout = lazy(() => import("./components/settings/SettingsLayout"));
+const SettingsConnections = lazy(() => import("./pages/settings/SettingsConnections"));
+const SettingsApiKeys = lazy(() => import("./pages/settings/SettingsApiKeys"));
+const SettingsAntiBlock = lazy(() => import("./pages/settings/SettingsAntiBlock"));
+const SettingsAgent = lazy(() => import("./pages/settings/SettingsAgent"));
+const SettingsTeam = lazy(() => import("./pages/settings/SettingsTeam"));
+const SettingsNotifications = lazy(() => import("./pages/settings/SettingsNotifications"));
+const SettingsReports = lazy(() => import("./pages/settings/SettingsReports"));
+const SettingsMeetings = lazy(() => import("./pages/settings/SettingsMeetings"));
+const SettingsWebhook = lazy(() => import("./pages/settings/SettingsWebhook"));
 const TutorialPage = lazy(() => import("./pages/Tutorial"));
 const TestsPage = lazy(() => import("./pages/Tests"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -109,7 +118,19 @@ const App = () => (
                   {/* Ferramentas */}
                   <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
                   <Route path="/antiban" element={<ProtectedRoute><AntiBanPage /></ProtectedRoute>} />
-                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  {/* Settings Module */}
+                  <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>}>
+                    <Route index element={<Navigate to="/settings/connections" replace />} />
+                    <Route path="connections" element={<SettingsConnections />} />
+                    <Route path="api-keys" element={<SettingsApiKeys />} />
+                    <Route path="anti-block" element={<SettingsAntiBlock />} />
+                    <Route path="agent" element={<SettingsAgent />} />
+                    <Route path="team" element={<SettingsTeam />} />
+                    <Route path="notifications" element={<SettingsNotifications />} />
+                    <Route path="reports" element={<SettingsReports />} />
+                    <Route path="meetings" element={<SettingsMeetings />} />
+                    <Route path="webhook" element={<SettingsWebhook />} />
+                  </Route>
                   <Route path="/tests" element={<ProtectedRoute><TestsPage /></ProtectedRoute>} />
                   <Route path="/cnpj-radar" element={<ProtectedRoute><CNPJRadarPage /></ProtectedRoute>} />
                   <Route path="/instagram-extractor" element={<ProtectedRoute><InstagramExtractorPage /></ProtectedRoute>} />
