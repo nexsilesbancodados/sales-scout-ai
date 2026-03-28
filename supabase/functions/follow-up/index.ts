@@ -125,9 +125,9 @@ Deno.serve(async (req) => {
                             EVOLUTION_API_KEY;
 
     // Get AI key for intelligent messages
-    const GEMINI_API_KEY = settings.gemini_api_key;
+    const DEEPSEEK_API_KEY = settings.deepseek_api_key || Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const AI_KEY = GEMINI_API_KEY || LOVABLE_API_KEY;
+    const AI_KEY = DEEPSEEK_API_KEY || LOVABLE_API_KEY;
 
     for (const lead of leads || []) {
       results.checked++;
@@ -234,7 +234,7 @@ Responda APENAS com a mensagem.`;
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  model: "google/gemini-2.5-flash",
+                   model: "google/gemini-2.5-flash",
                   messages: [{ role: "user", content: prompt }],
                   temperature: 0.9,
                 }),

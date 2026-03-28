@@ -72,7 +72,7 @@ export interface UserSettings {
   // Security
   hunter_api_token: string;
   // User's own API keys
-  gemini_api_key: string | null;
+  deepseek_api_key: string | null;
   serpapi_api_key: string | null;
   serper_api_key: string | null;
   preferred_search_api: PreferredSearchApi;

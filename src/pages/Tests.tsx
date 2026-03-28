@@ -169,7 +169,7 @@ export default function TestsPage() {
 
   const testAIAPI = async (): Promise<boolean> => {
     const start = Date.now();
-    updateTestResult('AI/Gemini', { status: 'running' });
+    updateTestResult('AI/DeepSeek', { status: 'running' });
     
     try {
       const response = await supabase.functions.invoke('ai-prospecting', {
@@ -194,14 +194,14 @@ export default function TestsPage() {
       
       const hasMessage = !!response.data?.message;
       
-      updateTestResult('AI/Gemini', {
+      updateTestResult('AI/DeepSeek', {
         status: hasMessage ? 'success' : 'error',
         message: hasMessage ? 'IA respondendo normalmente' : 'IA não retornou mensagem',
         duration: Date.now() - start,
       });
       return hasMessage;
     } catch (error: any) {
-      updateTestResult('AI/Gemini', {
+      updateTestResult('AI/DeepSeek', {
         status: 'error',
         message: error.message,
         duration: Date.now() - start,
@@ -398,7 +398,7 @@ export default function TestsPage() {
               <Bot className="h-8 w-8 text-green-500" />
               <div>
                 <p className="font-medium">Inteligência Artificial</p>
-                <p className="text-sm text-muted-foreground">Gemini</p>
+                <p className="text-sm text-muted-foreground">DeepSeek</p>
               </div>
             </CardContent>
           </Card>

@@ -71,7 +71,7 @@ async function extractAndSaveMemories(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "google/gemini-2.5-flash",
         messages: [{
           role: "user",
           content: `Analise esta conversa e extraia informações importantes para lembrar sobre o cliente.
@@ -318,7 +318,7 @@ async function analyzeSentiment(message: string, apiKey: string | null): Promise
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "google/gemini-2.5-flash",
         messages: [{
           role: "user",
           content: `Classifique o sentimento desta mensagem de um lead em uma conversa de vendas. Responda APENAS com: positive, neutral ou negative
@@ -398,7 +398,7 @@ async function analyzeConversation(messages: any[], apiKey: string | null): Prom
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-lite",
+          model: "google/gemini-2.5-flash",
           messages: [{
             role: "user",
             content: `Resuma em 2-3 frases o estado atual desta conversa de vendas. O que o cliente quer? Quais objeções teve? Está próximo de fechar?
@@ -634,9 +634,9 @@ Deno.serve(async (req) => {
     const messages = chatHistory || [];
 
     // Analyze conversation context
-    const GEMINI_API_KEY = settings.gemini_api_key;
+    const DEEPSEEK_API_KEY = settings.deepseek_api_key || Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const AI_KEY = GEMINI_API_KEY || LOVABLE_API_KEY;
+    const AI_KEY = DEEPSEEK_API_KEY || LOVABLE_API_KEY;
 
     const conversationContext = await analyzeConversation(messages, LOVABLE_API_KEY);
 
@@ -660,38 +660,32 @@ Deno.serve(async (req) => {
     let responseMessage = "";
     let meetingScheduled = false;
 
-    if (GEMINI_API_KEY) {
-      // Use user's Gemini API
+    if (DEEPSEEK_API_KEY) {
+      // Use DeepSeek API
       try {
-        const geminiMessages = [
-          { text: systemPrompt },
-          ...formattedHistory.map(m => ({ text: `${m.role === "user" ? "Cliente" : "Eu"}: ${m.content}` })),
-        ];
+        const deepseekResponse = await fetch("https://api.deepseek.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...formattedHistory,
+            ],
+            temperature: 0.9,
+            max_tokens: 500,
+          }),
+        });
 
-        const geminiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{ text: geminiMessages.map(m => m.text).join("\n\n") + "\n\nMinha resposta:" }]
-              }],
-              generationConfig: {
-                temperature: 0.9,
-                topP: 0.95,
-                maxOutputTokens: 500,
-              }
-            }),
-          }
-        );
-
-        if (geminiResponse.ok) {
-          const geminiData = await geminiResponse.json();
-          responseMessage = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        if (deepseekResponse.ok) {
+          const deepseekData = await deepseekResponse.json();
+          responseMessage = deepseekData.choices?.[0]?.message?.content || "";
         }
       } catch (e) {
-        console.error("Gemini error:", e);
+        console.error("DeepSeek error:", e);
       }
     }
 
@@ -706,7 +700,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
+            model: "google/gemini-2.5-flash",
             messages: [
               { role: "system", content: systemPrompt },
               ...formattedHistory,

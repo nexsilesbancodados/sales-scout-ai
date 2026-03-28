@@ -1,0 +1,1 @@
+ALTER TABLE public.user_settings RENAME COLUMN gemini_api_key TO deepseek_api_key;

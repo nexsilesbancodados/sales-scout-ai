@@ -209,7 +209,7 @@ const SENSITIVE_FIELDS = [
   'apiKey',
   'token',
   'secret',
-  'gemini_api_key',
+  'deepseek_api_key',
   'serpapi_api_key',
   'serper_api_key',
   'hunter_api_token',

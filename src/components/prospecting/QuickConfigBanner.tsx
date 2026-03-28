@@ -27,7 +27,7 @@ export function QuickConfigBanner() {
 
   // Check connection status
   const isWhatsAppConnected = settings.whatsapp_connected;
-  const hasApiKey = !!settings.gemini_api_key;
+  const hasApiKey = !!settings.deepseek_api_key;
   const hasKnowledge = !!settings.knowledge_base?.trim();
 
   // Calculate current config summary
@@ -164,7 +164,7 @@ export function QuickConfigBanner() {
                 ) : (
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
                 )}
-                <span>API Gemini</span>
+                <span>API DeepSeek</span>
               </div>
 
               <div className={cn(
