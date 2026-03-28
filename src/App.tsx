@@ -10,6 +10,7 @@ import { ThemeProvider } from "next-themes";
 import { RealtimeNotificationsProvider } from "@/components/RealtimeNotificationsProvider";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 
 // Lazy load pages
 const AuthPage = lazy(() => import("./pages/Auth"));
@@ -110,6 +111,7 @@ const App = () => (
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            <PWAInstallBanner />
           </TooltipProvider>
         </RealtimeNotificationsProvider>
       </AuthProvider>
