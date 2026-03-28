@@ -75,7 +75,7 @@ export function AppSidebar() {
     return location.pathname === path;
   };
 
-  const MenuItem = ({ item }: { item: typeof menuItems[0] & { highlight?: boolean } }) => {
+  const MenuItem = ({ item }: { item: { title: string; icon: React.ComponentType<{ className?: string }>; path: string; highlight?: boolean } }) => {
     const active = isActive(item.path);
     return (
       <SidebarMenuItem>
