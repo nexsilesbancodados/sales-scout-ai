@@ -52,6 +52,7 @@ const CRMContactDetailPage = lazy(() => import("./pages/crm/CRMContactDetail"));
 const CRMActivitiesPage = lazy(() => import("./pages/crm/CRMActivities"));
 const CRMAnalyticsPage = lazy(() => import("./pages/crm/CRMAnalytics"));
 const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
+const AdminPage = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +118,7 @@ const App = () => (
                   <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
                   <Route path="/social-extractor" element={<ProtectedRoute><SocialExtractorPage /></ProtectedRoute>} />
                   <Route path="/facebook-extractor" element={<ProtectedRoute><FacebookExtractorPage /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
 
                   {/* CRM Module */}
                   <Route path="/crm" element={<ProtectedRoute><CRMLayout /></ProtectedRoute>}>

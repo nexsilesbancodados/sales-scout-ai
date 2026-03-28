@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/lib/auth';
+import { useAdminRole } from '@/hooks/use-admin';
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +46,7 @@ import {
   Bot,
   CreditCard,
   Code2,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -97,6 +99,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdminRole();
 
   const handleSignOut = async () => {
     await signOut();
@@ -207,6 +210,15 @@ export function AppSidebar() {
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
+
+        {isAdmin && (
+          <>
+            <SectionLabel>Admin</SectionLabel>
+            <SidebarMenu className="space-y-0.5">
+              <MenuItem item={{ title: 'Painel Admin', icon: ShieldCheck, path: '/admin', highlight: true }} />
+            </SidebarMenu>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border">
