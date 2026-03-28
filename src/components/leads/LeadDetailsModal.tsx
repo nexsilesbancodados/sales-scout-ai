@@ -421,6 +421,17 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
+                  <Button
+                    variant="outline"
+                    onClick={handleGenerateProposal}
+                    disabled={isGeneratingProposal}
+                    className="w-full gap-2 mt-4"
+                  >
+                    {isGeneratingProposal
+                      ? <><Loader2 className="h-4 w-4 animate-spin" />Gerando proposta...</>
+                      : <><FileText className="h-4 w-4" />Gerar Proposta com IA</>
+                    }
+                  </Button>
                 </div>
               )}
             </div>
@@ -638,6 +649,44 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Proposal Sheet */}
+        <Sheet open={proposalOpen} onOpenChange={setProposalOpen}>
+          <SheetContent className="w-[500px] sm:max-w-[500px]">
+            <SheetHeader>
+              <SheetTitle>Proposta para {lead?.business_name}</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(100vh-180px)] mt-4">
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">
+                {proposalText}
+              </div>
+            </ScrollArea>
+            <div className="flex gap-2 mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => navigator.clipboard.writeText(proposalText).then(() =>
+                  toast({ title: 'Proposta copiada!' })
+                )}
+              >
+                <Copy className="h-4 w-4 mr-2" />Copiar
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  if (!lead) return;
+                  const updated = [{ text: `Proposta gerada:\n${proposalText}`, created_at: new Date().toISOString() }, ...notesList];
+                  setNotesList(updated);
+                  updateLead({ id: lead.id, notes: JSON.stringify(updated) } as any);
+                  setProposalOpen(false);
+                  toast({ title: 'Proposta salva nas notas!' });
+                }}
+              >
+                <Save className="h-4 w-4 mr-2" />Salvar como nota
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </DialogContent>
     </Dialog>
   );
