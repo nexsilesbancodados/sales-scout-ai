@@ -87,6 +87,7 @@ const AGENT_PRESETS = [
 export default function SettingsPage() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('connections');
 
   // Collapsible states
