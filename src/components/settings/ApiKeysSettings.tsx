@@ -754,7 +754,7 @@ export function ApiKeysSettings() {
                 className="text-sm text-primary hover:underline inline-flex items-center gap-1"
               >
                 <ExternalLink className="h-3 w-3" />
-                Obter chave no Google AI Studio
+                Obter chave na DeepSeek Platform
               </a>
             </div>
           </CardContent>
