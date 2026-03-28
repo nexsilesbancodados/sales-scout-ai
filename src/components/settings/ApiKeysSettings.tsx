@@ -99,7 +99,7 @@ export function ApiKeysSettings() {
 
       toast({
         title: '✓ Chave DeepSeek salva',
-        description: 'Sua chave de API do Gemini foi salva com segurança.',
+        description: 'Sua chave de API da DeepSeek foi salva com segurança.',
       });
       
       setDeepseekKey('••••••••••••••••' + deepseekKey.slice(-4));
@@ -971,8 +971,8 @@ export function ApiKeysSettings() {
             O plano gratuito oferece 2.500 buscas por mês.
           </p>
           <p>
-            <strong>• Gemini API:</strong> Usada para personalizar mensagens de prospecção com IA. 
-            O plano gratuito oferece 15 requisições por minuto.
+            <strong>• DeepSeek API:</strong> Usada para personalizar mensagens de prospecção com IA. 
+            Planos acessíveis com alta performance.
           </p>
           <p>
             <strong>• SerpAPI:</strong> Alternativa para buscar empresas no Google Maps.
