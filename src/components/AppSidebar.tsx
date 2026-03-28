@@ -64,23 +64,29 @@ const outreachItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
 ];
 
 const crmItems = [
-  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', highlight: true },
-  { title: 'Leads', icon: Users, path: '/leads' },
-  { title: 'Pipeline', icon: Kanban, path: '/funnel' },
-  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
+  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline', highlight: true },
+  { title: 'Contatos', icon: Users, path: '/crm/contacts' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
-  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Atividades', icon: Calendar, path: '/crm/activities' },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
 ];
 
-const toolItems = [
-  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
-  { title: 'Histórico', icon: History, path: '/prospecting-history' },
-  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
+const analyticsItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'CRM Analytics', icon: BarChart3, path: '/crm/analytics' },
+  { title: 'Funil', icon: Kanban, path: '/funnel' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
+];
+
+const moreItems = [
+  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Meta Ads', icon: Sparkles, path: '/crm/meta-ads' },
   { title: 'Planos', icon: CreditCard, path: '/billing' },
   { title: 'API', icon: Code2, path: '/api-reference' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
@@ -187,9 +193,16 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
-        <SectionLabel>Ferramentas</SectionLabel>
+        <SectionLabel>Análises</SectionLabel>
         <SidebarMenu className="space-y-0.5">
-          {toolItems.map((item) => (
+          {analyticsItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Mais</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {moreItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
