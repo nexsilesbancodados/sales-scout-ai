@@ -194,7 +194,30 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     updateLead({ id: lead.id, tasks: updated } as any);
   };
 
-  const priorityColors: Record<string, string> = {
+  const handleGenerateProposal = async () => {
+    if (!lead) return;
+    setIsGeneratingProposal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-proposal', {
+        body: {
+          lead_id: lead.id,
+          business_name: lead.business_name,
+          niche: lead.niche || '',
+          location: lead.location || '',
+          phone: lead.phone,
+        },
+      });
+      if (error) throw error;
+      setProposalText(data?.proposal || data?.content || JSON.stringify(data));
+      setProposalOpen(true);
+    } catch (err) {
+      toast({ title: 'Erro ao gerar proposta', description: 'Tente novamente', variant: 'destructive' });
+    } finally {
+      setIsGeneratingProposal(false);
+    }
+  };
+
+
     alta: 'bg-destructive/10 text-destructive border-destructive/20',
     media: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
     baixa: 'bg-muted text-muted-foreground border-muted',
