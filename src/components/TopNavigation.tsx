@@ -36,14 +36,10 @@ import {
   RefreshCw,
   MessageSquareText,
   Shield,
-  MapPin,
-  Globe,
-  MessageCircle,
-  Upload,
   Send,
-  Clock,
   Mail,
   History,
+  FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -56,16 +52,15 @@ const mainItems = [
 ];
 
 const captureItems = [
-  { title: 'Google Maps', icon: MapPin, path: '/google-maps' },
-  { title: 'Pesquisa Web', icon: Globe, path: '/web-search' },
-  { title: 'Grupos WhatsApp', icon: MessageCircle, path: '/whatsapp-groups' },
-  { title: 'Importar', icon: Upload, path: '/import-leads' },
+  { title: 'Prospecção', icon: Target, path: '/prospecting' },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+  { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 
 const outreachItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
-  { title: 'Agendamento', icon: Clock, path: '/scheduled-prospecting' },
-  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
 ];
 
 const crmItems = [
@@ -75,16 +70,12 @@ const crmItems = [
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
 
-const automationItems = [
-  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
-  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
-];
-
 const toolItems = [
+  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
-  { title: 'Emails', icon: Mail, path: '/email-finder' },
-  { title: 'Histórico', icon: History, path: '/prospecting-history' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
@@ -143,8 +134,8 @@ export function TopNavigation({ children }: TopNavigationProps) {
         <div className="container flex h-[60px] items-center px-4">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 mr-6">
-            <img src="/logo.png" alt="Prospecte" className="h-7 w-7 rounded-lg object-contain" />
-            <span className="text-sm font-bold text-gradient hidden sm:inline">Prospecte</span>
+            <img src="/logo.png" alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
+            <span className="text-sm font-bold text-gradient hidden sm:inline">NexaProspect</span>
           </Link>
 
           {/* Desktop Navigation */}
