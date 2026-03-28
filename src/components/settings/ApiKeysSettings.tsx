@@ -53,14 +53,14 @@ export function ApiKeysSettings() {
   useEffect(() => {
     if (settings) {
       // Show masked version if key exists
-      const gemini = (settings as any).deepseek_api_key;
+      const deepseek = (settings as any).deepseek_api_key;
       const serp = (settings as any).serpapi_api_key;
       const serper = (settings as any).serper_api_key;
       const hunter = (settings as any).hunter_api_token;
       const preferred = (settings as any).preferred_search_api || 'serper';
       
-      if (gemini) {
-        setDeepseekKey('••••••••••••••••' + gemini.slice(-4));
+      if (deepseek) {
+        setDeepseekKey('••••••••••••••••' + deepseek.slice(-4));
         setDeepseekStatus('valid');
       }
       if (serp) {
