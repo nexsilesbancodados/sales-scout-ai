@@ -31,8 +31,8 @@ import {
   Moon,
   Sun,
   Menu,
+  Zap,
 } from 'lucide-react';
-import logoImage from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
@@ -92,9 +92,9 @@ export function TopNavigation({ children }: TopNavigationProps) {
         to={item.path}
         onClick={() => mobile && setMobileMenuOpen(false)}
         className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+          "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
           active
-            ? "bg-primary text-primary-foreground"
+            ? "gradient-primary text-primary-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-muted",
           mobile && "w-full"
         )}
@@ -107,12 +107,14 @@ export function TopNavigation({ children }: TopNavigationProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 safe-top">
-        <div className="container flex h-14 sm:h-16 items-center px-4">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
+        <div className="container flex h-[60px] items-center px-4">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2 mr-4 lg:mr-6">
-            <img src={logoImage} alt="Prospecte" className="h-8 w-auto" />
+          <Link to="/dashboard" className="flex items-center gap-2.5 mr-6">
+            <div className="h-7 w-7 rounded-lg gradient-primary flex items-center justify-center">
+              <Zap className="h-3.5 w-3.5 text-primary-foreground" />
+            </div>
+            <span className="text-sm font-bold text-gradient hidden sm:inline">NexaProspect</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -124,7 +126,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                     asChild
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      isActive(item.path) && "bg-primary text-primary-foreground"
+                      isActive(item.path) && "gradient-primary text-primary-foreground"
                     )}
                   >
                     <Link to={item.path} className="flex items-center gap-2">
@@ -135,7 +137,6 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </NavigationMenuItem>
               ))}
 
-              {/* CRM Dropdown */}
               <NavigationMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -143,7 +144,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       variant="ghost"
                       className={cn(
                         "flex items-center gap-2 h-10",
-                        crmItems.some(item => isActive(item.path)) && "bg-primary text-primary-foreground"
+                        crmItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
                       )}
                     >
                       <Users className="h-4 w-4" />
@@ -164,7 +165,6 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </DropdownMenu>
               </NavigationMenuItem>
 
-              {/* Tools Dropdown */}
               <NavigationMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -172,7 +172,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       variant="ghost"
                       className={cn(
                         "flex items-center gap-2 h-10",
-                        toolItems.some(item => isActive(item.path)) && "bg-primary text-primary-foreground"
+                        toolItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
                       )}
                     >
                       <BarChart3 className="h-4 w-4" />
@@ -195,32 +195,23 @@ export function TopNavigation({ children }: TopNavigationProps) {
             </NavigationMenuList>
           </NavigationMenu>
 
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Right Side Actions */}
           <div className="flex items-center gap-2">
             <BackgroundJobsMonitor />
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="h-9 w-9"
-              aria-label="Alternar tema"
-            >
+
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-9 w-9">
               <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
 
-            {/* Settings */}
             <Button
               variant="ghost"
               size="icon"
               asChild
               className={cn(
                 "h-9 w-9 hidden sm:flex",
-                isActive('/settings') && "bg-primary text-primary-foreground"
+                isActive('/settings') && "gradient-primary text-primary-foreground"
               )}
             >
               <Link to="/settings">
@@ -228,13 +219,12 @@ export function TopNavigation({ children }: TopNavigationProps) {
               </Link>
             </Button>
 
-            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                     <AvatarImage src={user?.user_metadata?.avatar_url} />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    <AvatarFallback className="gradient-primary text-primary-foreground text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
@@ -242,7 +232,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{user?.user_metadata?.full_name || 'Usuário'}</p>
+                  <p className="text-sm font-semibold">{user?.user_metadata?.full_name || 'Usuário'}</p>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
@@ -260,7 +250,6 @@ export function TopNavigation({ children }: TopNavigationProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Mobile Menu Button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9">
@@ -274,34 +263,24 @@ export function TopNavigation({ children }: TopNavigationProps) {
                       <NavLink key={item.path} item={item} mobile />
                     ))}
                   </div>
-
                   <div className="border-t pt-4">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
-                      CRM
-                    </p>
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">CRM</p>
                     <div className="space-y-1">
                       {crmItems.map((item) => (
                         <NavLink key={item.path} item={item} mobile />
                       ))}
                     </div>
                   </div>
-
                   <div className="border-t pt-4">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
-                      Ferramentas
-                    </p>
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Ferramentas</p>
                     <div className="space-y-1">
                       {toolItems.map((item) => (
                         <NavLink key={item.path} item={item} mobile />
                       ))}
                     </div>
                   </div>
-
                   <div className="border-t pt-4">
-                    <NavLink
-                      item={{ title: 'Configurações', icon: Settings, path: '/settings' }}
-                      mobile
-                    />
+                    <NavLink item={{ title: 'Configurações', icon: Settings, path: '/settings' }} mobile />
                   </div>
                 </nav>
               </SheetContent>
@@ -310,10 +289,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
