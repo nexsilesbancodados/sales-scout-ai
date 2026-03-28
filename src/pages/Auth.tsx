@@ -125,7 +125,6 @@ export default function AuthPage() {
       onLogin={handleLogin}
       onSignup={handleSignup}
       onForgotPassword={() => setShowForgotPassword(true)}
-      onGoogleLogin={signInWithGoogle}
       isLoading={isSubmitting || loading}
       error={authError}
     />
