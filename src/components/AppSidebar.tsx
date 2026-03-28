@@ -40,6 +40,9 @@ import {
   Mail,
   History,
   FlaskConical,
+  Building2,
+  Globe,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +53,8 @@ const mainItems = [
 const captureItems = [
   { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
+  { title: 'Instagram', icon: Globe, path: '/instagram-extractor' },
   { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 
@@ -62,6 +67,7 @@ const outreachItems = [
 const crmItems = [
   { title: 'Leads', icon: Users, path: '/leads' },
   { title: 'Pipeline', icon: Kanban, path: '/funnel' },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
