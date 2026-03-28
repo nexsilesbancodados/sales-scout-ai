@@ -662,7 +662,7 @@ export function ApiKeysSettings() {
           </CardContent>
         </Card>
 
-        {/* Gemini API Key */}
+        {/* DeepSeek API Key */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -748,7 +748,7 @@ export function ApiKeysSettings() {
 
             <div className="pt-2 border-t">
               <a
-                href="https://aistudio.google.com/app/apikey"
+                href="https://platform.deepseek.com/api_keys"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-primary hover:underline inline-flex items-center gap-1"
