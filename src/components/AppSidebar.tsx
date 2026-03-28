@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/lib/auth';
 import {
   Sidebar,
@@ -132,11 +133,9 @@ export function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-md">
-            <Zap className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <img src={logoImg} alt="Prospecte" className="h-9 w-9 rounded-lg object-contain" />
           <div>
-            <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
+            <span className="text-base font-bold tracking-tight text-gradient">Prospecte</span>
           </div>
         </Link>
       </SidebarHeader>
