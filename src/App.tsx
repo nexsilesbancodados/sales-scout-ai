@@ -44,6 +44,12 @@ const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
 const BillingPage = lazy(() => import("./pages/Billing"));
 const APIReferencePage = lazy(() => import("./pages/APIReference"));
 const SocialExtractorPage = lazy(() => import("./pages/SocialExtractor"));
+const CRMPipelinePage = lazy(() => import("./pages/crm/CRMPipeline"));
+const CRMContactsPage = lazy(() => import("./pages/crm/CRMContacts"));
+const CRMContactDetailPage = lazy(() => import("./pages/crm/CRMContactDetail"));
+const CRMActivitiesPage = lazy(() => import("./pages/crm/CRMActivities"));
+const CRMAnalyticsPage = lazy(() => import("./pages/crm/CRMAnalytics"));
+const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -108,6 +114,14 @@ const App = () => (
                   <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
                   <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
                   <Route path="/social-extractor" element={<ProtectedRoute><SocialExtractorPage /></ProtectedRoute>} />
+
+                  {/* CRM Module */}
+                  <Route path="/crm/pipeline" element={<ProtectedRoute><CRMPipelinePage /></ProtectedRoute>} />
+                  <Route path="/crm/contacts" element={<ProtectedRoute><CRMContactsPage /></ProtectedRoute>} />
+                  <Route path="/crm/contacts/:id" element={<ProtectedRoute><CRMContactDetailPage /></ProtectedRoute>} />
+                  <Route path="/crm/activities" element={<ProtectedRoute><CRMActivitiesPage /></ProtectedRoute>} />
+                  <Route path="/crm/analytics" element={<ProtectedRoute><CRMAnalyticsPage /></ProtectedRoute>} />
+                  <Route path="/crm/meta-ads" element={<ProtectedRoute><CRMMetaAdsPage /></ProtectedRoute>} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
