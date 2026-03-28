@@ -141,7 +141,7 @@ export function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="Prospecte" className="h-9 w-9 rounded-lg object-contain" />
+          <img src={logoImg} alt="NexaProspect" className="h-9 w-9 rounded-lg object-contain" />
           <div>
             <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
           </div>
