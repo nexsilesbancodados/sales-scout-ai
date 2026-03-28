@@ -72,7 +72,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: hsl(160, 84%, 4%);
+        flex-direction: column;
+        gap: 16px;
+        background: hsl(220, 20%, 97%);
         z-index: 9999;
         transition: opacity 0.3s ease;
       }
@@ -82,11 +84,17 @@
         pointer-events: none;
       }
 
+      #app-loading img {
+        height: 56px;
+        width: auto;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
       .loading-spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid rgba(16, 185, 129, 0.2);
-        border-top-color: #10b981;
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(99, 102, 241, 0.2);
+        border-top-color: hsl(239, 84%, 67%);
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -95,9 +103,14 @@
         to { transform: rotate(360deg); }
       }
 
-      @media (prefers-color-scheme: light) {
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      @media (prefers-color-scheme: dark) {
         #app-loading {
-          background: hsl(0, 0%, 100%);
+          background: hsl(220, 30%, 6%);
         }
       }
     </style>
@@ -114,6 +127,7 @@
   <body>
     <!-- Loading screen -->
     <div id="app-loading">
+      <img src="/logo.png" alt="Logo" />
       <div class="loading-spinner"></div>
     </div>
 
