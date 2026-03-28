@@ -24,6 +24,7 @@ const MassSendPage = lazy(() => import("./pages/MassSend"));
 const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
+const ABTestingPage = lazy(() => import("./pages/ABTesting"));
 const LeadsPage = lazy(() => import("./pages/Leads"));
 const FunnelPage = lazy(() => import("./pages/Funnel"));
 const ConversationsPage = lazy(() => import("./pages/Conversations"));
@@ -77,6 +78,7 @@ const App = () => (
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
                   <Route path="/prospecting-history" element={<ProtectedRoute><ProspectingHistoryPage /></ProtectedRoute>} />
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
+                  <Route path="/ab-testing" element={<ProtectedRoute><ABTestingPage /></ProtectedRoute>} />
 
                   {/* CRM */}
                   <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />

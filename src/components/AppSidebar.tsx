@@ -32,19 +32,14 @@ import {
   ChevronUp,
   BookOpen,
   Sparkles,
-  Zap,
   Rocket,
   RefreshCw,
   MessageSquareText,
   Shield,
-  MapPin,
-  Globe,
-  MessageCircle,
-  Upload,
   Send,
-  Clock,
   Mail,
   History,
+  FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -53,21 +48,15 @@ const mainItems = [
 ];
 
 const captureItems = [
-  { title: 'Google Maps', icon: MapPin, path: '/google-maps' },
-  { title: 'Pesquisa Web', icon: Globe, path: '/web-search' },
-  { title: 'Grupos WhatsApp', icon: MessageCircle, path: '/whatsapp-groups' },
-  { title: 'Importar Leads', icon: Upload, path: '/import-leads' },
+  { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+  { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 
 const outreachItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
-  { title: 'Agendamento', icon: Clock, path: '/scheduled-prospecting' },
-  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
-];
-
-const toolsProspectingItems = [
-  { title: 'Buscar Emails', icon: Mail, path: '/email-finder' },
-  { title: 'Histórico', icon: History, path: '/prospecting-history' },
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
 ];
 
 const crmItems = [
@@ -77,12 +66,10 @@ const crmItems = [
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
 
-const automationItems = [
-  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
-  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
-];
-
 const toolItems = [
+  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
   { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
@@ -154,9 +141,9 @@ export function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="Prospecte" className="h-9 w-9 rounded-lg object-contain" />
+          <img src={logoImg} alt="NexaProspect" className="h-9 w-9 rounded-lg object-contain" />
           <div>
-            <span className="text-base font-bold tracking-tight text-gradient">Prospecte</span>
+            <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -182,23 +169,9 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
-        <SectionLabel>Prospecção</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {toolsProspectingItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
         <SectionLabel>CRM</SectionLabel>
         <SidebarMenu className="space-y-0.5">
           {crmItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>Automação</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {automationItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
