@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/auth';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ import {
   Download,
   Zap,
   Settings2,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,6 +89,7 @@ const AGENT_PRESETS = [
 export default function SettingsPage() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('connections');
 
   // Collapsible states
@@ -414,6 +417,34 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Daily Report */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  Relatório Diário
+                </CardTitle>
+                <CardDescription>Receba um resumo da prospecção por email todo dia</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Ativar relatório diário</Label>
+                    <p className="text-sm text-muted-foreground">Enviado todo dia às 8h no seu email</p>
+                  </div>
+                  <Switch
+                    checked={settings?.daily_report_enabled || false}
+                    onCheckedChange={(v) => updateSettings({ daily_report_enabled: v })}
+                  />
+                </div>
+                {settings?.daily_report_enabled && (
+                  <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                    Relatório ativo — você receberá um email diário em <strong>{user?.email}</strong> com métricas de prospecção, leads novos e atividades do dia anterior.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Meeting Settings */}
             <MeetingSettings />

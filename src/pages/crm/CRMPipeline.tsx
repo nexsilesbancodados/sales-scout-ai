@@ -187,11 +187,13 @@ export default function CRMPipelinePage() {
     .reduce((s, l) => s + (l.deal_value || 0), 0);
 
   return (
-    <CRMLayout title="Pipeline CRM" actions={
-      <span className="text-sm font-medium text-muted-foreground">
-        Pipeline: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(totalPipeline)}
-      </span>
-    }>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Pipeline CRM</h1>
+        <span className="text-sm font-medium text-muted-foreground">
+          Pipeline: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(totalPipeline)}
+        </span>
+      </div>
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -266,6 +268,6 @@ export default function CRMPipelinePage() {
           })}
         </div>
       )}
-    </CRMLayout>
+    </div>
   );
 }
