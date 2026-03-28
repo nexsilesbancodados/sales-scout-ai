@@ -10,6 +10,7 @@ import { ThemeProvider } from "next-themes";
 import { RealtimeNotificationsProvider } from "@/components/RealtimeNotificationsProvider";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 
 // Lazy load pages
 const AuthPage = lazy(() => import("./pages/Auth"));
@@ -40,6 +41,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const CNPJRadarPage = lazy(() => import("./pages/CNPJRadar"));
 const InstagramExtractorPage = lazy(() => import("./pages/InstagramExtractor"));
 const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
+const BillingPage = lazy(() => import("./pages/Billing"));
+const APIReferencePage = lazy(() => import("./pages/APIReference"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -101,11 +104,14 @@ const App = () => (
                   <Route path="/cnpj-radar" element={<ProtectedRoute><CNPJRadarPage /></ProtectedRoute>} />
                   <Route path="/instagram-extractor" element={<ProtectedRoute><InstagramExtractorPage /></ProtectedRoute>} />
                   <Route path="/sdr-agent" element={<ProtectedRoute><SDRAgentPage /></ProtectedRoute>} />
+                  <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
+                  <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
 
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            <PWAInstallBanner />
           </TooltipProvider>
         </RealtimeNotificationsProvider>
       </AuthProvider>

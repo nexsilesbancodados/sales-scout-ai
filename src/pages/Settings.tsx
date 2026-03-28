@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
 import { AntiBlockSettings } from '@/components/settings/AntiBlockSettings';
 import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
+import { MultiChipSettings } from '@/components/settings/MultiChipSettings';
 import { TeamSettings } from '@/components/settings/TeamSettings';
 import { ReportExportSettings } from '@/components/settings/ReportExportSettings';
 import { ServiceIntelligenceManager } from '@/components/settings/ServiceIntelligenceManager';
@@ -218,6 +219,9 @@ export default function SettingsPage() {
                 <WhatsAppConnection />
               </CardContent>
             </Card>
+
+            {/* Multi-Chip */}
+            <MultiChipSettings />
 
             {/* API Keys - Compact */}
             <ApiKeysSettings />
