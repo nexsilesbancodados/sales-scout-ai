@@ -46,15 +46,9 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
     localStorage.setItem('navigation-mode', navigationMode);
   }, [navigationMode]);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+  const toggleNavigationMode = () => setNavigationMode(navigationMode === 'sidebar' ? 'topbar' : 'sidebar');
 
-  const toggleNavigationMode = () => {
-    setNavigationMode(navigationMode === 'sidebar' ? 'topbar' : 'sidebar');
-  };
-
-  // Top Navigation Mode
   if (navigationMode === 'topbar') {
     return (
       <NavigationContext.Provider value={{ mode: navigationMode, setMode: setNavigationMode }}>
@@ -62,22 +56,16 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
           <div className="container py-6 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{title}</h1>
                 {description && (
-                  <p className="text-muted-foreground mt-1">{description}</p>
+                  <p className="text-muted-foreground mt-0.5 text-[13px] sm:text-sm">{description}</p>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 {actions}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={toggleNavigationMode}
-                      className="h-9 w-9"
-                      aria-label="Mudar para menu lateral"
-                    >
+                    <Button variant="ghost" size="icon" onClick={toggleNavigationMode} className="h-8 w-8">
                       <PanelLeft className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -85,32 +73,29 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 </Tooltip>
               </div>
             </div>
-            <div className="animate-fade-in">
-              {children}
-            </div>
+            <div className="animate-fade-in">{children}</div>
           </div>
         </TopNavigation>
       </NavigationContext.Provider>
     );
   }
 
-  // Sidebar Navigation Mode (Default)
   return (
     <NavigationContext.Provider value={{ mode: navigationMode, setMode: setNavigationMode }}>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
-          <header className="sticky top-0 z-20 flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 px-3 sm:px-6 safe-top">
+          <header className="sticky top-0 z-20 flex h-13 sm:h-14 shrink-0 items-center gap-2 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 px-3 sm:px-5 safe-top">
             <SidebarTrigger className="-ml-1 tap-target" />
             <Separator orientation="vertical" className="mr-2 h-4 hide-mobile" />
             <Breadcrumb className="flex-1 min-w-0">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-semibold truncate text-base sm:text-lg">{title}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-semibold truncate text-sm sm:text-[15px]">{title}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               {actions}
               <BackgroundJobsMonitor />
               <Tooltip>
@@ -119,29 +104,22 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                     variant="ghost"
                     size="icon"
                     onClick={toggleNavigationMode}
-                    className="h-9 w-9 hidden sm:flex"
-                    aria-label="Mudar para menu no topo"
+                    className="h-8 w-8 hidden sm:flex"
                   >
                     <PanelTop className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Menu no topo</TooltipContent>
               </Tooltip>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="tap-target h-9 w-9"
-                aria-label="Alternar tema"
-              >
+              <Button variant="ghost" size="icon" onClick={toggleTheme} className="tap-target h-8 w-8">
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </Button>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in safe-bottom">
+          <main className="flex-1 p-4 sm:p-5 lg:p-6 animate-fade-in safe-bottom">
             {description && (
-              <p className="text-muted-foreground mb-6 text-sm sm:text-base">{description}</p>
+              <p className="text-muted-foreground mb-5 text-[13px] sm:text-sm">{description}</p>
             )}
             {children}
           </main>
