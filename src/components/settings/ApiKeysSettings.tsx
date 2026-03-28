@@ -24,487 +24,175 @@ import {
   Info,
   Mail,
   Zap,
+  Bot,
 } from 'lucide-react';
 
 export function ApiKeysSettings() {
   const { user } = useAuth();
-  const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
+  const { settings, isLoading } = useUserSettings();
   const { toast } = useToast();
-  
+
   const [serpApiKey, setSerpApiKey] = useState('');
   const [serperKey, setSerperKey] = useState('');
   const [hunterKey, setHunterKey] = useState('');
   const [apifyKey, setApifyKey] = useState('');
   const [preferredApi, setPreferredApi] = useState<'serper' | 'serpapi'>('serper');
+
   const [showSerpApi, setShowSerpApi] = useState(false);
   const [showSerper, setShowSerper] = useState(false);
   const [showHunter, setShowHunter] = useState(false);
   const [showApify, setShowApify] = useState(false);
+
   const [testingSerpApi, setTestingSerpApi] = useState(false);
   const [testingSerper, setTestingSerper] = useState(false);
   const [testingHunter, setTestingHunter] = useState(false);
+
   const [serpApiStatus, setSerpApiStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [serperStatus, setSerperStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [hunterStatus, setHunterStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [apifyStatus, setApifyStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
 
-  // Load existing keys (masked)
   useEffect(() => {
     if (settings) {
-      // Show masked version if key exists
-      const deepseek = (settings as any).deepseek_api_key;
       const serp = (settings as any).serpapi_api_key;
       const serper = (settings as any).serper_api_key;
       const hunter = (settings as any).hunter_api_token;
+      const apify = (settings as any).apify_token;
       const preferred = (settings as any).preferred_search_api || 'serper';
-      
-      if (deepseek) {
-        setDeepseekKey('••••••••••••••••' + deepseek.slice(-4));
-        setDeepseekStatus('valid');
-      }
-      if (serp) {
-        setSerpApiKey('••••••••••••••••' + serp.slice(-4));
-        setSerpApiStatus('valid');
-      }
-      if (serper) {
-        setSerperKey('••••••••••••••••' + serper.slice(-4));
-        setSerperStatus('valid');
-      }
-      if (hunter) {
-        setHunterKey('••••••••••••••••' + hunter.slice(-4));
-        setHunterStatus('valid');
-      }
+
+      if (serp) { setSerpApiKey('••••••••••••••••' + serp.slice(-4)); setSerpApiStatus('valid'); }
+      if (serper) { setSerperKey('••••••••••••••••' + serper.slice(-4)); setSerperStatus('valid'); }
+      if (hunter) { setHunterKey('••••••••••••••••' + hunter.slice(-4)); setHunterStatus('valid'); }
+      if (apify) { setApifyKey('••••••••••••••••' + apify.slice(-4)); setApifyStatus('valid'); }
       setPreferredApi(preferred);
     }
   }, [settings]);
 
-  const handleSaveDeepseek = async () => {
-    if (!deepseekKey || deepseekKey.includes('••••')) {
-      toast({
-        title: 'Chave inválida',
-        description: 'Digite uma chave de API válida.',
-        variant: 'destructive',
-      });
-      return;
+  const saveKey = async (field: string, value: string, label: string) => {
+    if (!value || value.includes('••••')) {
+      toast({ title: 'Chave inválida', description: 'Digite uma chave de API válida.', variant: 'destructive' });
+      return false;
     }
-
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ deepseek_api_key: deepseekKey })
-        .eq('user_id', user?.id);
-
+      const { error } = await supabase.from('user_settings').update({ [field]: value } as any).eq('user_id', user?.id);
       if (error) throw error;
-
-      toast({
-        title: '✓ Chave DeepSeek salva',
-        description: 'Sua chave de API da DeepSeek foi salva com segurança.',
-      });
-      
-      setDeepseekKey('••••••••••••••••' + deepseekKey.slice(-4));
-      setDeepseekStatus('valid');
+      toast({ title: `✓ ${label} salva`, description: `Sua chave foi salva com segurança.` });
+      return true;
     } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+      return false;
     }
   };
 
-  const handleSaveSerpApi = async () => {
-    if (!serpApiKey || serpApiKey.includes('••••')) {
-      toast({
-        title: 'Chave inválida',
-        description: 'Digite uma chave de API válida.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  const clearKey = async (field: string, label: string, setKey: (v: string) => void, setStatus: (v: 'unknown' | 'valid' | 'invalid') => void) => {
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ serpapi_api_key: serpApiKey })
-        .eq('user_id', user?.id);
-
+      const { error } = await supabase.from('user_settings').update({ [field]: null } as any).eq('user_id', user?.id);
       if (error) throw error;
-
-      toast({
-        title: '✓ Chave SerpAPI salva',
-        description: 'Sua chave de API do SerpAPI foi salva com segurança.',
-      });
-      
-      setSerpApiKey('••••••••••••••••' + serpApiKey.slice(-4));
-      setSerpApiStatus('valid');
+      setKey(''); setStatus('unknown');
+      toast({ title: `${label} removida` });
     } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
     }
   };
 
   const handleSaveSerper = async () => {
-    if (!serperKey || serperKey.includes('••••')) {
-      toast({
-        title: 'Chave inválida',
-        description: 'Digite uma chave de API válida.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    const ok = await saveKey('serper_api_key', serperKey, 'Chave Serper.dev');
+    if (ok) { setSerperKey('••••••••••••••••' + serperKey.slice(-4)); setSerperStatus('valid'); }
+  };
 
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ serper_api_key: serperKey })
-        .eq('user_id', user?.id);
+  const handleSaveSerpApi = async () => {
+    const ok = await saveKey('serpapi_api_key', serpApiKey, 'Chave SerpAPI');
+    if (ok) { setSerpApiKey('••••••••••••••••' + serpApiKey.slice(-4)); setSerpApiStatus('valid'); }
+  };
 
-      if (error) throw error;
+  const handleSaveHunter = async () => {
+    const ok = await saveKey('hunter_api_token', hunterKey, 'Chave Hunter.io');
+    if (ok) { setHunterKey('••••••••••••••••' + hunterKey.slice(-4)); setHunterStatus('valid'); }
+  };
 
-      toast({
-        title: '✓ Chave Serper.dev salva',
-        description: 'Sua chave de API do Serper.dev foi salva com segurança.',
-      });
-      
-      setSerperKey('••••••••••••••••' + serperKey.slice(-4));
-      setSerperStatus('valid');
-    } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
+  const handleSaveApify = async () => {
+    const ok = await saveKey('apify_token', apifyKey, 'Token Apify');
+    if (ok) { setApifyKey('••••••••••••••••' + apifyKey.slice(-4)); setApifyStatus('valid'); }
   };
 
   const handleSavePreferredApi = async (value: 'serper' | 'serpapi') => {
     setPreferredApi(value);
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ preferred_search_api: value })
-        .eq('user_id', user?.id);
-
+      const { error } = await supabase.from('user_settings').update({ preferred_search_api: value }).eq('user_id', user?.id);
       if (error) throw error;
-
-      toast({
-        title: '✓ Preferência salva',
-        description: `API de busca preferida: ${value === 'serper' ? 'Serper.dev' : 'SerpAPI'}`,
-      });
+      toast({ title: '✓ Preferência salva', description: `API de busca preferida: ${value === 'serper' ? 'Serper.dev' : 'SerpAPI'}` });
     } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const testDeepseekKey = async () => {
-    if (!deepseekKey || deepseekKey.includes('••••')) {
-      toast({
-        title: 'Digite uma chave',
-        description: 'Insira uma nova chave para testar.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setTestingDeepseek(true);
-    try {
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${deepseekKey}`,
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [{ role: 'user', content: 'Olá' }],
-          max_tokens: 5,
-        }),
-      });
-      if (response.ok) {
-        setDeepseekStatus('valid');
-        toast({
-          title: '✓ Chave válida',
-          description: 'Sua chave da DeepSeek está funcionando!',
-        });
-      } else {
-        setDeepseekStatus('invalid');
-        toast({
-          title: 'Chave inválida',
-          description: 'A chave da DeepSeek não é válida.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      setDeepseekStatus('invalid');
-      toast({
-        title: 'Erro ao testar',
-        description: 'Não foi possível validar a chave.',
-        variant: 'destructive',
-      });
-    } finally {
-      setTestingDeepseek(false);
-    }
-  };
-
-  const testSerpApiKey = async () => {
-    if (!serpApiKey || serpApiKey.includes('••••')) {
-      toast({
-        title: 'Digite uma chave',
-        description: 'Insira uma nova chave para testar.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setTestingSerpApi(true);
-    try {
-      const response = await fetch(`https://serpapi.com/account.json?api_key=${serpApiKey}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        setSerpApiStatus('valid');
-        toast({
-          title: '✓ Chave válida',
-          description: `SerpAPI ativo! ${data.searches_remaining || 0} buscas restantes.`,
-        });
-      } else {
-        setSerpApiStatus('invalid');
-        toast({
-          title: 'Chave inválida',
-          description: 'A chave do SerpAPI não é válida.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      setSerpApiStatus('invalid');
-      toast({
-        title: 'Erro ao testar',
-        description: 'Não foi possível validar a chave.',
-        variant: 'destructive',
-      });
-    } finally {
-      setTestingSerpApi(false);
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
     }
   };
 
   const testSerperKey = async () => {
-    if (!serperKey || serperKey.includes('••••')) {
-      toast({
-        title: 'Digite uma chave',
-        description: 'Insira uma nova chave para testar.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    if (!serperKey || serperKey.includes('••••')) return;
     setTestingSerper(true);
     try {
-      // Test Serper.dev API with a simple search
       const response = await fetch('https://google.serper.dev/search', {
         method: 'POST',
-        headers: {
-          'X-API-KEY': serperKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          q: 'test',
-          num: 1,
-        }),
+        headers: { 'X-API-KEY': serperKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: 'test', num: 1 }),
       });
-      
-      if (response.ok) {
-        setSerperStatus('valid');
-        toast({
-          title: '✓ Chave válida',
-          description: 'Serper.dev está funcionando!',
-        });
-      } else {
-        setSerperStatus('invalid');
-        const errorData = await response.json().catch(() => ({}));
-        toast({
-          title: 'Chave inválida',
-          description: errorData.message || 'A chave do Serper.dev não é válida.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      setSerperStatus('invalid');
-      toast({
-        title: 'Erro ao testar',
-        description: 'Não foi possível validar a chave.',
-        variant: 'destructive',
-      });
-    } finally {
-      setTestingSerper(false);
-    }
+      if (response.ok) { setSerperStatus('valid'); toast({ title: '✓ Chave válida', description: 'Serper.dev está funcionando!' }); }
+      else { setSerperStatus('invalid'); toast({ title: 'Chave inválida', variant: 'destructive' }); }
+    } catch { setSerperStatus('invalid'); toast({ title: 'Erro ao testar', variant: 'destructive' }); }
+    finally { setTestingSerper(false); }
   };
 
-  const clearDeepseekKey = async () => {
+  const testSerpApiKey = async () => {
+    if (!serpApiKey || serpApiKey.includes('••••')) return;
+    setTestingSerpApi(true);
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ deepseek_api_key: null })
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setDeepseekKey('');
-      setDeepseekStatus('unknown');
-      toast({ title: 'Chave DeepSeek removida' });
-    } catch (error: any) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const clearSerpApiKey = async () => {
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ serpapi_api_key: null })
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setSerpApiKey('');
-      setSerpApiStatus('unknown');
-      toast({ title: 'Chave SerpAPI removida' });
-    } catch (error: any) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const clearSerperKey = async () => {
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ serper_api_key: null })
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setSerperKey('');
-      setSerperStatus('unknown');
-      toast({ title: 'Chave Serper.dev removida' });
-    } catch (error: any) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const handleSaveHunter = async () => {
-    if (!hunterKey || hunterKey.includes('••••')) {
-      toast({
-        title: 'Chave inválida',
-        description: 'Digite uma chave de API válida.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ hunter_api_token: hunterKey })
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      toast({
-        title: '✓ Chave Hunter salva',
-        description: 'Sua chave de API do Hunter.io foi salva com segurança.',
-      });
-      
-      setHunterKey('••••••••••••••••' + hunterKey.slice(-4));
-      setHunterStatus('valid');
-    } catch (error: any) {
-      toast({
-        title: 'Erro ao salvar',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
+      const response = await fetch(`https://serpapi.com/account.json?api_key=${serpApiKey}`);
+      if (response.ok) { const data = await response.json(); setSerpApiStatus('valid'); toast({ title: '✓ Chave válida', description: `SerpAPI ativo! ${data.searches_remaining || 0} buscas restantes.` }); }
+      else { setSerpApiStatus('invalid'); toast({ title: 'Chave inválida', variant: 'destructive' }); }
+    } catch { setSerpApiStatus('invalid'); toast({ title: 'Erro ao testar', variant: 'destructive' }); }
+    finally { setTestingSerpApi(false); }
   };
 
   const testHunterKey = async () => {
-    if (!hunterKey || hunterKey.includes('••••')) {
-      toast({
-        title: 'Digite uma chave',
-        description: 'Insira uma nova chave para testar.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    if (!hunterKey || hunterKey.includes('••••')) return;
     setTestingHunter(true);
     try {
       const response = await fetch(`https://api.hunter.io/v2/account?api_key=${hunterKey}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        setHunterStatus('valid');
-        toast({
-          title: '✓ Chave válida',
-          description: `Hunter.io ativo! ${data.data?.requests?.searches?.available || 0} buscas disponíveis.`,
-        });
-      } else {
-        setHunterStatus('invalid');
-        toast({
-          title: 'Chave inválida',
-          description: 'A chave do Hunter.io não é válida.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      setHunterStatus('invalid');
-      toast({
-        title: 'Erro ao testar',
-        description: 'Não foi possível validar a chave.',
-        variant: 'destructive',
-      });
-    } finally {
-      setTestingHunter(false);
-    }
-  };
-
-  const clearHunterKey = async () => {
-    try {
-      const { error } = await supabase
-        .from('user_settings')
-        .update({ hunter_api_token: null })
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setHunterKey('');
-      setHunterStatus('unknown');
-      toast({ title: 'Chave Hunter removida' });
-    } catch (error: any) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    }
+      if (response.ok) { const data = await response.json(); setHunterStatus('valid'); toast({ title: '✓ Chave válida', description: `Hunter.io ativo! ${data.data?.requests?.searches?.available || 0} buscas disponíveis.` }); }
+      else { setHunterStatus('invalid'); toast({ title: 'Chave inválida', variant: 'destructive' }); }
+    } catch { setHunterStatus('invalid'); toast({ title: 'Erro ao testar', variant: 'destructive' }); }
+    finally { setTestingHunter(false); }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
+
+  const StatusBadge = ({ status }: { status: 'unknown' | 'valid' | 'invalid' }) => {
+    if (status === 'valid') return <Badge className="bg-green-600 text-white"><Check className="h-3 w-3 mr-1" />Configurada</Badge>;
+    if (status === 'invalid') return <Badge variant="destructive"><AlertCircle className="h-3 w-3 mr-1" />Inválida</Badge>;
+    return null;
+  };
 
   return (
     <div className="space-y-6">
+      {/* DeepSeek - Global Info */}
       <Alert className="border-primary/20 bg-primary/5">
+        <Sparkles className="h-4 w-4" />
+        <AlertTitle className="flex items-center gap-2">
+          DeepSeek IA
+          <Badge className="bg-green-600 text-white">Incluída no Plano</Badge>
+        </AlertTitle>
+        <AlertDescription>
+          A IA DeepSeek é compartilhada e já está configurada globalmente. 
+          Você não precisa configurar nenhuma chave — ela funciona automaticamente para todos os usuários.
+        </AlertDescription>
+      </Alert>
+
+      <Alert className="border-muted">
         <Shield className="h-4 w-4" />
         <AlertTitle>Suas chaves são privadas</AlertTitle>
         <AlertDescription>
-          Cada usuário deve configurar suas próprias chaves de API. 
-          Elas são armazenadas de forma segura e usadas apenas para suas operações.
+          Configure suas próprias chaves de API abaixo. Elas são armazenadas de forma segura e usadas apenas para suas operações.
         </AlertDescription>
       </Alert>
 
@@ -512,7 +200,7 @@ export function ApiKeysSettings() {
       <Card className="border-2 border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-yellow-500" />
+            <Zap className="h-5 w-5 text-primary" />
             API de Busca Preferida
           </CardTitle>
           <CardDescription>
@@ -520,441 +208,138 @@ export function ApiKeysSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RadioGroup
-            value={preferredApi}
-            onValueChange={(value) => handleSavePreferredApi(value as 'serper' | 'serpapi')}
-            className="grid gap-4 md:grid-cols-2"
-          >
+          <RadioGroup value={preferredApi} onValueChange={(v) => handleSavePreferredApi(v as 'serper' | 'serpapi')} className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors">
               <RadioGroupItem value="serper" id="serper" className="mt-1" />
               <div className="flex-1">
                 <Label htmlFor="serper" className="cursor-pointer font-medium flex items-center gap-2">
                   Serper.dev
-                  <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">
-                    Recomendado
-                  </Badge>
+                  <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">Recomendado</Badge>
                 </Label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  <strong>2.500 buscas grátis/mês</strong> • Mais rápido (1-2s)
-                </p>
+                <p className="text-sm text-muted-foreground mt-1"><strong>2.500 buscas grátis/mês</strong> • Mais rápido</p>
               </div>
             </div>
             <div className="flex items-start space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors">
               <RadioGroupItem value="serpapi" id="serpapi" className="mt-1" />
               <div className="flex-1">
-                <Label htmlFor="serpapi" className="cursor-pointer font-medium">
-                  SerpAPI
-                </Label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  <strong>100 buscas grátis/mês</strong> • Mais estabelecido
-                </p>
+                <Label htmlFor="serpapi" className="cursor-pointer font-medium">SerpAPI</Label>
+                <p className="text-sm text-muted-foreground mt-1"><strong>100 buscas grátis/mês</strong> • Mais estabelecido</p>
               </div>
             </div>
           </RadioGroup>
-          <p className="text-xs text-muted-foreground mt-3">
-            💡 Se a API preferida falhar, o sistema tentará automaticamente a outra como fallback.
-          </p>
+          <p className="text-xs text-muted-foreground mt-3">💡 Se a API preferida falhar, o sistema tentará automaticamente a outra como fallback.</p>
         </CardContent>
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Serper.dev API Key */}
+        {/* Serper.dev */}
         <Card className={preferredApi === 'serper' ? 'ring-2 ring-primary/50' : ''}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-green-500" />
+              <Search className="h-5 w-5 text-primary" />
               Serper.dev
-              {preferredApi === 'serper' && (
-                <Badge variant="default" className="bg-primary">
-                  Preferida
-                </Badge>
-              )}
-              {serperStatus === 'valid' && (
-                <Badge variant="default" className="bg-green-500">
-                  <Check className="h-3 w-3 mr-1" />
-                  Configurada
-                </Badge>
-              )}
-              {serperStatus === 'invalid' && (
-                <Badge variant="destructive">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Inválida
-                </Badge>
-              )}
+              {preferredApi === 'serper' && <Badge variant="default">Preferida</Badge>}
+              <StatusBadge status={serperStatus} />
             </CardTitle>
-            <CardDescription>
-              API rápida para buscar leads no Google • 2.500 buscas grátis/mês
-            </CardDescription>
+            <CardDescription>API rápida para buscar leads no Google • 2.500 buscas grátis/mês</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Chave de API do Serper.dev</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    type={showSerper ? 'text' : 'password'}
-                    placeholder="Sua chave Serper.dev..."
-                    value={serperKey}
-                    onChange={(e) => {
-                      setSerperKey(e.target.value);
-                      setSerperStatus('unknown');
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowSerper(!showSerper)}
-                  >
-                    {showSerper ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
+              <div className="relative">
+                <Input type={showSerper ? 'text' : 'password'} placeholder="Sua chave Serper.dev..." value={serperKey} onChange={(e) => { setSerperKey(e.target.value); setSerperStatus('unknown'); }} />
+                <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full" onClick={() => setShowSerper(!showSerper)}>
+                  {showSerper ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
-
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={testSerperKey}
-                disabled={testingSerper || !serperKey}
-              >
-                {testingSerper ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="h-4 w-4 mr-2" />
-                )}
-                Testar
+              <Button variant="outline" size="sm" onClick={testSerperKey} disabled={testingSerper || !serperKey}>
+                {testingSerper ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}Testar
               </Button>
-              <Button
-                size="sm"
-                onClick={handleSaveSerper}
-                disabled={!serperKey || serperKey.includes('••••')}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Salvar
+              <Button size="sm" onClick={handleSaveSerper} disabled={!serperKey || serperKey.includes('••••')}>
+                <Key className="h-4 w-4 mr-2" />Salvar
               </Button>
-              {serperStatus === 'valid' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearSerperKey}
-                  className="text-destructive"
-                >
-                  Remover
-                </Button>
-              )}
+              {serperStatus === 'valid' && <Button variant="ghost" size="sm" onClick={() => clearKey('serper_api_key', 'Chave Serper.dev', setSerperKey, setSerperStatus)} className="text-destructive">Remover</Button>}
             </div>
-
             <div className="pt-2 border-t">
-              <a
-                href="https://serper.dev/api-key"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Obter chave no Serper.dev (grátis)
+              <a href="https://serper.dev/api-key" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />Obter chave no Serper.dev (grátis)
               </a>
             </div>
           </CardContent>
         </Card>
 
-        {/* DeepSeek API Key */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-500" />
-              DeepSeek API
-              {deepseekStatus === 'valid' && (
-                <Badge variant="default" className="bg-green-500">
-                  <Check className="h-3 w-3 mr-1" />
-                  Configurada
-                </Badge>
-              )}
-              {deepseekStatus === 'invalid' && (
-                <Badge variant="destructive">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Inválida
-                </Badge>
-              )}
-            </CardTitle>
-            <CardDescription>
-              Usada para personalizar mensagens, gerar respostas automáticas e insights de prospecção
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Chave de API da DeepSeek</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    type={showDeepseek ? 'text' : 'password'}
-                    placeholder="sk-..."
-                    value={deepseekKey}
-                    onChange={(e) => {
-                      setDeepseekKey(e.target.value);
-                      setDeepseekStatus('unknown');
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowDeepseek(!showDeepseek)}
-                  >
-                    {showDeepseek ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={testDeepseekKey}
-                disabled={testingDeepseek || !deepseekKey}
-              >
-                {testingDeepseek ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="h-4 w-4 mr-2" />
-                )}
-                Testar
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleSaveDeepseek}
-                disabled={!deepseekKey || deepseekKey.includes('••••')}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Salvar
-              </Button>
-              {deepseekStatus === 'valid' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearDeepseekKey}
-                  className="text-destructive"
-                >
-                  Remover
-                </Button>
-              )}
-            </div>
-
-            <div className="pt-2 border-t">
-              <a
-                href="https://platform.deepseek.com/api_keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Obter chave na DeepSeek Platform
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* SerpAPI Key */}
+        {/* SerpAPI */}
         <Card className={preferredApi === 'serpapi' ? 'ring-2 ring-primary/50' : ''}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5 text-orange-500" />
               SerpAPI
-              {preferredApi === 'serpapi' && (
-                <Badge variant="default" className="bg-primary">
-                  Preferida
-                </Badge>
-              )}
-              {serpApiStatus === 'valid' && (
-                <Badge variant="default" className="bg-green-500">
-                  <Check className="h-3 w-3 mr-1" />
-                  Configurada
-                </Badge>
-              )}
-              {serpApiStatus === 'invalid' && (
-                <Badge variant="destructive">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Inválida
-                </Badge>
-              )}
+              {preferredApi === 'serpapi' && <Badge variant="default">Preferida</Badge>}
+              <StatusBadge status={serpApiStatus} />
             </CardTitle>
-            <CardDescription>
-              API alternativa para buscar leads no Google Maps • 100 buscas grátis/mês
-            </CardDescription>
+            <CardDescription>API alternativa para buscar leads • 100 buscas grátis/mês</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Chave de API do SerpAPI</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    type={showSerpApi ? 'text' : 'password'}
-                    placeholder="Sua chave SerpAPI..."
-                    value={serpApiKey}
-                    onChange={(e) => {
-                      setSerpApiKey(e.target.value);
-                      setSerpApiStatus('unknown');
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowSerpApi(!showSerpApi)}
-                  >
-                    {showSerpApi ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
+              <div className="relative">
+                <Input type={showSerpApi ? 'text' : 'password'} placeholder="Sua chave SerpAPI..." value={serpApiKey} onChange={(e) => { setSerpApiKey(e.target.value); setSerpApiStatus('unknown'); }} />
+                <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full" onClick={() => setShowSerpApi(!showSerpApi)}>
+                  {showSerpApi ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
-
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={testSerpApiKey}
-                disabled={testingSerpApi || !serpApiKey}
-              >
-                {testingSerpApi ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="h-4 w-4 mr-2" />
-                )}
-                Testar
+              <Button variant="outline" size="sm" onClick={testSerpApiKey} disabled={testingSerpApi || !serpApiKey}>
+                {testingSerpApi ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}Testar
               </Button>
-              <Button
-                size="sm"
-                onClick={handleSaveSerpApi}
-                disabled={!serpApiKey || serpApiKey.includes('••••')}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Salvar
+              <Button size="sm" onClick={handleSaveSerpApi} disabled={!serpApiKey || serpApiKey.includes('••••')}>
+                <Key className="h-4 w-4 mr-2" />Salvar
               </Button>
-              {serpApiStatus === 'valid' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearSerpApiKey}
-                  className="text-destructive"
-                >
-                  Remover
-                </Button>
-              )}
+              {serpApiStatus === 'valid' && <Button variant="ghost" size="sm" onClick={() => clearKey('serpapi_api_key', 'Chave SerpAPI', setSerpApiKey, setSerpApiStatus)} className="text-destructive">Remover</Button>}
             </div>
-
             <div className="pt-2 border-t">
-              <a
-                href="https://serpapi.com/manage-api-key"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Obter chave no SerpAPI
+              <a href="https://serpapi.com/manage-api-key" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />Obter chave no SerpAPI
               </a>
             </div>
           </CardContent>
         </Card>
-        
-        {/* Hunter.io API Key */}
+
+        {/* Hunter.io */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-purple-500" />
               Hunter.io API
-              {hunterStatus === 'valid' && (
-                <Badge variant="default" className="bg-green-500">
-                  <Check className="h-3 w-3 mr-1" />
-                  Configurada
-                </Badge>
-              )}
-              {hunterStatus === 'invalid' && (
-                <Badge variant="destructive">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Inválida
-                </Badge>
-              )}
+              <StatusBadge status={hunterStatus} />
             </CardTitle>
-            <CardDescription>
-              Usada para descobrir e verificar emails profissionais
-            </CardDescription>
+            <CardDescription>Descobrir e verificar emails profissionais • 25 buscas grátis/mês</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Chave de API do Hunter.io</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    type={showHunter ? 'text' : 'password'}
-                    placeholder="Sua chave Hunter.io..."
-                    value={hunterKey}
-                    onChange={(e) => {
-                      setHunterKey(e.target.value);
-                      setHunterStatus('unknown');
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowHunter(!showHunter)}
-                  >
-                    {showHunter ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
+              <div className="relative">
+                <Input type={showHunter ? 'text' : 'password'} placeholder="Sua chave Hunter.io..." value={hunterKey} onChange={(e) => { setHunterKey(e.target.value); setHunterStatus('unknown'); }} />
+                <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full" onClick={() => setShowHunter(!showHunter)}>
+                  {showHunter ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
-
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={testHunterKey}
-                disabled={testingHunter || !hunterKey}
-              >
-                {testingHunter ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="h-4 w-4 mr-2" />
-                )}
-                Testar
+              <Button variant="outline" size="sm" onClick={testHunterKey} disabled={testingHunter || !hunterKey}>
+                {testingHunter ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}Testar
               </Button>
-              <Button
-                size="sm"
-                onClick={handleSaveHunter}
-                disabled={!hunterKey || hunterKey.includes('••••')}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Salvar
+              <Button size="sm" onClick={handleSaveHunter} disabled={!hunterKey || hunterKey.includes('••••')}>
+                <Key className="h-4 w-4 mr-2" />Salvar
               </Button>
-              {hunterStatus === 'valid' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearHunterKey}
-                  className="text-destructive"
-                >
-                  Remover
-                </Button>
-              )}
+              {hunterStatus === 'valid' && <Button variant="ghost" size="sm" onClick={() => clearKey('hunter_api_token', 'Chave Hunter.io', setHunterKey, setHunterStatus)} className="text-destructive">Remover</Button>}
             </div>
-
             <div className="pt-2 border-t">
-              <a
-                href="https://hunter.io/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Obter chave no Hunter.io
+              <a href="https://hunter.io/api-keys" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+                <ExternalLink className="h-3 w-3" />Obter chave no Hunter.io
               </a>
             </div>
           </CardContent>
@@ -964,46 +349,31 @@ export function ApiKeysSettings() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-pink-500" />
+              <Bot className="h-5 w-5 text-pink-500" />
               Apify Token
+              <StatusBadge status={apifyStatus} />
             </CardTitle>
-            <CardDescription>
-              Necessário para o Extrator Instagram. Gratuito em apify.com
-            </CardDescription>
+            <CardDescription>Necessário para extração de Instagram e Facebook • Gratuito em apify.com</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Token Apify</Label>
-              <Input
-                type="password"
-                placeholder="apify_api_..."
-                onChange={(e) => {
-                  if (e.target.value && !e.target.value.includes('••••')) {
-                    // Will save on blur or button
-                    (window as any).__apifyToken = e.target.value;
-                  }
-                }}
-              />
+              <div className="relative">
+                <Input type={showApify ? 'text' : 'password'} placeholder="apify_api_..." value={apifyKey} onChange={(e) => { setApifyKey(e.target.value); setApifyStatus('unknown'); }} />
+                <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full" onClick={() => setShowApify(!showApify)}>
+                  {showApify ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => {
-                  const token = (window as any).__apifyToken;
-                  if (!token) return;
-                  supabase.from('user_settings').update({ apify_token: token } as any).eq('user_id', user?.id).then(() => {
-                    toast({ title: '✓ Token Apify salvo' });
-                  });
-                }}
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Salvar
+              <Button size="sm" onClick={handleSaveApify} disabled={!apifyKey || apifyKey.includes('••••')}>
+                <Key className="h-4 w-4 mr-2" />Salvar
               </Button>
+              {apifyStatus === 'valid' && <Button variant="ghost" size="sm" onClick={() => clearKey('apify_token', 'Token Apify', setApifyKey, setApifyStatus)} className="text-destructive">Remover</Button>}
             </div>
             <div className="pt-2 border-t">
               <a href="https://apify.com" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
-                <ExternalLink className="h-3 w-3" />
-                Criar conta gratuita no Apify →
+                <ExternalLink className="h-3 w-3" />Criar conta gratuita no Apify →
               </a>
             </div>
           </CardContent>
@@ -1012,24 +382,13 @@ export function ApiKeysSettings() {
 
       <Alert variant="default">
         <Info className="h-4 w-4" />
-        <AlertTitle>Por que preciso das minhas próprias chaves?</AlertTitle>
+        <AlertTitle>Resumo das APIs</AlertTitle>
         <AlertDescription className="mt-2 space-y-2">
-          <p>
-            <strong>• Serper.dev:</strong> API recomendada para buscar empresas no Google.
-            O plano gratuito oferece 2.500 buscas por mês.
-          </p>
-          <p>
-            <strong>• DeepSeek API:</strong> Usada para personalizar mensagens de prospecção com IA. 
-            Planos acessíveis com alta performance.
-          </p>
-          <p>
-            <strong>• SerpAPI:</strong> Alternativa para buscar empresas no Google Maps.
-            O plano gratuito oferece 100 buscas por mês.
-          </p>
-          <p>
-            <strong>• Hunter.io:</strong> Usada para descobrir e verificar emails profissionais.
-            O plano gratuito oferece 25 buscas por mês.
-          </p>
+          <p><strong>🤖 DeepSeek IA:</strong> Incluída no plano — não precisa configurar.</p>
+          <p><strong>🔍 Serper.dev:</strong> Buscar empresas no Google. 2.500 buscas grátis/mês.</p>
+          <p><strong>🔍 SerpAPI:</strong> Alternativa para buscar no Google Maps. 100 buscas grátis/mês.</p>
+          <p><strong>📧 Hunter.io:</strong> Descobrir emails profissionais. 25 buscas grátis/mês.</p>
+          <p><strong>🤖 Apify:</strong> Extração de dados do Instagram e Facebook. Gratuito.</p>
         </AlertDescription>
       </Alert>
     </div>
