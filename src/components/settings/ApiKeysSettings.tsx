@@ -216,8 +216,18 @@ export function ApiKeysSettings() {
 
     setTestingDeepseek(true);
     try {
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions',
-      
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${deepseekKey}`,
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: 'Olá' }],
+          max_tokens: 5,
+        }),
+      });
       if (response.ok) {
         setDeepseekStatus('valid');
         toast({
