@@ -3,7 +3,6 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,11 +14,11 @@ import {
   Rocket,
   Building2,
   MessageSquare,
-  Users,
   Smartphone,
   Zap,
   Star,
   ExternalLink,
+  Infinity as InfinityIcon,
 } from 'lucide-react';
 
 const plans = [
@@ -29,45 +28,48 @@ const plans = [
     icon: Rocket,
     monthlyPrice: 97,
     features: [
-      '500 disparos/mês',
+      'Disparos ilimitados',
       '1 chip WhatsApp',
       'Google Maps + Radar CNPJ',
       'Funil de vendas',
+      'Leads ilimitados',
       'Suporte por email',
     ],
-    limits: { messages: 500, chips: 1, leads: 1000 },
+    chips: 1,
     highlight: false,
   },
   {
     id: 'pro',
     name: 'Pro',
     icon: Crown,
-    monthlyPrice: 197,
+    monthlyPrice: 149,
     features: [
-      '2.000 disparos/mês',
+      'Disparos ilimitados',
       '3 chips WhatsApp',
       'Todos os extratores',
       'Agente SDR ativo',
+      'Leads ilimitados',
       'Relatórios avançados',
       'Suporte prioritário',
     ],
-    limits: { messages: 2000, chips: 3, leads: 10000 },
+    chips: 3,
     highlight: true,
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
     icon: Building2,
-    monthlyPrice: 497,
+    monthlyPrice: 199,
     features: [
       'Disparos ilimitados',
-      'Chips ilimitados',
+      '10 chips WhatsApp',
       'API pública',
+      'Leads ilimitados',
       'Múltiplos funis',
       'Gerente dedicado',
       'SLA garantido',
     ],
-    limits: { messages: Infinity, chips: Infinity, leads: Infinity },
+    chips: 10,
     highlight: false,
   },
 ];
@@ -79,7 +81,6 @@ export default function BillingPage() {
   const { settings } = useUserSettings();
 
   const currentPlan = 'starter'; // TODO: from user subscription
-  const messagesUsed = 0; // TODO: from stats
   const chipsConnected = settings?.whatsapp_connected ? 1 : 0;
   const leadsCount = leads?.length || 0;
   const currentPlanData = plans.find(p => p.id === currentPlan)!;
@@ -95,13 +96,13 @@ export default function BillingPage() {
       description="Gerencie seu plano e acompanhe o uso"
     >
       <div className="space-y-6 animate-fade-in">
-        {/* Current Usage */}
+        {/* Current Plan Info */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-primary" />
-                <CardTitle>Uso Atual</CardTitle>
+                <CardTitle>Seu Plano</CardTitle>
               </div>
               <Badge className="bg-primary text-primary-foreground">
                 Plano {currentPlanData.name}
@@ -110,38 +111,26 @@ export default function BillingPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    <MessageSquare className="h-3.5 w-3.5" /> Disparos
-                  </span>
-                  <span className="font-medium">
-                    {messagesUsed}/{currentPlanData.limits.messages === Infinity ? '∞' : currentPlanData.limits.messages}
-                  </span>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Disparos</p>
+                  <p className="font-semibold flex items-center gap-1">Ilimitados ∞</p>
                 </div>
-                <Progress value={currentPlanData.limits.messages === Infinity ? 0 : (messagesUsed / currentPlanData.limits.messages) * 100} />
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    <Smartphone className="h-3.5 w-3.5" /> Chips
-                  </span>
-                  <span className="font-medium">
-                    {chipsConnected}/{currentPlanData.limits.chips === Infinity ? '∞' : currentPlanData.limits.chips}
-                  </span>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Smartphone className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Chips WhatsApp</p>
+                  <p className="font-semibold">{chipsConnected}/{currentPlanData.chips}</p>
                 </div>
-                <Progress value={currentPlanData.limits.chips === Infinity ? 0 : (chipsConnected / currentPlanData.limits.chips) * 100} />
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" /> Leads
-                  </span>
-                  <span className="font-medium">
-                    {leadsCount}/{currentPlanData.limits.leads === Infinity ? '∞' : currentPlanData.limits.leads.toLocaleString()}
-                  </span>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Star className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Leads</p>
+                  <p className="font-semibold">{leadsCount.toLocaleString()} — Ilimitados ∞</p>
                 </div>
-                <Progress value={currentPlanData.limits.leads === Infinity ? 0 : (leadsCount / currentPlanData.limits.leads) * 100} />
               </div>
             </div>
           </CardContent>
