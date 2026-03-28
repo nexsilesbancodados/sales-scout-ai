@@ -31,23 +31,22 @@ export function ApiKeysSettings() {
   const { settings, isLoading, updateSettings, isUpdating } = useUserSettings();
   const { toast } = useToast();
   
-  const [deepseekKey, setDeepseekKey] = useState('');
   const [serpApiKey, setSerpApiKey] = useState('');
   const [serperKey, setSerperKey] = useState('');
   const [hunterKey, setHunterKey] = useState('');
+  const [apifyKey, setApifyKey] = useState('');
   const [preferredApi, setPreferredApi] = useState<'serper' | 'serpapi'>('serper');
-  const [showDeepseek, setShowDeepseek] = useState(false);
   const [showSerpApi, setShowSerpApi] = useState(false);
   const [showSerper, setShowSerper] = useState(false);
   const [showHunter, setShowHunter] = useState(false);
-  const [testingDeepseek, setTestingDeepseek] = useState(false);
+  const [showApify, setShowApify] = useState(false);
   const [testingSerpApi, setTestingSerpApi] = useState(false);
   const [testingSerper, setTestingSerper] = useState(false);
   const [testingHunter, setTestingHunter] = useState(false);
-  const [deepseekStatus, setDeepseekStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [serpApiStatus, setSerpApiStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [serperStatus, setSerperStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
   const [hunterStatus, setHunterStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
+  const [apifyStatus, setApifyStatus] = useState<'unknown' | 'valid' | 'invalid'>('unknown');
 
   // Load existing keys (masked)
   useEffect(() => {
