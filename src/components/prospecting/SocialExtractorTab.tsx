@@ -158,13 +158,11 @@ export function SocialExtractorTab() {
         phone: profile.phone || '000',
         email: profile.email || undefined,
         website: profile.external_url || undefined,
-        instagram_url: profile.instagram_url,
-        notes: profile.bio,
+        notes: `${profile.bio}\n\nInstagram: ${profile.instagram_url}`,
         niche: profile.category || igNiche,
         location: profile.location || igLocation,
         source: 'instagram',
-        photo_url: profile.profile_pic_url,
-      });
+      } as any);
       setIgImported(prev => new Set(prev).add(profile.username));
       toast({ title: 'Lead adicionado!', description: `@${profile.username}` });
     } catch (err: any) {
@@ -180,13 +178,12 @@ export function SocialExtractorTab() {
         phone: page.phone || '000',
         email: page.email || undefined,
         website: page.website || undefined,
-        facebook_url: page.facebook_url,
         address: page.address || undefined,
+        notes: `Facebook: ${page.facebook_url}`,
         niche: page.category || fbNiche,
         location: page.location || fbLocation,
         source: 'facebook',
-        rating: page.rating ? Number(page.rating) : undefined,
-      });
+      } as any);
       setFbImported(prev => new Set(prev).add(page.facebook_url));
       toast({ title: 'Lead adicionado!', description: page.name });
     } catch (err: any) {
