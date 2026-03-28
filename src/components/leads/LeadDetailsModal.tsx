@@ -20,12 +20,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Lead, LeadStage, LeadTemperature, LeadTask, LeadNote } from '@/types/database';
 import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import {
   Building2,
   Phone,
@@ -46,6 +49,8 @@ import {
   Plus,
   CheckSquare,
   DollarSign,
+  FileText,
+  Copy,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
