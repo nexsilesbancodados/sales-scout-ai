@@ -77,6 +77,7 @@ const App = () => (
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
                   <Route path="/prospecting-history" element={<ProtectedRoute><ProspectingHistoryPage /></ProtectedRoute>} />
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
+                  <Route path="/ab-testing" element={<ProtectedRoute><ABTestingPage /></ProtectedRoute>} />
 
                   {/* CRM */}
                   <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
