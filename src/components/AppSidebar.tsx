@@ -168,9 +168,23 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
+        <SectionLabel>Captura</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {captureItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Disparo</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {outreachItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
         <SectionLabel>Prospecção</SectionLabel>
         <SidebarMenu className="space-y-0.5">
-          {prospectingItems.map((item) => (
+          {toolsProspectingItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
