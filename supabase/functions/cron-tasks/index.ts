@@ -103,6 +103,24 @@ Deno.serve(async (req) => {
       results.cleaned_jobs = count || 0;
     }
 
+    // Task 5: Send daily reports
+    if (!task || task === "send_reports") {
+      const now = new Date();
+      const hour = now.getUTCHours();
+      if (hour >= 11 && hour < 12) {
+        const { data: usersWithReport } = await supabase
+          .from("user_settings")
+          .select("user_id")
+          .eq("daily_report_enabled", true);
+        for (const userSetting of usersWithReport || []) {
+          await supabase.functions.invoke("send-report", {
+            body: { user_id: userSetting.user_id },
+          });
+        }
+        results.reports_sent = usersWithReport?.length || 0;
+      }
+    }
+
     console.log("Cron tasks completed:", results);
 
     return new Response(

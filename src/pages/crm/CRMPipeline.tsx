@@ -268,6 +268,6 @@ export default function CRMPipelinePage() {
           })}
         </div>
       )}
-    </CRMLayout>
+    </div>
   );
 }
