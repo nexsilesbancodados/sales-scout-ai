@@ -17,28 +17,32 @@ export function usePushNotifications() {
   const [isSupported, setIsSupported] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
-  useEffect(() => {
-    // Check if notifications are supported
-    const supported = 'Notification' in window && 'serviceWorker' in navigator;
-    setIsSupported(supported);
+  const registerServiceWorker = useCallback(async () => {
+    if (!('serviceWorker' in navigator)) return null;
+    if (swRegistration) return swRegistration;
 
-    if (supported) {
-      setPermission(Notification.permission);
-      
-      // Register service worker
-      registerServiceWorker();
-    }
-  }, []);
-
-  const registerServiceWorker = async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw-notifications.js');
       setSwRegistration(registration);
-      console.log('Service Worker registered:', registration);
+      return registration;
     } catch (error) {
       console.error('Service Worker registration failed:', error);
+      return null;
     }
-  };
+  }, [swRegistration]);
+
+  useEffect(() => {
+    const supported = 'Notification' in window && 'serviceWorker' in navigator;
+    setIsSupported(supported);
+
+    if (!supported) return;
+
+    setPermission(Notification.permission);
+
+    if (Notification.permission === 'granted') {
+      void registerServiceWorker();
+    }
+  }, [registerServiceWorker]);
 
   const requestPermission = useCallback(async () => {
     if (!isSupported) {
@@ -55,81 +59,91 @@ export function usePushNotifications() {
       setPermission(result);
 
       if (result === 'granted') {
+        await registerServiceWorker();
         toast({
           title: '✓ Notificações ativadas',
           description: 'Você receberá alertas quando tarefas terminarem ou leads responderem.',
         });
         return true;
-      } else if (result === 'denied') {
+      }
+
+      if (result === 'denied') {
         toast({
           title: 'Notificações bloqueadas',
           description: 'Você pode reativar nas configurações do navegador.',
           variant: 'destructive',
         });
-        return false;
       }
+
       return false;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
     }
-  }, [isSupported, toast]);
+  }, [isSupported, registerServiceWorker, toast]);
 
-  const sendNotification = useCallback((data: NotificationData) => {
-    if (permission !== 'granted') {
-      console.log('Notification permission not granted');
-      return;
-    }
+  const sendNotification = useCallback(
+    (data: NotificationData) => {
+      if (permission !== 'granted') return;
 
-    // Try to use service worker if available (works in background)
-    if (swRegistration) {
-      swRegistration.showNotification(data.title, {
-        body: data.body,
-        icon: data.icon || '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: data.tag || 'prospecte-notification',
-        data: data.data,
-        requireInteraction: data.requireInteraction,
-      });
-    } else {
-      // Fallback to regular notification (only works when tab is open)
+      if (swRegistration) {
+        swRegistration.showNotification(data.title, {
+          body: data.body,
+          icon: data.icon || '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: data.tag || 'prospecte-notification',
+          data: data.data,
+          requireInteraction: data.requireInteraction,
+        });
+        return;
+      }
+
       new Notification(data.title, {
         body: data.body,
         icon: data.icon || '/favicon.ico',
         tag: data.tag,
         data: data.data,
       });
-    }
-  }, [permission, swRegistration]);
+    },
+    [permission, swRegistration],
+  );
 
-  // Notification helpers
-  const notifyJobComplete = useCallback((jobType: string, result: { processed: number; failed: number }) => {
-    sendNotification({
-      title: '✓ Tarefa concluída',
-      body: `${jobType}: ${result.processed} processados, ${result.failed} falhas`,
-      tag: 'job-complete',
-      data: { type: 'job_complete' },
-    });
-  }, [sendNotification]);
+  const notifyJobComplete = useCallback(
+    (jobType: string, result: { processed: number; failed: number }) => {
+      sendNotification({
+        title: '✓ Tarefa concluída',
+        body: `${jobType}: ${result.processed} processados, ${result.failed} falhas`,
+        tag: 'job-complete',
+        data: { type: 'job_complete' },
+      });
+    },
+    [sendNotification],
+  );
 
-  const notifyLeadResponse = useCallback((leadName: string, leadId: string) => {
-    sendNotification({
-      title: '💬 Nova resposta!',
-      body: `${leadName} respondeu sua mensagem`,
-      tag: `lead-${leadId}`,
-      data: { type: 'lead_response', leadId },
-      requireInteraction: true,
-    });
-  }, [sendNotification]);
+  const notifyLeadResponse = useCallback(
+    (leadName: string, leadId: string) => {
+      sendNotification({
+        title: '💬 Nova resposta!',
+        body: `${leadName} respondeu sua mensagem`,
+        tag: `lead-${leadId}`,
+        data: { type: 'lead_response', leadId },
+        requireInteraction: true,
+      });
+    },
+    [sendNotification],
+  );
 
-  const notifyFollowUpDue = useCallback((leadName: string, leadId: string) => {
-    sendNotification({
-      title: '⏰ Follow-up pendente',
-      body: `Hora de entrar em contato com ${leadName}`,
-      tag: `followup-${leadId}`,
-      data: { type: 'followup_due', leadId },
-    });
-  }, [sendNotification]);
+  const notifyFollowUpDue = useCallback(
+    (leadName: string, leadId: string) => {
+      sendNotification({
+        title: '⏰ Follow-up pendente',
+        body: `Hora de entrar em contato com ${leadName}`,
+        tag: `followup-${leadId}`,
+        data: { type: 'followup_due', leadId },
+      });
+    },
+    [sendNotification],
+  );
 
   return {
     isSupported,

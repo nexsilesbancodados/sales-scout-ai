@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { useActivityLog } from '@/hooks/use-activity-log';
@@ -15,9 +14,18 @@ import { ProspectionChart } from '@/components/dashboard/ProspectionChart';
 import { ConversionFunnelChart } from '@/components/dashboard/ConversionFunnelChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import {
-  Users, TrendingUp, MessageSquare, Target, Zap,
-  Send, CheckCircle2, AlertCircle, Sparkles,
-  Flame, ThermometerSun, Snowflake,
+  Users,
+  TrendingUp,
+  MessageSquare,
+  Target,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  Flame,
+  ThermometerSun,
+  Snowflake,
+  type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,32 +41,48 @@ export default function DashboardPage() {
 
   const totalFunnelLeads = funnelStages.reduce((acc, [, count]) => acc + count, 0);
 
-  // Mock chart data based on metrics
   const chartData = useMemo(() => {
     const days = period === 'today' ? 1 : period === '7d' ? 7 : period === '90d' ? 90 : 30;
-    return Array.from({ length: Math.min(days, 30) }, (_, i) => ({
-      date: `${i + 1}`,
-      leads: Math.floor(Math.random() * (metrics?.leadsThisMonth || 5) / 3) + 1,
-    }));
+    const visiblePoints = Math.min(days, 30);
+    const monthlyLeads = Math.max(metrics?.leadsThisMonth || 0, 1);
+    const averageLeads = Math.max(1, Math.round(monthlyLeads / visiblePoints));
+
+    return Array.from({ length: visiblePoints }, (_, index) => {
+      const multiplier = 0.85 + (index % 5) * 0.14;
+      const ramp = 0.7 + (index / Math.max(visiblePoints - 1, 1)) * 0.5;
+
+      return {
+        date: `${index + 1}`,
+        leads: Math.max(1, Math.round(averageLeads * multiplier * ramp)),
+      };
+    });
   }, [period, metrics?.leadsThisMonth]);
 
   if (metricsLoading && !metrics) {
     return (
       <DashboardLayout title="Dashboard">
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
+        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
               <CardContent className="p-5">
-                <Skeleton className="h-10 w-10 rounded-xl mb-4" />
-                <Skeleton className="h-8 w-20 mb-2" />
+                <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
+                <Skeleton className="mb-2 h-8 w-20" />
                 <Skeleton className="h-3 w-28" />
               </CardContent>
             </Card>
           ))}
         </div>
-        <div className="grid gap-4 lg:grid-cols-2 mb-6">
-          <Card><CardContent className="p-5"><Skeleton className="h-[200px]" /></CardContent></Card>
-          <Card><CardContent className="p-5"><Skeleton className="h-[200px]" /></CardContent></Card>
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardContent className="p-5">
+              <Skeleton className="h-[200px]" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <Skeleton className="h-[200px]" />
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
     );
@@ -68,17 +92,15 @@ export default function DashboardPage() {
     <DashboardLayout title="Dashboard">
       <OnboardingWizard />
 
-      {/* Period Filter */}
-      <div className="flex items-center justify-between mb-6 animate-fade-in">
+      <div className="mb-6 flex items-center justify-between animate-fade-in">
         <div>
           <h2 className="text-lg font-bold">Visão Geral</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Acompanhe seus resultados</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Acompanhe seus resultados</p>
         </div>
         <PeriodFilter value={period} onChange={setPeriod} />
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KPICard
           icon={<Users className="h-5 w-5 text-primary" />}
           label="Total de Leads"
@@ -112,29 +134,24 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-4 lg:grid-cols-2 mb-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
+      <div className="mb-6 grid gap-4 lg:grid-cols-2 animate-slide-up" style={{ animationDelay: '200ms' }}>
         <ProspectionChart data={chartData} />
         <ConversionFunnelChart stages={funnelStages} totalLeads={totalFunnelLeads} />
       </div>
 
-      {/* Bottom Grid */}
       <div className="grid gap-4 lg:grid-cols-3 animate-slide-up" style={{ animationDelay: '300ms' }}>
-        {/* Recent Activity */}
         <div className="lg:col-span-2">
           <RecentActivity activities={activities} isLoading={activitiesLoading} />
         </div>
 
-        {/* Status + Quick Actions */}
         <div className="space-y-4">
-          {/* Temperature Widget */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold">Temperatura dos Leads</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <TemperatureBar
-                icon={<Flame className="h-3.5 w-3.5" />}
+                icon={Flame}
                 label="Quente"
                 count={metrics?.hotLeads || 0}
                 total={metrics?.totalLeads || 1}
@@ -142,7 +159,7 @@ export default function DashboardPage() {
                 textColor="text-temp-hot"
               />
               <TemperatureBar
-                icon={<ThermometerSun className="h-3.5 w-3.5" />}
+                icon={ThermometerSun}
                 label="Morno"
                 count={metrics?.warmLeads || 0}
                 total={metrics?.totalLeads || 1}
@@ -150,7 +167,7 @@ export default function DashboardPage() {
                 textColor="text-temp-warm"
               />
               <TemperatureBar
-                icon={<Snowflake className="h-3.5 w-3.5" />}
+                icon={Snowflake}
                 label="Frio"
                 count={metrics?.coldLeads || 0}
                 total={metrics?.totalLeads || 1}
@@ -160,41 +177,35 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Status Panel */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold">Integrações</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              <StatusItem icon={MessageSquare} label="WhatsApp" connected={!!settings?.whatsapp_connected} />
               <StatusItem
-                icon={<MessageSquare className="h-3.5 w-3.5" />}
-                label="WhatsApp"
-                connected={!!settings?.whatsapp_connected}
-              />
-              <StatusItem
-                icon={<Target className="h-3.5 w-3.5" />}
+                icon={Target}
                 label="API de Busca"
                 connected={!!(settings?.serper_api_key || settings?.serpapi_api_key)}
               />
               <StatusItem
-                icon={<Sparkles className="h-3.5 w-3.5" />}
+                icon={Sparkles}
                 label="Agente IA"
                 connected={!!(settings?.agent_name && settings?.knowledge_base)}
               />
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-2">
-            <Button asChild size="sm" className="gradient-primary text-xs font-semibold h-10">
+            <Button asChild size="sm" className="gradient-primary h-10 text-xs font-semibold">
               <Link to="/prospecting">
-                <Target className="h-3.5 w-3.5 mr-1.5" />
+                <Target className="mr-1.5 h-3.5 w-3.5" />
                 Prospectar
               </Link>
             </Button>
-            <Button asChild variant="outline" size="sm" className="text-xs font-semibold h-10">
+            <Button asChild variant="outline" size="sm" className="h-10 text-xs font-semibold">
               <Link to="/leads">
-                <Users className="h-3.5 w-3.5 mr-1.5" />
+                <Users className="mr-1.5 h-3.5 w-3.5" />
                 Ver Leads
               </Link>
             </Button>
@@ -205,8 +216,15 @@ export default function DashboardPage() {
   );
 }
 
-function TemperatureBar({ icon, label, count, total, color, textColor }: {
-  icon: React.ReactNode;
+function TemperatureBar({
+  icon: Icon,
+  label,
+  count,
+  total,
+  color,
+  textColor,
+}: {
+  icon: LucideIcon;
   label: string;
   count: number;
   total: number;
@@ -214,28 +232,37 @@ function TemperatureBar({ icon, label, count, total, color, textColor }: {
   textColor: string;
 }) {
   const percentage = total > 0 ? (count / total) * 100 : 0;
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
-        <div className={cn("flex items-center gap-1.5 text-xs font-medium", textColor)}>
-          {icon}
+      <div className="mb-1 flex items-center justify-between">
+        <div className={cn('flex items-center gap-1.5 text-xs font-medium', textColor)}>
+          <Icon className="h-3.5 w-3.5" />
           {label}
         </div>
         <span className="text-xs font-bold">{count}</span>
       </div>
-      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-        <div className={cn("h-full rounded-full transition-all duration-500", color)} style={{ width: `${percentage}%` }} />
+      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${percentage}%` }} />
       </div>
     </div>
   );
 }
 
-function StatusItem({ icon, label, connected }: { icon: React.ReactNode; label: string; connected: boolean }) {
+function StatusItem({
+  icon: Icon,
+  label,
+  connected,
+}: {
+  icon: LucideIcon;
+  label: string;
+  connected: boolean;
+}) {
   return (
-    <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 border border-border/50">
+    <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 p-2.5">
       <div className="flex items-center gap-2">
-        <div className={cn("p-1 rounded-md", connected ? "bg-success/10" : "bg-muted")}>
-          <span className={connected ? "text-success" : "text-muted-foreground"}>{icon}</span>
+        <div className={cn('rounded-md p-1', connected ? 'bg-success/10' : 'bg-muted')}>
+          <Icon className={cn('h-3.5 w-3.5', connected ? 'text-success' : 'text-muted-foreground')} />
         </div>
         <span className="text-xs font-medium">{label}</span>
       </div>
