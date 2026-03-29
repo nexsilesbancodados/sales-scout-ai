@@ -30,12 +30,17 @@ export default function AuthPage() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (user && !showResetPassword && !showRocketTransition) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate, showResetPassword, showRocketTransition, user]);
+
   const handleRocketComplete = useCallback(() => {
-    navigate('/dashboard');
+    navigate('/dashboard', { replace: true });
   }, [navigate]);
 
   if (user && !showResetPassword && !showRocketTransition) {
-    navigate('/dashboard');
     return null;
   }
 
