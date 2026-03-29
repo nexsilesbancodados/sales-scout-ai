@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 
 const crmNav = [
-  { to: '/crm/dashboard', icon: BarChart3, label: 'Dashboard' },
   { to: '/crm/pipeline', icon: Kanban, label: 'Pipeline' },
   { to: '/crm/contacts', icon: Users, label: 'Contatos' },
   { to: '/crm/activities', icon: CheckSquare, label: 'Atividades' },

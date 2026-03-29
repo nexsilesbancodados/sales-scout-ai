@@ -26,51 +26,75 @@ import {
   Users,
   Kanban,
   MessageSquare,
+  Calendar,
   BarChart3,
   Settings,
   LogOut,
   ChevronUp,
+  BookOpen,
   Sparkles,
   Rocket,
-  Shield,
-  Send,
-  Bot,
-  CreditCard,
-  ShieldCheck,
-  Zap,
-  Database,
   RefreshCw,
   MessageSquareText,
+  Shield,
+  Send,
+  Mail,
+  History,
+  FlaskConical,
+  Building2,
+  Globe,
+  Bot,
+  CreditCard,
+  Code2,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-/* ── Simplified menu: 4 clear categories ── */
 
 const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { title: 'Automações', icon: Zap, path: '/automations', highlight: true },
 ];
 
-const prospectingItems = [
+const captureItems = [
   { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
+  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
+  { title: 'Facebook', icon: Globe, path: '/facebook-extractor' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
+  { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
+];
+
+const outreachItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
 ];
 
 const crmItems = [
-  { title: 'CRM', icon: Database, path: '/crm/dashboard', highlight: true },
-  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline' },
+  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline', highlight: true },
   { title: 'Contatos', icon: Users, path: '/crm/contacts' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
+  { title: 'Atividades', icon: Calendar, path: '/crm/activities' },
   { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
 ];
 
-const toolsItems = [
+const analyticsItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
-  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
+  { title: 'CRM Analytics', icon: BarChart3, path: '/crm/analytics' },
+  { title: 'Funil', icon: Kanban, path: '/funnel' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
+  { title: 'Histórico', icon: History, path: '/prospecting-history' },
+];
+
+const moreItems = [
+  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Meta Ads', icon: Sparkles, path: '/crm/meta-ads' },
   { title: 'Planos', icon: CreditCard, path: '/billing' },
+  { title: 'API', icon: Code2, path: '/api-reference' },
+  { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
 ];
 
 export function AppSidebar() {
@@ -92,14 +116,12 @@ export function AppSidebar() {
     .slice(0, 2) || user?.email?.[0].toUpperCase() || '?';
 
   const isActive = (path: string) => {
-    if (path === '/crm/dashboard') return location.pathname.startsWith('/crm');
+    if (path.includes('?')) return location.pathname + location.search === path;
     return location.pathname === path;
   };
 
-  const isExactActive = (path: string) => location.pathname === path;
-
   const MenuItem = ({ item }: { item: { title: string; icon: React.ComponentType<{ className?: string }>; path: string; highlight?: boolean } }) => {
-    const active = isExactActive(item.path);
+    const active = isActive(item.path);
     return (
       <SidebarMenuItem>
         <SidebarMenuButton
@@ -108,8 +130,8 @@ export function AppSidebar() {
           className={cn(
             "relative h-10 rounded-lg transition-all duration-200 group/item",
             active
-              ? "bg-primary/15 text-primary border border-primary/20"
-              : "hover:bg-white/5 text-muted-foreground hover:text-foreground"
+              ? "gradient-primary text-primary-foreground shadow-md"
+              : "hover:bg-accent text-muted-foreground hover:text-accent-foreground"
           )}
         >
           <Link to={item.path} className="flex items-center gap-3 px-3">
@@ -133,16 +155,16 @@ export function AppSidebar() {
   };
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="px-3 pt-4 pb-1 text-[9px] font-semibold text-muted-foreground/40 uppercase tracking-[0.15em]">
+    <p className="px-4 pt-5 pb-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em]">
       {children}
     </p>
   );
 
   return (
-    <Sidebar className="border-r border-white/5 bg-sidebar">
+    <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="NexaProspect" className="h-10 w-10 rounded-lg object-contain" />
+          <img src={logoImg} alt="NexaProspect" className="h-9 w-9 rounded-lg object-contain" />
           <div>
             <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
           </div>
@@ -156,9 +178,16 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
-        <SectionLabel>Prospecção & Disparo</SectionLabel>
+        <SectionLabel>Captura</SectionLabel>
         <SidebarMenu className="space-y-0.5">
-          {prospectingItems.map((item) => (
+          {captureItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Disparo</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {outreachItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
@@ -170,9 +199,16 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
 
-        <SectionLabel>Ferramentas</SectionLabel>
+        <SectionLabel>Análises</SectionLabel>
         <SidebarMenu className="space-y-0.5">
-          {toolsItems.map((item) => (
+          {analyticsItems.map((item) => (
+            <MenuItem key={item.path} item={item} />
+          ))}
+        </SidebarMenu>
+
+        <SectionLabel>Mais</SectionLabel>
+        <SidebarMenu className="space-y-0.5">
+          {moreItems.map((item) => (
             <MenuItem key={item.path} item={item} />
           ))}
         </SidebarMenu>
@@ -192,12 +228,12 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isExactActive('/settings')}
+              isActive={isActive('/settings')}
               className={cn(
                 "rounded-lg h-10 transition-all duration-200",
-                isExactActive('/settings')
-                  ? 'bg-primary/15 text-primary border border-primary/20'
-                  : 'hover:bg-white/5 text-muted-foreground hover:text-foreground'
+                isActive('/settings')
+                  ? 'gradient-primary text-primary-foreground shadow-md'
+                  : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
               )}
             >
               <Link to="/settings" className="flex items-center gap-3 px-3">
