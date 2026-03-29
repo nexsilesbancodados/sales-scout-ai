@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SubscriptionGuard } from "@/components/SubscriptionGuard";
 import { ThemeProvider } from "next-themes";
 import { RealtimeNotificationsProvider } from "@/components/RealtimeNotificationsProvider";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
