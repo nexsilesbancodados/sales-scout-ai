@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     // 1. Find subscriptions expiring in ~3 days (notify once)
     const { data: expiring } = await supabase
       .from("subscriptions")
-      .select("*, profiles!inner(email, full_name)")
+      .select("*")
       .eq("status", "active")
       .not("expires_at", "is", null)
       .lte("expires_at", threeDaysFromNow.toISOString())
@@ -46,7 +46,14 @@ Deno.serve(async (req) => {
 
         if (existing && existing.length > 0) continue;
 
-        const profile = (sub as any).profiles;
+        // Get user profile
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("user_id", sub.user_id)
+          .limit(1);
+        
+        const profile = profileData?.[0];
         const email = profile?.email;
         if (!email) continue;
 
@@ -78,7 +85,7 @@ Deno.serve(async (req) => {
     // 2. Auto-expire subscriptions past their expires_at
     const { data: expired } = await supabase
       .from("subscriptions")
-      .select("*, profiles!inner(email, full_name)")
+      .select("*")
       .eq("status", "active")
       .not("expires_at", "is", null)
       .lt("expires_at", now.toISOString());
@@ -99,7 +106,14 @@ Deno.serve(async (req) => {
           })
           .eq("id", sub.id);
 
-        const profile = (sub as any).profiles;
+        // Get user profile
+        const { data: profData } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("user_id", sub.user_id)
+          .limit(1);
+        
+        const profile = profData?.[0];
         const email = profile?.email;
 
         if (email) {
