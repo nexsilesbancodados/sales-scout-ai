@@ -312,7 +312,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
-      <section className="bg-[#070712] border-y border-white/5 py-12 overflow-hidden">
+      <section className="bg-[#0E1018] border-y border-white/5 py-12 overflow-hidden">
         <p className="text-[10px] tracking-[0.2em] text-white/20 text-center mb-8 uppercase">Integra com as principais plataformas</p>
         <div className="landing-marquee">
           <div className="landing-marquee-track">
@@ -324,7 +324,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FEATURES ═══ */}
-      <section id="recursos" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="recursos" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Recursos</span>
@@ -348,7 +348,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section className="bg-[#070712] py-24 px-6 lg:px-12">
+      <section className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-blue-400 uppercase">Como funciona</span>
@@ -375,7 +375,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="cases" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-green-400 uppercase">Depoimentos</span>
@@ -407,7 +407,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ PRICING ═══ */}
-      <section id="precos" className="bg-[#070712] py-24 px-6 lg:px-12">
+      <section id="precos" className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection className="text-center mb-12">
             <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Preços</span>
@@ -467,7 +467,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section id="api" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="api" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto">
           <AnimSection className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white">Perguntas frequentes</h2>
@@ -484,7 +484,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="bg-[#050510] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
+      <section className="bg-[#0B0D15] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(100,50,255,0.12) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
@@ -505,7 +505,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="bg-[#030308] py-16 px-6 lg:px-12 border-t border-white/5">
+      <footer className="bg-[#07080E] py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
