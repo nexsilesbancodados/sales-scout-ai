@@ -108,8 +108,8 @@ export function AppSidebar() {
           className={cn(
             "relative h-10 rounded-lg transition-all duration-200 group/item",
             active
-              ? "gradient-primary text-primary-foreground shadow-md"
-              : "hover:bg-accent text-muted-foreground hover:text-accent-foreground"
+              ? "bg-primary/15 text-primary border border-primary/20"
+              : "hover:bg-white/5 text-muted-foreground hover:text-foreground"
           )}
         >
           <Link to={item.path} className="flex items-center gap-3 px-3">
@@ -133,16 +133,16 @@ export function AppSidebar() {
   };
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="px-4 pt-5 pb-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em]">
+    <p className="px-3 pt-4 pb-1 text-[9px] font-semibold text-muted-foreground/40 uppercase tracking-[0.15em]">
       {children}
     </p>
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-sidebar">
+    <Sidebar className="border-r border-white/5 bg-sidebar">
       <SidebarHeader className="p-5 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="NexaProspect" className="h-9 w-9 rounded-lg object-contain" />
+          <img src={logoImg} alt="NexaProspect" className="h-10 w-10 rounded-lg object-contain" />
           <div>
             <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
           </div>
@@ -196,8 +196,8 @@ export function AppSidebar() {
               className={cn(
                 "rounded-lg h-10 transition-all duration-200",
                 isExactActive('/settings')
-                  ? 'gradient-primary text-primary-foreground shadow-md'
-                  : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
+                  ? 'bg-primary/15 text-primary border border-primary/20'
+                  : 'hover:bg-white/5 text-muted-foreground hover:text-foreground'
               )}
             >
               <Link to="/settings" className="flex items-center gap-3 px-3">

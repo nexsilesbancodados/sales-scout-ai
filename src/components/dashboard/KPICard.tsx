@@ -1,52 +1,53 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface KPICardProps {
-  icon: React.ReactNode;
-  label: string;
+  title?: string;
   value: string | number;
   change?: number;
+  icon?: LucideIcon | React.ReactNode;
+  className?: string;
+  label?: string;
+  iconBg?: string;
   changeLabel?: string;
-  iconBg: string;
   delay?: number;
 }
 
-export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay = 0 }: KPICardProps) {
-  const isPositive = (change || 0) >= 0;
+export function KPICard({ title, label, value, change, icon, className, iconBg, changeLabel, delay }: KPICardProps) {
+  const isPositive = (change ?? 0) >= 0;
+  const displayTitle = title || label || '';
 
   return (
-    <Card
-      className="relative overflow-hidden card-hover animate-slide-up"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-4">
-          <div className={cn("p-2.5 rounded-xl", iconBg)}>
-            {icon}
-          </div>
-          {change !== undefined && (
-            <div className={cn(
-              "flex items-center gap-0.5 text-xs font-semibold px-2 py-1 rounded-full",
-              isPositive
-                ? "bg-success/10 text-success"
-                : "bg-destructive/10 text-destructive"
-            )}>
-              {isPositive ? (
-                <ArrowUpRight className="h-3 w-3" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3" />
-              )}
-              {Math.abs(change)}%
-            </div>
-          )}
+    <div className={cn(
+      "rounded-xl border border-white/[0.06] bg-card p-5 flex flex-col gap-3 hover:border-white/10 transition-colors",
+      className
+    )}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon && (typeof icon === 'function' ? (() => { const Icon = icon as LucideIcon; return <Icon className="h-3.5 w-3.5 text-muted-foreground" />; })() : icon)}
+          <span className="text-xs text-muted-foreground font-medium">{displayTitle}</span>
         </div>
-        <p className="text-2xl sm:text-3xl font-bold tracking-tight">{value}</p>
-        <p className="text-[13px] text-muted-foreground mt-1">{label}</p>
-        {changeLabel && (
-          <p className="text-[11px] text-muted-foreground/60 mt-0.5">{changeLabel}</p>
+        <button className="opacity-40 hover:opacity-70 transition-opacity">
+          <span className="text-muted-foreground">···</span>
+        </button>
+      </div>
+      <div className="flex items-end justify-between">
+        <span className="text-3xl font-bold tracking-tight">{value}</span>
+        {change !== undefined && (
+          <div className={cn(
+            "flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full",
+            isPositive
+              ? "bg-success/15 text-success"
+              : "bg-destructive/15 text-destructive"
+          )}>
+            {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {isPositive ? "+" : ""}{change}%
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+      {changeLabel && (
+        <p className="text-[11px] text-muted-foreground/60">{changeLabel}</p>
+      )}
+    </div>
   );
 }

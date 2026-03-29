@@ -181,9 +181,9 @@ export default function FunnelPage() {
                           onDragStart={(e) => handleDragStart(e, lead)}
                           onClick={() => handleLeadClick(lead)}
                           className={`
-                            p-3 rounded-xl border bg-card shadow-sm
+                            p-3 rounded-xl border border-white/[0.06] bg-card
                             cursor-grab active:cursor-grabbing 
-                            hover:border-primary/50 hover:shadow-md
+                            hover:border-white/10 hover:shadow-lg hover:shadow-black/20
                             transition-all duration-200
                             ${draggedLead?.id === lead.id ? 'opacity-50 scale-95' : ''}
                           `}
