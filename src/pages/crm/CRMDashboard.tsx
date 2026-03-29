@@ -173,8 +173,8 @@ export default function CRMDashboard() {
         <Card className="flex-1 flex flex-col overflow-hidden">
           <CardHeader className="pb-3 pt-4 px-4">
             <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-green-500" />
+              <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
+                <MessageCircle className="h-5 w-5 text-success" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold">WhatsApp</CardTitle>
@@ -186,7 +186,7 @@ export default function CRMDashboard() {
             <div className="space-y-1">
               {recentContacts.map((lead) => {
                 const score = lead.lead_score || 0;
-                const scoreColor = score >= 60 ? 'text-green-400' : score >= 30 ? 'text-amber-400' : 'text-muted-foreground';
+                const scoreColor = score >= 60 ? 'text-success' : score >= 30 ? 'text-warning' : 'text-muted-foreground';
                 return (
                   <div
                     key={lead.id}
@@ -238,14 +238,14 @@ export default function CRMDashboard() {
           <CardContent className="space-y-4">
             {/* WhatsApp status */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/30">
-              <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-green-500" />
+              <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
+                <MessageCircle className="h-5 w-5 text-success" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium">WhatsApp</p>
                 <p className="text-xs text-muted-foreground">Mensagens enviadas hoje</p>
               </div>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge className="bg-success/20 text-success border-success/30">
                 {stats.responseRate}%
               </Badge>
             </div>
@@ -261,7 +261,7 @@ export default function CRMDashboard() {
               </div>
               <div className="p-3 rounded-xl bg-accent/20 space-y-1">
                 <div className="flex items-center gap-1">
-                  <MessageCircle className="h-3.5 w-3.5 text-green-500" />
+                  <MessageCircle className="h-3.5 w-3.5 text-success" />
                   <span className="text-xs text-muted-foreground">Respostas</span>
                 </div>
                 <p className="text-lg font-bold">{stats.responded}</p>
@@ -285,8 +285,8 @@ export default function CRMDashboard() {
             {/* Variation indicators */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
-                <ArrowUpRight className="h-4 w-4 text-green-500" />
-                <span className="text-xs font-medium text-green-500">+{stats.responded}</span>
+                <ArrowUpRight className="h-4 w-4 text-success" />
+                <span className="text-xs font-medium text-success">+{stats.responded}</span>
                 <span className="text-[10px] text-muted-foreground">respostas</span>
               </div>
               <div className="flex items-center gap-1">
