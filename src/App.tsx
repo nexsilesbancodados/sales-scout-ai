@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SubscriptionLayout } from "@/components/SubscriptionLayout";
 import { ThemeProvider } from "next-themes";
 import { RealtimeNotificationsProvider } from "@/components/RealtimeNotificationsProvider";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
@@ -85,6 +86,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SubscriptionLayout>
                 <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -159,6 +161,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
+              </SubscriptionLayout>
             </BrowserRouter>
             <PWAInstallBanner />
           </TooltipProvider>

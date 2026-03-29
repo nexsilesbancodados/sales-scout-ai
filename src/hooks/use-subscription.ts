@@ -48,6 +48,8 @@ export function useSubscription() {
       return (data && data.length > 0 ? data[0] : null) as Subscription | null;
     },
     enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10,
   });
 
   const { data: paymentHistory } = useQuery({
@@ -66,6 +68,8 @@ export function useSubscription() {
       return (data || []) as PaymentEvent[];
     },
     enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
   const currentPlan = subscription?.status === 'active' ? subscription.plan : 'free';

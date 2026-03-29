@@ -1,20 +1,15 @@
 import { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { Loader2 } from 'lucide-react';
 import logoImg from '@/assets/logo.png';
-import { SubscriptionGuard } from '@/components/SubscriptionGuard';
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-// Routes that don't require an active subscription
-const FREE_ROUTES = ['/billing', '/auth', '/settings'];
-
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) {
     return (
@@ -32,12 +27,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Allow billing and settings pages without active subscription
-  const isFreeRoute = FREE_ROUTES.some(route => location.pathname.startsWith(route));
-
-  if (isFreeRoute) {
-    return <>{children}</>;
-  }
-
-  return <SubscriptionGuard>{children}</SubscriptionGuard>;
+  return <>{children}</>;
 }
