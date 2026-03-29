@@ -2,19 +2,18 @@ import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface KPICardProps {
-  title: string;
-  value: string;
+  title?: string;
+  value: string | number;
   change?: number;
-  icon?: LucideIcon;
+  icon?: LucideIcon | React.ReactNode;
   className?: string;
-  // Legacy props support
   label?: string;
   iconBg?: string;
   changeLabel?: string;
   delay?: number;
 }
 
-export function KPICard({ title, label, value, change, icon: Icon, className, iconBg, changeLabel, delay }: KPICardProps) {
+export function KPICard({ title, label, value, change, icon, className, iconBg, changeLabel, delay }: KPICardProps) {
   const isPositive = (change ?? 0) >= 0;
   const displayTitle = title || label || '';
 
@@ -25,7 +24,7 @@ export function KPICard({ title, label, value, change, icon: Icon, className, ic
     )}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
+          {icon && (typeof icon === 'function' ? (() => { const Icon = icon as LucideIcon; return <Icon className="h-3.5 w-3.5 text-muted-foreground" />; })() : icon)}
           <span className="text-xs text-muted-foreground font-medium">{displayTitle}</span>
         </div>
         <button className="opacity-40 hover:opacity-70 transition-opacity">
