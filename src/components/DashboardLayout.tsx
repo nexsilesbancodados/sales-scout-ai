@@ -87,7 +87,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
           {/* Enhanced Header */}
-          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
+          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center border-b border-white/5 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
             <div className="flex items-center gap-2 flex-1 px-4 sm:px-6">
               {/* Left: Sidebar trigger + breadcrumb */}
               <SidebarTrigger className="-ml-1 tap-target text-muted-foreground hover:text-foreground transition-colors" />
@@ -95,7 +95,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
               <Breadcrumb className="flex-1 min-w-0">
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="font-semibold truncate text-sm">{title}</BreadcrumbPage>
+                    <BreadcrumbPage className="font-semibold truncate text-lg">{title}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -146,9 +146,9 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
             </div>
           </header>
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in safe-bottom">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 animate-fade-in safe-bottom">
             {description && (
-              <p className="text-muted-foreground mb-6 text-[13px] sm:text-sm">{description}</p>
+              <p className="text-muted-foreground mb-4 text-xs">{description}</p>
             )}
             {children}
           </main>
