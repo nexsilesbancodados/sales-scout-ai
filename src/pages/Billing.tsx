@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useSubscription } from '@/hooks/use-subscription';
+import { useAuth } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -27,7 +29,28 @@ import {
   CheckCircle2,
   XCircle,
   Receipt,
+  Copy,
+  Shield,
 } from 'lucide-react';
+
+// ============================================================
+// CONFIGURE SEUS LINKS DE CHECKOUT DA CAKTO AQUI
+// Substitua pelos links reais dos seus produtos na Cakto
+// ============================================================
+const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
+  starter: {
+    monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
+    annual: 'https://pay.cakto.com.br/STARTER_ANUAL',
+  },
+  pro: {
+    monthly: 'https://pay.cakto.com.br/PRO_MENSAL',
+    annual: 'https://pay.cakto.com.br/PRO_ANUAL',
+  },
+  enterprise: {
+    monthly: 'https://pay.cakto.com.br/ENTERPRISE_MENSAL',
+    annual: 'https://pay.cakto.com.br/ENTERPRISE_ANUAL',
+  },
+};
 
 const plans = [
   {
@@ -106,13 +129,14 @@ export default function BillingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
   const { leads } = useLeads();
   const { settings } = useUserSettings();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { subscription, paymentHistory, currentPlan, isActive, isPastDue, isLoading } = useSubscription();
 
   const chipsConnected = settings?.whatsapp_connected ? 1 : 0;
   const leadsCount = leads?.length || 0;
   const currentPlanData = plans.find(p => p.id === currentPlan) || plans[0];
 
-  // Webhook URL for Cakto configuration
   const webhookUrl = `https://oeztpxyprifabkvysroh.supabase.co/functions/v1/cakto-webhook`;
 
   const getPrice = (monthly: number) => {
@@ -120,12 +144,30 @@ export default function BillingPage() {
     return monthly;
   };
 
+  const getCheckoutUrl = (planId: string) => {
+    const urls = CAKTO_CHECKOUT_URLS[planId];
+    if (!urls) return '#';
+    const baseUrl = isAnnual ? urls.annual : urls.monthly;
+    // Append email as query param for auto-identification
+    const email = user?.email;
+    if (email) {
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      return `${baseUrl}${separator}email=${encodeURIComponent(email)}`;
+    }
+    return baseUrl;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: '✓ Copiado!' });
+  };
+
   const statusBadge = STATUS_BADGES[subscription?.status || 'free'] || STATUS_BADGES.free;
 
   return (
     <DashboardLayout
       title="Planos e Faturamento"
-      description="Gerencie seu plano e acompanhe o uso — integrado com Cakto"
+      description="Gerencie seu plano e acompanhe pagamentos — integrado com Cakto"
     >
       <div className="space-y-6 animate-fade-in">
         {/* Current Subscription Status */}
@@ -155,32 +197,32 @@ export default function BillingPage() {
             )}
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 md:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <MessageSquare className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Disparos</p>
-                  <p className="font-semibold flex items-center gap-1">Ilimitados ∞</p>
+                  <p className="text-xs text-muted-foreground">Disparos</p>
+                  <p className="font-semibold">Ilimitados ∞</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Smartphone className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Chips WhatsApp</p>
+                  <p className="text-xs text-muted-foreground">Chips WhatsApp</p>
                   <p className="font-semibold">{chipsConnected}/{currentPlanData.chips}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Star className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Leads</p>
+                  <p className="text-xs text-muted-foreground">Leads</p>
                   <p className="font-semibold">{leadsCount.toLocaleString()} — ∞</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <CreditCard className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Valor</p>
+                  <p className="text-xs text-muted-foreground">Valor</p>
                   <p className="font-semibold">
                     {subscription?.amount
                       ? `R$ ${(subscription.amount / 100).toFixed(2)}`
@@ -198,6 +240,11 @@ export default function BillingPage() {
               <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 Assinante desde {format(new Date(subscription.started_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                {subscription?.expires_at && (
+                  <span className="ml-2">
+                    • Expira em {format(new Date(subscription.expires_at), "dd/MM/yyyy")}
+                  </span>
+                )}
               </p>
             )}
           </CardContent>
@@ -219,6 +266,7 @@ export default function BillingPage() {
             const isCurrentPlan = plan.id === currentPlan;
             const PlanIcon = plan.icon;
             const price = getPrice(plan.monthlyPrice);
+            const checkoutUrl = getCheckoutUrl(plan.id);
 
             return (
               <Card
@@ -271,16 +319,23 @@ export default function BillingPage() {
                       <span>Plano atual</span>
                     ) : (
                       <a
-                        href="https://wa.me/5511999999999?text=Olá! Quero assinar o plano NexaProspect"
+                        href={checkoutUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2"
                       >
-                        Escolher plano
+                        <CreditCard className="h-4 w-4" />
+                        Assinar agora
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     )}
                   </Button>
+                  {!isCurrentPlan && (
+                    <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
+                      <Shield className="h-3 w-3" />
+                      Pagamento seguro via Cakto
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -295,10 +350,10 @@ export default function BillingPage() {
                 <Receipt className="h-5 w-5 text-primary" />
                 <CardTitle className="text-lg">Histórico de Pagamentos</CardTitle>
               </div>
-              <CardDescription>Eventos recebidos da Cakto</CardDescription>
+              <CardDescription>Eventos recebidos via webhook Cakto</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {paymentHistory.map((event) => {
                   const eventInfo = EVENT_LABELS[event.event_type] || {
                     label: event.event_type,
@@ -339,40 +394,42 @@ export default function BillingPage() {
           </Card>
         )}
 
-        {/* Webhook URL for Admin Reference */}
+        {/* Webhook Config for Admin */}
         <Card className="border-dashed">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-sm text-muted-foreground">Integração Cakto</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">Integração Cakto (Admin)</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <div>
-              <Label className="text-xs text-muted-foreground">URL do Webhook (configure na Cakto)</Label>
+              <Label className="text-xs text-muted-foreground">URL do Webhook — configure na Cakto</Label>
               <div className="flex items-center gap-2 mt-1">
-                <code className="flex-1 text-xs bg-muted p-2.5 rounded-lg font-mono break-all">
+                <code className="flex-1 text-xs bg-muted p-2.5 rounded-lg font-mono break-all select-all">
                   {webhookUrl}
                 </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(webhookUrl);
-                  }}
-                >
+                <Button variant="outline" size="sm" onClick={() => copyToClipboard(webhookUrl)} className="gap-1.5 shrink-0">
+                  <Copy className="h-3 w-3" />
                   Copiar
                 </Button>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Configure este URL no painel da Cakto em <strong>Integrações → Webhooks</strong>.
-              Selecione os eventos: <code className="text-[10px]">purchase_approved</code>,{' '}
-              <code className="text-[10px]">subscription_created</code>,{' '}
-              <code className="text-[10px]">subscription_canceled</code>,{' '}
-              <code className="text-[10px]">subscription_renewed</code>,{' '}
-              <code className="text-[10px]">refund</code>.
-            </p>
+
+            <div className="rounded-lg border border-border/50 p-3 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Como configurar:</p>
+              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                <li>Acesse o painel da Cakto → <strong>Integrações → Webhooks</strong></li>
+                <li>Cole a URL acima como endpoint</li>
+                <li>Selecione os eventos:
+                  <span className="font-mono text-[10px] ml-1">
+                    purchase_approved, subscription_created, subscription_canceled, subscription_renewed, refund, chargeback
+                  </span>
+                </li>
+                <li>Crie produtos com nomes contendo "Starter", "Pro" ou "Enterprise"</li>
+                <li>O email do cliente na Cakto deve ser o mesmo do cadastro aqui</li>
+              </ol>
+            </div>
           </CardContent>
         </Card>
       </div>
