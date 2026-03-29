@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { SubscriptionGuard } from "@/components/SubscriptionGuard";
+import { SubscriptionLayout } from "@/components/SubscriptionLayout";
 import { ThemeProvider } from "next-themes";
 import { RealtimeNotificationsProvider } from "@/components/RealtimeNotificationsProvider";
 import { PageLoadingFallback } from "@/components/ui/page-loading";
@@ -90,8 +90,10 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/auth" element={<AuthPage />} />
+                  <Route element={<ProtectedRoute><SubscriptionLayout><PageLoadingFallback /></SubscriptionLayout></ProtectedRoute>}>
+                  </Route>
 
-                  <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/dashboard" element={<ProtectedRoute><SubscriptionLayout><DashboardPage /></SubscriptionLayout></ProtectedRoute>} />
                   <Route path="/tutorial" element={<ProtectedRoute><TutorialPage /></ProtectedRoute>} />
                   
                   {/* Prospecção */}
