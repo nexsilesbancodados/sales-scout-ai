@@ -175,24 +175,24 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="bg-[#050510] text-white min-h-screen overflow-x-hidden">
+    <div className="bg-[#0B0D15] text-white min-h-screen overflow-x-hidden">
 
       {/* ═══ NAVBAR ═══ */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/60 backdrop-blur-xl border-b border-white/5' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/80 backdrop-blur-2xl border-b border-white/[0.04]' : 'bg-transparent'}`}>
+        <div className="max-w-[1280px] mx-auto flex items-center justify-between px-8 py-4">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-white to-white/80" />
-            <span className="text-lg font-semibold tracking-tight text-white">NexaProspect</span>
+            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-white via-white/90 to-white/70 shadow-[0_0_12px_rgba(255,255,255,0.15)]" />
+            <span className="text-[15px] font-semibold tracking-[-0.01em] text-white">NexaProspect</span>
           </div>
 
           {/* Center pill nav - desktop */}
-          <div className="hidden md:flex items-center bg-white/5 backdrop-blur border border-white/10 rounded-full px-2 py-1.5">
+          <div className="hidden lg:flex items-center bg-white/[0.04] backdrop-blur-xl border border-white/[0.07] rounded-full px-1.5 py-1">
             {NAV_LINKS.map((l, i) => (
               <a
                 key={l.label}
                 href={l.href}
-                className={`text-sm px-4 py-1.5 rounded-full transition-all ${i === 0 ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/[0.08]'}`}
+                className={`text-[13px] px-5 py-2 rounded-full transition-all duration-200 ${i === 0 ? 'text-white bg-white/[0.08]' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.05]'}`}
               >
                 {l.label}
               </a>
@@ -201,24 +201,24 @@ export default function Landing() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link to="/auth" className="hidden md:inline-flex bg-white text-black text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all">
+            <Link to="/auth" className="hidden lg:inline-flex bg-white text-[#0B0D15] text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
               Começar grátis
             </Link>
-            <button className="md:hidden text-white/70" onClick={() => setMobileMenu(!mobileMenu)}>
-              {mobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
+              {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {/* Mobile menu */}
         {mobileMenu && (
-          <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-white/5 px-6 py-4 space-y-3">
+          <div className="lg:hidden bg-[#0B0D15]/95 backdrop-blur-2xl border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="block text-sm text-white/60 hover:text-white py-2" onClick={() => setMobileMenu(false)}>
+              <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
                 {l.label}
               </a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-black text-sm font-semibold px-5 py-2.5 rounded-full mt-3">
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">
               Começar grátis
             </Link>
           </div>
@@ -227,73 +227,92 @@ export default function Landing() {
 
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden stars-bg">
-        {/* Purple/blue glow behind the figure */}
-        <div className="absolute right-0 top-0 bottom-0 w-[60%] pointer-events-none" style={{ background: 'radial-gradient(ellipse at 55% 45%, rgba(120,80,255,0.14) 0%, rgba(100,100,255,0.06) 35%, transparent 65%)' }} />
-        {/* Secondary warm glow */}
-        <div className="absolute right-[10%] top-[20%] w-[400px] h-[400px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(160,100,255,0.08) 0%, transparent 70%)' }} />
+        {/* Multi-layer glow behind the figure */}
+        <div className="absolute right-[-5%] top-[-10%] w-[70%] h-[120%] pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(90,60,220,0.12) 0%, rgba(60,40,180,0.06) 30%, transparent 60%)' }} />
+        <div className="absolute right-[5%] top-[15%] w-[500px] h-[500px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(140,90,255,0.1) 0%, transparent 65%)' }} />
+        <div className="absolute left-[10%] bottom-[20%] w-[300px] h-[300px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(80,60,200,0.06) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-screen px-6 lg:px-16">
+        <div className="relative z-10 max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] min-h-screen items-center px-8">
           {/* Left content */}
-          <div className="flex flex-col justify-center pt-28 pb-16 lg:pt-24 lg:pb-0">
-            <div className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/10 rounded-full px-3 py-1.5 mb-6 w-fit animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-              <span className="text-[10px] font-bold bg-white text-black rounded-full px-1.5 py-0.5 tracking-wider">NOVO</span>
-              <span className="text-xs text-white/60">Extrator Facebook e Meta Ads integrado</span>
+          <div className="flex flex-col justify-center pt-32 pb-16 lg:pt-0 lg:pb-0">
+            {/* Badge */}
+            <div
+              className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-3.5 py-1.5 mb-8 w-fit animate-fade-in"
+              style={{ animationDelay: '0.1s', animationFillMode: 'both' }}
+            >
+              <span className="text-[9px] font-extrabold bg-white text-[#0B0D15] rounded-full px-2 py-[3px] tracking-[0.05em] uppercase">Novo</span>
+              <span className="text-[12px] text-white/50">Extrator Facebook e Meta Ads integrado</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[60px] font-extrabold leading-[1.1] tracking-[-0.03em] animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            {/* Headline */}
+            <h1
+              className="text-[40px] sm:text-[52px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.035em] animate-fade-in"
+              style={{ animationDelay: '0.2s', animationFillMode: 'both' }}
+            >
               <span className="text-white">Prospecte no </span>
-              <span className="text-white/40">Piloto Automático</span>
+              <br className="hidden sm:block" />
+              <span className="text-white/30">Piloto Automático</span>
               <span className="text-white"> com IA</span>
             </h1>
 
-            <p className="text-base text-white/50 max-w-sm mt-6 leading-relaxed animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+            {/* Subtitle */}
+            <p
+              className="text-[15px] text-white/40 max-w-[380px] mt-6 leading-[1.7] animate-fade-in"
+              style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
+            >
               Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
             </p>
 
+            {/* CTA Button */}
             <Link
               to="/auth"
-              className="mt-8 bg-white/10 border border-white/15 text-white text-sm font-semibold px-8 py-3.5 rounded-full hover:bg-white/15 transition-all flex items-center gap-2 w-fit animate-fade-in"
+              className="mt-10 bg-white/[0.07] border border-white/[0.12] text-white text-[14px] font-semibold px-8 py-4 rounded-full hover:bg-white/[0.12] transition-all duration-300 flex items-center gap-2.5 w-fit animate-fade-in group"
               style={{ animationDelay: '0.4s', animationFillMode: 'both' }}
             >
               Começar gratuitamente
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
             {/* Social proof */}
-            <div className="flex items-center gap-3 mt-6 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <div className="flex -space-x-2">
+            <div className="flex items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+              <div className="flex -space-x-2.5">
                 {['G', 'M', 'R', 'A', 'L'].map((initial, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-2 border-[#050510] bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white">
+                  <div key={i} className="h-8 w-8 rounded-full border-[2.5px] border-[#0B0D15] bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
                     {initial}
                   </div>
                 ))}
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">+2.400 usuários</p>
-                <div className="flex items-center gap-1">
+                <p className="text-[13px] font-semibold text-white/90">+2.400 usuários</p>
+                <div className="flex items-center gap-0.5 mt-0.5">
                   {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />)}
-                  <span className="text-xs text-white/50 ml-1">4.9/5</span>
+                  <span className="text-[11px] text-white/35 ml-1.5">4.9/5</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right - 3D AI figure */}
-          <div className="hidden lg:flex items-center justify-end relative animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-            <img
-              src={aiHeroImg}
-              alt="AI Assistant"
-              width={1024}
-              height={1280}
-              className="w-full max-w-[520px] h-auto object-contain"
-              style={{ filter: 'drop-shadow(0 0 80px rgba(130,80,255,0.25))' }}
-            />
+          <div className="hidden lg:flex items-center justify-center relative animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+            <div className="relative">
+              <img
+                src={aiHeroImg}
+                alt="AI Assistant"
+                width={1024}
+                height={1280}
+                className="w-full max-w-[560px] h-auto object-contain relative z-10"
+                style={{ filter: 'drop-shadow(0 0 100px rgba(110,70,255,0.2)) drop-shadow(0 0 40px rgba(140,100,255,0.15))' }}
+              />
+              {/* Subtle ring behind */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full border border-white/[0.03]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/[0.02]" />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
-      <section className="bg-[#070712] border-y border-white/5 py-12 overflow-hidden">
+      <section className="bg-[#0E1018] border-y border-white/5 py-12 overflow-hidden">
         <p className="text-[10px] tracking-[0.2em] text-white/20 text-center mb-8 uppercase">Integra com as principais plataformas</p>
         <div className="landing-marquee">
           <div className="landing-marquee-track">
@@ -305,7 +324,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FEATURES ═══ */}
-      <section id="recursos" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="recursos" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Recursos</span>
@@ -329,7 +348,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section className="bg-[#070712] py-24 px-6 lg:px-12">
+      <section className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-blue-400 uppercase">Como funciona</span>
@@ -356,7 +375,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="cases" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
             <span className="text-xs font-semibold tracking-[0.2em] text-green-400 uppercase">Depoimentos</span>
@@ -388,7 +407,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ PRICING ═══ */}
-      <section id="precos" className="bg-[#070712] py-24 px-6 lg:px-12">
+      <section id="precos" className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection className="text-center mb-12">
             <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Preços</span>
@@ -448,7 +467,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section id="api" className="bg-[#050510] py-24 px-6 lg:px-12">
+      <section id="api" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto">
           <AnimSection className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white">Perguntas frequentes</h2>
@@ -465,7 +484,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="bg-[#050510] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
+      <section className="bg-[#0B0D15] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(100,50,255,0.12) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
@@ -486,7 +505,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="bg-[#030308] py-16 px-6 lg:px-12 border-t border-white/5">
+      <footer className="bg-[#07080E] py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
