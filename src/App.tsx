@@ -86,14 +86,13 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SubscriptionLayout>
                 <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  <Route element={<ProtectedRoute><SubscriptionLayout><PageLoadingFallback /></SubscriptionLayout></ProtectedRoute>}>
-                  </Route>
 
-                  <Route path="/dashboard" element={<ProtectedRoute><SubscriptionLayout><DashboardPage /></SubscriptionLayout></ProtectedRoute>} />
+                  <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                   <Route path="/tutorial" element={<ProtectedRoute><TutorialPage /></ProtectedRoute>} />
                   
                   {/* Prospecção */}
@@ -162,6 +161,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
+              </SubscriptionLayout>
             </BrowserRouter>
             <PWAInstallBanner />
           </TooltipProvider>
