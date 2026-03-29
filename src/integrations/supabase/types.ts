@@ -1255,6 +1255,51 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_events: {
+        Row: {
+          amount: number | null
+          cakto_event_id: string | null
+          cakto_order_id: string | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          event_type: string
+          id: string
+          processed_at: string | null
+          product_name: string | null
+          raw_payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          cakto_event_id?: string | null
+          cakto_order_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          event_type: string
+          id?: string
+          processed_at?: string | null
+          product_name?: string | null
+          raw_payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          cakto_event_id?: string | null
+          cakto_order_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+          product_name?: string | null
+          raw_payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1547,6 +1592,66 @@ export type Database = {
           total_meetings?: number | null
           total_responses?: number | null
           total_sent?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number | null
+          cakto_customer_id: string | null
+          cakto_order_id: string | null
+          cakto_product_id: string | null
+          cakto_subscription_id: string | null
+          canceled_at: string | null
+          created_at: string
+          currency: string | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          plan: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          cakto_customer_id?: string | null
+          cakto_order_id?: string | null
+          cakto_product_id?: string | null
+          cakto_subscription_id?: string | null
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          plan?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          cakto_customer_id?: string | null
+          cakto_order_id?: string | null
+          cakto_product_id?: string | null
+          cakto_subscription_id?: string | null
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          plan?: string
+          started_at?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }

@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.antiban-queue-processor]
 verify_jwt = false
+
+[functions.cakto-webhook]
+verify_jwt = false

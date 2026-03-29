@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
+import { useSubscription } from '@/hooks/use-subscription';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import {
   Check,
   Crown,
@@ -18,7 +21,12 @@ import {
   Zap,
   Star,
   ExternalLink,
-  Infinity as InfinityIcon,
+  CreditCard,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Receipt,
 } from 'lucide-react';
 
 const plans = [
@@ -74,43 +82,80 @@ const plans = [
   },
 ];
 
+const EVENT_LABELS: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
+  purchase_approved: { label: 'Pagamento aprovado', color: 'text-green-600', icon: CheckCircle2 },
+  subscription_created: { label: 'Assinatura criada', color: 'text-green-600', icon: CheckCircle2 },
+  subscription_renewed: { label: 'Assinatura renovada', color: 'text-green-600', icon: CheckCircle2 },
+  subscription_canceled: { label: 'Assinatura cancelada', color: 'text-destructive', icon: XCircle },
+  subscription_renewal_refused: { label: 'Renovação recusada', color: 'text-orange-500', icon: AlertTriangle },
+  refund: { label: 'Reembolso', color: 'text-orange-500', icon: AlertTriangle },
+  chargeback: { label: 'Chargeback', color: 'text-destructive', icon: XCircle },
+  purchase_refused: { label: 'Pagamento recusado', color: 'text-destructive', icon: XCircle },
+};
+
+const STATUS_BADGES: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  active: { label: 'Ativo', variant: 'default' },
+  canceled: { label: 'Cancelado', variant: 'destructive' },
+  past_due: { label: 'Pagamento pendente', variant: 'secondary' },
+  refunded: { label: 'Reembolsado', variant: 'destructive' },
+  chargeback: { label: 'Chargeback', variant: 'destructive' },
+  free: { label: 'Gratuito', variant: 'outline' },
+};
+
 export default function BillingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
   const { leads } = useLeads();
   const { settings } = useUserSettings();
+  const { subscription, paymentHistory, currentPlan, isActive, isPastDue, isLoading } = useSubscription();
 
-  const currentPlan = 'starter'; // TODO: from user subscription
   const chipsConnected = settings?.whatsapp_connected ? 1 : 0;
   const leadsCount = leads?.length || 0;
-  const currentPlanData = plans.find(p => p.id === currentPlan)!;
+  const currentPlanData = plans.find(p => p.id === currentPlan) || plans[0];
+
+  // Webhook URL for Cakto configuration
+  const webhookUrl = `https://oeztpxyprifabkvysroh.supabase.co/functions/v1/cakto-webhook`;
 
   const getPrice = (monthly: number) => {
     if (isAnnual) return Math.round(monthly * 0.8);
     return monthly;
   };
 
+  const statusBadge = STATUS_BADGES[subscription?.status || 'free'] || STATUS_BADGES.free;
+
   return (
     <DashboardLayout
       title="Planos e Faturamento"
-      description="Gerencie seu plano e acompanhe o uso"
+      description="Gerencie seu plano e acompanhe o uso — integrado com Cakto"
     >
       <div className="space-y-6 animate-fade-in">
-        {/* Current Plan Info */}
+        {/* Current Subscription Status */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-primary" />
-                <CardTitle>Seu Plano</CardTitle>
+                <CardTitle>Sua Assinatura</CardTitle>
               </div>
-              <Badge className="bg-primary text-primary-foreground">
-                Plano {currentPlanData.name}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={statusBadge.variant}>
+                  {statusBadge.label}
+                </Badge>
+                <Badge className="bg-primary text-primary-foreground">
+                  Plano {currentPlanData.name}
+                </Badge>
+              </div>
             </div>
+            {isPastDue && (
+              <div className="flex items-center gap-2 p-3 mt-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
+                <p className="text-sm text-orange-600">
+                  Seu pagamento está pendente. Regularize para manter o acesso completo.
+                </p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <MessageSquare className="h-5 w-5 text-primary" />
                 <div>
@@ -129,10 +174,32 @@ export default function BillingPage() {
                 <Star className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Leads</p>
-                  <p className="font-semibold">{leadsCount.toLocaleString()} — Ilimitados ∞</p>
+                  <p className="font-semibold">{leadsCount.toLocaleString()} — ∞</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <CreditCard className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Valor</p>
+                  <p className="font-semibold">
+                    {subscription?.amount
+                      ? `R$ ${(subscription.amount / 100).toFixed(2)}`
+                      : 'Gratuito'}
+                    {subscription?.payment_method && (
+                      <span className="text-xs text-muted-foreground ml-1">
+                        ({subscription.payment_method})
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
+            {subscription?.started_at && (
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Assinante desde {format(new Date(subscription.started_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -198,42 +265,117 @@ export default function BillingPage() {
                     className="w-full"
                     variant={isCurrentPlan ? 'secondary' : plan.highlight ? 'default' : 'outline'}
                     disabled={isCurrentPlan}
-                    onClick={() => setContactOpen(true)}
+                    asChild={!isCurrentPlan}
                   >
-                    {isCurrentPlan ? 'Plano atual' : 'Escolher plano'}
+                    {isCurrentPlan ? (
+                      <span>Plano atual</span>
+                    ) : (
+                      <a
+                        href="https://wa.me/5511999999999?text=Olá! Quero assinar o plano NexaProspect"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2"
+                      >
+                        Escolher plano
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
             );
           })}
         </div>
-      </div>
 
-      {/* Contact Dialog */}
-      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Fale conosco para upgrade</DialogTitle>
-            <DialogDescription>
-              Entre em contato pelo WhatsApp para ativar ou mudar seu plano.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center gap-4 py-4">
-            <Button asChild className="w-full">
-              <a
-                href="https://wa.me/5511999999999?text=Olá! Quero saber mais sobre os planos do NexaProspect"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Falar no WhatsApp
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        {/* Payment History */}
+        {paymentHistory.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Histórico de Pagamentos</CardTitle>
+              </div>
+              <CardDescription>Eventos recebidos da Cakto</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {paymentHistory.map((event) => {
+                  const eventInfo = EVENT_LABELS[event.event_type] || {
+                    label: event.event_type,
+                    color: 'text-muted-foreground',
+                    icon: Clock,
+                  };
+                  const EventIcon = eventInfo.icon;
+
+                  return (
+                    <div
+                      key={event.id}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-muted/20"
+                    >
+                      <div className="flex items-center gap-3">
+                        <EventIcon className={`h-4 w-4 ${eventInfo.color}`} />
+                        <div>
+                          <p className="text-sm font-medium">{eventInfo.label}</p>
+                          {event.product_name && (
+                            <p className="text-xs text-muted-foreground">{event.product_name}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {event.amount > 0 && (
+                          <p className="text-sm font-semibold">
+                            R$ {(event.amount / 100).toFixed(2)}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Webhook URL for Admin Reference */}
+        <Card className="border-dashed">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm text-muted-foreground">Integração Cakto</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">URL do Webhook (configure na Cakto)</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <code className="flex-1 text-xs bg-muted p-2.5 rounded-lg font-mono break-all">
+                  {webhookUrl}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(webhookUrl);
+                  }}
+                >
+                  Copiar
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Configure este URL no painel da Cakto em <strong>Integrações → Webhooks</strong>.
+              Selecione os eventos: <code className="text-[10px]">purchase_approved</code>,{' '}
+              <code className="text-[10px]">subscription_created</code>,{' '}
+              <code className="text-[10px]">subscription_canceled</code>,{' '}
+              <code className="text-[10px]">subscription_renewed</code>,{' '}
+              <code className="text-[10px]">refund</code>.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </DashboardLayout>
   );
 }
