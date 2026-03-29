@@ -57,6 +57,7 @@ const APIReferencePage = lazy(() => import("./pages/APIReference"));
 const SocialExtractorPage = lazy(() => import("./pages/SocialExtractor"));
 const FacebookExtractorPage = lazy(() => import("./pages/FacebookExtractor"));
 const CRMLayout = lazy(() => import("./components/crm/CRMLayout"));
+const CRMDashboardPage = lazy(() => import("./pages/crm/CRMDashboard"));
 const CRMPipelinePage = lazy(() => import("./pages/crm/CRMPipeline"));
 const CRMContactsPage = lazy(() => import("./pages/crm/CRMContacts"));
 const CRMContactDetailPage = lazy(() => import("./pages/crm/CRMContactDetail"));
@@ -150,7 +151,8 @@ const App = () => (
 
                   {/* CRM Module */}
                   <Route path="/crm" element={<ProtectedRoute><CRMLayout /></ProtectedRoute>}>
-                    <Route index element={<Navigate to="/crm/pipeline" replace />} />
+                    <Route index element={<Navigate to="/crm/dashboard" replace />} />
+                    <Route path="dashboard" element={<CRMDashboardPage />} />
                     <Route path="pipeline" element={<CRMPipelinePage />} />
                     <Route path="contacts" element={<CRMContactsPage />} />
                     <Route path="contacts/:id" element={<CRMContactDetailPage />} />
