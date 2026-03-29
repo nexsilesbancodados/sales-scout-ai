@@ -14,6 +14,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 
 // Lazy load pages
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const AuthPage = lazy(() => import("./pages/Auth"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
@@ -89,7 +90,7 @@ const App = () => (
                 <SubscriptionLayout>
                 <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
