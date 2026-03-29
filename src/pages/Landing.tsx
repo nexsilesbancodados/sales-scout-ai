@@ -5,6 +5,7 @@ import {
   ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
   Check, ChevronDown, Menu, X, Columns3
 } from 'lucide-react';
+import aiHeroImg from '@/assets/ai-hero-3d.png';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -226,10 +227,12 @@ export default function Landing() {
 
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden stars-bg">
-        {/* Glow */}
-        <div className="absolute right-0 top-0 bottom-0 w-[55%] pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 50%, rgba(100,100,255,0.08) 0%, rgba(200,200,255,0.04) 40%, transparent 70%)' }} />
+        {/* Purple/blue glow behind the figure */}
+        <div className="absolute right-0 top-0 bottom-0 w-[60%] pointer-events-none" style={{ background: 'radial-gradient(ellipse at 55% 45%, rgba(120,80,255,0.14) 0%, rgba(100,100,255,0.06) 35%, transparent 65%)' }} />
+        {/* Secondary warm glow */}
+        <div className="absolute right-[10%] top-[20%] w-[400px] h-[400px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(160,100,255,0.08) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-screen px-6 lg:px-12">
+        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 min-h-screen px-6 lg:px-16">
           {/* Left content */}
           <div className="flex flex-col justify-center pt-28 pb-16 lg:pt-24 lg:pb-0">
             <div className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/10 rounded-full px-3 py-1.5 mb-6 w-fit animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
@@ -275,9 +278,16 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Right - AI wireframe */}
-          <div className="hidden lg:flex items-center justify-center relative animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-            <AIWireframe />
+          {/* Right - 3D AI figure */}
+          <div className="hidden lg:flex items-center justify-end relative animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+            <img
+              src={aiHeroImg}
+              alt="AI Assistant"
+              width={1024}
+              height={1280}
+              className="w-full max-w-[520px] h-auto object-contain"
+              style={{ filter: 'drop-shadow(0 0 80px rgba(130,80,255,0.25))' }}
+            />
           </div>
         </div>
       </section>
