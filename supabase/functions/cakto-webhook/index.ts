@@ -236,6 +236,21 @@ Deno.serve(async (req) => {
           metadata: { plan, amount, event: eventType },
         });
 
+        // Send email notification
+        const emailType = eventType === "subscription_renewed" ? "renewed" : "welcome";
+        try {
+          await supabase.functions.invoke("subscription-emails", {
+            body: {
+              type: emailType,
+              email: customerEmail,
+              userName: customerName,
+              planName: plan,
+            },
+          });
+        } catch (e) {
+          console.error("Failed to send subscription email:", e);
+        }
+
       } else if (["canceled", "refunded", "chargeback"].includes(newStatus)) {
         await supabase
           .from("subscriptions")
@@ -257,6 +272,20 @@ Deno.serve(async (req) => {
           description: `Assinatura ${newStatus} via Cakto (${eventType})`,
           metadata: { status: newStatus, event: eventType },
         });
+
+        // Send expired email
+        try {
+          await supabase.functions.invoke("subscription-emails", {
+            body: {
+              type: "expired",
+              email: customerEmail,
+              userName: customerName,
+              planName: resolvePlan(productName, amount),
+            },
+          });
+        } catch (e) {
+          console.error("Failed to send expiration email:", e);
+        }
 
       } else if (newStatus === "past_due" || newStatus === "pending") {
         await supabase
