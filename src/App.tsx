@@ -90,7 +90,7 @@ const App = () => (
                 <SubscriptionLayout>
                 <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
