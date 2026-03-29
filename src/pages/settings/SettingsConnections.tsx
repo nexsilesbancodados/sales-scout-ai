@@ -83,6 +83,55 @@ export default function SettingsConnections() {
 
       {/* Multi-Chip */}
       <MultiChipSettings />
+
+      {/* Cakto Webhook Configuration */}
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CreditCard className="h-5 w-5 text-primary" />
+            Configuração Cakto
+          </CardTitle>
+          <CardDescription>Configure o webhook para receber pagamentos automaticamente</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3 text-sm">
+            <p className="font-medium">Configure o webhook na Cakto em 4 passos:</p>
+            {[
+              { step: "1", text: "Acesse app.cakto.com.br → Apps → Webhooks → Adicionar" },
+              { step: "2", text: "Cole a URL do webhook abaixo" },
+              { step: "3", text: "Selecione os eventos: Compra aprovada, Assinatura cancelada, Reembolso" },
+              { step: "4", text: "Copie o valor de 'Secret' gerado e adicione nas variáveis de ambiente do Supabase" },
+            ].map(item => (
+              <div key={item.step} className="flex gap-3 items-start">
+                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                  {item.step}
+                </div>
+                <p className="text-muted-foreground pt-0.5">{item.text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-xs text-muted-foreground mb-1 font-medium">URL do webhook:</p>
+            <div className="flex items-center gap-2">
+              <code className="text-xs text-primary break-all flex-1">
+                {import.meta.env.VITE_SUPABASE_URL}/functions/v1/cakto-webhook
+              </code>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 shrink-0 gap-1"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cakto-webhook`);
+                  toast({ title: '✓ URL copiada!' });
+                }}
+              >
+                <Copy className="h-3 w-3" />
+                Copiar
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
