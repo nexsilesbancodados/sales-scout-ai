@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { useSubscription } from '@/hooks/use-subscription';
 import { SubscriptionGuard } from '@/components/SubscriptionGuard';
 
 const FREE_ROUTES = ['/billing', '/settings', '/auth', '/tutorial'];
