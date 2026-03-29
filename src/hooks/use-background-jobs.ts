@@ -26,12 +26,21 @@ export interface BackgroundJob {
   updated_at: string;
 }
 
-export function useBackgroundJobs() {
+interface UseBackgroundJobsOptions {
+  enabled?: boolean;
+  live?: boolean;
+  refetchIntervalMs?: number;
+}
+
+const ACTIVE_JOB_STATUSES: BackgroundJob['status'][] = ['pending', 'running', 'paused'];
+
+export function useBackgroundJobs(options: UseBackgroundJobsOptions = {}) {
+  const { enabled = true, live = false, refetchIntervalMs = 5000 } = options;
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  const { data: jobs, isLoading, refetch } = useQuery({
+  const { data: jobs = [], isLoading, refetch } = useQuery({
     queryKey: ['background-jobs', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -39,15 +48,24 @@ export function useBackgroundJobs() {
       const { data, error } = await supabase
         .from('background_jobs')
         .select('*')
-        .eq('user_id', user.id) // CRITICAL: Filter by user_id to prevent data leakage
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
       return data as BackgroundJob[];
     },
-    enabled: !!user?.id,
-    refetchInterval: 5000, // Poll every 5 seconds for active jobs
+    enabled: enabled && !!user?.id,
+    staleTime: live ? 0 : 15000,
+    refetchInterval: (query) => {
+      if (!enabled || !user?.id) return false;
+
+      const currentJobs = (query.state.data as BackgroundJob[] | undefined) ?? [];
+      const hasActiveJobs = currentJobs.some((job) => ACTIVE_JOB_STATUSES.includes(job.status));
+
+      return live || hasActiveJobs ? refetchIntervalMs : false;
+    },
+    refetchIntervalInBackground: false,
   });
 
   const createJob = useMutation({
@@ -169,18 +187,13 @@ export function useBackgroundJobs() {
     },
   });
 
-  // Helper to get active jobs
-  const activeJobs = jobs?.filter(
-    (j) => j.status === 'running' || j.status === 'pending'
-  ) || [];
+  const activeJobs = jobs.filter((job) => ACTIVE_JOB_STATUSES.includes(job.status));
 
-  // Helper to get job progress percentage
   const getJobProgress = (job: BackgroundJob) => {
     if (job.total_items === 0) return 0;
     return Math.round((job.processed_items / job.total_items) * 100);
   };
 
-  // Helper to get job status label
   const getJobStatusLabel = (status: BackgroundJob['status']) => {
     const labels: Record<BackgroundJob['status'], string> = {
       pending: 'Aguardando',
@@ -193,7 +206,6 @@ export function useBackgroundJobs() {
     return labels[status];
   };
 
-  // Helper to get job type label
   const getJobTypeLabel = (type: BackgroundJob['job_type']) => {
     const labels: Record<BackgroundJob['job_type'], string> = {
       mass_send: 'Envio em Massa',
@@ -206,7 +218,7 @@ export function useBackgroundJobs() {
   };
 
   return {
-    jobs: jobs || [],
+    jobs,
     activeJobs,
     isLoading,
     refetch,
