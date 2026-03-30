@@ -244,6 +244,10 @@ export default function Landing() {
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] w-auto max-w-none object-cover opacity-90"
             style={{ filter: 'drop-shadow(0 0 120px rgba(110,70,255,0.15))' }}
           />
+
+          {/* Energy effect over the wires */}
+          <div className="absolute inset-0 hero-energy-overlay" />
+
           {/* Gradient overlay to blend image into background */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/60 via-transparent to-[#0B0D15]/60" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/30" />
