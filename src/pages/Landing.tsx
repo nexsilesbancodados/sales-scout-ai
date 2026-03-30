@@ -166,7 +166,7 @@ export default function Landing() {
         </div>
 
         {mobileMenu && (
-          <div className="lg:hidden bg-[#0B0D15]/95 backdrop-blur-2xl border-t border-white/[0.04] px-8 py-5 space-y-1">
+          <div className="lg:hidden bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
               <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>{l.label}</a>
             ))}
