@@ -16,6 +16,7 @@ import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
+import { CosmicBackground } from '@/components/landing/CosmicBackground';
 
 const HeroScene3D = lazy(() =>
   import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
