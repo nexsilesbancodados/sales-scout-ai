@@ -6,6 +6,7 @@ import {
   Check, ChevronDown, Menu, X, Columns3
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
+import logoImg from '@/assets/logo.png';
 import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 import { LiquidButton } from '@/components/ui/liquid-button';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
