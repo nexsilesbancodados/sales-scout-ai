@@ -118,6 +118,7 @@ const STATS = [
 ];
 
 /* ═══════════════════════════════════════════════════ */
+/* Landing Page v2 - Updated */
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
