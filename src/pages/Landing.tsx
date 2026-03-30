@@ -203,9 +203,11 @@ export default function Landing() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link to="/auth" className="hidden lg:inline-flex bg-white text-[#0B0D15] text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-              Começar grátis
-            </Link>
+            <div className="hidden lg:block">
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full">
+                Começar grátis
+              </LiquidButton>
+            </div>
             <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
               {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
