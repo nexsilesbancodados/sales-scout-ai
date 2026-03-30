@@ -75,16 +75,6 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsSubmitting(true);
-    setAuthError('');
-    try {
-      await signInWithGoogle();
-    } catch (error: any) {
-      setAuthError(error?.message || 'Erro ao entrar com Google');
-      setIsSubmitting(false);
-    }
-  };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
