@@ -176,23 +176,14 @@ export default function Landing() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="min-h-screen relative overflow-hidden stars-bg flex items-center">
-        <Suspense fallback={null}>
-          <HeroScene3D />
-        </Suspense>
-
+      <section className="min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute inset-0 transition-transform duration-700 ease-out"
-            style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}
-          >
-            <img
-              src={aiHeroImg}
-              alt=""
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
-              style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
-            />
-          </div>
+          <img
+            src={aiHeroImg}
+            alt=""
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
+            style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
+          />
           <div className="absolute inset-0 hero-energy-overlay" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/70 via-transparent to-[#0B0D15]/70" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/20" />
