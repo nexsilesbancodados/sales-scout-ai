@@ -8,6 +8,7 @@ import {
 import aiHeroImg from '@/assets/ai-hero-clean.png';
 import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 import { LiquidButton } from '@/components/ui/liquid-button';
+import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -417,43 +418,10 @@ export default function Landing() {
             </div>
           </AnimSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
-              <AnimSection
-                key={p.name}
-                delay={0.08 * i}
-                className={`rounded-2xl p-7 border transition-all relative ${p.highlight ? 'border-purple-500/30 bg-purple-500/[0.05]' : 'border-white/[0.06] bg-white/[0.03]'}`}
-              >
-                {p.highlight && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-semibold bg-purple-500 text-white px-3 py-1 rounded-full">
-                    Mais popular
-                  </span>
-                )}
-                <h3 className="text-lg font-bold text-white">{p.name}</h3>
-                <div className="mt-4 mb-6">
-                  <span className="text-4xl font-extrabold text-white">R${annual ? p.annual : p.price}</span>
-                  <span className="text-white/40 text-sm">/mês</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {p.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-white/60">
-                      <Check className="h-4 w-4 text-purple-400 mt-0.5 shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                {p.highlight ? (
-                  <LiquidButton onClick={() => navigate('/auth')} className="w-full text-sm rounded-full">
-                    {p.cta}
-                  </LiquidButton>
-                ) : (
-                  <Link
-                    to="/auth"
-                    className="block text-center text-sm font-semibold py-3 rounded-full transition-all bg-white/10 text-white border border-white/15 hover:bg-white/15"
-                  >
-                    {p.cta}
-                  </Link>
-                )}
+              <AnimSection key={p.name} delay={0.08 * i}>
+                <PremiumPricingCard plan={p} annual={annual} index={i} />
               </AnimSection>
             ))}
           </div>
