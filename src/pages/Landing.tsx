@@ -8,6 +8,7 @@ import {
 import aiHeroImg from '@/assets/ai-hero-clean.png';
 import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 import { LiquidButton } from '@/components/ui/liquid-button';
+import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
