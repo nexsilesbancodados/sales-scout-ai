@@ -16,6 +16,7 @@ import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
+import { CosmicBackground } from '@/components/landing/CosmicBackground';
 
 const HeroScene3D = lazy(() =>
   import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
@@ -157,7 +158,9 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="bg-[#0B0D15] text-white min-h-screen overflow-x-hidden">
+    <div className="text-white min-h-screen overflow-x-hidden relative">
+      {/* Fixed cosmic background */}
+      <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
@@ -606,7 +609,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="bg-[#07080E] py-16 px-6 lg:px-12 border-t border-white/5">
+      <footer className="relative z-10 bg-[#07080E]/80 backdrop-blur-xl py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
