@@ -404,6 +404,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ FEATURE HIGHLIGHT STRIP ═══ */}
+      <FeatureHighlightStrip />
+
       {/* ═══ HOW IT WORKS ═══ */}
       <section className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
