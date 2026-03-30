@@ -41,7 +41,7 @@ export function UrgencyCTABanner() {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
           </span>
           <span className="text-[13px] sm:text-sm font-bold text-white tracking-wide">
-            🔥 OFERTA POR TEMPO LIMITADO — 30% OFF no primeiro mês
+            🔥 ÚLTIMAS VAGAS — 30% OFF para quem começar hoje
           </span>
         </div>
         <button
