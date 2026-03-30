@@ -287,23 +287,6 @@ export default function Landing() {
               </LiquidButton>
             </div>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <div className="flex -space-x-2.5">
-                {['G', 'M', 'R', 'A', 'L'].map((initial, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-[2.5px] border-[#0B0D15] bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
-                    {initial}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-white/90">+2.400 usuários</p>
-                <div className="flex items-center gap-0.5 mt-0.5">
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />)}
-                  <span className="text-[11px] text-white/35 ml-1.5">4.9/5</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
