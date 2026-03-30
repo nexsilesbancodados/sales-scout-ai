@@ -17,6 +17,7 @@ import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
+import { UrgencyCTABanner, SocialProofStrip, FeatureHighlightStrip } from '@/components/landing/BannerStrips';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -247,6 +248,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ URGENCY CTA BANNER ═══ */}
+      <UrgencyCTABanner />
+
       {/* ═══ STATS BAR ═══ */}
       <section className="relative z-10 -mt-1">
         <div className="max-w-5xl mx-auto px-6">
@@ -276,6 +280,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ═══ SOCIAL PROOF STRIP ═══ */}
+      <SocialProofStrip />
 
       {/* ═══ TRUST BADGES ═══ */}
       <section className="py-12 px-6 lg:px-12">
@@ -396,6 +403,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ═══ FEATURE HIGHLIGHT STRIP ═══ */}
+      <FeatureHighlightStrip />
 
       {/* ═══ HOW IT WORKS ═══ */}
       <section className="py-28 px-6 lg:px-12 relative">
