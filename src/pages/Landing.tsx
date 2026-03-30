@@ -137,7 +137,7 @@ export default function Landing() {
       <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/95 border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
         <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
             <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
