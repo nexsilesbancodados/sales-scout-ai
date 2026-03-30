@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import {
@@ -17,10 +17,6 @@ import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
-
-const HeroScene3D = lazy(() =>
-  import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
-);
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
