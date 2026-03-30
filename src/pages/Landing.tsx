@@ -131,6 +131,7 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeNav, setActiveNav] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -144,6 +145,18 @@ export default function Landing() {
       if (!ticking) {
         requestAnimationFrame(() => {
           setScrolled(window.scrollY > 40);
+
+          // Active nav tracking
+          const sections = NAV_LINKS.map(l => l.href.replace('#', ''));
+          let current = '';
+          for (const id of sections) {
+            const el = document.getElementById(id);
+            if (el && el.getBoundingClientRect().top <= 200) {
+              current = id;
+            }
+          }
+          setActiveNav(current);
+
           ticking = false;
         });
         ticking = true;
@@ -160,7 +173,7 @@ export default function Landing() {
       <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/95 border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/95 border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl' : 'bg-transparent'}`}>
         <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
             <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
@@ -168,9 +181,9 @@ export default function Landing() {
           </div>
 
           <div className="hidden lg:flex items-center bg-white/[0.08] border border-white/[0.08] rounded-full px-1.5 py-1">
-            {NAV_LINKS.map((l, i) => (
+            {NAV_LINKS.map((l) => (
               <a key={l.label} href={l.href}
-                className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${i === 0 ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
+                className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${activeNav === l.href.replace('#', '') ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
               >{l.label}</a>
             ))}
           </div>
@@ -179,23 +192,24 @@ export default function Landing() {
             <Link to="/auth" className="hidden lg:block text-[13px] text-white/50 hover:text-white/80 transition-colors font-medium">Entrar</Link>
             <div className="hidden lg:block">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full font-semibold">
-                Começar agora
+                Começar grátis
               </LiquidButton>
             </div>
-            <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
+            <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
               {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {mobileMenu && (
-          <div className="lg:hidden bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
+        {/* Mobile menu with smooth animation */}
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
               <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>{l.label}</a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">Começar agora</Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
-        )}
+        </div>
       </nav>
 
       {/* ═══ HERO ═══ */}
@@ -246,11 +260,19 @@ export default function Landing() {
               </a>
             </div>
 
-            <p className="text-[11px] text-white/25 mt-3 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-              Sem cartão de crédito • Setup em 5 min • Cancele quando quiser
-            </p>
+            <div className="flex flex-wrap items-center gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
+              <span className="flex items-center gap-1.5 text-[11px] text-white/30">
+                <Check className="h-3 w-3 text-emerald-500/60" /> Sem cartão de crédito
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] text-white/30">
+                <Check className="h-3 w-3 text-emerald-500/60" /> Setup em 5 min
+              </span>
+              <span className="flex items-center gap-1.5 text-[11px] text-white/30">
+                <Check className="h-3 w-3 text-emerald-500/60" /> Cancele quando quiser
+              </span>
+            </div>
 
-            <div className="flex items-center gap-6 mt-10 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+            <div className="flex items-center gap-6 mt-8 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
@@ -268,9 +290,11 @@ export default function Landing() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
-            <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
-          </div>
+          <a href="#recursos" className="block" aria-label="Rolar para baixo">
+            <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
+              <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
+            </div>
+          </a>
         </div>
       </section>
 
@@ -280,7 +304,7 @@ export default function Landing() {
       {/* ═══ STATS BAR ═══ */}
       <section className="relative z-10 -mt-1">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-[#0B0D15]/80 border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="bg-[#0B0D15]/80 border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 backdrop-blur-sm">
             {STATS.map((s, i) => (
               <StaggerReveal key={s.label} index={i} className="text-center">
                 <div className="text-3xl lg:text-4xl font-bold text-white">
@@ -358,7 +382,7 @@ export default function Landing() {
                   />
                   <div className="relative z-10">
                     <div
-                      className="h-11 w-11 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                      className="h-11 w-11 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                       style={{ background: `${f.color}15`, border: `1px solid ${f.color}25` }}
                     >
                       <f.icon className="h-5 w-5" style={{ color: f.color }} />
@@ -426,7 +450,7 @@ export default function Landing() {
               <div className="flex justify-center">
                 <img
                   src={mobileImg}
-                  alt="NexaProspect Mobile"
+                  alt="NexaProspect no celular — Dashboard responsivo"
                   className="w-[320px] h-auto landing-float drop-shadow-[0_20px_60px_rgba(123,47,242,0.25)]"
                   loading="lazy"
                 />
@@ -520,9 +544,9 @@ export default function Landing() {
                   <div className="flex items-center gap-1 mb-5">
                     {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-[#F7941D] fill-[#F7941D]" />)}
                   </div>
-                  <p className="text-[14px] text-white/60 leading-[1.8] mb-6">"{t.text}"</p>
+                  <p className="text-[14px] text-white/60 leading-[1.8] mb-6 italic">"{t.text}"</p>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white shadow-lg">
                       {t.name[0]}
                     </div>
                     <div>
@@ -552,11 +576,12 @@ export default function Landing() {
               <button
                 onClick={() => setAnnual(!annual)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
+                aria-label="Alternar entre mensal e anual"
               >
-                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-300 ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
               <span className={`text-sm transition-colors ${annual ? 'text-white' : 'text-white/40'}`}>Anual</span>
-              {annual && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium">-20%</span>}
+              {annual && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium animate-scale-in">-20%</span>}
             </div>
           </AnimSection>
 
@@ -651,9 +676,22 @@ export default function Landing() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 text-center">
-          <p className="text-xs text-white/20">© 2025 NexaProspect — FOCUSS DEV CNPJ 65.132.412/0001-20</p>
+          <p className="text-xs text-white/20">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV CNPJ 65.132.412/0001-20</p>
         </div>
       </footer>
+
+      {/* ═══ MOBILE STICKY CTA ═══ */}
+      <div className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-all duration-300 ${scrolled ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+        <div className="bg-[#0B0D15]/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3 safe-bottom">
+          <button
+            onClick={() => navigate('/auth')}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7B2FF2] to-[#E91E8C] text-white text-[14px] font-bold py-3.5 rounded-xl shadow-[0_-4px_20px_rgba(123,47,242,0.3)] active:scale-[0.98] transition-transform"
+          >
+            Testar grátis por 7 dias
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -663,11 +701,14 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-b border-white/[0.06] group">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-6 text-left">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-6 text-left gap-4">
         <span className="text-[15px] font-medium text-white group-hover:text-white/90 transition-colors">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-white/30 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-white/30 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
-      <div className={`overflow-hidden transition-all duration-500 ${open ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+      <div
+        className="overflow-hidden transition-all duration-500 ease-out"
+        style={{ maxHeight: open ? '200px' : '0', opacity: open ? 1 : 0, paddingBottom: open ? '24px' : '0' }}
+      >
         <p className="text-sm text-white/45 leading-relaxed">{a}</p>
       </div>
     </div>
