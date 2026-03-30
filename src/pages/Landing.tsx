@@ -574,7 +574,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="relative z-10 bg-[#07080E]/80 backdrop-blur-xl py-16 px-6 lg:px-12 border-t border-white/5">
+      <footer className="relative z-10 bg-[#07080E]/95 py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
