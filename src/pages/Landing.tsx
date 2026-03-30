@@ -384,7 +384,7 @@ export default function Landing() {
           {[
             { q: 'Preciso de conhecimento técnico?', a: 'Não. O NexaProspect foi feito para vendedores e donos de agência. Tudo funciona com poucos cliques.' },
             { q: 'Meu WhatsApp pode ser banido?', a: 'Temos sistema anti-ban nativo com warm-up progressivo, delays humanizados e rotação de chips. Risco mínimo.' },
-            { q: 'Posso testar grátis?', a: 'Sim! Oferecemos 7 dias grátis em todos os planos, sem necessidade de cartão de crédito.' },
+            { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
             { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
           ].map((faq, i) => (
             <FAQItem key={i} q={faq.q} a={faq.a} />
