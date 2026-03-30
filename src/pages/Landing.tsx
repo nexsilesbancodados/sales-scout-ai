@@ -5,7 +5,7 @@ import {
   ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
   Check, ChevronDown, Menu, X, Columns3
 } from 'lucide-react';
-import aiHeroImg from '@/assets/ai-hero-3d.png';
+import aiHeroImg from '@/assets/ai-hero-header.png';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
