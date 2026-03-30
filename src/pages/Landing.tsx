@@ -341,8 +341,11 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Tudo que você precisa para <br /><span className="landing-gradient-text">escalar suas vendas</span>
+              6 armas para <span className="landing-gradient-text">dominar seu mercado</span>
             </h2>
+            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+              Da captura ao fechamento — tudo integrado numa única plataforma.
+            </p>
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
