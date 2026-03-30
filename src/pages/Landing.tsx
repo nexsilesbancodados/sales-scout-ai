@@ -6,10 +6,16 @@ import {
   Check, ChevronDown, Menu, X, Columns3, Sparkles, Shield, Globe
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
+import mobileImg from '@/assets/mobile-mockup.png';
 import logoImg from '@/assets/logo.png';
 import { LiquidButton } from '@/components/ui/liquid-button';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ParallaxSection, AnimatedCounter } from '@/components/landing/ScrollEffects';
+import { DashboardMockup } from '@/components/landing/DashboardMockup';
+import { ComparisonTable } from '@/components/landing/ComparisonTable';
+import { ROICalculator } from '@/components/landing/ROICalculator';
+import { TrustSection } from '@/components/landing/TrustSection';
+import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 
 const HeroScene3D = lazy(() =>
   import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
@@ -80,16 +86,19 @@ const TESTIMONIALS = [
   { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 2 semanas capturei 800 leads de restaurantes e fechei 12 contratos. O SDR da IA responde melhor que minha equipe.' },
   { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Nunca pensei que ia prospectar no piloto automático. Meu WhatsApp fica respondendo enquanto durmo.' },
   { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'O CRM integrado com Meta Ads mudou completamente minha estratégia. Sei exatamente quanto custa cada lead.' },
+  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'Triplicamos o número de reuniões agendadas no primeiro mês. A automação de follow-up é incrível.' },
+  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Os clientes me perguntam como consigo responder tão rápido. É a IA trabalhando 24h por mim.' },
+  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: 'O extrator de Instagram trouxe 400 leads qualificados na primeira semana. ROI absurdo.' },
 ];
 
 const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos' },
+  { label: 'Produto', href: '#produto' },
   { label: 'Preços', href: '#precos' },
   { label: 'Cases', href: '#cases' },
-  { label: 'API', href: '#api' },
-  { label: 'Blog', href: '#blog' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
 const PLANS = [
@@ -118,7 +127,6 @@ const STATS = [
 ];
 
 /* ═══════════════════════════════════════════════════ */
-/* Landing Page v2 - Updated */
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -192,12 +200,10 @@ export default function Landing() {
 
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden stars-bg flex items-center">
-        {/* 3D Scene */}
         <Suspense fallback={null}>
           <HeroScene3D />
         </Suspense>
 
-        {/* AI Image with parallax mouse follow */}
         <div className="absolute inset-0 pointer-events-none">
           <div
             className="absolute inset-0 transition-transform duration-700 ease-out"
@@ -216,17 +222,14 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D15]/50 via-transparent to-transparent" />
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
           <div className="max-w-[620px] pt-24">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in backdrop-blur-sm"
               style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
               <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
             </div>
 
-            {/* Headline */}
             <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in"
               style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Prospecte no </span>
@@ -236,13 +239,11 @@ export default function Landing() {
               <span className="text-white">com IA</span>
             </h1>
 
-            {/* Subtitle */}
             <p className="text-[16px] text-white/45 max-w-[440px] mt-7 leading-[1.8] animate-fade-in"
               style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
               Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
                 Começar agora
@@ -254,7 +255,6 @@ export default function Landing() {
               </Link>
             </div>
 
-            {/* Social proof mini */}
             <div className="flex items-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
@@ -272,7 +272,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
           <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
             <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
@@ -310,6 +309,27 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ TRUST BADGES ═══ */}
+      <section className="py-12 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <TrustSection />
+        </div>
+      </section>
+
+      {/* ═══ BEFORE / AFTER ═══ */}
+      <section className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(233,30,140,0.04) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Transformação</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              O que muda quando <span className="landing-gradient-text">você automatiza</span>
+            </h2>
+          </AnimSection>
+          <BeforeAfterSection />
+        </div>
+      </section>
+
       {/* ═══ FEATURES ═══ */}
       <section id="recursos" className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
@@ -325,7 +345,6 @@ export default function Landing() {
             {FEATURES.map((f, i) => (
               <StaggerReveal key={f.title} index={i}>
                 <div className="group relative bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 cursor-default overflow-hidden">
-                  {/* Hover glow */}
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                     style={{ background: `radial-gradient(circle at 30% 30%, ${f.color}10 0%, transparent 60%)` }}
@@ -347,6 +366,69 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ DASHBOARD MOCKUP ═══ */}
+      <section id="produto" className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(123,47,242,0.08) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Produto</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Interface <span className="landing-gradient-text">poderosa e intuitiva</span>
+            </h2>
+            <p className="text-white/40 mt-4 max-w-xl mx-auto text-sm">
+              Dashboard completo com CRM visual, analytics em tempo real, chat WhatsApp integrado e automações com 1 clique.
+            </p>
+          </AnimSection>
+          <DashboardMockup />
+        </div>
+      </section>
+
+      {/* ═══ MOBILE + TEXT SECTION ═══ */}
+      <section className="py-28 px-6 lg:px-12 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 70% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Text */}
+            <AnimSection>
+              <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Mobile</span>
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
+                Prospecte de <span className="landing-gradient-text-cyan">qualquer lugar</span>
+              </h2>
+              <p className="text-white/45 text-[15px] leading-[1.8] mb-8">
+                Seu WhatsApp funcionando 24/7. Receba notificações de leads quentes, acompanhe métricas e feche vendas direto do celular.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  'Notificações de leads em tempo real',
+                  'Respostas automáticas por IA',
+                  'Dashboard responsivo',
+                  'Integração PWA nativa',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-[14px] text-white/60">
+                    <div className="h-5 w-5 rounded-full bg-[#00B4D8]/15 flex items-center justify-center shrink-0">
+                      <Check className="h-3 w-3 text-[#00B4D8]" />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </AnimSection>
+
+            {/* Phone mockup */}
+            <AnimSection delay={0.2}>
+              <div className="flex justify-center">
+                <img
+                  src={mobileImg}
+                  alt="NexaProspect Mobile"
+                  className="w-[320px] h-auto landing-float drop-shadow-[0_20px_60px_rgba(123,47,242,0.25)]"
+                  loading="lazy"
+                />
+              </div>
+            </AnimSection>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ HOW IT WORKS ═══ */}
       <section className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
@@ -357,7 +439,6 @@ export default function Landing() {
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            {/* Connector line */}
             <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
             {[
@@ -379,6 +460,37 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ COMPARISON TABLE ═══ */}
+      <section className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.04) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Comparação</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Por que escolher o <span className="landing-gradient-text">NexaProspect?</span>
+            </h2>
+          </AnimSection>
+          <ComparisonTable />
+        </div>
+      </section>
+
+      {/* ═══ ROI CALCULATOR ═══ */}
+      <section className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 50%, rgba(233,30,140,0.05) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Calculadora de ROI</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Quanto você pode <span className="landing-gradient-text">faturar?</span>
+            </h2>
+            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+              Ajuste os parâmetros e veja o potencial de receita com a automação da NexaProspect.
+            </p>
+          </AnimSection>
+          <ROICalculator />
+        </div>
+      </section>
+
       {/* ═══ TESTIMONIALS ═══ */}
       <section id="cases" className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(247,148,29,0.04) 0%, transparent 50%)' }} />
@@ -390,7 +502,7 @@ export default function Landing() {
             </h2>
           </AnimSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t, i) => (
               <StaggerReveal key={t.name} index={i}>
                 <div className="group bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 h-full relative overflow-hidden">
@@ -449,7 +561,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section id="api" className="py-28 px-6 lg:px-12">
+      <section id="faq" className="py-28 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto">
           <AnimSection className="text-center mb-14">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">FAQ</span>
@@ -460,6 +572,8 @@ export default function Landing() {
             { q: 'Meu WhatsApp pode ser banido?', a: 'Temos sistema anti-ban nativo com warm-up progressivo, delays humanizados e rotação de chips. Risco mínimo.' },
             { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
             { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
+            { q: 'Como funciona o Agente SDR?', a: 'A IA analisa as mensagens recebidas, identifica intenção de compra e responde automaticamente com base no contexto da conversa e no seu serviço.' },
+            { q: 'Quantos leads posso capturar por dia?', a: 'Depende do plano. No Starter são 200/mês, no Pro 1.000/mês e no Enterprise é ilimitado.' },
           ].map((faq, i) => (
             <StaggerReveal key={i} index={i}>
               <FAQItem q={faq.q} a={faq.a} />
@@ -471,14 +585,13 @@ export default function Landing() {
       {/* ═══ FINAL CTA ═══ */}
       <section className="py-32 px-6 lg:px-12 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 50%)' }} />
-        {/* Animated border glow */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(233,30,140,0.08) 0%, transparent 50%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
             <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
               Pronto para prospectar <br /><span className="landing-gradient-text">no piloto automático?</span>
             </h2>
-            <p className="text-white/45 mt-6 text-lg">Comece a prospectar hoje mesmo.</p>
+            <p className="text-white/45 mt-6 text-lg">Comece a prospectar hoje mesmo. Setup em 5 minutos.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
                 Começar agora
