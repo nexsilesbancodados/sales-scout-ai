@@ -440,12 +440,18 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/auth"
-                  className={`block text-center text-sm font-semibold py-3 rounded-full transition-all ${p.highlight ? 'bg-white text-black hover:bg-white/90' : 'bg-white/10 text-white border border-white/15 hover:bg-white/15'}`}
-                >
-                  {p.cta}
-                </Link>
+                {p.highlight ? (
+                  <LiquidButton onClick={() => navigate('/auth')} className="w-full text-sm rounded-full">
+                    {p.cta}
+                  </LiquidButton>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="block text-center text-sm font-semibold py-3 rounded-full transition-all bg-white/10 text-white border border-white/15 hover:bg-white/15"
+                  >
+                    {p.cta}
+                  </Link>
+                )}
               </AnimSection>
             ))}
           </div>
