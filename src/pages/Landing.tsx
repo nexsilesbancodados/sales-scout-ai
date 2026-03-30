@@ -227,14 +227,25 @@ export default function Landing() {
 
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden stars-bg">
-        {/* Multi-layer glow behind the figure */}
-        <div className="absolute right-[-5%] top-[-10%] w-[70%] h-[120%] pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(90,60,220,0.12) 0%, rgba(60,40,180,0.06) 30%, transparent 60%)' }} />
-        <div className="absolute right-[5%] top-[15%] w-[500px] h-[500px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(140,90,255,0.1) 0%, transparent 65%)' }} />
-        <div className="absolute left-[10%] bottom-[20%] w-[300px] h-[300px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(80,60,200,0.06) 0%, transparent 70%)' }} />
+        {/* AI figure as large background element on the right */}
+        <div className="absolute inset-0 pointer-events-none">
+          <img
+            src={aiHeroImg}
+            alt=""
+            className="absolute right-[-5%] top-0 h-full w-auto max-w-none object-cover object-left opacity-90 hidden lg:block"
+            style={{ filter: 'drop-shadow(0 0 120px rgba(110,70,255,0.15))' }}
+          />
+          {/* Gradient overlay to blend image into background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15] via-[#0B0D15]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/40" />
+        </div>
 
-        <div className="relative z-10 max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] min-h-screen items-center px-8">
+        {/* Subtle glow effects */}
+        <div className="absolute right-[15%] top-[10%] w-[500px] h-[500px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(140,90,255,0.08) 0%, transparent 65%)' }} />
+
+        <div className="relative z-10 max-w-[1280px] mx-auto min-h-screen flex items-center px-8">
           {/* Left content */}
-          <div className="flex flex-col justify-center pt-32 pb-16 lg:pt-0 lg:pb-0">
+          <div className="flex flex-col justify-center pt-32 pb-16 lg:pt-0 lg:pb-0 max-w-[560px]">
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-3.5 py-1.5 mb-8 w-fit animate-fade-in"
@@ -289,23 +300,6 @@ export default function Landing() {
                   <span className="text-[11px] text-white/35 ml-1.5">4.9/5</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Right - 3D AI figure */}
-          <div className="hidden lg:flex items-center justify-center relative animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-            <div className="relative">
-              <img
-                src={aiHeroImg}
-                alt="AI Assistant"
-                width={1024}
-                height={1280}
-                className="w-full max-w-[560px] h-auto object-contain relative z-10"
-                style={{ filter: 'drop-shadow(0 0 100px rgba(110,70,255,0.2)) drop-shadow(0 0 40px rgba(140,100,255,0.15))' }}
-              />
-              {/* Subtle ring behind */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full border border-white/[0.03]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/[0.02]" />
             </div>
           </div>
         </div>
