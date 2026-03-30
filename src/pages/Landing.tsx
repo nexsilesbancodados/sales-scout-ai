@@ -206,7 +206,7 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <div className="hidden lg:block">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full">
-                Começar grátis
+                Começar agora
               </LiquidButton>
             </div>
             <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
