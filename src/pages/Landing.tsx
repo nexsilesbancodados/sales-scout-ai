@@ -411,8 +411,8 @@ export default function Landing() {
       <footer className="bg-[#07080E] py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-white to-white/80" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
               <span className="text-sm font-semibold text-white">NexaProspect</span>
             </div>
             <p className="text-xs text-white/30 leading-relaxed">Prospecção inteligente com IA para escalar suas vendas no piloto automático.</p>
