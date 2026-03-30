@@ -350,7 +350,7 @@ export default function Landing() {
               <span className={`text-sm ${!annual ? 'text-white' : 'text-white/40'}`}>Mensal</span>
               <button
                 onClick={() => setAnnual(!annual)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-purple-500' : 'bg-white/20'}`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
               >
                 <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
