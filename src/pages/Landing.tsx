@@ -281,6 +281,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ SOCIAL PROOF STRIP ═══ */}
+      <SocialProofStrip />
+
       {/* ═══ TRUST BADGES ═══ */}
       <section className="py-12 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
