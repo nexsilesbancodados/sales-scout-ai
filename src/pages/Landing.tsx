@@ -308,7 +308,7 @@ export default function Landing() {
       <section id="cases" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
-            <span className="text-xs font-semibold tracking-[0.2em] text-green-400 uppercase">Depoimentos</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Depoimentos</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
               Quem usa, <span className="text-white/40">recomenda</span>
             </h2>
