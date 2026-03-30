@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
 import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
+import { LiquidButton } from '@/components/ui/liquid-button';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -202,9 +203,11 @@ export default function Landing() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Link to="/auth" className="hidden lg:inline-flex bg-white text-[#0B0D15] text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-white/90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-              Começar grátis
-            </Link>
+            <div className="hidden lg:block">
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full">
+                Começar grátis
+              </LiquidButton>
+            </div>
             <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
               {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -276,14 +279,12 @@ export default function Landing() {
             </p>
 
             {/* CTA Button */}
-            <Link
-              to="/auth"
-              className="mt-10 bg-white/[0.07] border border-white/[0.12] text-white text-[14px] font-semibold px-8 py-4 rounded-full hover:bg-white/[0.12] transition-all duration-300 flex items-center gap-2.5 w-fit animate-fade-in group"
-              style={{ animationDelay: '0.4s', animationFillMode: 'both' }}
-            >
-              Começar gratuitamente
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            <div className="mt-10 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl">
+                Começar gratuitamente
+                <ArrowRight className="h-4 w-4" />
+              </LiquidButton>
+            </div>
 
             {/* Social proof */}
             <div className="flex items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
@@ -441,12 +442,18 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/auth"
-                  className={`block text-center text-sm font-semibold py-3 rounded-full transition-all ${p.highlight ? 'bg-white text-black hover:bg-white/90' : 'bg-white/10 text-white border border-white/15 hover:bg-white/15'}`}
-                >
-                  {p.cta}
-                </Link>
+                {p.highlight ? (
+                  <LiquidButton onClick={() => navigate('/auth')} className="w-full text-sm rounded-full">
+                    {p.cta}
+                  </LiquidButton>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="block text-center text-sm font-semibold py-3 rounded-full transition-all bg-white/10 text-white border border-white/15 hover:bg-white/15"
+                  >
+                    {p.cta}
+                  </Link>
+                )}
               </AnimSection>
             ))}
           </div>
