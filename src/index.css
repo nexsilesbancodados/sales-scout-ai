@@ -553,6 +553,29 @@
   100% { transform: translateX(-8px) scale(1); opacity: 0.2; }
 }
 
+/* Landing gradient text */
+.landing-gradient-text {
+  background: linear-gradient(135deg, #7B2FF2 0%, #E91E8C 50%, #F7941D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.landing-gradient-text-cyan {
+  background: linear-gradient(135deg, #00B4D8 0%, #7B2FF2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scroll indicator dot */
+.landing-scroll-dot {
+  animation: landing-scroll-pulse 2s ease-in-out infinite;
+}
+@keyframes landing-scroll-pulse {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.3; }
+}
+
 
 /* ═══ Premium Pricing Card Effects ═══ */
 @keyframes premium-border-rotate {
