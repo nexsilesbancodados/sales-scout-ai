@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import {
@@ -17,10 +17,6 @@ import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
-
-const HeroScene3D = lazy(() =>
-  import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
-);
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -134,28 +130,6 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (user) navigate('/dashboard', { replace: true });
-  }, [user, navigate]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      });
-    };
-    window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
-  }, []);
 
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
@@ -163,14 +137,14 @@ export default function Landing() {
       <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/95 border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
         <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2.5">
             <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
             <span className="text-[15px] font-bold tracking-[-0.02em] text-white">NexaProspect</span>
           </div>
 
-          <div className="hidden lg:flex items-center bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] rounded-full px-1.5 py-1">
+          <div className="hidden lg:flex items-center bg-white/[0.08] border border-white/[0.08] rounded-full px-1.5 py-1">
             {NAV_LINKS.map((l, i) => (
               <a key={l.label} href={l.href}
                 className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${i === 0 ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
@@ -192,7 +166,7 @@ export default function Landing() {
         </div>
 
         {mobileMenu && (
-          <div className="lg:hidden bg-[#0B0D15]/95 backdrop-blur-2xl border-t border-white/[0.04] px-8 py-5 space-y-1">
+          <div className="lg:hidden bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
               <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>{l.label}</a>
             ))}
@@ -202,23 +176,14 @@ export default function Landing() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="min-h-screen relative overflow-hidden stars-bg flex items-center">
-        <Suspense fallback={null}>
-          <HeroScene3D />
-        </Suspense>
-
+      <section className="min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute inset-0 transition-transform duration-700 ease-out"
-            style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}
-          >
-            <img
-              src={aiHeroImg}
-              alt=""
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
-              style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
-            />
-          </div>
+          <img
+            src={aiHeroImg}
+            alt=""
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
+            style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
+          />
           <div className="absolute inset-0 hero-energy-overlay" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/70 via-transparent to-[#0B0D15]/70" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/20" />
@@ -227,7 +192,7 @@ export default function Landing() {
 
         <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
           <div className="max-w-[620px] pt-24">
-            <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in backdrop-blur-sm"
+            <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
               <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
@@ -285,7 +250,7 @@ export default function Landing() {
       {/* ═══ STATS BAR ═══ */}
       <section className="relative z-10 -mt-1">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="bg-[#0B0D15]/80 border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
             {STATS.map((s, i) => (
               <StaggerReveal key={s.label} index={i} className="text-center">
                 <div className="text-3xl lg:text-4xl font-bold text-white">
@@ -609,7 +574,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="relative z-10 bg-[#07080E]/80 backdrop-blur-xl py-16 px-6 lg:px-12 border-t border-white/5">
+      <footer className="relative z-10 bg-[#07080E]/95 py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">

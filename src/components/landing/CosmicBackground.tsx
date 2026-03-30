@@ -13,7 +13,7 @@ export function CosmicBackground() {
     let w = 0, h = 0;
 
     // Stars
-    const STAR_COUNT = 280;
+    const STAR_COUNT = 120;
     const stars: { x: number; y: number; r: number; brightness: number; speed: number; phase: number }[] = [];
 
     // Nebula orbs
