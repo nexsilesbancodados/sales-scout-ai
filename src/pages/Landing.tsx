@@ -6,6 +6,7 @@ import {
   Check, ChevronDown, Menu, X, Columns3
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
+import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
