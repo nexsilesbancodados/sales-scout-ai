@@ -277,14 +277,12 @@ export default function Landing() {
             </p>
 
             {/* CTA Button */}
-            <Link
-              to="/auth"
-              className="mt-10 bg-white/[0.07] border border-white/[0.12] text-white text-[14px] font-semibold px-8 py-4 rounded-full hover:bg-white/[0.12] transition-all duration-300 flex items-center gap-2.5 w-fit animate-fade-in group"
-              style={{ animationDelay: '0.4s', animationFillMode: 'both' }}
-            >
-              Começar gratuitamente
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            <div className="mt-10 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl">
+                Começar gratuitamente
+                <ArrowRight className="h-4 w-4" />
+              </LiquidButton>
+            </div>
 
             {/* Social proof */}
             <div className="flex items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
