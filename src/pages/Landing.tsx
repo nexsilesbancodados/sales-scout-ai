@@ -388,7 +388,7 @@ export default function Landing() {
 
       {/* ═══ FINAL CTA ═══ */}
       <section className="bg-[#0B0D15] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(100,50,255,0.12) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
             <h2 className="text-4xl lg:text-5xl font-bold text-white">
