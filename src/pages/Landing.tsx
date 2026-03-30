@@ -578,12 +578,12 @@ export default function Landing() {
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4">Perguntas frequentes</h2>
           </AnimSection>
           {[
-            { q: 'Preciso de conhecimento técnico?', a: 'Não. O NexaProspect foi feito para vendedores e donos de agência. Tudo funciona com poucos cliques.' },
-            { q: 'Meu WhatsApp pode ser banido?', a: 'Temos sistema anti-ban nativo com warm-up progressivo, delays humanizados e rotação de chips. Risco mínimo.' },
-            { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
-            { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
-            { q: 'Como funciona o Agente SDR?', a: 'A IA analisa as mensagens recebidas, identifica intenção de compra e responde automaticamente com base no contexto da conversa e no seu serviço.' },
-            { q: 'Quantos leads posso capturar por dia?', a: 'Depende do plano. No Starter são 200/mês, no Pro 1.000/mês e no Enterprise é ilimitado.' },
+            { q: 'Preciso saber programar?', a: 'Zero. O NexaProspect foi feito para vendedores. Tudo funciona com poucos cliques — se você sabe usar WhatsApp, sabe usar a plataforma.' },
+            { q: 'Meu WhatsApp vai ser banido?', a: 'Risco mínimo. Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, rotação de chips e monitoramento em tempo real. Nenhum cliente reportou banimento em 4 meses.' },
+            { q: 'Posso testar antes de pagar?', a: 'Sim! Oferecemos 7 dias grátis sem compromisso e sem cartão de crédito. Cancele a qualquer momento.' },
+            { q: 'Funciona para meu nicho?', a: 'Provavelmente sim. Já atendemos +50 nichos: agências, consultorias, SaaS, clínicas, advocacia, imobiliárias, e-commerce e mais. Templates otimizados para cada um.' },
+            { q: 'A IA realmente responde bem?', a: 'O Agente SDR analisa intenção de compra, responde objeções com base no seu serviço e até agenda reuniões — tudo em português natural. Clientes relatam taxa de resposta 3x maior.' },
+            { q: 'Quantos leads consigo por dia?', a: 'Depende do plano: Starter = 200/mês, Pro = 1.000/mês, Enterprise = ilimitado. Na prática, clientes Pro capturam 50-100 leads/dia facilmente.' },
           ].map((faq, i) => (
             <StaggerReveal key={i} index={i}>
               <FAQItem q={faq.q} a={faq.a} />
