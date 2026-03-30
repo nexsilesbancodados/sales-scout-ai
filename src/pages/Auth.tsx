@@ -15,7 +15,7 @@ import logoImg from '@/assets/logo.png';
 export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, loading, user } = useAuth();
+  const { signInWithEmail, signUpWithEmail, loading, user } = useAuth();
   const { toast } = useToast();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
