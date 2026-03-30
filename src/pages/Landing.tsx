@@ -182,20 +182,20 @@ export default function Landing() {
 
       {/* ═══ NAVBAR ═══ */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/80 backdrop-blur-2xl border-b border-white/[0.04]' : 'bg-transparent'}`}>
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between px-8 py-4">
+        <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-2.5">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-white via-white/90 to-white/70 shadow-[0_0_12px_rgba(255,255,255,0.15)]" />
-            <span className="text-[15px] font-semibold tracking-[-0.01em] text-white">NexaProspect</span>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-full bg-gradient-to-br from-white via-white/90 to-white/70 shadow-[0_0_12px_rgba(255,255,255,0.15)]" />
+            <span className="text-[14px] font-semibold tracking-[-0.01em] text-white">NexaProspect</span>
           </div>
 
           {/* Center pill nav - desktop */}
-          <div className="hidden lg:flex items-center bg-white/[0.04] backdrop-blur-xl border border-white/[0.07] rounded-full px-1.5 py-1">
+          <div className="hidden lg:flex items-center bg-white/[0.04] backdrop-blur-xl border border-white/[0.07] rounded-full px-1 py-0.5">
             {NAV_LINKS.map((l, i) => (
               <a
                 key={l.label}
                 href={l.href}
-                className={`text-[13px] px-5 py-2 rounded-full transition-all duration-200 ${i === 0 ? 'text-white bg-white/[0.08]' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.05]'}`}
+                className={`text-[12px] px-4 py-1.5 rounded-full transition-all duration-200 ${i === 0 ? 'text-white bg-white/[0.08]' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.05]'}`}
               >
                 {l.label}
               </a>
@@ -205,7 +205,7 @@ export default function Landing() {
           {/* CTA */}
           <div className="flex items-center gap-3">
             <div className="hidden lg:block">
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full">
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[12px] px-5 py-2 rounded-full">
                 Começar agora
               </LiquidButton>
             </div>
