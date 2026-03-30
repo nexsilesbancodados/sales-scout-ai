@@ -452,9 +452,9 @@ export default function Landing() {
             <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
             {[
-              { num: '01', title: 'Escolha o nicho e cidade', desc: 'Selecione o segmento e localização. A IA mapeia os melhores prospects automaticamente.', icon: Target, color: '#7B2FF2' },
-              { num: '02', title: 'Ative as automações', desc: 'Ligue prospecção, follow-up e SDR com 1 clique. Tudo roda em segundo plano.', icon: Zap, color: '#E91E8C' },
-              { num: '03', title: 'Receba leads qualificados', desc: 'Leads chegam no CRM já pontuados. Foque apenas nos que vão fechar.', icon: BarChart3, color: '#00B4D8' },
+              { num: '01', title: 'Conecte seu WhatsApp', desc: 'Escaneie o QR Code e pronto. Em 2 minutos seu chip está ativo e protegido pelo anti-ban.', icon: Target, color: '#7B2FF2' },
+              { num: '02', title: 'Escolha nicho + cidade', desc: 'Selecione o segmento e a IA captura leads qualificados automaticamente — Google Maps, Instagram, Facebook.', icon: Zap, color: '#E91E8C' },
+              { num: '03', title: 'A IA faz o resto', desc: 'Prospecta, envia mensagens, qualifica e agenda reuniões. Você só aparece para fechar.', icon: BarChart3, color: '#00B4D8' },
             ].map((s, i) => (
               <StaggerReveal key={s.num} index={i} className="text-center">
                 <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-6 mx-auto transition-transform duration-300 hover:scale-110"
