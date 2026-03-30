@@ -322,10 +322,13 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(233,30,140,0.04) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Transformação</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Antes vs Depois</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              O que muda quando <span className="landing-gradient-text">você automatiza</span>
+              Você ainda prospecta <span className="text-white/30">na mão?</span>
             </h2>
+            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+              Veja a diferença entre perder 8h/dia em tarefas repetitivas e deixar a IA trabalhar por você.
+            </p>
           </AnimSection>
           <BeforeAfterSection />
         </div>
