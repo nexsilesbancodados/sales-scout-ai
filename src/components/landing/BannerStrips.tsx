@@ -41,14 +41,14 @@ export function UrgencyCTABanner() {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
           </span>
           <span className="text-[13px] sm:text-sm font-bold text-white tracking-wide">
-            🔥 OFERTA POR TEMPO LIMITADO — 30% OFF no primeiro mês
+            🔥 ÚLTIMAS VAGAS — 30% OFF para quem começar hoje
           </span>
         </div>
         <button
           onClick={() => navigate('/auth')}
           className="flex items-center gap-2 bg-white text-[#7B2FF2] text-[12px] sm:text-[13px] font-bold px-5 py-2 rounded-full hover:bg-white/90 transition-all hover:scale-105 active:scale-95 shadow-lg"
         >
-          Garantir desconto
+          Garantir minha vaga
           <ArrowRight className="h-3.5 w-3.5" />
         </button>
       </div>

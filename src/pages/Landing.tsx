@@ -72,21 +72,21 @@ function StaggerReveal({ children, className = '', index = 0 }: { children: Reac
 
 /* ─── FEATURES DATA ─── */
 const FEATURES = [
-  { icon: Target, title: 'Prospecção automática', desc: 'Captura leads do Google Maps, Instagram e Facebook com 1 clique. Até 500 leads/semana.', color: '#7B2FF2' },
-  { icon: Bot, title: 'Agente SDR com IA', desc: 'A IA responde, qualifica e move leads no funil automaticamente.', color: '#E91E8C' },
-  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Disparo em massa, follow-up automático e respostas por intenção.', color: '#00B4D8' },
-  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, BANT e integração Meta Ads.', color: '#F7941D' },
-  { icon: Zap, title: '9 automações', desc: 'Prospecção semanal, reativação de leads frios, relatório diário.', color: '#7B2FF2' },
-  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Taxa de conversão por nicho, ticket médio e ROI das campanhas.', color: '#E91E8C' },
+  { icon: Target, title: 'Prospecção automática', desc: 'Encontre até 500 leads/semana no Google Maps, Instagram e Facebook — sem digitar uma linha.', color: '#7B2FF2' },
+  { icon: Bot, title: 'Agente SDR com IA', desc: 'Sua IA responde em segundos, qualifica com BANT e agenda reuniões — 24h por dia, 7 dias por semana.', color: '#E91E8C' },
+  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Dispare mensagens personalizadas em massa com anti-ban, spintax e delays que imitam comportamento humano.', color: '#00B4D8' },
+  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, qualificação BANT e integração direta com Meta Ads.', color: '#F7941D' },
+  { icon: Zap, title: '9 automações poderosas', desc: 'Prospecção agendada, reativação de leads frios, relatórios automáticos. Liga e desliga com 1 clique.', color: '#7B2FF2' },
+  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Saiba exatamente qual nicho, horário e template converte mais — e otimize cada centavo investido.', color: '#E91E8C' },
 ];
 
 const TESTIMONIALS = [
-  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 2 semanas capturei 800 leads de restaurantes e fechei 12 contratos. O SDR da IA responde melhor que minha equipe.' },
-  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Nunca pensei que ia prospectar no piloto automático. Meu WhatsApp fica respondendo enquanto durmo.' },
-  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'O CRM integrado com Meta Ads mudou completamente minha estratégia. Sei exatamente quanto custa cada lead.' },
-  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'Triplicamos o número de reuniões agendadas no primeiro mês. A automação de follow-up é incrível.' },
-  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Os clientes me perguntam como consigo responder tão rápido. É a IA trabalhando 24h por mim.' },
-  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: 'O extrator de Instagram trouxe 400 leads qualificados na primeira semana. ROI absurdo.' },
+  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 14 dias: 800 leads capturados, 12 contratos fechados. O SDR da IA converte melhor que minha equipe de 3 pessoas.' },
+  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Acordo com 5 reuniões agendadas. A IA prospectou, qualificou e respondeu enquanto eu dormia. Surreal.' },
+  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'Reduzi meu custo por lead de R$18 para R$0,80. O CRM + Meta Ads me dá visibilidade total do funil.' },
+  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'De 8 reuniões/mês para 27 no primeiro mês. O follow-up automático recupera leads que eu já tinha dado como perdidos.' },
+  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Meus clientes perguntam como respondo tão rápido. Não conto que é a IA — eles acham que tenho uma equipe enorme.' },
+  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: '400 leads qualificados na primeira semana via Instagram. ROI de 23x sobre o plano. Nunca vi nada igual.' },
 ];
 
 const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
@@ -131,6 +131,28 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 40);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
@@ -196,35 +218,39 @@ export default function Landing() {
             <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
+              <span className="text-[12px] text-white/60">+2.400 empresas já automatizaram suas vendas</span>
             </div>
 
             <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in"
               style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Prospecte no </span>
+              <span className="text-white">Pare de </span>
+              <span className="text-white/30">perseguir</span>
               <br className="hidden sm:block" />
-              <span className="landing-gradient-text">Piloto Automático</span>
-              <br />
-              <span className="text-white">com IA</span>
+              <span className="text-white">leads. </span>
+              <span className="landing-gradient-text">Atraia-os.</span>
             </h1>
 
-            <p className="text-[16px] text-white/45 max-w-[440px] mt-7 leading-[1.8] animate-fade-in"
+            <p className="text-[16px] text-white/50 max-w-[460px] mt-7 leading-[1.8] animate-fade-in"
               style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
+              A IA captura leads do Google Maps, Instagram e Facebook, envia mensagens no WhatsApp e agenda reuniões — <strong className="text-white/70">enquanto você dorme.</strong>
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
-                Começar agora
+                Testar grátis por 7 dias
                 <ArrowRight className="h-4 w-4" />
               </LiquidButton>
-              <Link to="/tutorial" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
             </div>
 
-            <div className="flex items-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+            <p className="text-[11px] text-white/25 mt-3 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
+              Sem cartão de crédito • Setup em 5 min • Cancele quando quiser
+            </p>
+
+            <div className="flex items-center gap-6 mt-10 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
@@ -296,10 +322,13 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(233,30,140,0.04) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Transformação</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Antes vs Depois</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              O que muda quando <span className="landing-gradient-text">você automatiza</span>
+              Você ainda prospecta <span className="text-white/30">na mão?</span>
             </h2>
+            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+              Veja a diferença entre perder 8h/dia em tarefas repetitivas e deixar a IA trabalhar por você.
+            </p>
           </AnimSection>
           <BeforeAfterSection />
         </div>
@@ -312,8 +341,11 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Tudo que você precisa para <br /><span className="landing-gradient-text">escalar suas vendas</span>
+              6 armas para <span className="landing-gradient-text">dominar seu mercado</span>
             </h2>
+            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+              Da captura ao fechamento — tudo integrado numa única plataforma.
+            </p>
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -348,10 +380,10 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Produto</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Interface <span className="landing-gradient-text">poderosa e intuitiva</span>
+              Veja seu <span className="landing-gradient-text">novo cockpit de vendas</span>
             </h2>
             <p className="text-white/40 mt-4 max-w-xl mx-auto text-sm">
-              Dashboard completo com CRM visual, analytics em tempo real, chat WhatsApp integrado e automações com 1 clique.
+              CRM visual, analytics em tempo real, chat WhatsApp e 9 automações — tudo num painel que qualquer vendedor entende em 2 minutos.
             </p>
           </AnimSection>
           <DashboardMockup />
@@ -367,10 +399,10 @@ export default function Landing() {
             <AnimSection>
               <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Mobile</span>
               <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
-                Prospecte de <span className="landing-gradient-text-cyan">qualquer lugar</span>
+                Feche vendas <span className="landing-gradient-text-cyan">do celular</span>
               </h2>
               <p className="text-white/45 text-[15px] leading-[1.8] mb-8">
-                Seu WhatsApp funcionando 24/7. Receba notificações de leads quentes, acompanhe métricas e feche vendas direto do celular.
+                Receba alertas de leads quentes, acompanhe seu funil e responda prospects — tudo na palma da mão, sem abrir o computador.
               </p>
               <ul className="space-y-4">
                 {[
@@ -412,17 +444,17 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-20">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Como funciona</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Em <span className="landing-gradient-text-cyan">3 passos simples</span></h2>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Simplicidade</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Do zero ao primeiro lead em <span className="landing-gradient-text-cyan">5 minutos</span></h2>
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
             {[
-              { num: '01', title: 'Escolha o nicho e cidade', desc: 'Selecione o segmento e localização. A IA mapeia os melhores prospects automaticamente.', icon: Target, color: '#7B2FF2' },
-              { num: '02', title: 'Ative as automações', desc: 'Ligue prospecção, follow-up e SDR com 1 clique. Tudo roda em segundo plano.', icon: Zap, color: '#E91E8C' },
-              { num: '03', title: 'Receba leads qualificados', desc: 'Leads chegam no CRM já pontuados. Foque apenas nos que vão fechar.', icon: BarChart3, color: '#00B4D8' },
+              { num: '01', title: 'Conecte seu WhatsApp', desc: 'Escaneie o QR Code e pronto. Em 2 minutos seu chip está ativo e protegido pelo anti-ban.', icon: Target, color: '#7B2FF2' },
+              { num: '02', title: 'Escolha nicho + cidade', desc: 'Selecione o segmento e a IA captura leads qualificados automaticamente — Google Maps, Instagram, Facebook.', icon: Zap, color: '#E91E8C' },
+              { num: '03', title: 'A IA faz o resto', desc: 'Prospecta, envia mensagens, qualifica e agenda reuniões. Você só aparece para fechar.', icon: BarChart3, color: '#00B4D8' },
             ].map((s, i) => (
               <StaggerReveal key={s.num} index={i} className="text-center">
                 <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-6 mx-auto transition-transform duration-300 hover:scale-110"
@@ -445,7 +477,7 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Comparação</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Por que escolher o <span className="landing-gradient-text">NexaProspect?</span>
+              Outras ferramentas fazem <span className="text-white/30">parte.</span> <br />Nós fazemos <span className="landing-gradient-text">tudo.</span>
             </h2>
           </AnimSection>
           <ComparisonTable />
@@ -457,12 +489,12 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 50%, rgba(233,30,140,0.05) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Calculadora de ROI</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Simulador de receita</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Quanto você pode <span className="landing-gradient-text">faturar?</span>
+              Descubra quanto dinheiro está <span className="landing-gradient-text">deixando na mesa</span>
             </h2>
             <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
-              Ajuste os parâmetros e veja o potencial de receita com a automação da NexaProspect.
+              Arraste os controles e veja em tempo real o faturamento que a automação pode gerar para o seu negócio.
             </p>
           </AnimSection>
           <ROICalculator />
@@ -474,9 +506,9 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(247,148,29,0.04) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Depoimentos</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Resultados reais</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Quem usa, <span className="text-white/30">recomenda</span>
+              Não acredite em nós. <span className="text-white/30">Acredite neles.</span>
             </h2>
           </AnimSection>
 
@@ -512,7 +544,7 @@ export default function Landing() {
           <AnimSection className="text-center mb-14">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Planos simples, <span className="landing-gradient-text">resultados reais</span>
+              Invista menos que um <span className="landing-gradient-text">almoço por dia</span>
             </h2>
 
             <div className="flex items-center justify-center gap-3 mt-8">
@@ -546,12 +578,12 @@ export default function Landing() {
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4">Perguntas frequentes</h2>
           </AnimSection>
           {[
-            { q: 'Preciso de conhecimento técnico?', a: 'Não. O NexaProspect foi feito para vendedores e donos de agência. Tudo funciona com poucos cliques.' },
-            { q: 'Meu WhatsApp pode ser banido?', a: 'Temos sistema anti-ban nativo com warm-up progressivo, delays humanizados e rotação de chips. Risco mínimo.' },
-            { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
-            { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
-            { q: 'Como funciona o Agente SDR?', a: 'A IA analisa as mensagens recebidas, identifica intenção de compra e responde automaticamente com base no contexto da conversa e no seu serviço.' },
-            { q: 'Quantos leads posso capturar por dia?', a: 'Depende do plano. No Starter são 200/mês, no Pro 1.000/mês e no Enterprise é ilimitado.' },
+            { q: 'Preciso saber programar?', a: 'Zero. O NexaProspect foi feito para vendedores. Tudo funciona com poucos cliques — se você sabe usar WhatsApp, sabe usar a plataforma.' },
+            { q: 'Meu WhatsApp vai ser banido?', a: 'Risco mínimo. Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, rotação de chips e monitoramento em tempo real. Nenhum cliente reportou banimento em 4 meses.' },
+            { q: 'Posso testar antes de pagar?', a: 'Sim! Oferecemos 7 dias grátis sem compromisso e sem cartão de crédito. Cancele a qualquer momento.' },
+            { q: 'Funciona para meu nicho?', a: 'Provavelmente sim. Já atendemos +50 nichos: agências, consultorias, SaaS, clínicas, advocacia, imobiliárias, e-commerce e mais. Templates otimizados para cada um.' },
+            { q: 'A IA realmente responde bem?', a: 'O Agente SDR analisa intenção de compra, responde objeções com base no seu serviço e até agenda reuniões — tudo em português natural. Clientes relatam taxa de resposta 3x maior.' },
+            { q: 'Quantos leads consigo por dia?', a: 'Depende do plano: Starter = 200/mês, Pro = 1.000/mês, Enterprise = ilimitado. Na prática, clientes Pro capturam 50-100 leads/dia facilmente.' },
           ].map((faq, i) => (
             <StaggerReveal key={i} index={i}>
               <FAQItem q={faq.q} a={faq.a} />
@@ -567,12 +599,12 @@ export default function Landing() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
             <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
-              Pronto para prospectar <br /><span className="landing-gradient-text">no piloto automático?</span>
+              Seus concorrentes já estão <br /><span className="landing-gradient-text">automatizando.</span>
             </h2>
-            <p className="text-white/45 mt-6 text-lg">Comece a prospectar hoje mesmo. Setup em 5 minutos.</p>
+            <p className="text-white/45 mt-6 text-lg">Cada dia sem automação são dezenas de leads perdidos. Comece em 5 minutos.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
-                Começar agora
+                Começar meu teste grátis
                 <ArrowRight className="h-4 w-4" />
               </LiquidButton>
               <Link to="/tutorial" className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white px-8 py-4 rounded-xl transition-all text-sm font-medium">
