@@ -54,7 +54,17 @@ export function CosmicBackground() {
       }
     }
 
+    let lastTime = 0;
+    const FPS_INTERVAL = 1000 / 30; // Cap at 30fps for performance
+
     function draw(time: number) {
+      const delta = time - lastTime;
+      if (delta < FPS_INTERVAL) {
+        animId = requestAnimationFrame(draw);
+        return;
+      }
+      lastTime = time - (delta % FPS_INTERVAL);
+
       ctx!.clearRect(0, 0, w, h);
 
       // Deep space gradient base
@@ -78,24 +88,7 @@ export function CosmicBackground() {
         ctx!.fillRect(ox - orb.rx, oy - orb.ry, orb.rx * 2, orb.ry * 2);
       }
 
-      // Grid lines (very subtle)
-      ctx!.strokeStyle = 'rgba(255,255,255,0.012)';
-      ctx!.lineWidth = 1;
-      const gridSize = 80;
-      for (let x = 0; x < w; x += gridSize) {
-        ctx!.beginPath();
-        ctx!.moveTo(x, 0);
-        ctx!.lineTo(x, h);
-        ctx!.stroke();
-      }
-      for (let y = 0; y < h; y += gridSize) {
-        ctx!.beginPath();
-        ctx!.moveTo(0, y);
-        ctx!.lineTo(w, y);
-        ctx!.stroke();
-      }
-
-      // Stars with twinkling
+      // Stars with twinkling (skip grid for perf)
       for (const star of stars) {
         const twinkle = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * star.speed * 0.003 + star.phase));
         const alpha = star.brightness * twinkle;
@@ -104,7 +97,6 @@ export function CosmicBackground() {
         ctx!.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
         ctx!.fill();
 
-        // Glow for brighter stars
         if (star.r > 1) {
           ctx!.beginPath();
           ctx!.arc(star.x, star.y, star.r * 3, 0, Math.PI * 2);
