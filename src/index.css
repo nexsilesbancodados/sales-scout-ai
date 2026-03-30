@@ -510,7 +510,169 @@
 }
 
 
-a[href*="lovable.dev"],
+/* ═══ Premium Pricing Card Effects ═══ */
+@keyframes premium-border-rotate {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes aura-rotate-gradient {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes aura-shinery {
+  0%, 100% { left: -20%; opacity: 0; }
+  20% { opacity: 1; }
+  48% { left: 140%; opacity: 1; }
+  51% { opacity: 0; }
+}
+
+.premium-price-card {
+  position: relative;
+  overflow: visible;
+}
+
+.premium-border-container {
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  background-image: linear-gradient(0deg, hsl(260 80% 90%) -50%, hsl(210 40% 30%) 100%);
+  border-radius: 1rem;
+}
+
+.premium-rotating-border {
+  pointer-events: none;
+  position: absolute;
+  z-index: 200;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: left;
+  width: 200%;
+  height: 10rem;
+  animation: premium-border-rotate 8s linear infinite;
+}
+
+.aura-btn {
+  --speed: 4s;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.aura-btn:hover {
+  --speed: 2.2s;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px -5px rgba(169, 221, 247, 0.3);
+}
+
+.aura-shimmer-container {
+  position: absolute;
+  inset: -200%;
+  width: 400%;
+  height: 400%;
+  animation: aura-rotate-gradient var(--speed) linear infinite;
+}
+
+.aura-shimmer-gradient {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 225deg, transparent 0%, rgba(255, 255, 255, 0.8) 10%, transparent 20%);
+}
+
+.aura-shimmer-onda {
+  background: linear-gradient(10deg, #D1D2EA 12.81%, rgba(209, 210, 234, 0) 66.66%);
+  mix-blend-mode: overlay;
+  width: 90px;
+  height: 150%;
+  position: absolute;
+  top: -25%;
+  transform: translateX(-50%) skew(-25deg);
+  pointer-events: none;
+  animation: aura-shinery 6s infinite ease-in-out;
+  z-index: 4;
+}
+
+.aura-bottom-glow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 40%;
+  background: radial-gradient(circle at bottom, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.aura-fundo-white {
+  position: absolute;
+  left: 5px;
+  width: 0%;
+  height: calc(100% - 10px);
+  background: #ffffff;
+  border-radius: 14px;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: 6;
+  opacity: 0;
+}
+
+.aura-btn:hover .aura-fundo-white {
+  width: calc(100% - 10px);
+  opacity: 1;
+}
+
+.aura-wrapper-icones {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.aura-btn:hover .aura-wrapper-icones {
+  left: calc(100% - 44px);
+}
+
+.aura-texto-principal,
+.aura-texto-hover {
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  color: #1e3a8a;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.aura-texto-hover {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translateX(25px);
+  opacity: 0;
+}
+
+.aura-btn:hover .aura-texto-principal {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.aura-btn:hover .aura-texto-hover {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(-12px);
+}
+
+
 iframe[src*="lovable.dev"],
 div[style*="Edit with Lovable"],
 .lovable-badge {
