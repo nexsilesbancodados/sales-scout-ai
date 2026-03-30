@@ -269,7 +269,7 @@ export default function Landing() {
       <section id="recursos" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
-            <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Recursos</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
               Tudo que você precisa para <br /><span className="text-white/40">escalar suas vendas</span>
             </h2>
