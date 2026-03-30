@@ -399,10 +399,10 @@ export default function Landing() {
             <AnimSection>
               <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Mobile</span>
               <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
-                Prospecte de <span className="landing-gradient-text-cyan">qualquer lugar</span>
+                Feche vendas <span className="landing-gradient-text-cyan">do celular</span>
               </h2>
               <p className="text-white/45 text-[15px] leading-[1.8] mb-8">
-                Seu WhatsApp funcionando 24/7. Receba notificações de leads quentes, acompanhe métricas e feche vendas direto do celular.
+                Receba alertas de leads quentes, acompanhe seu funil e responda prospects — tudo na palma da mão, sem abrir o computador.
               </p>
               <ul className="space-y-4">
                 {[
