@@ -224,7 +224,7 @@ export default function Landing() {
               </a>
             ))}
             <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">
-              Começar grátis
+              Começar agora
             </Link>
           </div>
         )}
