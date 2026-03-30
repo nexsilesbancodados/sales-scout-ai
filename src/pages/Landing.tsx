@@ -144,7 +144,7 @@ export default function Landing() {
             <span className="text-[15px] font-bold tracking-[-0.02em] text-white">NexaProspect</span>
           </div>
 
-          <div className="hidden lg:flex items-center bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] rounded-full px-1.5 py-1">
+          <div className="hidden lg:flex items-center bg-white/[0.08] border border-white/[0.08] rounded-full px-1.5 py-1">
             {NAV_LINKS.map((l, i) => (
               <a key={l.label} href={l.href}
                 className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${i === 0 ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
