@@ -206,7 +206,7 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <div className="hidden lg:block">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full">
-                Começar grátis
+                Começar agora
               </LiquidButton>
             </div>
             <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)}>
@@ -224,7 +224,7 @@ export default function Landing() {
               </a>
             ))}
             <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">
-              Começar grátis
+              Começar agora
             </Link>
           </div>
         )}
@@ -384,7 +384,7 @@ export default function Landing() {
           {[
             { q: 'Preciso de conhecimento técnico?', a: 'Não. O NexaProspect foi feito para vendedores e donos de agência. Tudo funciona com poucos cliques.' },
             { q: 'Meu WhatsApp pode ser banido?', a: 'Temos sistema anti-ban nativo com warm-up progressivo, delays humanizados e rotação de chips. Risco mínimo.' },
-            { q: 'Posso testar grátis?', a: 'Sim! Oferecemos 7 dias grátis em todos os planos, sem necessidade de cartão de crédito.' },
+            { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
             { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
           ].map((faq, i) => (
             <FAQItem key={i} q={faq.q} a={faq.a} />
@@ -400,10 +400,10 @@ export default function Landing() {
             <h2 className="text-4xl lg:text-5xl font-bold text-white">
               Pronto para prospectar <br /><span className="text-white/40">no piloto automático?</span>
             </h2>
-            <p className="text-white/50 mt-4 text-lg">Teste grátis por 7 dias. Sem cartão de crédito.</p>
+            <p className="text-white/50 mt-4 text-lg">Comece a prospectar hoje mesmo.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <Link to="/auth" className="bg-white text-black font-bold px-8 py-4 rounded-full hover:bg-white/90 transition-all text-sm">
-                Começar agora — é grátis
+                Começar agora
               </Link>
               <Link to="/tutorial" className="border border-white/20 text-white px-8 py-4 rounded-full hover:bg-white/5 transition-all text-sm">
                 Ver tutorial
