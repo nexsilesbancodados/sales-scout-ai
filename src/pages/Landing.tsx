@@ -340,7 +340,7 @@ export default function Landing() {
       <section id="precos" className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection className="text-center mb-12">
-            <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Preços</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3">
               Planos simples, <span className="text-white/40">resultados reais</span>
             </h2>
