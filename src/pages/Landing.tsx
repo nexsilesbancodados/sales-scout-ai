@@ -248,6 +248,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ URGENCY CTA BANNER ═══ */}
+      <UrgencyCTABanner />
+
       {/* ═══ STATS BAR ═══ */}
       <section className="relative z-10 -mt-1">
         <div className="max-w-5xl mx-auto px-6">
