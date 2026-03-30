@@ -269,7 +269,7 @@ export default function Landing() {
       <section id="recursos" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
-            <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Recursos</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
               Tudo que você precisa para <br /><span className="text-white/40">escalar suas vendas</span>
             </h2>
@@ -281,7 +281,7 @@ export default function Landing() {
       <section className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
-            <span className="text-xs font-semibold tracking-[0.2em] text-blue-400 uppercase">Como funciona</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Como funciona</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-16">Em 3 passos simples</h2>
           </AnimSection>
 
@@ -308,7 +308,7 @@ export default function Landing() {
       <section id="cases" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection>
-            <span className="text-xs font-semibold tracking-[0.2em] text-green-400 uppercase">Depoimentos</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Depoimentos</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
               Quem usa, <span className="text-white/40">recomenda</span>
             </h2>
@@ -322,7 +322,7 @@ export default function Landing() {
                 </div>
                 <p className="text-sm text-white/70 leading-relaxed mb-5">"{t.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white">
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white">
                     {t.name[0]}
                   </div>
                   <div>
@@ -340,7 +340,7 @@ export default function Landing() {
       <section id="precos" className="bg-[#0E1018] py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <AnimSection className="text-center mb-12">
-            <span className="text-xs font-semibold tracking-[0.2em] text-purple-400 uppercase">Preços</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
             <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3">
               Planos simples, <span className="text-white/40">resultados reais</span>
             </h2>
@@ -350,7 +350,7 @@ export default function Landing() {
               <span className={`text-sm ${!annual ? 'text-white' : 'text-white/40'}`}>Mensal</span>
               <button
                 onClick={() => setAnnual(!annual)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-purple-500' : 'bg-white/20'}`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
               >
                 <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
@@ -388,7 +388,7 @@ export default function Landing() {
 
       {/* ═══ FINAL CTA ═══ */}
       <section className="bg-[#0B0D15] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(100,50,255,0.12) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 60%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
             <h2 className="text-4xl lg:text-5xl font-bold text-white">
@@ -411,8 +411,8 @@ export default function Landing() {
       <footer className="bg-[#07080E] py-16 px-6 lg:px-12 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-white to-white/80" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
               <span className="text-sm font-semibold text-white">NexaProspect</span>
             </div>
             <p className="text-xs text-white/30 leading-relaxed">Prospecção inteligente com IA para escalar suas vendas no piloto automático.</p>
