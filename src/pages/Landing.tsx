@@ -250,7 +250,7 @@ export default function Landing() {
       {/* ═══ STATS BAR ═══ */}
       <section className="relative z-10 -mt-1">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="bg-[#0B0D15]/80 border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
             {STATS.map((s, i) => (
               <StaggerReveal key={s.label} index={i} className="text-center">
                 <div className="text-3xl lg:text-4xl font-bold text-white">
