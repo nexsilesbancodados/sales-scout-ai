@@ -400,7 +400,7 @@ export default function Landing() {
             <h2 className="text-4xl lg:text-5xl font-bold text-white">
               Pronto para prospectar <br /><span className="text-white/40">no piloto automático?</span>
             </h2>
-            <p className="text-white/50 mt-4 text-lg">Teste grátis por 7 dias. Sem cartão de crédito.</p>
+            <p className="text-white/50 mt-4 text-lg">Comece a prospectar hoje mesmo.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <Link to="/auth" className="bg-white text-black font-bold px-8 py-4 rounded-full hover:bg-white/90 transition-all text-sm">
                 Começar agora — é grátis
