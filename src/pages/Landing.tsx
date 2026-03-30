@@ -81,12 +81,12 @@ const FEATURES = [
 ];
 
 const TESTIMONIALS = [
-  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 2 semanas capturei 800 leads de restaurantes e fechei 12 contratos. O SDR da IA responde melhor que minha equipe.' },
-  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Nunca pensei que ia prospectar no piloto automático. Meu WhatsApp fica respondendo enquanto durmo.' },
-  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'O CRM integrado com Meta Ads mudou completamente minha estratégia. Sei exatamente quanto custa cada lead.' },
-  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'Triplicamos o número de reuniões agendadas no primeiro mês. A automação de follow-up é incrível.' },
-  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Os clientes me perguntam como consigo responder tão rápido. É a IA trabalhando 24h por mim.' },
-  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: 'O extrator de Instagram trouxe 400 leads qualificados na primeira semana. ROI absurdo.' },
+  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 14 dias: 800 leads capturados, 12 contratos fechados. O SDR da IA converte melhor que minha equipe de 3 pessoas.' },
+  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Acordo com 5 reuniões agendadas. A IA prospectou, qualificou e respondeu enquanto eu dormia. Surreal.' },
+  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'Reduzi meu custo por lead de R$18 para R$0,80. O CRM + Meta Ads me dá visibilidade total do funil.' },
+  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'De 8 reuniões/mês para 27 no primeiro mês. O follow-up automático recupera leads que eu já tinha dado como perdidos.' },
+  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Meus clientes perguntam como respondo tão rápido. Não conto que é a IA — eles acham que tenho uma equipe enorme.' },
+  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: '400 leads qualificados na primeira semana via Instagram. ROI de 23x sobre o plano. Nunca vi nada igual.' },
 ];
 
 const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
