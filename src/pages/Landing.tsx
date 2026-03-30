@@ -380,10 +380,10 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Produto</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Interface <span className="landing-gradient-text">poderosa e intuitiva</span>
+              Veja seu <span className="landing-gradient-text">novo cockpit de vendas</span>
             </h2>
             <p className="text-white/40 mt-4 max-w-xl mx-auto text-sm">
-              Dashboard completo com CRM visual, analytics em tempo real, chat WhatsApp integrado e automações com 1 clique.
+              CRM visual, analytics em tempo real, chat WhatsApp e 9 automações — tudo num painel que qualquer vendedor entende em 2 minutos.
             </p>
           </AnimSection>
           <DashboardMockup />
