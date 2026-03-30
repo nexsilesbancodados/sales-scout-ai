@@ -237,7 +237,7 @@ export default function Landing() {
           <img
             src={aiHeroImg}
             alt=""
-            className="absolute right-[-5%] top-0 h-full w-auto max-w-none object-cover object-left opacity-90 hidden lg:block"
+            className="absolute right-[-5%] top-[15%] h-[70%] w-auto max-w-none object-cover object-left opacity-90 hidden lg:block"
             style={{ filter: 'drop-shadow(0 0 120px rgba(110,70,255,0.15))' }}
           />
           {/* Gradient overlay to blend image into background */}
