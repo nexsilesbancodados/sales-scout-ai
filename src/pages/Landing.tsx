@@ -1,15 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import {
   ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
-  Check, ChevronDown, Menu, X, Columns3
+  Check, ChevronDown, Menu, X, Columns3, Sparkles, Shield, Globe
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
 import logoImg from '@/assets/logo.png';
-import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 import { LiquidButton } from '@/components/ui/liquid-button';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
+import { ParallaxSection, AnimatedCounter } from '@/components/landing/ScrollEffects';
+
+const HeroScene3D = lazy(() =>
+  import('@/components/landing/HeroScene3D').then(m => ({ default: m.HeroScene3D }))
+);
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -34,8 +38,8 @@ function AnimSection({ children, className = '', delay = 0 }: { children: React.
       className={className}
       style={{
         opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(30px)',
-        transition: `opacity 0.7s cubic-bezier(.16,1,.3,1) ${delay}s, transform 0.7s cubic-bezier(.16,1,.3,1) ${delay}s`,
+        transform: inView ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.97)',
+        transition: `opacity 0.8s cubic-bezier(.16,1,.3,1) ${delay}s, transform 0.8s cubic-bezier(.16,1,.3,1) ${delay}s`,
       }}
     >
       {children}
@@ -43,78 +47,33 @@ function AnimSection({ children, className = '', delay = 0 }: { children: React.
   );
 }
 
-/* ─── 3D AI Wire-frame SVG ─── */
-function AIWireframe() {
+/* ─── Staggered reveal for cards ─── */
+function StaggerReveal({ children, className = '', index = 0 }: { children: React.ReactNode; className?: string; index?: number }) {
+  const { ref, inView } = useInView(0.1);
   return (
-    <svg viewBox="0 0 500 600" fill="none" className="w-full h-full" style={{ filter: 'drop-shadow(0 0 60px rgba(150,150,255,0.25))' }}>
-      {/* Head outline */}
-      <ellipse cx="250" cy="200" rx="120" ry="150" stroke="white" strokeWidth="0.8" opacity="0.3" />
-      <ellipse cx="250" cy="200" rx="100" ry="130" stroke="white" strokeWidth="0.5" opacity="0.15" />
-      <ellipse cx="250" cy="200" rx="80" ry="110" stroke="white" strokeWidth="0.4" opacity="0.1" />
-
-      {/* Orbits */}
-      <ellipse cx="250" cy="250" rx="180" ry="60" stroke="white" strokeWidth="0.6" opacity="0.12" strokeDasharray="4 6" />
-      <ellipse cx="250" cy="220" rx="200" ry="80" stroke="white" strokeWidth="0.5" opacity="0.08" strokeDasharray="3 8" />
-
-      {/* Grid lines - vertical */}
-      {[180, 210, 250, 290, 320].map((x, i) => (
-        <line key={`v${i}`} x1={x} y1="60" x2={x} y2="340" stroke="white" strokeWidth="0.3" opacity="0.08" />
-      ))}
-      {/* Grid lines - horizontal */}
-      {[100, 150, 200, 250, 300].map((y, i) => (
-        <line key={`h${i}`} x1="130" y1={y} x2="370" y2={y} stroke="white" strokeWidth="0.3" opacity="0.08" />
-      ))}
-
-      {/* Eyes */}
-      <circle cx="210" cy="180" r="12" stroke="white" strokeWidth="0.8" opacity="0.4" />
-      <circle cx="210" cy="180" r="4" fill="white" opacity="0.6" />
-      <circle cx="290" cy="180" r="12" stroke="white" strokeWidth="0.8" opacity="0.4" />
-      <circle cx="290" cy="180" r="4" fill="white" opacity="0.6" />
-
-      {/* Nose line */}
-      <line x1="250" y1="195" x2="250" y2="230" stroke="white" strokeWidth="0.5" opacity="0.2" />
-
-      {/* Mouth */}
-      <path d="M 220 250 Q 250 265 280 250" stroke="white" strokeWidth="0.6" opacity="0.2" fill="none" />
-
-      {/* Neck / Body lines */}
-      <line x1="220" y1="340" x2="200" y2="500" stroke="white" strokeWidth="0.6" opacity="0.15" />
-      <line x1="280" y1="340" x2="300" y2="500" stroke="white" strokeWidth="0.6" opacity="0.15" />
-      <line x1="250" y1="350" x2="250" y2="520" stroke="white" strokeWidth="0.4" opacity="0.1" />
-
-      {/* Shoulder arcs */}
-      <path d="M 200 400 Q 120 420 80 500" stroke="white" strokeWidth="0.5" opacity="0.1" fill="none" />
-      <path d="M 300 400 Q 380 420 420 500" stroke="white" strokeWidth="0.5" opacity="0.1" fill="none" />
-
-      {/* Neural dots */}
-      {[
-        [170, 120], [330, 120], [150, 250], [350, 250], [200, 320], [300, 320],
-        [250, 100], [190, 170], [310, 170], [230, 280], [270, 280],
-        [160, 190], [340, 190], [250, 350], [220, 380], [280, 380],
-      ].map(([cx, cy], i) => (
-        <circle key={`d${i}`} cx={cx} cy={cy} r="2" fill="white" opacity={0.15 + (i % 3) * 0.1}>
-          <animate attributeName="opacity" values={`${0.1 + (i % 3) * 0.1};${0.4 + (i % 2) * 0.2};${0.1 + (i % 3) * 0.1}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-        </circle>
-      ))}
-
-      {/* Glow center */}
-      <radialGradient id="cg" cx="50%" cy="40%">
-        <stop offset="0%" stopColor="white" stopOpacity="0.08" />
-        <stop offset="100%" stopColor="white" stopOpacity="0" />
-      </radialGradient>
-      <ellipse cx="250" cy="220" rx="160" ry="200" fill="url(#cg)" />
-    </svg>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'translateY(0) rotateX(0deg)' : 'translateY(60px) rotateX(8deg)',
+        transition: `all 0.7s cubic-bezier(.16,1,.3,1) ${0.08 * index}s`,
+        transformOrigin: 'bottom center',
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
 /* ─── FEATURES DATA ─── */
 const FEATURES = [
-  { icon: Target, title: 'Prospecção automática', desc: 'Captura leads do Google Maps, Instagram e Facebook com 1 clique. Até 500 leads/semana no piloto automático.' },
-  { icon: Bot, title: 'Agente SDR com IA', desc: 'A IA responde, qualifica e move leads no funil automaticamente. Você só fecha as vendas.' },
-  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Disparo em massa, follow-up automático e respostas por intenção. Anti-ban nativo.' },
-  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, BANT, timeline de conversas e integração Meta Ads.' },
-  { icon: Zap, title: '9 automações', desc: 'Prospecção semanal, reativação de leads frios, relatório diário. Liga/desliga com 1 clique.' },
-  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Taxa de conversão por nicho, ticket médio, custo por lead e ROI das campanhas.' },
+  { icon: Target, title: 'Prospecção automática', desc: 'Captura leads do Google Maps, Instagram e Facebook com 1 clique. Até 500 leads/semana.', color: '#7B2FF2' },
+  { icon: Bot, title: 'Agente SDR com IA', desc: 'A IA responde, qualifica e move leads no funil automaticamente.', color: '#E91E8C' },
+  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Disparo em massa, follow-up automático e respostas por intenção.', color: '#00B4D8' },
+  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, BANT e integração Meta Ads.', color: '#F7941D' },
+  { icon: Zap, title: '9 automações', desc: 'Prospecção semanal, reativação de leads frios, relatório diário.', color: '#7B2FF2' },
+  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Taxa de conversão por nicho, ticket médio e ROI das campanhas.', color: '#E91E8C' },
 ];
 
 const TESTIMONIALS = [
@@ -135,29 +94,27 @@ const NAV_LINKS = [
 
 const PLANS = [
   {
-    name: 'Starter',
-    price: 97,
-    annual: 78,
+    name: 'Starter', price: 97, annual: 78,
     features: ['1 chip WhatsApp', 'Google Maps + Web Search', '200 leads/mês', 'Follow-up automático', 'Prospecção agendada', 'Suporte por email'],
-    cta: 'Começar agora',
-    highlight: false,
+    cta: 'Começar agora', highlight: false,
   },
   {
-    name: 'Pro',
-    price: 149,
-    annual: 119,
+    name: 'Pro', price: 149, annual: 119,
     features: ['3 chips WhatsApp', 'Todos os extratores', '1.000 leads/mês', 'Agente SDR com IA', 'Analytics avançado', 'A/B Testing', 'Suporte prioritário'],
-    cta: 'Escolher Pro',
-    highlight: true,
+    cta: 'Escolher Pro', highlight: true,
   },
   {
-    name: 'Enterprise',
-    price: 297,
-    annual: 237,
+    name: 'Enterprise', price: 297, annual: 237,
     features: ['10 chips WhatsApp', 'Todos os recursos', 'Leads ilimitados', 'API completa', 'Múltiplos funis', 'Equipe ilimitada', 'Gerente dedicado'],
-    cta: 'Falar com vendas',
-    highlight: false,
+    cta: 'Falar com vendas', highlight: false,
   },
+];
+
+const STATS = [
+  { value: 2400, suffix: '+', label: 'Usuários ativos' },
+  { value: 850, suffix: 'K', label: 'Leads capturados' },
+  { value: 94, suffix: '%', label: 'Taxa de entrega' },
+  { value: 12, suffix: 'x', label: 'ROI médio' },
 ];
 
 /* ═══════════════════════════════════════════════════ */
@@ -167,6 +124,7 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
@@ -178,36 +136,38 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
   return (
     <div className="bg-[#0B0D15] text-white min-h-screen overflow-x-hidden">
 
       {/* ═══ NAVBAR ═══ */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
         <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
-          {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
             <span className="text-[15px] font-bold tracking-[-0.02em] text-white">NexaProspect</span>
           </div>
 
-          {/* Center pill nav - desktop */}
           <div className="hidden lg:flex items-center bg-white/[0.05] backdrop-blur-xl border border-white/[0.08] rounded-full px-1.5 py-1">
             {NAV_LINKS.map((l, i) => (
-              <a
-                key={l.label}
-                href={l.href}
+              <a key={l.label} href={l.href}
                 className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${i === 0 ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
-              >
-                {l.label}
-              </a>
+              >{l.label}</a>
             ))}
           </div>
 
-          {/* CTA */}
           <div className="flex items-center gap-4">
-            <a href="#precos" className="hidden lg:block text-[13px] text-white/50 hover:text-white/80 transition-colors font-medium">
-              Entrar
-            </a>
+            <Link to="/auth" className="hidden lg:block text-[13px] text-white/50 hover:text-white/80 transition-colors font-medium">Entrar</Link>
             <div className="hidden lg:block">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full font-semibold">
                 Começar agora
@@ -219,165 +179,280 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenu && (
           <div className="lg:hidden bg-[#0B0D15]/95 backdrop-blur-2xl border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
-                {l.label}
-              </a>
+              <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>{l.label}</a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">
-              Começar agora
-            </Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4">Começar agora</Link>
           </div>
         )}
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="h-[85vh] relative overflow-hidden stars-bg">
-        {/* AI figure centered */}
+      <section className="min-h-screen relative overflow-hidden stars-bg flex items-center">
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <HeroScene3D />
+        </Suspense>
+
+        {/* AI Image with parallax mouse follow */}
         <div className="absolute inset-0 pointer-events-none">
-          <img
-            src={aiHeroImg}
-            alt=""
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] w-auto max-w-none object-cover opacity-90"
-            style={{ filter: 'drop-shadow(0 0 120px rgba(110,70,255,0.15))' }}
-          />
-
-          {/* Energy effect over the wires */}
+          <div
+            className="absolute inset-0 transition-transform duration-700 ease-out"
+            style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px)` }}
+          >
+            <img
+              src={aiHeroImg}
+              alt=""
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
+              style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
+            />
+          </div>
           <div className="absolute inset-0 hero-energy-overlay" />
-
-          {/* Gradient overlay to blend image into background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/60 via-transparent to-[#0B0D15]/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/70 via-transparent to-[#0B0D15]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D15]/50 via-transparent to-transparent" />
         </div>
 
-        {/* Subtle glow effects */}
-        <div className="absolute right-[15%] top-[10%] w-[500px] h-[500px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(140,90,255,0.08) 0%, transparent 65%)' }} />
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
+          <div className="max-w-[620px] pt-24">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in backdrop-blur-sm"
+              style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+              <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
+              <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in"
+              style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+              <span className="text-white">Prospecte no </span>
+              <br className="hidden sm:block" />
+              <span className="landing-gradient-text">Piloto Automático</span>
+              <br />
+              <span className="text-white">com IA</span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-[16px] text-white/45 max-w-[440px] mt-7 leading-[1.8] animate-fade-in"
+              style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+              Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
+                Começar agora
+                <ArrowRight className="h-4 w-4" />
+              </LiquidButton>
+              <Link to="/tutorial" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+                Ver como funciona
+                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Social proof mini */}
+            <div className="flex items-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
+                  {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
+                    <div key={i} className="h-7 w-7 rounded-full border-2 border-[#0B0D15]" style={{ background: c }} />
+                  ))}
+                </div>
+                <span className="text-[12px] text-white/40">+2.400 ativos</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-[#F7941D] fill-[#F7941D]" />)}
+                <span className="text-[12px] text-white/35 ml-1">4.9/5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+          <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
+            <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ STATS BAR ═══ */}
+      <section className="relative z-10 -mt-1">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {STATS.map((s, i) => (
+              <StaggerReveal key={s.label} index={i} className="text-center">
+                <div className="text-3xl lg:text-4xl font-bold text-white">
+                  <AnimatedCounter target={s.value} suffix={s.suffix} />
+                </div>
+                <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">{s.label}</p>
+              </StaggerReveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
-      <section className="bg-[#0E1018] border-y border-white/5 py-12 overflow-hidden">
+      <section className="py-16 overflow-hidden">
         <p className="text-[10px] tracking-[0.2em] text-white/20 text-center mb-8 uppercase">Integra com as principais plataformas</p>
         <div className="landing-marquee">
           <div className="landing-marquee-track">
-            {[...INTEGRATIONS, ...INTEGRATIONS].map((name, i) => (
-              <span key={i} className="text-sm font-bold uppercase text-white/20 mx-8 whitespace-nowrap">{name}</span>
+            {[...INTEGRATIONS, ...INTEGRATIONS, ...INTEGRATIONS].map((name, i) => (
+              <span key={i} className="text-sm font-bold uppercase text-white/15 mx-10 whitespace-nowrap flex items-center gap-2">
+                <Globe className="h-3.5 w-3.5" />{name}
+              </span>
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══ FEATURES ═══ */}
-      <section id="recursos" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <AnimSection>
+      <section id="recursos" className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
-              Tudo que você precisa para <br /><span className="text-white/40">escalar suas vendas</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Tudo que você precisa para <br /><span className="landing-gradient-text">escalar suas vendas</span>
             </h2>
           </AnimSection>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((f, i) => (
+              <StaggerReveal key={f.title} index={i}>
+                <div className="group relative bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 cursor-default overflow-hidden">
+                  {/* Hover glow */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{ background: `radial-gradient(circle at 30% 30%, ${f.color}10 0%, transparent 60%)` }}
+                  />
+                  <div className="relative z-10">
+                    <div
+                      className="h-11 w-11 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: `${f.color}15`, border: `1px solid ${f.color}25` }}
+                    >
+                      <f.icon className="h-5 w-5" style={{ color: f.color }} />
+                    </div>
+                    <h3 className="text-[15px] font-semibold text-white mb-2">{f.title}</h3>
+                    <p className="text-[13px] text-white/45 leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              </StaggerReveal>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section className="bg-[#0E1018] py-24 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <AnimSection>
+      <section className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-20">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Como funciona</span>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-16">Em 3 passos simples</h2>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Em <span className="landing-gradient-text-cyan">3 passos simples</span></h2>
           </AnimSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {/* Connector line */}
-            <div className="hidden md:block absolute top-8 left-[16.6%] right-[16.6%] border-t border-dashed border-white/10" />
+            <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
             {[
-              { num: '01', title: 'Escolha o nicho e cidade', desc: 'Selecione o segmento e localização. A IA mapeia os melhores prospects automaticamente.' },
-              { num: '02', title: 'Ative as automações', desc: 'Ligue prospecção, follow-up e SDR com 1 clique. Tudo roda em segundo plano.' },
-              { num: '03', title: 'Receba leads qualificados', desc: 'Leads chegam no CRM já pontuados. Foque apenas nos que vão fechar.' },
+              { num: '01', title: 'Escolha o nicho e cidade', desc: 'Selecione o segmento e localização. A IA mapeia os melhores prospects automaticamente.', icon: Target, color: '#7B2FF2' },
+              { num: '02', title: 'Ative as automações', desc: 'Ligue prospecção, follow-up e SDR com 1 clique. Tudo roda em segundo plano.', icon: Zap, color: '#E91E8C' },
+              { num: '03', title: 'Receba leads qualificados', desc: 'Leads chegam no CRM já pontuados. Foque apenas nos que vão fechar.', icon: BarChart3, color: '#00B4D8' },
             ].map((s, i) => (
-              <AnimSection key={s.num} delay={0.1 * i} className="relative text-center md:text-left">
-                <span className="text-6xl font-black text-white/[0.06]">{s.num}</span>
-                <h3 className="text-lg font-semibold text-white mt-2 mb-2">{s.title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{s.desc}</p>
-              </AnimSection>
+              <StaggerReveal key={s.num} index={i} className="text-center">
+                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-6 mx-auto transition-transform duration-300 hover:scale-110"
+                  style={{ background: `${s.color}15`, border: `1px solid ${s.color}20` }}>
+                  <s.icon className="h-6 w-6" style={{ color: s.color }} />
+                </div>
+                <span className="block text-5xl font-black landing-gradient-text opacity-20 mb-3">{s.num}</span>
+                <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
+                <p className="text-sm text-white/45 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
+              </StaggerReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <AnimSection>
+      <section id="cases" className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(247,148,29,0.04) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Depoimentos</span>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3 mb-12">
-              Quem usa, <span className="text-white/40">recomenda</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Quem usa, <span className="text-white/30">recomenda</span>
             </h2>
           </AnimSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t, i) => (
-              <AnimSection key={t.name} delay={0.08 * i} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6">
-                <div className="flex items-center gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p className="text-sm text-white/70 leading-relaxed mb-5">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white">
-                    {t.name[0]}
+              <StaggerReveal key={t.name} index={i}>
+                <div className="group bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 h-full relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F7941D]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center gap-1 mb-5">
+                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-[#F7941D] fill-[#F7941D]" />)}
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{t.name}</p>
-                    <p className="text-xs text-white/40">{t.role}</p>
+                  <p className="text-[14px] text-white/60 leading-[1.8] mb-6">"{t.text}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white">
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{t.name}</p>
+                      <p className="text-xs text-white/35">{t.role}</p>
+                    </div>
                   </div>
                 </div>
-              </AnimSection>
+              </StaggerReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══ PRICING ═══ */}
-      <section id="precos" className="bg-[#0E1018] py-24 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <AnimSection className="text-center mb-12">
+      <section id="precos" className="py-28 px-6 lg:px-12 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AnimSection className="text-center mb-14">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-3">
-              Planos simples, <span className="text-white/40">resultados reais</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+              Planos simples, <span className="landing-gradient-text">resultados reais</span>
             </h2>
 
-            {/* Toggle */}
             <div className="flex items-center justify-center gap-3 mt-8">
-              <span className={`text-sm ${!annual ? 'text-white' : 'text-white/40'}`}>Mensal</span>
+              <span className={`text-sm transition-colors ${!annual ? 'text-white' : 'text-white/40'}`}>Mensal</span>
               <button
                 onClick={() => setAnnual(!annual)}
                 className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
               >
                 <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
-              <span className={`text-sm ${annual ? 'text-white' : 'text-white/40'}`}>Anual</span>
-              {annual && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">-20%</span>}
+              <span className={`text-sm transition-colors ${annual ? 'text-white' : 'text-white/40'}`}>Anual</span>
+              {annual && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium">-20%</span>}
             </div>
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
-              <AnimSection key={p.name} delay={0.08 * i}>
+              <StaggerReveal key={p.name} index={i}>
                 <PremiumPricingCard plan={p} annual={annual} index={i} />
-              </AnimSection>
+              </StaggerReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section id="api" className="bg-[#0B0D15] py-24 px-6 lg:px-12">
+      <section id="api" className="py-28 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto">
-          <AnimSection className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white">Perguntas frequentes</h2>
+          <AnimSection className="text-center mb-14">
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">FAQ</span>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4">Perguntas frequentes</h2>
           </AnimSection>
           {[
             { q: 'Preciso de conhecimento técnico?', a: 'Não. O NexaProspect foi feito para vendedores e donos de agência. Tudo funciona com poucos cliques.' },
@@ -385,25 +460,30 @@ export default function Landing() {
             { q: 'Posso testar antes de assinar?', a: 'Entre em contato com nosso time comercial para conhecer as condições especiais.' },
             { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos, mas você pode personalizar para qualquer segmento.' },
           ].map((faq, i) => (
-            <FAQItem key={i} q={faq.q} a={faq.a} />
+            <StaggerReveal key={i} index={i}>
+              <FAQItem q={faq.q} a={faq.a} />
+            </StaggerReveal>
           ))}
         </div>
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="bg-[#0B0D15] py-32 px-6 lg:px-12 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 60%)' }} />
+      <section className="py-32 px-6 lg:px-12 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 50%)' }} />
+        {/* Animated border glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(233,30,140,0.08) 0%, transparent 50%)' }} />
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white">
-              Pronto para prospectar <br /><span className="text-white/40">no piloto automático?</span>
+            <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
+              Pronto para prospectar <br /><span className="landing-gradient-text">no piloto automático?</span>
             </h2>
-            <p className="text-white/50 mt-4 text-lg">Comece a prospectar hoje mesmo.</p>
+            <p className="text-white/45 mt-6 text-lg">Comece a prospectar hoje mesmo.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-              <Link to="/auth" className="bg-white text-black font-bold px-8 py-4 rounded-full hover:bg-white/90 transition-all text-sm">
+              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
                 Começar agora
-              </Link>
-              <Link to="/tutorial" className="border border-white/20 text-white px-8 py-4 rounded-full hover:bg-white/5 transition-all text-sm">
+                <ArrowRight className="h-4 w-4" />
+              </LiquidButton>
+              <Link to="/tutorial" className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white px-8 py-4 rounded-xl transition-all text-sm font-medium">
                 Ver tutorial
               </Link>
             </div>
@@ -458,12 +538,14 @@ export default function Landing() {
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-white/[0.06]">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left">
-        <span className="text-sm font-medium text-white">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${open ? 'rotate-180' : ''}`} />
+    <div className="border-b border-white/[0.06] group">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-6 text-left">
+        <span className="text-[15px] font-medium text-white group-hover:text-white/90 transition-colors">{q}</span>
+        <ChevronDown className={`h-4 w-4 text-white/30 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <p className="text-sm text-white/50 pb-5 leading-relaxed">{a}</p>}
+      <div className={`overflow-hidden transition-all duration-500 ${open ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+        <p className="text-sm text-white/45 leading-relaxed">{a}</p>
+      </div>
     </div>
   );
 }
