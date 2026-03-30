@@ -604,7 +604,7 @@ export default function Landing() {
             <p className="text-white/45 mt-6 text-lg">Cada dia sem automação são dezenas de leads perdidos. Comece em 5 minutos.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
-                Começar agora
+                Começar meu teste grátis
                 <ArrowRight className="h-4 w-4" />
               </LiquidButton>
               <Link to="/tutorial" className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white px-8 py-4 rounded-xl transition-all text-sm font-medium">
