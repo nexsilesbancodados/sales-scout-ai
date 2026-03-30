@@ -218,35 +218,39 @@ export default function Landing() {
             <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
+              <span className="text-[12px] text-white/60">+2.400 empresas já automatizaram suas vendas</span>
             </div>
 
             <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in"
               style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Prospecte no </span>
+              <span className="text-white">Pare de </span>
+              <span className="text-white/30">perseguir</span>
               <br className="hidden sm:block" />
-              <span className="landing-gradient-text">Piloto Automático</span>
-              <br />
-              <span className="text-white">com IA</span>
+              <span className="text-white">leads. </span>
+              <span className="landing-gradient-text">Atraia-os.</span>
             </h1>
 
-            <p className="text-[16px] text-white/45 max-w-[440px] mt-7 leading-[1.8] animate-fade-in"
+            <p className="text-[16px] text-white/50 max-w-[460px] mt-7 leading-[1.8] animate-fade-in"
               style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
+              A IA captura leads do Google Maps, Instagram e Facebook, envia mensagens no WhatsApp e agenda reuniões — <strong className="text-white/70">enquanto você dorme.</strong>
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
-                Começar agora
+                Testar grátis por 7 dias
                 <ArrowRight className="h-4 w-4" />
               </LiquidButton>
-              <Link to="/tutorial" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
             </div>
 
-            <div className="flex items-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+            <p className="text-[11px] text-white/25 mt-3 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
+              Sem cartão de crédito • Setup em 5 min • Cancele quando quiser
+            </p>
+
+            <div className="flex items-center gap-6 mt-10 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
