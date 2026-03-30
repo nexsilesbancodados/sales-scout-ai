@@ -544,7 +544,7 @@ export default function Landing() {
           <AnimSection className="text-center mb-14">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Planos simples, <span className="landing-gradient-text">resultados reais</span>
+              Invista menos que um <span className="landing-gradient-text">almoço por dia</span>
             </h2>
 
             <div className="flex items-center justify-center gap-3 mt-8">
