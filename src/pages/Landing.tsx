@@ -477,7 +477,7 @@ export default function Landing() {
           <AnimSection className="text-center mb-16">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Comparação</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Por que escolher o <span className="landing-gradient-text">NexaProspect?</span>
+              Outras ferramentas fazem <span className="text-white/30">parte.</span> <br />Nós fazemos <span className="landing-gradient-text">tudo.</span>
             </h2>
           </AnimSection>
           <ComparisonTable />
