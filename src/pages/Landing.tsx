@@ -6,6 +6,7 @@ import {
   Check, ChevronDown, Menu, X, Columns3
 } from 'lucide-react';
 import aiHeroImg from '@/assets/ai-hero-clean.png';
+import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
@@ -327,17 +328,9 @@ export default function Landing() {
             </h2>
           </AnimSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map((f, i) => (
-              <AnimSection key={f.title} delay={0.05 * i} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-7 hover:border-white/10 hover:bg-white/[0.05] transition-all duration-300">
-                <div className="rounded-xl bg-purple-500/10 p-3 w-fit">
-                  <f.icon className="h-5 w-5 text-purple-400" />
-                </div>
-                <h3 className="text-base font-semibold text-white mt-4 mb-2">{f.title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{f.desc}</p>
-              </AnimSection>
-            ))}
-          </div>
+          <AnimSection delay={0.1}>
+            <FeaturesReveal />
+          </AnimSection>
         </div>
       </section>
 
