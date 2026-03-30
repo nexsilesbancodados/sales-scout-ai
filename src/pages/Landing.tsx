@@ -72,12 +72,12 @@ function StaggerReveal({ children, className = '', index = 0 }: { children: Reac
 
 /* ─── FEATURES DATA ─── */
 const FEATURES = [
-  { icon: Target, title: 'Prospecção automática', desc: 'Captura leads do Google Maps, Instagram e Facebook com 1 clique. Até 500 leads/semana.', color: '#7B2FF2' },
-  { icon: Bot, title: 'Agente SDR com IA', desc: 'A IA responde, qualifica e move leads no funil automaticamente.', color: '#E91E8C' },
-  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Disparo em massa, follow-up automático e respostas por intenção.', color: '#00B4D8' },
-  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, BANT e integração Meta Ads.', color: '#F7941D' },
-  { icon: Zap, title: '9 automações', desc: 'Prospecção semanal, reativação de leads frios, relatório diário.', color: '#7B2FF2' },
-  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Taxa de conversão por nicho, ticket médio e ROI das campanhas.', color: '#E91E8C' },
+  { icon: Target, title: 'Prospecção automática', desc: 'Encontre até 500 leads/semana no Google Maps, Instagram e Facebook — sem digitar uma linha.', color: '#7B2FF2' },
+  { icon: Bot, title: 'Agente SDR com IA', desc: 'Sua IA responde em segundos, qualifica com BANT e agenda reuniões — 24h por dia, 7 dias por semana.', color: '#E91E8C' },
+  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Dispare mensagens personalizadas em massa com anti-ban, spintax e delays que imitam comportamento humano.', color: '#00B4D8' },
+  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, qualificação BANT e integração direta com Meta Ads.', color: '#F7941D' },
+  { icon: Zap, title: '9 automações poderosas', desc: 'Prospecção agendada, reativação de leads frios, relatórios automáticos. Liga e desliga com 1 clique.', color: '#7B2FF2' },
+  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Saiba exatamente qual nicho, horário e template converte mais — e otimize cada centavo investido.', color: '#E91E8C' },
 ];
 
 const TESTIMONIALS = [
