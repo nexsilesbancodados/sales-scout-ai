@@ -231,28 +231,22 @@ export default function Landing() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="min-h-screen relative overflow-hidden stars-bg">
-        {/* AI figure as large background element on the right */}
+      <section className="h-[85vh] relative overflow-hidden stars-bg">
+        {/* AI figure centered */}
         <div className="absolute inset-0 pointer-events-none">
           <img
             src={aiHeroImg}
             alt=""
-            className="absolute right-[-5%] top-[15%] h-[70%] w-auto max-w-none object-cover object-left opacity-90 hidden lg:block"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] w-auto max-w-none object-cover opacity-90"
             style={{ filter: 'drop-shadow(0 0 120px rgba(110,70,255,0.15))' }}
           />
           {/* Gradient overlay to blend image into background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15] via-[#0B0D15]/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/60 via-transparent to-[#0B0D15]/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/30" />
         </div>
 
         {/* Subtle glow effects */}
         <div className="absolute right-[15%] top-[10%] w-[500px] h-[500px] pointer-events-none rounded-full" style={{ background: 'radial-gradient(circle, rgba(140,90,255,0.08) 0%, transparent 65%)' }} />
-
-        <div className="relative z-10 max-w-[1280px] mx-auto min-h-screen flex items-center px-8">
-          {/* Left content */}
-          <div className="flex flex-col justify-center pt-32 pb-16 lg:pt-0 lg:pb-0 max-w-[560px]">
-          </div>
-        </div>
       </section>
 
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
