@@ -599,9 +599,9 @@ export default function Landing() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <AnimSection>
             <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
-              Pronto para prospectar <br /><span className="landing-gradient-text">no piloto automático?</span>
+              Seus concorrentes já estão <br /><span className="landing-gradient-text">automatizando.</span>
             </h2>
-            <p className="text-white/45 mt-6 text-lg">Comece a prospectar hoje mesmo. Setup em 5 minutos.</p>
+            <p className="text-white/45 mt-6 text-lg">Cada dia sem automação são dezenas de leads perdidos. Comece em 5 minutos.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
                 Começar agora
