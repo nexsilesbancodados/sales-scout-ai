@@ -251,42 +251,6 @@ export default function Landing() {
         <div className="relative z-10 max-w-[1280px] mx-auto min-h-screen flex items-center px-8">
           {/* Left content */}
           <div className="flex flex-col justify-center pt-32 pb-16 lg:pt-0 lg:pb-0 max-w-[560px]">
-            {/* Badge */}
-            <div
-              className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-3.5 py-1.5 mb-8 w-fit animate-fade-in"
-              style={{ animationDelay: '0.1s', animationFillMode: 'both' }}
-            >
-              <span className="text-[9px] font-extrabold bg-white text-[#0B0D15] rounded-full px-2 py-[3px] tracking-[0.05em] uppercase">Novo</span>
-              <span className="text-[12px] text-white/50">Extrator Facebook e Meta Ads integrado</span>
-            </div>
-
-            {/* Headline */}
-            <h1
-              className="text-[40px] sm:text-[52px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.035em] animate-fade-in"
-              style={{ animationDelay: '0.2s', animationFillMode: 'both' }}
-            >
-              <span className="text-white">Prospecte no </span>
-              <br className="hidden sm:block" />
-              <span className="text-white/30">Piloto Automático</span>
-              <span className="text-white"> com IA</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p
-              className="text-[15px] text-white/40 max-w-[380px] mt-6 leading-[1.7] animate-fade-in"
-              style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
-            >
-              Capture leads no Google Maps, Instagram e Facebook. A IA prospecta, qualifica e fecha por você — sem esforço manual.
-            </p>
-
-            {/* CTA Button */}
-            <div className="mt-10 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl">
-                Começar gratuitamente
-                <ArrowRight className="h-4 w-4" />
-              </LiquidButton>
-            </div>
-
           </div>
         </div>
       </section>
