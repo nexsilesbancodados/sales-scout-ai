@@ -158,7 +158,9 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="bg-[#0B0D15] text-white min-h-screen overflow-x-hidden">
+    <div className="text-white min-h-screen overflow-x-hidden relative">
+      {/* Fixed cosmic background */}
+      <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : 'bg-transparent'}`}>
