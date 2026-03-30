@@ -276,10 +276,6 @@ export default function Landing() {
               Tudo que você precisa para <br /><span className="text-white/40">escalar suas vendas</span>
             </h2>
           </AnimSection>
-
-          <AnimSection delay={0.1}>
-            <FeaturesReveal />
-          </AnimSection>
         </div>
       </section>
 
