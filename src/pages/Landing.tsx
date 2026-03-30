@@ -192,7 +192,7 @@ export default function Landing() {
 
         <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
           <div className="max-w-[620px] pt-24">
-            <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in backdrop-blur-sm"
+            <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
               <span className="text-[12px] text-white/60">Plataforma #1 de prospecção com IA no Brasil</span>
