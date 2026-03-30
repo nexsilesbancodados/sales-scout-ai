@@ -444,8 +444,8 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
           <AnimSection className="text-center mb-20">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Como funciona</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Em <span className="landing-gradient-text-cyan">3 passos simples</span></h2>
+            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Simplicidade</span>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Do zero ao primeiro lead em <span className="landing-gradient-text-cyan">5 minutos</span></h2>
           </AnimSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
