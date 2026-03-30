@@ -403,7 +403,7 @@ export default function Landing() {
             <p className="text-white/50 mt-4 text-lg">Comece a prospectar hoje mesmo.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <Link to="/auth" className="bg-white text-black font-bold px-8 py-4 rounded-full hover:bg-white/90 transition-all text-sm">
-                Começar agora — é grátis
+                Começar agora
               </Link>
               <Link to="/tutorial" className="border border-white/20 text-white px-8 py-4 rounded-full hover:bg-white/5 transition-all text-sm">
                 Ver tutorial
