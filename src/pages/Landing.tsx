@@ -322,7 +322,7 @@ export default function Landing() {
                 </div>
                 <p className="text-sm text-white/70 leading-relaxed mb-5">"{t.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white">
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white">
                     {t.name[0]}
                   </div>
                   <div>
