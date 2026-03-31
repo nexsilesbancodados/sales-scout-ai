@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
-import { Moon, Sun, PanelLeft, PanelTop, Bell, Sparkles, CalendarDays, Settings } from 'lucide-react';
+import { Moon, Sun, PanelLeft, PanelTop, Bell, Sparkles, CalendarDays, Settings, Search } from 'lucide-react';
 import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
 import {
   Tooltip,
@@ -102,6 +102,21 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
 
               {/* Right: Action buttons */}
               <div className="flex items-center gap-1 shrink-0">
+                {/* Search shortcut */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+                      className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hidden sm:flex"
+                    >
+                      <Search className="h-3.5 w-3.5" />
+                      <kbd className="pointer-events-none text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border">⌘K</kbd>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Busca rápida</TooltipContent>
+                </Tooltip>
                 {actions}
 
                 {/* Tarefas button */}

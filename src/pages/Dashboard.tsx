@@ -8,6 +8,7 @@ import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { WelcomeCard } from '@/components/dashboard/WelcomeCard';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { PeriodFilter } from '@/components/dashboard/PeriodFilter';
 import { ProspectionChart } from '@/components/dashboard/ProspectionChart';
@@ -91,6 +92,12 @@ export default function DashboardPage() {
   return (
     <DashboardLayout title="Dashboard">
       <OnboardingWizard />
+
+      <WelcomeCard
+        userName={settings?.agent_name}
+        totalLeads={metrics?.totalLeads || 0}
+        whatsappConnected={!!settings?.whatsapp_connected}
+      />
 
       <div className="mb-6 flex items-center justify-between animate-fade-in">
         <div>
