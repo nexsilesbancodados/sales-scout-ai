@@ -5,7 +5,7 @@ import {
   ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
   Check, ChevronDown, Menu, X, Columns3, Sparkles, Shield, Globe
 } from 'lucide-react';
-import aiHeroImg from '@/assets/ai-hero-clean.png';
+import aiHeroImg from '@/assets/hero-ai-bg.jpg';
 import mobileImg from '@/assets/mobile-mockup.png';
 import logoImg from '@/assets/logo.png';
 import { LiquidButton } from '@/components/ui/liquid-button';
