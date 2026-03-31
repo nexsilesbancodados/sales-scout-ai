@@ -5,7 +5,7 @@ import {
   ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
   Check, ChevronDown, Menu, X, Columns3, Sparkles, Shield, Globe
 } from 'lucide-react';
-import aiHeroImg from '@/assets/hero-ai-bg.jpg';
+import heroVideo from '@/assets/hero-video.mp4';
 import mobileImg from '@/assets/mobile-mockup.png';
 import logoImg from '@/assets/logo.png';
 import { LiquidButton } from '@/components/ui/liquid-button';
@@ -215,9 +215,12 @@ export default function Landing() {
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <img
-            src={aiHeroImg}
-            alt=""
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 hero-energy-overlay" />
