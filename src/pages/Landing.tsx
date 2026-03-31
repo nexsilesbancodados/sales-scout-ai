@@ -498,22 +498,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ ROI CALCULATOR ═══ */}
-      <section className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 50%, rgba(233,30,140,0.05) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Simulador de receita</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Descubra quanto dinheiro está <span className="landing-gradient-text">deixando na mesa</span>
-            </h2>
-            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
-              Arraste os controles e veja em tempo real o faturamento que a automação pode gerar para o seu negócio.
-            </p>
-          </AnimSection>
-          <ROICalculator />
-        </div>
-      </section>
+
+
 
 
       {/* ═══ PRICING ═══ */}
