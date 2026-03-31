@@ -484,19 +484,8 @@ export default function Landing() {
       {/* ═══ EXPANDABLE FEATURES GALLERY ═══ */}
       <ExpandableGallery />
 
-      {/* ═══ COMPARISON TABLE ═══ */}
-      <section className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.04) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Comparação</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Outras ferramentas fazem <span className="text-white/30">parte.</span> <br />Nós fazemos <span className="landing-gradient-text">tudo.</span>
-            </h2>
-          </AnimSection>
-          <ComparisonTable />
-        </div>
-      </section>
+
+
 
 
 
