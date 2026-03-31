@@ -294,10 +294,9 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ URGENCY CTA BANNER ═══ */}
-      <UrgencyCTABanner />
-
-
+    </div>
+  );
+}
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
       <section className="py-16 overflow-hidden">
         <p className="text-[10px] tracking-[0.2em] text-white/20 text-center mb-8 uppercase">Integra com as principais plataformas</p>
