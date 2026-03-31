@@ -405,37 +405,60 @@ export default function Landing() {
 
                   {/* BACK — Detail text */}
                   <div
-                    className="absolute inset-0 rounded-2xl overflow-hidden bg-[#0B0D15] border border-white/10 flex flex-col"
+                    className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 flex flex-col"
                     style={{
                       backfaceVisibility: 'hidden',
                       WebkitBackfaceVisibility: 'hidden',
                       transform: 'rotateY(180deg)',
-                      backgroundImage: `
-                        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
-                      `,
-                      backgroundSize: '40px 40px',
+                      background: 'linear-gradient(160deg, #0B0D15 0%, #111827 50%, #0B0D15 100%)',
                     }}
                   >
-                    {/* Quote icon */}
-                    <div className="absolute top-8 right-8 text-[#F7941D]/60">
-                      <div className="flex gap-0.5">
-                        <Quote size={20} fill="currentColor" strokeWidth={0} />
-                        <Quote size={20} fill="currentColor" strokeWidth={0} className="-ml-1" />
-                      </div>
-                    </div>
+                    {/* Decorative grid background */}
+                    <div className="absolute inset-0 opacity-[0.04]" style={{
+                      backgroundImage: `
+                        linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)
+                      `,
+                      backgroundSize: '32px 32px',
+                    }} />
 
-                    <div className="relative h-full flex flex-col justify-between p-10 z-10">
-                      <div className="mt-12">
-                        <p className="text-white text-lg md:text-xl font-serif leading-relaxed italic border-l-2 border-[#F7941D] pl-6">
-                          {item.detail}
-                        </p>
+                    {/* Top glow accent */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#F7941D] to-transparent" />
+                    
+                    {/* Corner accent */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#F7941D]/[0.06] blur-3xl rounded-full" />
+
+                    <div className="relative h-full flex flex-col justify-between p-8 md:p-10 z-10">
+                      {/* Icon + subtitle */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-[#F7941D]/10 border border-[#F7941D]/20 flex items-center justify-center">
+                            <Icon className="h-5 w-5 text-[#F7941D]" />
+                          </div>
+                          <span className="text-[11px] text-[#F7941D]/70 uppercase tracking-[0.2em] font-bold">{item.subtitle}</span>
+                        </div>
+
+                        {/* Main quote text */}
+                        <div className="relative">
+                          <div className="absolute -left-1 -top-4 text-[#F7941D]/20">
+                            <Quote size={32} fill="currentColor" strokeWidth={0} />
+                          </div>
+                          <p className="text-white/90 text-[17px] md:text-[19px] leading-[1.7] font-light pl-4 border-l-2 border-[#F7941D]/40">
+                            {item.detail}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <div className="w-12 h-1 bg-[#F7941D] mb-4" />
-                        <p className="text-white font-black text-lg uppercase tracking-tighter italic">{item.title}</p>
-                        <p className="text-white/30 text-xs uppercase tracking-widest mt-1 font-bold">NexaProspect</p>
+                      {/* Bottom signature */}
+                      <div className="pt-6 flex items-end justify-between">
+                        <div>
+                          <div className="w-10 h-[3px] bg-gradient-to-r from-[#F7941D] to-[#F7941D]/30 mb-3 rounded-full" />
+                          <p className="text-white font-black text-base uppercase tracking-tight">{item.title}</p>
+                          <p className="text-white/20 text-[10px] uppercase tracking-[0.3em] mt-1 font-bold">NexaProspect</p>
+                        </div>
+                        <div className="text-[#F7941D]/10 text-[64px] font-black leading-none select-none">
+                          0{item.id}
+                        </div>
                       </div>
                     </div>
                   </div>
