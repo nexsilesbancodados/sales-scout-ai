@@ -122,29 +122,51 @@ export default function Landing() {
     return () => ctx.revert();
   }, []);
 
-  // GSAP flip cards on scroll
+  // GSAP flip cards on scroll — smoother scrub + stagger
   useEffect(() => {
     if (!advantagesRef.current) return;
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
+      // First: fade in the cards with a stagger entrance
+      gsap.set(flipCardsRef.current, { opacity: 0, y: 60 });
+
+      const enterTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: advantagesRef.current,
+          start: 'top 80%',
+          end: 'top 20%',
+          scrub: 1,
+        },
+      });
+
+      flipCardsRef.current.forEach((card, i) => {
+        if (!card) return;
+        enterTl.to(card, { opacity: 1, y: 0, duration: 0.5 }, i * 0.12);
+      });
+
+      // Then: pin and flip cards sequentially
+      const flipTl = gsap.timeline({
         scrollTrigger: {
           trigger: advantagesRef.current,
           start: 'top top',
-          end: '+=400%',
+          end: '+=300%',
           pin: true,
-          scrub: 2,
+          scrub: 1.5,
           anticipatePin: 1,
+          snap: {
+            snapTo: 1 / (ADVANTAGES.length),
+            duration: { min: 0.2, max: 0.6 },
+            ease: 'power1.inOut',
+          },
         },
       });
 
       flipCardsRef.current.forEach((card, index) => {
         if (!card) return;
-        tl.to(card, {
-          rotationY: 180,
-          ease: 'power2.inOut',
-          duration: 1,
-        }, index * 0.35);
+        // Add a small pause, then flip, then small pause
+        flipTl
+          .to(card, { rotationY: 90, ease: 'power2.in', duration: 0.5 }, index * 1)
+          .to(card, { rotationY: 180, ease: 'power2.out', duration: 0.5 }, index * 1 + 0.5);
       });
     });
 
