@@ -10,6 +10,7 @@ import advantageMessaging from '@/assets/advantage-messaging.jpg';
 import advantageSdr from '@/assets/advantage-sdr.jpg';
 import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
+import EnergyFlowOrb from '@/components/landing/EnergyFlowOrb';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -481,6 +482,22 @@ export default function Landing() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* ═══ FERRAMENTAS — ENERGY FLOW ═══ */}
+      <section id="produto" className="relative py-32 bg-[#0B0D15] overflow-hidden">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+          <div className="text-center mb-6">
+            <span className="text-[12px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Ecossistema completo</span>
+            <h2 className="text-[36px] sm:text-[48px] font-black tracking-[-0.03em] mt-3 text-white">
+              5 ferramentas.<br className="hidden sm:block" />
+              <span className="text-white/30">Uma só plataforma.</span>
+            </h2>
+            <p className="text-white/40 text-[15px] mt-4 max-w-md mx-auto">Passe o mouse no orbe central e veja como tudo se conecta.</p>
+          </div>
+
+          <EnergyFlowOrb />
         </div>
       </section>
 
