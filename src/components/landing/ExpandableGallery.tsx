@@ -1,5 +1,6 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { Target, Bot, MessageSquare, BarChart3, Shield, Globe, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const FEATURES = [
   {
@@ -11,42 +12,42 @@ const FEATURES = [
   },
   {
     title: 'Agente SDR',
-    desc: 'IA que qualifica, responde objeções e agenda reuniões no WhatsApp — 24h por dia, em português natural.',
+    desc: 'IA que qualifica, responde objeções e agenda reuniões no WhatsApp — 24h por dia.',
     icon: Bot,
     color: '#7B2FF2',
     image: 'https://images.unsplash.com/photo-1677442135136-760c813028c4?auto=format&fit=crop&q=80&w=720',
   },
   {
     title: 'Anti-ban',
-    desc: 'Warm-up progressivo, delays humanizados e rotação de chips. Zero banimentos em mais de 4 meses.',
+    desc: 'Warm-up progressivo, delays humanizados e rotação de chips. Zero banimentos.',
     icon: Shield,
     color: '#E91E8C',
     image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=720',
   },
   {
     title: 'Envio em Massa',
-    desc: 'Dispare mensagens personalizadas com spintax para milhares de leads — com controle total de velocidade.',
+    desc: 'Mensagens personalizadas com spintax para milhares de leads — controle total.',
     icon: MessageSquare,
     color: '#00B4D8',
     image: 'https://images.unsplash.com/photo-1611606063065-ee7946f0787a?auto=format&fit=crop&q=80&w=720',
   },
   {
     title: 'CRM Pipeline',
-    desc: 'Pipeline visual com deal value, qualificação BANT e integração direta com Meta Ads.',
+    desc: 'Pipeline visual com deal value, qualificação BANT e integração com Meta Ads.',
     icon: Target,
     color: '#F7941D',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=720',
   },
   {
     title: 'Analytics',
-    desc: 'Saiba qual nicho, horário e template converte mais — e otimize cada centavo investido em tempo real.',
+    desc: 'Descubra qual nicho, horário e template converte mais — otimize em tempo real.',
     icon: BarChart3,
     color: '#7B2FF2',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=720',
   },
   {
     title: 'Automações',
-    desc: 'Follow-up automático, reativação de leads frios, relatórios agendados. Liga e desliga com 1 clique.',
+    desc: 'Follow-up automático, reativação, relatórios agendados. Liga/desliga com 1 clique.',
     icon: Zap,
     color: '#E91E8C',
     image: 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?auto=format&fit=crop&q=80&w=720',
@@ -54,160 +55,166 @@ const FEATURES = [
 ];
 
 export function ExpandableGallery() {
-  const listRef = useRef<HTMLUListElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [articleWidth, setArticleWidth] = useState(0);
-
-  const resync = useCallback(() => {
-    if (!listRef.current) return;
-    const items = listRef.current.querySelectorAll('li');
-    let maxW = 0;
-    items.forEach((item) => { maxW = Math.max(maxW, item.offsetWidth); });
-    setArticleWidth(maxW);
-  }, []);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    resync();
-    window.addEventListener('resize', resync);
-    const t = setTimeout(resync, 150);
-    return () => { window.removeEventListener('resize', resync); clearTimeout(t); };
-  }, [resync]);
+    let ctx: ReturnType<typeof import('gsap').default.context> | null = null;
 
-  const handleInteraction = useCallback((e: React.MouseEvent | React.FocusEvent) => {
-    const li = (e.target as HTMLElement).closest('li');
-    if (!li || !listRef.current) return;
-    const items = Array.from(listRef.current.querySelectorAll('li'));
-    const idx = items.indexOf(li);
-    if (idx !== -1) setActiveIndex(idx);
+    const init = async () => {
+      const gsapMod = await import('gsap');
+      const stMod = await import('gsap/ScrollTrigger');
+      const gsap = gsapMod.default;
+      const ScrollTrigger = stMod.default;
+      gsap.registerPlugin(ScrollTrigger);
+
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      if (!section || !track) return;
+
+      ctx = gsap.context(() => {
+        const totalScroll = track.scrollWidth - window.innerWidth;
+
+        gsap.to(track, {
+          x: -totalScroll,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${totalScroll}`,
+            scrub: 1.5,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
+
+        // Fade in cards as they enter viewport
+        const cards = track.querySelectorAll('.hscroll-card');
+        cards.forEach((card, i) => {
+          gsap.fromTo(
+            card,
+            { opacity: 0.3, scale: 0.92, rotateY: -8 },
+            {
+              opacity: 1,
+              scale: 1,
+              rotateY: 0,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                containerAnimation: gsap.getById?.('hscroll') || undefined,
+                start: 'left 80%',
+                end: 'left 40%',
+                scrub: true,
+                // Use the main horizontal scroll as reference
+              },
+              // Fallback: simple delay-based stagger
+              delay: i * 0.05,
+              duration: 0.6,
+            }
+          );
+        });
+      }, section);
+    };
+
+    init();
+    return () => { ctx?.revert(); };
   }, []);
 
-  const cols = FEATURES.map((_, i) => (i === activeIndex ? '10fr' : '1fr')).join(' ');
-
   return (
-    <section className="py-28 px-6 lg:px-12 relative">
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
+    <section
+      ref={sectionRef}
+      className="relative w-full overflow-hidden"
+      style={{ minHeight: '100vh' }}
+    >
+      {/* Background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }}
+      />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Plataforma completa</span>
-          <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-            Tudo que você precisa, <span className="text-white/30">em um só lugar.</span>
-          </h2>
-        </div>
+      {/* Fixed header above pinned area */}
+      <div className="relative z-20 text-center pt-28 pb-10 px-6">
+        <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">
+          Plataforma completa
+        </span>
+        <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
+          Tudo que você precisa, <span className="text-white/30">em um só lugar.</span>
+        </h2>
+        <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+          Role para explorar todos os módulos da plataforma.
+        </p>
+      </div>
 
-        {/* Gallery */}
-        <ul
-          ref={listRef}
-          onClick={handleInteraction}
-          onPointerMove={handleInteraction}
-          onFocus={handleInteraction}
-          className="relative grid gap-2 list-none p-0 m-0 mx-auto w-full max-w-[920px]"
-          style={{
-            gridTemplateColumns: cols,
-            height: 'clamp(320px, 42dvh, 480px)',
-            transition: 'grid-template-columns 0.6s cubic-bezier(0.16,1,0.3,1)',
-            containerType: 'inline-size',
-            ['--article-width' as string]: `${articleWidth}`,
-          }}
-        >
-          {FEATURES.map((feature, i) => {
-            const isActive = i === activeIndex;
-            const Icon = feature.icon;
+      {/* Horizontal scrolling track */}
+      <div
+        ref={trackRef}
+        className="relative z-10 flex items-center gap-6 px-[5vw] py-12"
+        style={{
+          width: 'max-content',
+          perspective: '1200px',
+        }}
+      >
+        {FEATURES.map((feature, i) => {
+          const Icon = feature.icon;
+          return (
+            <div
+              key={i}
+              className="hscroll-card relative flex-shrink-0 w-[340px] md:w-[400px] h-[480px] rounded-[1.5rem] border border-white/[0.08] overflow-hidden group cursor-pointer"
+              style={{ background: '#0E1018', transformStyle: 'preserve-3d' }}
+              onClick={() => navigate('/auth')}
+            >
+              {/* Image */}
+              <div className="absolute inset-0 overflow-hidden">
+                <img
+                  src={feature.image}
+                  alt={feature.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1018] via-[#0E1018]/70 to-transparent" />
+              </div>
 
-            return (
-              <li
-                key={feature.title}
-                data-active={isActive}
-                className="relative overflow-hidden rounded-xl border border-white/[0.08] cursor-pointer"
-                style={{
-                  background: '#0B0D15',
-                  minWidth: 'clamp(2rem, 8cqi, 80px)',
-                }}
-              >
-                <article
-                  className="absolute top-0 left-0 h-full flex flex-col justify-end gap-3 overflow-hidden"
-                  style={{
-                    width: `${articleWidth}px`,
-                    paddingInline: 'calc(clamp(2rem, 8cqi, 80px) * 0.5 - 9px)',
-                    paddingBottom: '1rem',
-                    fontFamily: 'inherit',
-                  }}
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col justify-end p-7">
+                {/* Colored line accent */}
+                <div
+                  className="w-10 h-[2px] mb-5 rounded-full transition-all duration-500 group-hover:w-16"
+                  style={{ background: feature.color }}
+                />
+
+                {/* Icon */}
+                <div
+                  className="h-10 w-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: `${feature.color}15`, border: `1px solid ${feature.color}30` }}
                 >
-                  {/* Vertical title (collapsed) */}
-                  <h3
-                    className="absolute whitespace-nowrap text-sm font-light uppercase tracking-wider"
-                    style={{
-                      top: '1rem',
-                      left: 'calc(clamp(2rem, 8cqi, 80px) * 0.5)',
-                      transformOrigin: '0 50%',
-                      rotate: '90deg',
-                      color: feature.color,
-                      opacity: isActive ? 1 : 0.5,
-                      transition: 'opacity 0.72s cubic-bezier(0.16,1,0.3,1)',
-                    }}
-                  >
-                    {feature.title}
-                  </h3>
+                  <Icon className="h-5 w-5" style={{ color: feature.color }} />
+                </div>
 
-                  {/* Icon */}
-                  <Icon
-                    className="w-[18px] h-[18px]"
-                    style={{
-                      color: feature.color,
-                      opacity: isActive ? 1 : 0.5,
-                      transition: 'opacity 0.72s cubic-bezier(0.16,1,0.3,1)',
-                    }}
-                  />
+                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed mb-4">{feature.desc}</p>
 
-                  {/* Description */}
-                  <p
-                    className="text-[13px] leading-[1.35] text-white/70"
-                    style={{
-                      textWrap: 'balance',
-                      opacity: isActive ? 0.8 : 0,
-                      transition: `opacity 0.72s cubic-bezier(0.16,1,0.3,1)`,
-                      transitionDelay: isActive ? '0.15s' : '0s',
-                      width: 'fit-content',
-                    }}
-                  >
-                    {feature.desc}
-                  </p>
+                <span
+                  className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1"
+                  style={{ color: feature.color }}
+                >
+                  Explorar →
+                </span>
+              </div>
 
-                  {/* CTA */}
-                  <span
-                    className="text-[13px] font-medium"
-                    style={{
-                      color: feature.color,
-                      opacity: isActive ? 1 : 0,
-                      transition: 'opacity 0.72s cubic-bezier(0.16,1,0.3,1)',
-                      transitionDelay: isActive ? '0.15s' : '0s',
-                      width: 'fit-content',
-                    }}
-                  >
-                    Saiba mais →
-                  </span>
+              {/* Hover glow */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[1.5rem]"
+                style={{
+                  boxShadow: `inset 0 0 60px ${feature.color}08, 0 0 40px ${feature.color}06`,
+                }}
+              />
+            </div>
+          );
+        })}
 
-                  {/* Background image */}
-                  <img
-                    src={feature.image}
-                    alt=""
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                    style={{
-                      mask: 'radial-gradient(100% 100% at 100% 0, #fff, #0000)',
-                      WebkitMask: 'radial-gradient(100% 100% at 100% 0, #fff, #0000)',
-                      filter: isActive ? 'grayscale(0) brightness(1)' : 'grayscale(1) brightness(1.5)',
-                      scale: isActive ? '1' : '1.1',
-                      transition: 'filter 0.72s cubic-bezier(0.16,1,0.3,1), scale 0.72s cubic-bezier(0.16,1,0.3,1)',
-                      transitionDelay: isActive ? '0.15s' : '0s',
-                    }}
-                  />
-                </article>
-              </li>
-            );
-          })}
-        </ul>
+        {/* End spacer for smooth scroll finish */}
+        <div className="flex-shrink-0 w-[10vw]" />
       </div>
     </section>
   );
