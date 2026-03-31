@@ -11,12 +11,6 @@ import advantageSdr from '@/assets/advantage-sdr.jpg';
 import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import ToolsTimeline from '@/components/landing/ToolsTimeline';
-import { FeaturesReveal } from '@/components/landing/FeaturesReveal';
-import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
-import { TrustSection } from '@/components/landing/TrustSection';
-import { ComparisonTable } from '@/components/landing/ComparisonTable';
-import { ROICalculator } from '@/components/landing/ROICalculator';
-import { TestimonialsFlipCards } from '@/components/landing/TestimonialsFlipCards';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -421,42 +415,6 @@ export default function Landing() {
       {/* ═══ FERRAMENTAS TIMELINE ═══ */}
       <ToolsTimeline />
 
-      {/* ═══ FEATURES REVEAL ═══ */}
-      <section id="produto" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Produto" title={<>Explore cada <span className="text-white/20">recurso.</span></>} subtitle="Clique para expandir e ver o detalhe de cada funcionalidade." />
-        <FeaturesReveal />
-      </section>
-
-      {/* ═══ ANTES vs DEPOIS ═══ */}
-      <section className="relative py-16 px-4 md:px-8">
-        <SectionHeader tag="Transformação" title={<>Antes vs <span className="landing-gradient-text">Depois.</span></>} />
-        <BeforeAfterSection />
-      </section>
-
-      {/* ═══ TRUST SECTION ═══ */}
-      <section className="relative py-16 px-4 md:px-8">
-        <SectionHeader tag="Confiança" title={<>Segurança e <span className="text-white/20">confiabilidade.</span></>} />
-        <div className="max-w-6xl mx-auto">
-          <TrustSection />
-        </div>
-      </section>
-
-      {/* ═══ COMPARAÇÃO ═══ */}
-      <section className="relative py-16 px-4 md:px-8">
-        <SectionHeader tag="Comparativo" title={<>Nexa vs <span className="text-white/20">outros CRMs.</span></>} />
-        <ComparisonTable />
-      </section>
-
-      {/* ═══ ROI CALCULATOR ═══ */}
-      <section className="relative py-16 px-4 md:px-8">
-        <SectionHeader tag="Simulador" title={<>Calcule seu <span className="landing-gradient-text">retorno.</span></>} subtitle="Mova os sliders e veja o potencial de receita com o NexaProspect." />
-        <ROICalculator />
-      </section>
-
-      {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases">
-        <TestimonialsFlipCards />
-      </section>
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
