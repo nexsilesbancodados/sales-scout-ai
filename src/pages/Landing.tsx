@@ -92,6 +92,9 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const advantagesRef = useRef<HTMLDivElement>(null);
+  const flipCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
   // GSAP wave parallax on scroll
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -116,6 +119,35 @@ export default function Landing() {
         },
       });
     });
+    return () => ctx.revert();
+  }, []);
+
+  // GSAP flip cards on scroll
+  useEffect(() => {
+    if (!advantagesRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: advantagesRef.current,
+          start: 'top top',
+          end: '+=400%',
+          pin: true,
+          scrub: 2,
+          anticipatePin: 1,
+        },
+      });
+
+      flipCardsRef.current.forEach((card, index) => {
+        if (!card) return;
+        tl.to(card, {
+          rotationY: 180,
+          ease: 'power2.inOut',
+          duration: 1,
+        }, index * 0.35);
+      });
+    });
+
     return () => ctx.revert();
   }, []);
 
