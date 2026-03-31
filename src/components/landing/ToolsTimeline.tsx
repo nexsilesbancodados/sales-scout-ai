@@ -12,7 +12,7 @@ import timelineAnalytics from '@/assets/timeline-analytics.jpg';
 const ToolImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
   const [loaded, setLoaded] = useState(false);
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl bg-[#0B0D15] border border-white/5', className)}>
+    <div className={cn('relative overflow-hidden rounded-2xl bg-black/30 backdrop-blur-sm border border-white/5', className)}>
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0B0D15] animate-pulse">
           <div className="h-6 w-6 rounded-full border-2 border-white/10 border-t-white/30 animate-spin" />
