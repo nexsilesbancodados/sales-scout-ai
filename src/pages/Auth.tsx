@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { RocketTransition } from '@/components/auth/RocketTransition';
-import { SmokeyBackground } from '@/components/ui/smokey-background';
+
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -102,7 +102,6 @@ export default function AuthPage() {
   if (showResetPassword) {
     return (
       <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
         <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
           <div className="w-full max-w-sm animate-scale-in">
             <div className="relative p-8 space-y-6 rounded-3xl border border-white/[0.08] overflow-hidden"
@@ -141,7 +140,6 @@ export default function AuthPage() {
   if (showForgotPassword) {
     return (
       <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
         <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
           <div className="w-full max-w-sm animate-scale-in">
             <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
@@ -157,15 +155,7 @@ export default function AuthPage() {
 
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-      <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
 
-      {/* Ambient light effects */}
-      <div className="absolute inset-0 pointer-events-none z-[1]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] opacity-20"
-          style={{ background: 'radial-gradient(ellipse, rgba(123,47,242,0.4) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-10"
-          style={{ background: 'radial-gradient(circle, rgba(233,30,140,0.5) 0%, transparent 70%)' }} />
-      </div>
 
       <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
         <div className="w-full max-w-[420px] animate-scale-in">
