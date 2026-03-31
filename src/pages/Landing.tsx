@@ -513,41 +513,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases" className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(247,148,29,0.04) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Resultados reais</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Não acredite em nós. <span className="text-white/30">Acredite neles.</span>
-            </h2>
-          </AnimSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <StaggerReveal key={t.name} index={i}>
-                <div className="group bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 h-full relative overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F7941D]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex items-center gap-1 mb-5">
-                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-[#F7941D] fill-[#F7941D]" />)}
-                  </div>
-                  <p className="text-[14px] text-white/60 leading-[1.8] mb-6 italic">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                      {t.name[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{t.name}</p>
-                      <p className="text-xs text-white/35">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══ TESTIMONIALS — 3D Flip Cards ═══ */}
+      <div id="cases">
+        <TestimonialsFlipCards />
+      </div>
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="py-28 px-6 lg:px-12 relative">
