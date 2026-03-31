@@ -51,11 +51,11 @@ const ADVANTAGES = [
 ];
 
 const NAV_LINKS = [
-  { label: 'Recursos', href: '#recursos' },
-  { label: 'Produto', href: '#produto' },
-  { label: 'Preços', href: '#precos' },
-  { label: 'Cases', href: '#cases' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Recursos', href: '#recursos', icon: Zap },
+  { label: 'Produto', href: '#produto', icon: BarChart3 },
+  { label: 'Preços', href: '#precos', icon: CreditCard },
+  { label: 'Cases', href: '#cases', icon: Star },
+  { label: 'FAQ', href: '#faq', icon: HelpCircle },
 ];
 
 export default function Landing() {
