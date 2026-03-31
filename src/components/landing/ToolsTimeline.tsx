@@ -120,7 +120,7 @@ export default function ToolsTimeline() {
             <div key={index} className="flex justify-start pt-4 md:pt-10 md:gap-6">
               {/* Sticky left label */}
               <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-                <div className="h-8 absolute left-2.5 md:left-2.5 w-8 rounded-full bg-[#0B0D15] border border-white/10 flex items-center justify-center">
+                <div className="h-8 absolute left-2.5 md:left-2.5 w-8 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center">
                   <Icon className="h-3 w-3 text-[#F7941D]" />
                 </div>
                 <h3 className="hidden md:block text-xl md:pl-16 md:text-2xl font-extrabold text-white/[0.06] uppercase tracking-widest">
