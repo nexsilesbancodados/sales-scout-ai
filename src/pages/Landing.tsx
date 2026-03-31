@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { ArrowRight, Star, Check, Menu, X, Sparkles, Quote, Search, MessageSquare, Bot, CalendarCheck } from 'lucide-react';
+import { ArrowRight, Star, Check, Menu, X, Sparkles, Quote, Search, MessageSquare, Bot, CalendarCheck, Home, CreditCard, Zap, BarChart3, HelpCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
 import advantageProspecting from '@/assets/advantage-prospecting.jpg';
 import advantageMessaging from '@/assets/advantage-messaging.jpg';
 import advantageSdr from '@/assets/advantage-sdr.jpg';
 import advantageMeetings from '@/assets/advantage-meetings.jpg';
-import { LiquidButton } from '@/components/ui/liquid-button';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -51,11 +51,11 @@ const ADVANTAGES = [
 ];
 
 const NAV_LINKS = [
-  { label: 'Recursos', href: '#recursos' },
-  { label: 'Produto', href: '#produto' },
-  { label: 'Preços', href: '#precos' },
-  { label: 'Cases', href: '#cases' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Recursos', href: '#recursos', icon: Zap },
+  { label: 'Produto', href: '#produto', icon: BarChart3 },
+  { label: 'Preços', href: '#precos', icon: CreditCard },
+  { label: 'Cases', href: '#cases', icon: Star },
+  { label: 'FAQ', href: '#faq', icon: HelpCircle },
 ];
 
 export default function Landing() {
@@ -64,6 +64,7 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('');
+  const [hoveredNav, setHoveredNav] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -181,44 +182,77 @@ export default function Landing() {
     <div className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
 
-      {/* ═══ NAVBAR ═══ */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#0B0D15]/95 border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl' : 'bg-transparent'}`}>
-        <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-2.5">
-            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-white">NexaProspect</span>
+      {/* ═══ FLOATING GLASS NAVBAR ═══ */}
+      <nav className="fixed top-0 w-full z-50 flex justify-center pt-4 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: -20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.3 }}
+          className="pointer-events-auto flex items-center rounded-full pr-3 pl-4 py-2.5 glass-nav-container"
+        >
+          <a href="#" className="flex items-center gap-2 mr-4 shrink-0">
+            <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
+            <span className="text-[14px] font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
+          </a>
+
+          <div className="hidden lg:flex items-center">
+            {NAV_LINKS.map((l, idx) => {
+              const Icon = l.icon;
+              return (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  onMouseEnter={() => setHoveredNav(idx)}
+                  onMouseLeave={() => setHoveredNav(null)}
+                  className="nav-optn relative group"
+                >
+                  <div className="nav-optn-inner">
+                    <span className="nav-optn-icon">
+                      <Icon className="h-4 w-4 text-white" />
+                    </span>
+                    <span className={`text-[13px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/40 group-hover:text-white'}`}>
+                      {l.label}
+                    </span>
+                    {hoveredNav === idx && (
+                      <motion.span
+                        layoutId="navGlow"
+                        initial={{ scaleX: 0, opacity: 0 }}
+                        animate={{ scaleX: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]"
+                      />
+                    )}
+                  </div>
+                </a>
+              );
+            })}
           </div>
 
-          <div className="hidden lg:flex items-center bg-white/[0.08] border border-white/[0.08] rounded-full px-1.5 py-1">
-            {NAV_LINKS.map((l) => (
-              <a key={l.label} href={l.href}
-                className={`text-[13px] px-5 py-1.5 rounded-full transition-all duration-200 font-medium ${activeNav === l.href.replace('#', '') ? 'text-white bg-white/[0.1]' : 'text-white/45 hover:text-white/80 hover:bg-white/[0.06]'}`}
-              >{l.label}</a>
-            ))}
-          </div>
+          <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group ml-3">
+            <span className="nav-shimmer-icon">
+              <ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" />
+            </span>
+            <span className="nav-shimmer-text">Entrar</span>
+          </button>
 
-          <div className="flex items-center gap-4">
-            <Link to="/auth" className="hidden lg:block text-[13px] text-white/50 hover:text-white/80 transition-colors font-medium">Entrar</Link>
-            <div className="hidden lg:block">
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[13px] px-6 py-2.5 rounded-full font-semibold">
-                Começar grátis
-              </LiquidButton>
-            </div>
-            <button className="lg:hidden text-white/60" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
-              {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
+          <button className="lg:hidden text-white/60 ml-2" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
+            {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </motion.div>
 
-        <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
-          <div className="bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
+        <div className={`lg:hidden pointer-events-auto fixed top-[70px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="px-6 py-4 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="block text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>{l.label}</a>
+              <a key={l.label} href={l.href} className="flex items-center gap-3 text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
+                <l.icon className="h-4 w-4" />
+                {l.label}
+              </a>
             ))}
             <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
         </div>
       </nav>
+
 
       {/* ═══ HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
@@ -260,10 +294,12 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
-                Testar grátis por 7 dias
-                <ArrowRight className="h-4 w-4" />
-              </LiquidButton>
+              <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
+                <span className="nav-shimmer-icon !w-10 !h-10">
+                  <ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" />
+                </span>
+                <span className="nav-shimmer-text !text-[14px]">Testar grátis por 7 dias</span>
+              </button>
               <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
