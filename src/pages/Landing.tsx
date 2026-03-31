@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { ArrowRight, Star, Check, Menu, X, Sparkles } from 'lucide-react';
@@ -6,6 +6,10 @@ import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
 import { LiquidButton } from '@/components/ui/liquid-button';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos' },
@@ -53,6 +57,33 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // GSAP wave parallax on scroll
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.to('.wave-light-blue', {
+        xPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.5,
+        },
+      });
+      gsap.to('.wave-white', {
+        xPercent: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
@@ -97,7 +128,7 @@ export default function Landing() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="min-h-screen relative overflow-hidden flex items-center">
+      <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
           <video
             src={heroVideo}
@@ -181,6 +212,30 @@ export default function Landing() {
               <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
             </div>
           </a>
+        </div>
+        {/* Wave transition */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] h-[200px] z-20">
+          <svg
+            className="wave-shape wave-light-blue absolute bottom-[20px] left-0 block h-[160px] opacity-50 z-[2]"
+            style={{ width: '200%', animation: 'waveShift 10s ease-in-out infinite' }}
+            viewBox="0 0 1000 100" preserveAspectRatio="none"
+          >
+            <path d="M0,1.7c10.2,3.2,35.2,10.2,76.5,10.1C117.9,11.7,156.3,1.3,204.7,0.3c48.3-1,76.2,11.5,108.2,11 c32,0.5,86.5-1.2,109-3.7c22.6-2.5,51.5,0.4,75.5,5.3c23.6,4.9,70.2,26.9,145.1,36.2c75.3,9.3,145.3,8.5,188.6,10.3 c43.4,1.8,89.4,19,147.3,18.4c58.7-0.6,85.3-7.7,103.6-11V100H0V1.7z" fill="hsl(var(--primary) / 0.4)" />
+          </svg>
+          <svg
+            className="wave-shape wave-white absolute bottom-0 left-0 block h-[160px] z-[3]"
+            style={{ width: '200%', animation: 'waveShift 10s ease-in-out infinite' }}
+            viewBox="0 0 1000 100" preserveAspectRatio="none"
+          >
+            <path d="M0,1.7c10.2,3.2,35.2,10.2,76.5,10.1C117.9,11.7,156.3,1.3,204.7,0.3c48.3-1,76.2,11.5,108.2,11 c32,0.5,86.5-1.2,109-3.7c22.6-2.5,51.5,0.4,75.5,5.3c23.6,4.9,70.2,26.9,145.1,36.2c75.3,9.3,145.3,8.5,188.6,10.3 c43.4,1.8,89.4,19,147.3,18.4c58.7-0.6,85.3-7.7,103.6-11V100H0V1.7z" fill="hsl(var(--background))" />
+          </svg>
+        </div>
+      </section>
+
+      {/* Section after wave */}
+      <section className="min-h-[50vh] flex items-center justify-center bg-background text-foreground relative z-0">
+        <div className="text-center px-4">
+          {/* Placeholder for next content */}
         </div>
       </section>
 
