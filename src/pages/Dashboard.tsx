@@ -8,6 +8,7 @@ import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { WelcomeCard } from '@/components/dashboard/WelcomeCard';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { PeriodFilter } from '@/components/dashboard/PeriodFilter';
 import { ProspectionChart } from '@/components/dashboard/ProspectionChart';
