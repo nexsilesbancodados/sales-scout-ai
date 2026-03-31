@@ -215,9 +215,12 @@ export default function Landing() {
       {/* ═══ HERO ═══ */}
       <section className="min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <img
-            src={aiHeroImg}
-            alt=""
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 hero-energy-overlay" />
