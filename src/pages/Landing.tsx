@@ -15,6 +15,7 @@ import { DashboardMockup } from '@/components/landing/DashboardMockup';
 import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
+import { TestimonialsFlipCards } from '@/components/landing/TestimonialsFlipCards';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { UrgencyCTABanner, SocialProofStrip, FeatureHighlightStrip } from '@/components/landing/BannerStrips';
@@ -80,14 +81,6 @@ const FEATURES = [
   { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Saiba exatamente qual nicho, horário e template converte mais — e otimize cada centavo investido.', color: '#E91E8C' },
 ];
 
-const TESTIMONIALS = [
-  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 14 dias: 800 leads capturados, 12 contratos fechados. O SDR da IA converte melhor que minha equipe de 3 pessoas.' },
-  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Acordo com 5 reuniões agendadas. A IA prospectou, qualificou e respondeu enquanto eu dormia. Surreal.' },
-  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'Reduzi meu custo por lead de R$18 para R$0,80. O CRM + Meta Ads me dá visibilidade total do funil.' },
-  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'De 8 reuniões/mês para 27 no primeiro mês. O follow-up automático recupera leads que eu já tinha dado como perdidos.' },
-  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Meus clientes perguntam como respondo tão rápido. Não conto que é a IA — eles acham que tenho uma equipe enorme.' },
-  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: '400 leads qualificados na primeira semana via Instagram. ROI de 23x sobre o plano. Nunca vi nada igual.' },
-];
 
 const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
 
@@ -512,41 +505,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS ═══ */}
-      <section id="cases" className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(247,148,29,0.04) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#F7941D] uppercase">Resultados reais</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Não acredite em nós. <span className="text-white/30">Acredite neles.</span>
-            </h2>
-          </AnimSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <StaggerReveal key={t.name} index={i}>
-                <div className="group bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 h-full relative overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F7941D]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex items-center gap-1 mb-5">
-                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-[#F7941D] fill-[#F7941D]" />)}
-                  </div>
-                  <p className="text-[14px] text-white/60 leading-[1.8] mb-6 italic">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#7B2FF2] to-[#E91E8C] flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                      {t.name[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{t.name}</p>
-                      <p className="text-xs text-white/35">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══ TESTIMONIALS — 3D Flip Cards ═══ */}
+      <div id="cases">
+        <TestimonialsFlipCards />
+      </div>
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="py-28 px-6 lg:px-12 relative">
