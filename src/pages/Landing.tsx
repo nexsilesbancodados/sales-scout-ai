@@ -15,7 +15,7 @@ import { DashboardMockup } from '@/components/landing/DashboardMockup';
 import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
-import { TestimonialsFlipCards } from '@/components/landing/TestimonialsFlipCards';
+
 import { ExpandableGallery } from '@/components/landing/ExpandableGallery';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
