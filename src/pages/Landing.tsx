@@ -12,6 +12,7 @@ import { LiquidButton } from '@/components/ui/liquid-button';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ParallaxSection, AnimatedCounter } from '@/components/landing/ScrollEffects';
 import { DashboardMockup } from '@/components/landing/DashboardMockup';
+import { FocusRail } from '@/components/landing/FocusRail';
 import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
@@ -382,7 +383,7 @@ export default function Landing() {
       <section id="produto" className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(123,47,242,0.08) 0%, transparent 50%)' }} />
         <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
+          <AnimSection className="text-center mb-8">
             <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Produto</span>
             <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
               Veja seu <span className="landing-gradient-text">novo cockpit de vendas</span>
@@ -391,7 +392,47 @@ export default function Landing() {
               CRM visual, analytics em tempo real, chat WhatsApp e 9 automações — tudo num painel que qualquer vendedor entende em 2 minutos.
             </p>
           </AnimSection>
-          <DashboardMockup />
+          <FocusRail
+            items={[
+              {
+                id: 'dashboard',
+                title: 'Dashboard Inteligente',
+                meta: 'Visão Geral',
+                description: 'KPIs em tempo real, funil de conversão e métricas que importam — tudo num só lugar.',
+                imageSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
+              },
+              {
+                id: 'crm',
+                title: 'CRM Visual',
+                meta: 'Pipeline Kanban',
+                description: 'Arraste leads entre etapas, veja deal values e acompanhe cada negociação visualmente.',
+                imageSrc: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200',
+              },
+              {
+                id: 'whatsapp',
+                title: 'Chat WhatsApp',
+                meta: 'Mensagens em Massa',
+                description: 'Envie mensagens personalizadas com anti-ban, spintax e delays inteligentes.',
+                imageSrc: 'https://images.unsplash.com/photo-1611746872915-64382b5c76da?auto=format&fit=crop&q=80&w=1200',
+              },
+              {
+                id: 'analytics',
+                title: 'Analytics Avançado',
+                meta: 'Dados em Tempo Real',
+                description: 'Descubra qual nicho, horário e template traz mais resultados para seu negócio.',
+                imageSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
+              },
+              {
+                id: 'prospecting',
+                title: 'Prospecção com IA',
+                meta: 'Automação Total',
+                description: 'Capture leads do Google Maps, Instagram e Facebook automaticamente.',
+                imageSrc: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=1200',
+              },
+            ]}
+            autoPlay
+            interval={5000}
+          />
         </div>
       </section>
 
