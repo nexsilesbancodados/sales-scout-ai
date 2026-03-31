@@ -81,14 +81,6 @@ const FEATURES = [
   { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Saiba exatamente qual nicho, horário e template converte mais — e otimize cada centavo investido.', color: '#E91E8C' },
 ];
 
-const TESTIMONIALS = [
-  { name: 'Rafael M.', role: 'Agência de Marketing, SP', text: 'Em 14 dias: 800 leads capturados, 12 contratos fechados. O SDR da IA converte melhor que minha equipe de 3 pessoas.' },
-  { name: 'Camila S.', role: 'Consultora de Vendas, RJ', text: 'Acordo com 5 reuniões agendadas. A IA prospectou, qualificou e respondeu enquanto eu dormia. Surreal.' },
-  { name: 'Lucas P.', role: 'Startup B2B, BH', text: 'Reduzi meu custo por lead de R$18 para R$0,80. O CRM + Meta Ads me dá visibilidade total do funil.' },
-  { name: 'Marina L.', role: 'Agência Digital, Curitiba', text: 'De 8 reuniões/mês para 27 no primeiro mês. O follow-up automático recupera leads que eu já tinha dado como perdidos.' },
-  { name: 'Pedro R.', role: 'Imobiliária, Florianópolis', text: 'Meus clientes perguntam como respondo tão rápido. Não conto que é a IA — eles acham que tenho uma equipe enorme.' },
-  { name: 'Ana C.', role: 'E-commerce, Porto Alegre', text: '400 leads qualificados na primeira semana via Instagram. ROI de 23x sobre o plano. Nunca vi nada igual.' },
-];
 
 const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
 
