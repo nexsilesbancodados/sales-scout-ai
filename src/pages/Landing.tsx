@@ -509,7 +509,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ FERRAMENTAS — ENERGY FLOW ═══ */}
-      <section id="produto" className="relative py-32 bg-[#0B0D15] overflow-hidden">
+      <section id="produto" className="relative py-16 bg-[#0B0D15] overflow-hidden">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
           <div className="text-center mb-6">
             <span className="text-[12px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Ecossistema completo</span>
