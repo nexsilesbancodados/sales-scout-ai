@@ -827,3 +827,17 @@ div[style*="Edit with Lovable"],
 html {
   scroll-behavior: smooth;
 }
+
+/* Marquee animations */
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-scroll {
+  animation: marqueeScroll 30s linear infinite;
+}
+
+.marquee-scroll-reverse {
+  animation: marqueeScroll 35s linear infinite reverse;
+}
