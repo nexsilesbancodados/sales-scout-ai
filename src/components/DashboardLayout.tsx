@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
-import { Moon, Sun, PanelLeft, PanelTop, Bell, Sparkles, CalendarDays, Settings } from 'lucide-react';
+import { Moon, Sun, PanelLeft, PanelTop, Bell, Sparkles, CalendarDays, Settings, Search } from 'lucide-react';
 import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
 import {
   Tooltip,
