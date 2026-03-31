@@ -300,21 +300,6 @@ export default function Landing() {
       {/* ═══ URGENCY CTA BANNER ═══ */}
       <UrgencyCTABanner />
 
-      {/* ═══ STATS BAR ═══ */}
-      <section className="relative z-10 -mt-1">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-[#0B0D15]/80 border border-white/[0.08] rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 backdrop-blur-sm">
-            {STATS.map((s, i) => (
-              <StaggerReveal key={s.label} index={i} className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-white">
-                  <AnimatedCounter target={s.value} suffix={s.suffix} />
-                </div>
-                <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">{s.label}</p>
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══ INTEGRATIONS MARQUEE ═══ */}
       <section className="py-16 overflow-hidden">
