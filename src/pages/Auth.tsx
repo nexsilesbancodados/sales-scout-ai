@@ -102,7 +102,6 @@ export default function AuthPage() {
   if (showResetPassword) {
     return (
       <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
         <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
           <div className="w-full max-w-sm animate-scale-in">
             <div className="relative p-8 space-y-6 rounded-3xl border border-white/[0.08] overflow-hidden"
