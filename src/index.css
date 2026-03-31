@@ -811,3 +811,14 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+
+/* Wave transition animation */
+@keyframes waveShift {
+  0% { left: 0; }
+  50% { left: -50%; }
+  100% { left: 0; }
+}
+
+.wave-shape {
+  will-change: transform, left;
+}
