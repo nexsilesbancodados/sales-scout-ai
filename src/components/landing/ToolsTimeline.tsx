@@ -12,9 +12,9 @@ import timelineAnalytics from '@/assets/timeline-analytics.jpg';
 const ToolImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
   const [loaded, setLoaded] = useState(false);
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl bg-[#0B0D15] border border-white/5', className)}>
+    <div className={cn('relative overflow-hidden rounded-2xl bg-black/30 backdrop-blur-sm border border-white/5', className)}>
       {!loaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0B0D15] animate-pulse">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 animate-pulse">
           <div className="h-6 w-6 rounded-full border-2 border-white/10 border-t-white/30 animate-spin" />
         </div>
       )}
@@ -96,7 +96,7 @@ export default function ToolsTimeline() {
   const opacityTransform = useTransform(smoothProgress, [0, 0.1], [0, 1]);
 
   return (
-    <div className="w-full bg-[#0B0D15] pb-4" ref={containerRef}>
+    <div className="w-full pb-4" ref={containerRef}>
       {/* Header */}
       <div className="max-w-5xl mx-auto pt-10 pb-4 px-4 md:px-8 lg:px-10">
         <motion.div
@@ -120,7 +120,7 @@ export default function ToolsTimeline() {
             <div key={index} className="flex justify-start pt-4 md:pt-10 md:gap-6">
               {/* Sticky left label */}
               <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-                <div className="h-8 absolute left-2.5 md:left-2.5 w-8 rounded-full bg-[#0B0D15] border border-white/10 flex items-center justify-center">
+                <div className="h-8 absolute left-2.5 md:left-2.5 w-8 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center">
                   <Icon className="h-3 w-3 text-[#F7941D]" />
                 </div>
                 <h3 className="hidden md:block text-xl md:pl-16 md:text-2xl font-extrabold text-white/[0.06] uppercase tracking-widest">
