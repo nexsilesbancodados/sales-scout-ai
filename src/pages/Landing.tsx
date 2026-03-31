@@ -470,7 +470,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ MARQUEE SECTION ═══ */}
-      <section className="relative h-[400px] flex items-center justify-center overflow-hidden bg-[#0B0D15]">
+      <section className="relative h-[220px] flex items-center justify-center overflow-hidden bg-[#0B0D15]">
         {/* Black band (behind) */}
         <div
           className="absolute select-none whitespace-nowrap overflow-hidden flex py-2"
