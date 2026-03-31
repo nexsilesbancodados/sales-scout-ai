@@ -96,57 +96,49 @@ export default function ToolsTimeline() {
   const opacityTransform = useTransform(smoothProgress, [0, 0.1], [0, 1]);
 
   return (
-    <div className="w-full bg-[#0B0D15] pb-20" ref={containerRef}>
+    <div className="w-full bg-[#0B0D15] pb-10" ref={containerRef}>
       {/* Header */}
-      <div className="max-w-7xl mx-auto pt-24 pb-16 px-4 md:px-8 lg:px-10">
+      <div className="max-w-7xl mx-auto pt-16 pb-8 px-4 md:px-8 lg:px-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           <span className="text-[12px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Ferramentas</span>
-          <h2 className="text-4xl md:text-7xl mt-3 text-white max-w-4xl font-extrabold tracking-[-0.04em]">
+          <h2 className="text-3xl md:text-5xl mt-2 text-white max-w-4xl font-extrabold tracking-[-0.04em]">
             Seu arsenal<br />
             <span className="text-white/20">de prospecção.</span>
           </h2>
-          <p className="text-white/30 text-base md:text-lg max-w-xl mt-6 leading-relaxed font-light">
-            Cada ferramenta foi projetada para eliminar trabalho manual e multiplicar seus resultados.
-          </p>
         </motion.div>
       </div>
 
       {/* Timeline */}
-      <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
+      <div ref={ref} className="relative max-w-7xl mx-auto pb-10">
         {TOOLS_DATA.map((item, index) => {
           const Icon = item.icon;
           return (
-            <div key={index} className="flex justify-start pt-16 md:pt-40 md:gap-10">
+            <div key={index} className="flex justify-start pt-8 md:pt-20 md:gap-10">
               {/* Sticky left label */}
               <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-                <div className="h-12 absolute left-2.5 md:left-2.5 w-12 rounded-full bg-[#0B0D15] border border-white/10 flex items-center justify-center">
+                <div className="h-10 absolute left-2.5 md:left-2.5 w-10 rounded-full bg-[#0B0D15] border border-white/10 flex items-center justify-center">
                   <Icon className="h-4 w-4 text-[#F7941D]" />
                 </div>
-                <h3 className="hidden md:block text-3xl md:pl-24 md:text-6xl font-extrabold text-white/[0.06] uppercase tracking-widest">
+                <h3 className="hidden md:block text-2xl md:pl-20 md:text-4xl font-extrabold text-white/[0.06] uppercase tracking-widest">
                   {item.title}
                 </h3>
               </div>
 
               {/* Content */}
-              <div className="relative pl-24 pr-4 md:pl-4 w-full">
-                <h3 className="md:hidden block text-3xl mb-6 text-left font-extrabold text-white/10 uppercase">
+              <div className="relative pl-20 pr-4 md:pl-4 w-full">
+                <h3 className="md:hidden block text-2xl mb-3 text-left font-extrabold text-white/10 uppercase">
                   {item.title}
                 </h3>
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <h4 className="text-white text-xl md:text-2xl font-bold tracking-tight">{item.heading}</h4>
-                    <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-xl">
-                      {item.description}
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <h4 className="text-white text-lg md:text-xl font-bold tracking-tight">{item.heading}</h4>
                   <ToolImage
                     src={item.images[0]}
                     alt={item.heading}
-                    className="h-56 md:h-[400px] w-full"
+                    className="h-44 md:h-[280px] w-full"
                   />
                 </div>
               </div>
@@ -162,11 +154,8 @@ export default function ToolsTimeline() {
           <motion.div
             style={{ height: heightTransform, opacity: opacityTransform }}
             className="absolute inset-x-0 top-0 w-[2px] rounded-full overflow-hidden"
-            // Use inline style for gradient since it uses brand color
-            // bg-gradient-to-b from-[#F7941D] via-[#F7941D] to-white/20
           >
             <div className="absolute inset-0 bg-gradient-to-b from-[#F7941D] via-[#F7941D] to-white/20" />
-            {/* Wave effect */}
             <motion.div
               className="absolute inset-x-0 w-full"
               initial={{ y: '-100%' }}
