@@ -73,7 +73,8 @@ const outreachItems = [
 ];
 
 const crmItems = [
-  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline', highlight: true },
+  { title: 'Leads Salvos', icon: Users, path: '/leads', highlight: true },
+  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline' },
   { title: 'Contatos', icon: Users, path: '/crm/contacts' },
   { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
   { title: 'Atividades', icon: Calendar, path: '/crm/activities' },
