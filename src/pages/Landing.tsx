@@ -509,6 +509,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ FERRAMENTAS TIMELINE ═══ */}
+      <ToolsTimeline />
+
     </div>
   );
 }
