@@ -346,7 +346,7 @@ export default function Landing() {
         {/* Wave transition */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] h-[100px] z-20">
           <svg
-            className="wave-shape wave-light-blue absolute bottom-[20px] left-0 block h-[160px] opacity-50 z-[2]"
+            className="wave-shape wave-light-blue absolute bottom-[10px] left-0 block h-[80px] opacity-50 z-[2]"
             style={{ width: '200%', animation: 'waveShift 10s ease-in-out infinite' }}
             viewBox="0 0 1000 100" preserveAspectRatio="none"
           >
