@@ -11,6 +11,7 @@ import advantageSdr from '@/assets/advantage-sdr.jpg';
 import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import EnergyFlowOrb from '@/components/landing/EnergyFlowOrb';
+import ToolsTimeline from '@/components/landing/ToolsTimeline';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
