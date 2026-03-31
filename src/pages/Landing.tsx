@@ -64,6 +64,7 @@ export default function Landing() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('');
+  const [hoveredNav, setHoveredNav] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
