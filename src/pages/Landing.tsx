@@ -341,44 +341,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
-      <section id="recursos" className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Recursos</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              6 armas para <span className="landing-gradient-text">dominar seu mercado</span>
-            </h2>
-            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
-              Da captura ao fechamento — tudo integrado numa única plataforma.
-            </p>
-          </AnimSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map((f, i) => (
-              <StaggerReveal key={f.title} index={i}>
-                <div className="group relative bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-7 transition-all duration-500 cursor-default overflow-hidden">
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style={{ background: `radial-gradient(circle at 30% 30%, ${f.color}10 0%, transparent 60%)` }}
-                  />
-                  <div className="relative z-10">
-                    <div
-                      className="h-11 w-11 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
-                      style={{ background: `${f.color}15`, border: `1px solid ${f.color}25` }}
-                    >
-                      <f.icon className="h-5 w-5" style={{ color: f.color }} />
-                    </div>
-                    <h3 className="text-[15px] font-semibold text-white mb-2">{f.title}</h3>
-                    <p className="text-[13px] text-white/45 leading-relaxed">{f.desc}</p>
-                  </div>
-                </div>
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══ FEATURES — Scroll Stacking Cards ═══ */}
+      <ScrollStackingCards />
 
       {/* ═══ DASHBOARD MOCKUP ═══ */}
       <section id="produto" className="py-28 px-6 lg:px-12 relative">
