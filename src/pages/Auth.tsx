@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { RocketTransition } from '@/components/auth/RocketTransition';
-import { SmokeyBackground } from '@/components/ui/smokey-background';
+
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
