@@ -367,7 +367,7 @@ export default function Landing() {
       <section
         id="recursos"
         ref={advantagesRef}
-        className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 bg-[#0B0D15]"
+        className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-12"
       >
         {/* Title */}
         <div className="text-center mb-12 relative z-10">
