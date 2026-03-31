@@ -509,10 +509,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS — 3D Flip Cards ═══ */}
-      <div id="cases">
-        <TestimonialsFlipCards />
-      </div>
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="py-28 px-6 lg:px-12 relative">
