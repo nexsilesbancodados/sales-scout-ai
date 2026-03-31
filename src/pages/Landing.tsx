@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import { ArrowRight, Star, Check, Menu, X, Sparkles, Quote, Search, MessageSquare, Bot, CalendarCheck } from 'lucide-react';
+import { ArrowRight, Star, Check, Menu, X, Sparkles, Quote, Search, MessageSquare, Bot, CalendarCheck, Home, CreditCard, Zap, BarChart3, HelpCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
 import advantageProspecting from '@/assets/advantage-prospecting.jpg';
 import advantageMessaging from '@/assets/advantage-messaging.jpg';
 import advantageSdr from '@/assets/advantage-sdr.jpg';
 import advantageMeetings from '@/assets/advantage-meetings.jpg';
-import { LiquidButton } from '@/components/ui/liquid-button';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
