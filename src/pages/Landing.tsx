@@ -475,6 +475,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ EXPANDABLE FEATURES GALLERY ═══ */}
+      <ExpandableGallery />
+
       {/* ═══ COMPARISON TABLE ═══ */}
       <section className="py-28 px-6 lg:px-12 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.04) 0%, transparent 50%)' }} />
