@@ -57,6 +57,33 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // GSAP wave parallax on scroll
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.to('.wave-light-blue', {
+        xPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.5,
+        },
+      });
+      gsap.to('.wave-white', {
+        xPercent: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
