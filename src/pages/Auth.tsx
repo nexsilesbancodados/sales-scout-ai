@@ -155,7 +155,6 @@ export default function AuthPage() {
 
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-      <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
 
       {/* Ambient light effects */}
       <div className="absolute inset-0 pointer-events-none z-[1]">
