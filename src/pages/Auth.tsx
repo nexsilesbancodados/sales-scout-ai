@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, Loader2, ArrowRight, Mail, User, Eye, EyeOff, Shield, Zap } from 'lucide-react';
+import { Lock, Loader2, ArrowRight, Mail, User, Eye, EyeOff, Shield, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 import logoImg from '@/assets/logo.png';
 
 export default function AuthPage() {
@@ -26,6 +26,7 @@ export default function AuthPage() {
   const [authError, setAuthError] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,202 +101,248 @@ export default function AuthPage() {
 
   if (showResetPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="w-full max-w-[400px]">
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Redefinir Senha</h1>
-          <p className="text-muted-foreground mb-6">Digite sua nova senha abaixo</p>
-          <form onSubmit={handleResetPassword} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="new-password">Nova Senha</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="new-password" type="password" placeholder="Mínimo 6 caracteres" className="pl-10 h-11"
-                  value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} required />
+      <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
+        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
+        <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
+          <div className="w-full max-w-sm animate-scale-in">
+            <div className="relative p-8 space-y-6 rounded-3xl border border-white/[0.08] overflow-hidden"
+              style={{ background: 'linear-gradient(145deg, rgba(15,15,25,0.9), rgba(10,10,18,0.95))' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#7B2FF2]/5 via-transparent to-[#E91E8C]/5 pointer-events-none" />
+              <div className="relative z-10 space-y-6">
+                <img src={logoImg} alt="NexaProspect" className="h-10 w-auto mx-auto" />
+                <div className="text-center">
+                  <h1 className="text-xl font-bold text-white">Redefinir Senha</h1>
+                  <p className="text-sm text-white/40 mt-1">Digite sua nova senha abaixo</p>
+                </div>
+                <form onSubmit={handleResetPassword} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password" className="text-white/50 text-xs">Nova Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+                      <Input id="new-password" type="password" placeholder="Mínimo 6 caracteres"
+                        className="pl-10 h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 rounded-xl focus:border-[#7B2FF2]/50 focus:ring-[#7B2FF2]/20"
+                        value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} required />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={isSubmitting}
+                    className="w-full h-12 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
+                    style={{ background: 'linear-gradient(135deg, #7B2FF2, #E91E8C)' }}>
+                    {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" />Salvando...</> : <>Salvar Nova Senha<ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                </form>
               </div>
             </div>
-            <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
-              {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Salvando...</> : <>Salvar Nova Senha<ArrowRight className="h-4 w-4 ml-2" /></>}
-            </Button>
-          </form>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="w-full max-w-[400px]">
-          <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
+      <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
+        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
+        <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
+          <div className="w-full max-w-sm animate-scale-in">
+            <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
+  const passwordStrength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 8 ? 2 : password.length < 12 ? 3 : 4;
+  const strengthColors = ['', '#ef4444', '#f59e0b', '#22c55e', '#7B2FF2'];
+  const strengthLabels = ['', 'Fraca', 'Razoável', 'Boa', 'Excelente!'];
+
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-gray-950">
+    <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
       <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
 
+      {/* Ambient light effects */}
+      <div className="absolute inset-0 pointer-events-none z-[1]">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] opacity-20"
+          style={{ background: 'radial-gradient(ellipse, rgba(123,47,242,0.4) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-10"
+          style={{ background: 'radial-gradient(circle, rgba(233,30,140,0.5) 0%, transparent 70%)' }} />
+      </div>
+
       <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
-        <div className="w-full max-w-sm animate-scale-in">
-          <div className="p-8 space-y-6 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl">
-            {/* Logo & Title */}
-            <div className="text-center space-y-2">
-              <img src={logoImg} alt="NexaProspect" className="h-12 w-auto mx-auto drop-shadow-lg" />
-              <h2 className="text-2xl font-bold text-white">
-                {isSignUp ? 'Crie sua conta' : 'Bem-vindo de volta'}
-              </h2>
-              <p className="text-sm text-gray-300">
-                {isSignUp ? 'Comece a prospectar em 5 minutos' : 'Entre para continuar prospectando'}
-              </p>
-            </div>
+        <div className="w-full max-w-[420px] animate-scale-in">
+          {/* Main card */}
+          <div className="relative rounded-3xl overflow-hidden">
+            {/* Gradient border effect */}
+            <div className="absolute -inset-px rounded-3xl z-0"
+              style={{ background: 'linear-gradient(145deg, rgba(123,47,242,0.3), rgba(233,30,140,0.15), rgba(0,180,216,0.1), transparent 60%)' }} />
 
-            {authError && (
-              <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 animate-fade-in">
-                <p className="text-sm text-red-300">{authError}</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name (sign up only) */}
-              {isSignUp && (
-                <div className="relative z-0 animate-fade-in">
-                  <input
-                    type="text"
-                    id="floating_name"
-                    className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-400/50 appearance-none focus:outline-none focus:ring-0 focus:border-purple-400 peer transition-colors"
-                    placeholder=" "
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                  <label
-                    htmlFor="floating_name"
-                    className="absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                  >
-                    <User className="inline-block mr-2 -mt-1" size={16} />
-                    Nome completo
-                  </label>
-                </div>
-              )}
-
-              {/* Email */}
-              <div className="relative z-0">
-                <input
-                  type="email"
-                  id="floating_email"
-                  className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-400/50 appearance-none focus:outline-none focus:ring-0 focus:border-purple-400 peer transition-colors"
-                  placeholder=" "
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <label
-                  htmlFor="floating_email"
-                  className="absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  <Mail className="inline-block mr-2 -mt-1" size={16} />
-                  E-mail
-                </label>
+            <div className="relative z-10 m-px rounded-3xl p-8 md:p-10"
+              style={{ background: 'linear-gradient(145deg, rgba(12,14,22,0.97), rgba(8,9,16,0.99))' }}>
+              
+              {/* Inner ambient glow */}
+              <div className="absolute inset-0 rounded-3xl pointer-events-none overflow-hidden">
+                <div className="absolute -top-20 -right-20 w-40 h-40 opacity-[0.07]"
+                  style={{ background: 'radial-gradient(circle, #7B2FF2, transparent 70%)' }} />
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 opacity-[0.05]"
+                  style={{ background: 'radial-gradient(circle, #E91E8C, transparent 70%)' }} />
               </div>
 
-              {/* Password */}
-              <div className="relative z-0">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="floating_password"
-                  className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-400/50 appearance-none focus:outline-none focus:ring-0 focus:border-purple-400 peer pr-8 transition-colors"
-                  placeholder=" "
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  minLength={6}
-                  required
-                />
-                <label
-                  htmlFor="floating_password"
-                  className="absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  <Lock className="inline-block mr-2 -mt-1" size={16} />
-                  Senha
-                </label>
-                <button
-                  type="button"
-                  className="absolute right-0 top-2.5 text-gray-400 hover:text-white transition"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-
-              {/* Password strength indicator (sign up) */}
-              {isSignUp && password.length > 0 && (
-                <div className="space-y-1 animate-fade-in">
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4].map(level => (
-                      <div
-                        key={level}
-                        className="h-1 flex-1 rounded-full transition-all duration-300"
-                        style={{
-                          background: password.length >= level * 3
-                            ? level <= 1 ? '#ef4444' : level <= 2 ? '#f59e0b' : level <= 3 ? '#22c55e' : '#7B2FF2'
-                            : 'rgba(255,255,255,0.1)'
-                        }}
-                      />
-                    ))}
+              <div className="relative z-10 space-y-7">
+                {/* Logo & Header */}
+                <div className="text-center space-y-3">
+                  <div className="relative inline-block">
+                    <img src={logoImg} alt="NexaProspect" className="h-14 w-auto mx-auto drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]" />
+                    {/* Pulse ring behind logo */}
+                    <div className="absolute -inset-3 rounded-full opacity-20 animate-pulse"
+                      style={{ background: 'radial-gradient(circle, rgba(123,47,242,0.3), transparent 70%)' }} />
                   </div>
-                  <p className="text-[10px] text-gray-500">
-                    {password.length < 6 ? 'Mínimo 6 caracteres' : password.length < 8 ? 'Razoável' : password.length < 12 ? 'Boa' : 'Excelente!'}
-                  </p>
+                  <div>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">
+                      {isSignUp ? 'Crie sua conta' : 'Bem-vindo de volta'}
+                    </h1>
+                    <p className="text-[13px] text-white/35 mt-1">
+                      {isSignUp ? 'Comece a prospectar em 5 minutos' : 'Entre para continuar prospectando'}
+                    </p>
+                  </div>
                 </div>
-              )}
 
-              {!isSignUp && (
-                <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    className="text-xs text-gray-400 hover:text-white transition"
-                    onClick={() => setShowForgotPassword(true)}
-                  >
-                    Esqueceu a senha?
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting || loading}
-                className="group w-full flex items-center justify-center py-3 px-4 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 transition-all duration-300 active:scale-[0.98]"
-              >
-                {isSubmitting || loading ? (
-                  <><Loader2 className="h-5 w-5 animate-spin mr-2" />Aguarde...</>
-                ) : (
-                  <>
-                    {isSignUp ? 'Criar conta' : 'Entrar'}
-                    <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-                  </>
+                {/* Error */}
+                {authError && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 animate-fade-in">
+                    <p className="text-[13px] text-red-400">{authError}</p>
+                  </div>
                 )}
-              </button>
-            </form>
 
-            <p className="text-center text-xs text-gray-400">
-              {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
-              <button
-                type="button"
-                className="font-semibold text-purple-400 hover:text-purple-300 transition"
-                onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}
-              >
-                {isSignUp ? 'Entrar' : 'Criar conta'}
-              </button>
-            </p>
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Name (sign up only) */}
+                  {isSignUp && (
+                    <div className="space-y-1.5 animate-fade-in">
+                      <label className="text-[11px] font-medium text-white/30 uppercase tracking-wider">Nome completo</label>
+                      <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'name' ? 'ring-2 ring-[#7B2FF2]/30' : ''}`}>
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+                        <input
+                          type="text"
+                          className="w-full h-12 pl-10 pr-4 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/15 focus:outline-none focus:border-[#7B2FF2]/40 transition-colors"
+                          placeholder="Seu nome"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          onFocus={() => setFocusedField('name')}
+                          onBlur={() => setFocusedField(null)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium text-white/30 uppercase tracking-wider">E-mail</label>
+                    <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'email' ? 'ring-2 ring-[#7B2FF2]/30' : ''}`}>
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+                      <input
+                        type="email"
+                        className="w-full h-12 pl-10 pr-4 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/15 focus:outline-none focus:border-[#7B2FF2]/40 transition-colors"
+                        placeholder="seu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onFocus={() => setFocusedField('email')}
+                        onBlur={() => setFocusedField(null)}
+                        required
+                      />
+                      {email.includes('@') && email.includes('.') && (
+                        <CheckCircle2 className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500/60" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-medium text-white/30 uppercase tracking-wider">Senha</label>
+                      {!isSignUp && (
+                        <button type="button" className="text-[11px] text-[#7B2FF2]/60 hover:text-[#7B2FF2] transition-colors"
+                          onClick={() => setShowForgotPassword(true)}>
+                          Esqueceu?
+                        </button>
+                      )}
+                    </div>
+                    <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'password' ? 'ring-2 ring-[#7B2FF2]/30' : ''}`}>
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        className="w-full h-12 pl-10 pr-12 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/15 focus:outline-none focus:border-[#7B2FF2]/40 transition-colors"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onFocus={() => setFocusedField('password')}
+                        onBlur={() => setFocusedField(null)}
+                        minLength={6}
+                        required
+                      />
+                      <button type="button"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
+                        onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+
+                    {/* Password strength */}
+                    {isSignUp && password.length > 0 && (
+                      <div className="space-y-1 animate-fade-in pt-1">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4].map(level => (
+                            <div key={level} className="h-[3px] flex-1 rounded-full transition-all duration-500"
+                              style={{ background: passwordStrength >= level ? strengthColors[level] : 'rgba(255,255,255,0.06)' }} />
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-white/25">{strengthLabels[passwordStrength]}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || loading}
+                    className="group relative w-full h-[52px] rounded-xl font-semibold text-white text-[14px] flex items-center justify-center gap-2 overflow-hidden transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_8px_30px_rgba(123,47,242,0.25)]"
+                    style={{ background: 'linear-gradient(135deg, #7B2FF2, #9B4DFF)' }}
+                  >
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: 'linear-gradient(135deg, #7B2FF2, #E91E8C)' }} />
+                    
+                    <span className="relative z-10 flex items-center gap-2">
+                      {isSubmitting || loading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" />Aguarde...</>
+                      ) : (
+                        <>
+                          {isSignUp ? <><Sparkles className="h-4 w-4" />Criar conta</> : <>Entrar<ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" /></>}
+                        </>
+                      )}
+                    </span>
+                  </button>
+                </form>
+
+                {/* Toggle */}
+                <p className="text-center text-[13px] text-white/30">
+                  {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+                  <button type="button"
+                    className="font-semibold text-[#7B2FF2]/80 hover:text-[#7B2FF2] transition-colors"
+                    onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}>
+                    {isSignUp ? 'Entrar' : 'Criar conta'}
+                  </button>
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Trust signals below the card */}
-          <div className="mt-6 flex items-center justify-center gap-5">
-            <span className="flex items-center gap-1.5 text-[11px] text-white/25">
+          {/* Trust signals */}
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <span className="flex items-center gap-1.5 text-[11px] text-white/15">
               <Shield className="h-3 w-3" /> Dados protegidos
             </span>
-            <span className="flex items-center gap-1.5 text-[11px] text-white/25">
+            <span className="h-3 w-px bg-white/[0.06]" />
+            <span className="flex items-center gap-1.5 text-[11px] text-white/15">
               <Zap className="h-3 w-3" /> Setup em 5 min
             </span>
           </div>
