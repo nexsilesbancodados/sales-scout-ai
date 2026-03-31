@@ -15,7 +15,7 @@ import { DashboardMockup } from '@/components/landing/DashboardMockup';
 import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
-import { TestimonialsFlipCards } from '@/components/landing/TestimonialsFlipCards';
+
 import { ExpandableGallery } from '@/components/landing/ExpandableGallery';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
@@ -509,10 +509,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS — 3D Flip Cards ═══ */}
-      <div id="cases">
-        <TestimonialsFlipCards />
-      </div>
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="py-28 px-6 lg:px-12 relative">
