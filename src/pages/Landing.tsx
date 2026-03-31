@@ -13,7 +13,6 @@ import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ParallaxSection, AnimatedCounter } from '@/components/landing/ScrollEffects';
 import { DashboardMockup } from '@/components/landing/DashboardMockup';
 import { FocusRail } from '@/components/landing/FocusRail';
-import { ComparisonTable } from '@/components/landing/ComparisonTable';
 
 import { TrustSection } from '@/components/landing/TrustSection';
 
