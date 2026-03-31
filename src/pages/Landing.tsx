@@ -1,89 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import {
-  ArrowRight, Star, Target, Bot, MessageSquare, Zap, BarChart3,
-  Check, ChevronDown, Menu, X, Columns3, Sparkles, Shield, Globe
-} from 'lucide-react';
+import { ArrowRight, Star, Check, Menu, X, Sparkles } from 'lucide-react';
 import heroVideo from '@/assets/hero-video.mp4';
-import mobileImg from '@/assets/mobile-mockup.png';
 import logoImg from '@/assets/logo.png';
 import { LiquidButton } from '@/components/ui/liquid-button';
-import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
-import { ParallaxSection, AnimatedCounter } from '@/components/landing/ScrollEffects';
-import { FocusRail } from '@/components/landing/FocusRail';
-
-import { TrustSection } from '@/components/landing/TrustSection';
-
-import { ExpandableGallery } from '@/components/landing/ExpandableGallery';
-import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
-import { UrgencyCTABanner, SocialProofStrip, FeatureHighlightStrip } from '@/components/landing/BannerStrips';
-import { ScrollStackingCards } from '@/components/landing/ScrollStackingCards';
-
-/* ─── Intersection Observer Hook ─── */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
-
-/* ─── Animated Section Wrapper ─── */
-function AnimSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const { ref, inView } = useInView();
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.97)',
-        transition: `opacity 0.8s cubic-bezier(.16,1,.3,1) ${delay}s, transform 0.8s cubic-bezier(.16,1,.3,1) ${delay}s`,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ─── Staggered reveal for cards ─── */
-function StaggerReveal({ children, className = '', index = 0 }: { children: React.ReactNode; className?: string; index?: number }) {
-  const { ref, inView } = useInView(0.1);
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0) rotateX(0deg)' : 'translateY(60px) rotateX(8deg)',
-        transition: `all 0.7s cubic-bezier(.16,1,.3,1) ${0.08 * index}s`,
-        transformOrigin: 'bottom center',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ─── FEATURES DATA ─── */
-const FEATURES = [
-  { icon: Target, title: 'Prospecção automática', desc: 'Encontre até 500 leads/semana no Google Maps, Instagram e Facebook — sem digitar uma linha.', color: '#7B2FF2' },
-  { icon: Bot, title: 'Agente SDR com IA', desc: 'Sua IA responde em segundos, qualifica com BANT e agenda reuniões — 24h por dia, 7 dias por semana.', color: '#E91E8C' },
-  { icon: MessageSquare, title: 'WhatsApp integrado', desc: 'Dispare mensagens personalizadas em massa com anti-ban, spintax e delays que imitam comportamento humano.', color: '#00B4D8' },
-  { icon: Columns3, title: 'CRM completo', desc: 'Pipeline visual com deal value, qualificação BANT e integração direta com Meta Ads.', color: '#F7941D' },
-  { icon: Zap, title: '9 automações poderosas', desc: 'Prospecção agendada, reativação de leads frios, relatórios automáticos. Liga e desliga com 1 clique.', color: '#7B2FF2' },
-  { icon: BarChart3, title: 'Analytics em tempo real', desc: 'Saiba exatamente qual nicho, horário e template converte mais — e otimize cada centavo investido.', color: '#E91E8C' },
-];
-
-
-const INTEGRATIONS = ['Google Maps', 'WhatsApp', 'Meta / Facebook', 'Instagram', 'Serper', 'Hunter.io', 'Apify', 'DeepSeek'];
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos' },
@@ -93,37 +15,10 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq' },
 ];
 
-const PLANS = [
-  {
-    name: 'Starter', price: 97, annual: 78,
-    features: ['1 chip WhatsApp', 'Google Maps + Web Search', '200 leads/mês', 'Follow-up automático', 'Prospecção agendada', 'Suporte por email'],
-    cta: 'Começar agora', highlight: false,
-  },
-  {
-    name: 'Pro', price: 149, annual: 119,
-    features: ['3 chips WhatsApp', 'Todos os extratores', '1.000 leads/mês', 'Agente SDR com IA', 'Analytics avançado', 'A/B Testing', 'Suporte prioritário'],
-    cta: 'Escolher Pro', highlight: true,
-  },
-  {
-    name: 'Enterprise', price: 297, annual: 237,
-    features: ['10 chips WhatsApp', 'Todos os recursos', 'Leads ilimitados', 'API completa', 'Múltiplos funis', 'Equipe ilimitada', 'Gerente dedicado'],
-    cta: 'Falar com vendas', highlight: false,
-  },
-];
-
-const STATS = [
-  { value: 2400, suffix: '+', label: 'Usuários ativos' },
-  { value: 850, suffix: 'K', label: 'Leads capturados' },
-  { value: 94, suffix: '%', label: 'Taxa de entrega' },
-  { value: 12, suffix: 'x', label: 'ROI médio' },
-];
-
-/* ═══════════════════════════════════════════════════ */
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [annual, setAnnual] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('');
 
@@ -139,8 +34,6 @@ export default function Landing() {
       if (!ticking) {
         requestAnimationFrame(() => {
           setScrolled(window.scrollY > 40);
-
-          // Active nav tracking
           const sections = NAV_LINKS.map(l => l.href.replace('#', ''));
           let current = '';
           for (const id of sections) {
@@ -150,7 +43,6 @@ export default function Landing() {
             }
           }
           setActiveNav(current);
-
           ticking = false;
         });
         ticking = true;
@@ -163,7 +55,6 @@ export default function Landing() {
 
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
-      {/* Fixed cosmic background */}
       <CosmicBackground />
 
       {/* ═══ NAVBAR ═══ */}
@@ -195,7 +86,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Mobile menu with smooth animation */}
         <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-out ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="bg-[#0B0D15]/98 border-t border-white/[0.04] px-8 py-5 space-y-1">
             {NAV_LINKS.map(l => (
@@ -294,350 +184,6 @@ export default function Landing() {
         </div>
       </section>
 
-    </div>
-  );
-}
-      {/* ═══ INTEGRATIONS MARQUEE ═══ */}
-      <section className="py-16 overflow-hidden">
-        <p className="text-[10px] tracking-[0.2em] text-white/20 text-center mb-8 uppercase">Integra com as principais plataformas</p>
-        <div className="landing-marquee">
-          <div className="landing-marquee-track">
-            {[...INTEGRATIONS, ...INTEGRATIONS, ...INTEGRATIONS].map((name, i) => (
-              <span key={i} className="text-sm font-bold uppercase text-white/15 mx-10 whitespace-nowrap flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5" />{name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ SOCIAL PROOF STRIP ═══ */}
-      <SocialProofStrip />
-
-      {/* ═══ TRUST BADGES ═══ */}
-      <section className="py-12 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <TrustSection />
-        </div>
-      </section>
-
-      {/* ═══ BEFORE / AFTER ═══ */}
-      <section className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(233,30,140,0.04) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-16">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#E91E8C] uppercase">Antes vs Depois</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Você ainda prospecta <span className="text-white/30">na mão?</span>
-            </h2>
-            <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
-              Veja a diferença entre perder 8h/dia em tarefas repetitivas e deixar a IA trabalhar por você.
-            </p>
-          </AnimSection>
-          <BeforeAfterSection />
-        </div>
-      </section>
-
-      {/* ═══ FEATURES — Scroll Stacking Cards ═══ */}
-      <ScrollStackingCards />
-
-      {/* ═══ DASHBOARD MOCKUP ═══ */}
-      <section id="produto" className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(123,47,242,0.08) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-8">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Produto</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Veja seu <span className="landing-gradient-text">novo cockpit de vendas</span>
-            </h2>
-            <p className="text-white/40 mt-4 max-w-xl mx-auto text-sm">
-              CRM visual, analytics em tempo real, chat WhatsApp e 9 automações — tudo num painel que qualquer vendedor entende em 2 minutos.
-            </p>
-          </AnimSection>
-          <FocusRail
-            items={[
-              {
-                id: 'dashboard',
-                title: 'Dashboard Inteligente',
-                meta: 'Visão Geral',
-                description: 'KPIs em tempo real, funil de conversão e métricas que importam — tudo num só lugar.',
-                imageSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
-              },
-              {
-                id: 'crm',
-                title: 'CRM Visual',
-                meta: 'Pipeline Kanban',
-                description: 'Arraste leads entre etapas, veja deal values e acompanhe cada negociação visualmente.',
-                imageSrc: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200',
-              },
-              {
-                id: 'whatsapp',
-                title: 'Chat WhatsApp',
-                meta: 'Mensagens em Massa',
-                description: 'Envie mensagens personalizadas com anti-ban, spintax e delays inteligentes.',
-                imageSrc: 'https://images.unsplash.com/photo-1611746872915-64382b5c76da?auto=format&fit=crop&q=80&w=1200',
-              },
-              {
-                id: 'analytics',
-                title: 'Analytics Avançado',
-                meta: 'Dados em Tempo Real',
-                description: 'Descubra qual nicho, horário e template traz mais resultados para seu negócio.',
-                imageSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
-              },
-              {
-                id: 'prospecting',
-                title: 'Prospecção com IA',
-                meta: 'Automação Total',
-                description: 'Capture leads do Google Maps, Instagram e Facebook automaticamente.',
-                imageSrc: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=1200',
-              },
-            ]}
-            autoPlay
-            interval={5000}
-          />
-        </div>
-      </section>
-
-      {/* ═══ MOBILE + TEXT SECTION ═══ */}
-      <section className="py-28 px-6 lg:px-12 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 70% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Text */}
-            <AnimSection>
-              <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Mobile</span>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4 mb-6">
-                Feche vendas <span className="landing-gradient-text-cyan">do celular</span>
-              </h2>
-              <p className="text-white/45 text-[15px] leading-[1.8] mb-8">
-                Receba alertas de leads quentes, acompanhe seu funil e responda prospects — tudo na palma da mão, sem abrir o computador.
-              </p>
-              <ul className="space-y-4">
-                {[
-                  'Notificações de leads em tempo real',
-                  'Respostas automáticas por IA',
-                  'Dashboard responsivo',
-                  'Integração PWA nativa',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-[14px] text-white/60">
-                    <div className="h-5 w-5 rounded-full bg-[#00B4D8]/15 flex items-center justify-center shrink-0">
-                      <Check className="h-3 w-3 text-[#00B4D8]" />
-                    </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </AnimSection>
-
-            {/* Phone mockup */}
-            <AnimSection delay={0.2}>
-              <div className="flex justify-center">
-                <img
-                  src={mobileImg}
-                  alt="NexaProspect no celular — Dashboard responsivo"
-                  className="w-[320px] h-auto landing-float drop-shadow-[0_20px_60px_rgba(123,47,242,0.25)]"
-                  loading="lazy"
-                />
-              </div>
-            </AnimSection>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ FEATURE HIGHLIGHT STRIP ═══ */}
-      <FeatureHighlightStrip />
-
-      {/* ═══ HOW IT WORKS ═══ */}
-      <section className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(0,180,216,0.05) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-20">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">Simplicidade</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">Do zero ao primeiro lead em <span className="landing-gradient-text-cyan">5 minutos</span></h2>
-          </AnimSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            <div className="hidden md:block absolute top-14 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-            {[
-              { num: '01', title: 'Conecte seu WhatsApp', desc: 'Escaneie o QR Code e pronto. Em 2 minutos seu chip está ativo e protegido pelo anti-ban.', icon: Target, color: '#7B2FF2' },
-              { num: '02', title: 'Escolha nicho + cidade', desc: 'Selecione o segmento e a IA captura leads qualificados automaticamente — Google Maps, Instagram, Facebook.', icon: Zap, color: '#E91E8C' },
-              { num: '03', title: 'A IA faz o resto', desc: 'Prospecta, envia mensagens, qualifica e agenda reuniões. Você só aparece para fechar.', icon: BarChart3, color: '#00B4D8' },
-            ].map((s, i) => (
-              <StaggerReveal key={s.num} index={i} className="text-center">
-                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl mb-6 mx-auto transition-transform duration-300 hover:scale-110"
-                  style={{ background: `${s.color}15`, border: `1px solid ${s.color}20` }}>
-                  <s.icon className="h-6 w-6" style={{ color: s.color }} />
-                </div>
-                <span className="block text-5xl font-black landing-gradient-text opacity-20 mb-3">{s.num}</span>
-                <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
-                <p className="text-sm text-white/45 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ EXPANDABLE FEATURES GALLERY ═══ */}
-      <ExpandableGallery />
-
-
-
-
-
-
-
-
-      {/* ═══ PRICING ═══ */}
-      <section id="precos" className="py-28 px-6 lg:px-12 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 50%)' }} />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <AnimSection className="text-center mb-14">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#7B2FF2] uppercase">Preços</span>
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mt-4">
-              Invista menos que um <span className="landing-gradient-text">almoço por dia</span>
-            </h2>
-
-            <div className="flex items-center justify-center gap-3 mt-8">
-              <span className={`text-sm transition-colors ${!annual ? 'text-white' : 'text-white/40'}`}>Mensal</span>
-              <button
-                onClick={() => setAnnual(!annual)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${annual ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
-                aria-label="Alternar entre mensal e anual"
-              >
-                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-300 ${annual ? 'translate-x-6' : 'translate-x-0.5'}`} />
-              </button>
-              <span className={`text-sm transition-colors ${annual ? 'text-white' : 'text-white/40'}`}>Anual</span>
-              {annual && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium animate-scale-in">-20%</span>}
-            </div>
-          </AnimSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {PLANS.map((p, i) => (
-              <StaggerReveal key={p.name} index={i}>
-                <PremiumPricingCard plan={p} annual={annual} index={i} />
-              </StaggerReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ FAQ ═══ */}
-      <section id="faq" className="py-28 px-6 lg:px-12">
-        <div className="max-w-3xl mx-auto">
-          <AnimSection className="text-center mb-14">
-            <span className="text-xs font-semibold tracking-[0.2em] text-[#00B4D8] uppercase">FAQ</span>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mt-4">Perguntas frequentes</h2>
-          </AnimSection>
-          {[
-            { q: 'Preciso saber programar?', a: 'Zero. O NexaProspect foi feito para vendedores. Tudo funciona com poucos cliques — se você sabe usar WhatsApp, sabe usar a plataforma.' },
-            { q: 'Meu WhatsApp vai ser banido?', a: 'Risco mínimo. Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, rotação de chips e monitoramento em tempo real. Nenhum cliente reportou banimento em 4 meses.' },
-            { q: 'Posso testar antes de pagar?', a: 'Sim! Oferecemos 7 dias grátis sem compromisso e sem cartão de crédito. Cancele a qualquer momento.' },
-            { q: 'Funciona para meu nicho?', a: 'Provavelmente sim. Já atendemos +50 nichos: agências, consultorias, SaaS, clínicas, advocacia, imobiliárias, e-commerce e mais. Templates otimizados para cada um.' },
-            { q: 'A IA realmente responde bem?', a: 'O Agente SDR analisa intenção de compra, responde objeções com base no seu serviço e até agenda reuniões — tudo em português natural. Clientes relatam taxa de resposta 3x maior.' },
-            { q: 'Quantos leads consigo por dia?', a: 'Depende do plano: Starter = 200/mês, Pro = 1.000/mês, Enterprise = ilimitado. Na prática, clientes Pro capturam 50-100 leads/dia facilmente.' },
-          ].map((faq, i) => (
-            <StaggerReveal key={i} index={i}>
-              <FAQItem q={faq.q} a={faq.a} />
-            </StaggerReveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="py-32 px-6 lg:px-12 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.12) 0%, transparent 50%)' }} />
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(233,30,140,0.08) 0%, transparent 50%)' }} />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <AnimSection>
-            <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight">
-              Seus concorrentes já estão <br /><span className="landing-gradient-text">automatizando.</span>
-            </h2>
-            <p className="text-white/45 mt-6 text-lg">Cada dia sem automação são dezenas de leads perdidos. Comece em 5 minutos.</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-10 py-4">
-                Começar meu teste grátis
-                <ArrowRight className="h-4 w-4" />
-              </LiquidButton>
-              <Link to="/tutorial" className="border border-white/10 hover:border-white/20 text-white/60 hover:text-white px-8 py-4 rounded-xl transition-all text-sm font-medium">
-                Ver tutorial
-              </Link>
-            </div>
-          </AnimSection>
-        </div>
-      </section>
-
-      {/* ═══ FOOTER ═══ */}
-      <footer className="relative z-10 bg-[#07080E]/95 py-16 px-6 lg:px-12 border-t border-white/5">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
-              <span className="text-sm font-semibold text-white">NexaProspect</span>
-            </div>
-            <p className="text-xs text-white/30 leading-relaxed">Prospecção inteligente com IA para escalar suas vendas no piloto automático.</p>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-4">Produto</h4>
-            <ul className="space-y-2">
-              {['Recursos', 'Preços', 'API', 'Integrações'].map(l => (
-                <li key={l}><a href="#" className="text-sm text-white/30 hover:text-white/60 transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-4">Empresa</h4>
-            <ul className="space-y-2">
-              {['Blog', 'Cases', 'Contato', 'Carreiras'].map(l => (
-                <li key={l}><a href="#" className="text-sm text-white/30 hover:text-white/60 transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-4">Legal</h4>
-            <ul className="space-y-2">
-              {['Termos de Uso', 'Privacidade', 'LGPD'].map(l => (
-                <li key={l}><a href="#" className="text-sm text-white/30 hover:text-white/60 transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 text-center">
-          <p className="text-xs text-white/20">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV CNPJ 65.132.412/0001-20</p>
-        </div>
-      </footer>
-
-      {/* ═══ MOBILE STICKY CTA ═══ */}
-      <div className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-all duration-300 ${scrolled ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
-        <div className="bg-[#0B0D15]/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3 safe-bottom">
-          <button
-            onClick={() => navigate('/auth')}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7B2FF2] to-[#E91E8C] text-white text-[14px] font-bold py-3.5 rounded-xl shadow-[0_-4px_20px_rgba(123,47,242,0.3)] active:scale-[0.98] transition-transform"
-          >
-            Testar grátis por 7 dias
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── FAQ Item ─── */
-function FAQItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b border-white/[0.06] group">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-6 text-left gap-4">
-        <span className="text-[15px] font-medium text-white group-hover:text-white/90 transition-colors">{q}</span>
-        <ChevronDown className={`h-4 w-4 text-white/30 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
-      </button>
-      <div
-        className="overflow-hidden transition-all duration-500 ease-out"
-        style={{ maxHeight: open ? '200px' : '0', opacity: open ? 1 : 0, paddingBottom: open ? '24px' : '0' }}
-      >
-        <p className="text-sm text-white/45 leading-relaxed">{a}</p>
-      </div>
     </div>
   );
 }
