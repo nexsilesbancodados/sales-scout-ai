@@ -128,7 +128,7 @@ export default function Landing() {
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="min-h-screen relative overflow-hidden flex items-center">
+      <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
           <video
             src={heroVideo}
