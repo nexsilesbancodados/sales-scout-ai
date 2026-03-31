@@ -4,6 +4,10 @@ import { useAuth } from '@/lib/auth';
 import { ArrowRight, Star, Check, Menu, X, Sparkles, Quote, Search, MessageSquare, Bot, CalendarCheck } from 'lucide-react';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
+import advantageProspecting from '@/assets/advantage-prospecting.jpg';
+import advantageMessaging from '@/assets/advantage-messaging.jpg';
+import advantageSdr from '@/assets/advantage-sdr.jpg';
+import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { LiquidButton } from '@/components/ui/liquid-button';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import gsap from 'gsap';
@@ -17,7 +21,7 @@ const ADVANTAGES = [
     icon: Search,
     title: 'Prospecção Automática',
     subtitle: 'Google Maps · Instagram · Facebook',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=600',
+    image: advantageProspecting,
     detail: 'A IA varre milhares de empresas no Google Maps, Instagram e Facebook, extraindo leads qualificados com nome, telefone e e-mail — sem você mover um dedo.',
   },
   {
@@ -25,7 +29,7 @@ const ADVANTAGES = [
     icon: MessageSquare,
     title: 'Envio Inteligente',
     subtitle: 'WhatsApp · Anti-Ban · Spintax',
-    image: 'https://images.unsplash.com/photo-1611606063065-ee7946f0787a?auto=format&fit=crop&q=80&w=600',
+    image: advantageMessaging,
     detail: 'Mensagens personalizadas enviadas pelo WhatsApp com sistema anti-bloqueio, variações de texto e delay humanizado. Parece manual, mas é 100% automático.',
   },
   {
@@ -33,7 +37,7 @@ const ADVANTAGES = [
     icon: Bot,
     title: 'Agente SDR com IA',
     subtitle: 'Qualifica · Responde · Converte',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=600',
+    image: advantageSdr,
     detail: 'Um agente de IA conversa com seus leads 24/7, qualifica pelo método BANT, contorna objeções e avança o lead no funil — tudo automaticamente.',
   },
   {
@@ -41,7 +45,7 @@ const ADVANTAGES = [
     icon: CalendarCheck,
     title: 'Reuniões Agendadas',
     subtitle: 'Google Meet · Automático · CRM',
-    image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80&w=600',
+    image: advantageMeetings,
     detail: 'O sistema agenda reuniões direto no Google Meet e move o lead para a etapa certa do CRM. Você só aparece na call e fecha o negócio.',
   },
 ];
