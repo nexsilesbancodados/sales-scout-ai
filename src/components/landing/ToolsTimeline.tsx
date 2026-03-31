@@ -96,7 +96,7 @@ export default function ToolsTimeline() {
   const opacityTransform = useTransform(smoothProgress, [0, 0.1], [0, 1]);
 
   return (
-    <div className="w-full bg-[#0B0D15] pb-4" ref={containerRef}>
+    <div className="w-full pb-4" ref={containerRef}>
       {/* Header */}
       <div className="max-w-5xl mx-auto pt-10 pb-4 px-4 md:px-8 lg:px-10">
         <motion.div
