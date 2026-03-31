@@ -218,13 +218,12 @@ export default function Landing() {
           <img
             src={aiHeroImg}
             alt=""
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[85%] w-auto max-w-none object-cover opacity-80"
-            style={{ filter: 'drop-shadow(0 0 120px rgba(123,47,242,0.2))' }}
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 hero-energy-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/70 via-transparent to-[#0B0D15]/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/20" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D15]/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/80 via-[#0B0D15]/40 to-[#0B0D15]/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D15]/60 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
