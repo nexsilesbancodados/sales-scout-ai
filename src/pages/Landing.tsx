@@ -294,10 +294,12 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
-              <LiquidButton onClick={() => navigate('/auth')} className="text-[14px] rounded-xl px-8 py-4">
-                Testar grátis por 7 dias
-                <ArrowRight className="h-4 w-4" />
-              </LiquidButton>
+              <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
+                <span className="nav-shimmer-icon !w-10 !h-10">
+                  <ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" />
+                </span>
+                <span className="nav-shimmer-text !text-[14px]">Testar grátis por 7 dias</span>
+              </button>
               <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
