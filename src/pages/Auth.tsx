@@ -140,7 +140,6 @@ export default function AuthPage() {
   if (showForgotPassword) {
     return (
       <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
-        <SmokeyBackground className="absolute inset-0" color="#6D28D9" backdropBlurAmount="sm" />
         <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
           <div className="w-full max-w-sm animate-scale-in">
             <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
