@@ -299,10 +299,87 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Section after wave */}
-      <section className="min-h-[50vh] flex items-center justify-center bg-background text-foreground relative z-0">
-        <div className="text-center px-4">
-          {/* Placeholder for next content */}
+      {/* ═══ VANTAGENS — FLIP CARDS ═══ */}
+      <section
+        id="recursos"
+        ref={advantagesRef}
+        className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 bg-[#0B0D15]"
+      >
+        {/* Title */}
+        <div className="text-center mb-12 relative z-10">
+          <span className="text-[12px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Por que NexaProspect</span>
+          <h2 className="text-[36px] sm:text-[48px] font-black tracking-[-0.03em] mt-3 text-white">
+            Tudo que você precisa.<br className="hidden sm:block" />
+            <span className="text-white/30">Num só lugar.</span>
+          </h2>
+        </div>
+
+        {/* Flip Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[1600px] w-full">
+          {ADVANTAGES.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.id} className="h-[480px] w-full" style={{ perspective: '2000px' }}>
+                <div
+                  ref={(el) => { flipCardsRef.current[index] = el; }}
+                  className="relative w-full h-full cursor-pointer"
+                  style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+                >
+                  {/* FRONT — Image + Title */}
+                  <div
+                    className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
+                    style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                  >
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8">
+                      <div className="w-10 h-10 rounded-xl bg-[#F7941D]/20 border border-[#F7941D]/30 flex items-center justify-center mb-3">
+                        <Icon className="h-5 w-5 text-[#F7941D]" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                      <p className="text-[13px] text-white/50 uppercase tracking-[0.15em] font-medium mt-1">{item.subtitle}</p>
+                    </div>
+                  </div>
+
+                  {/* BACK — Detail text */}
+                  <div
+                    className="absolute inset-0 rounded-2xl overflow-hidden bg-[#0B0D15] border border-white/10 flex flex-col"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)',
+                      backgroundImage: `
+                        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+                      `,
+                      backgroundSize: '40px 40px',
+                    }}
+                  >
+                    {/* Quote icon */}
+                    <div className="absolute top-8 right-8 text-[#F7941D]/60">
+                      <div className="flex gap-0.5">
+                        <Quote size={20} fill="currentColor" strokeWidth={0} />
+                        <Quote size={20} fill="currentColor" strokeWidth={0} className="-ml-1" />
+                      </div>
+                    </div>
+
+                    <div className="relative h-full flex flex-col justify-between p-10 z-10">
+                      <div className="mt-12">
+                        <p className="text-white text-lg md:text-xl font-serif leading-relaxed italic border-l-2 border-[#F7941D] pl-6">
+                          {item.detail}
+                        </p>
+                      </div>
+
+                      <div className="pt-6">
+                        <div className="w-12 h-1 bg-[#F7941D] mb-4" />
+                        <p className="text-white font-black text-lg uppercase tracking-tighter italic">{item.title}</p>
+                        <p className="text-white/30 text-xs uppercase tracking-widest mt-1 font-bold">NexaProspect</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
