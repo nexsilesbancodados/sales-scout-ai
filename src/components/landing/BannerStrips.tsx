@@ -1,5 +1,17 @@
-import { Zap, Rocket, Shield, TrendingUp, Clock, Users, ArrowRight } from 'lucide-react';
+import { Zap, Rocket, Shield, TrendingUp, Clock, Users, ArrowRight, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+/* ── Integration items ── */
+const INTEGRATIONS = [
+  { name: 'META / FACEBOOK', color: '#1877F2' },
+  { name: 'INSTAGRAM', color: '#E4405F' },
+  { name: 'GOOGLE MAPS', color: '#34A853' },
+  { name: 'SERPER', color: '#00B4D8' },
+  { name: 'HUNTER.IO', color: '#FF6B35' },
+  { name: 'APIFY', color: '#00D1A9' },
+  { name: 'EVOLUTION API', color: '#25D366' },
+  { name: 'DEEPSEEK AI', color: '#7B2FF2' },
+];
 
 /* ── Marquee Banner ── */
 export function MarqueeBanner({ items, color = '#7B2FF2', bgFrom = 'rgba(123,47,242,0.15)', bgTo = 'rgba(233,30,140,0.15)' }: {
@@ -81,21 +93,55 @@ export function SocialProofStrip() {
   );
 }
 
-/* ── Feature Highlight Strip ── */
+/* ── Feature Highlight Strip (Integrations Marquee) ── */
 export function FeatureHighlightStrip() {
+  const tripled = [...INTEGRATIONS, ...INTEGRATIONS, ...INTEGRATIONS];
+
   return (
-    <MarqueeBanner
-      items={[
-        { icon: Zap, text: 'Prospecção automática' },
-        { icon: Rocket, text: 'Agente SDR com IA' },
-        { icon: Shield, text: 'Anti-ban nativo' },
-        { icon: TrendingUp, text: 'Analytics em tempo real' },
-        { icon: Users, text: 'CRM integrado' },
-        { icon: Clock, text: 'Follow-up automático' },
-      ]}
-      color="#E91E8C"
-      bgFrom="rgba(233,30,140,0.08)"
-      bgTo="rgba(123,47,242,0.08)"
-    />
+    <div className="relative overflow-hidden py-0 border-y border-white/[0.04]">
+      {/* Gradient background */}
+      <div className="absolute inset-0" style={{
+        background: 'linear-gradient(90deg, rgba(11,13,21,1) 0%, rgba(20,15,35,0.95) 50%, rgba(11,13,21,1) 100%)'
+      }} />
+
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 z-10" style={{ background: 'linear-gradient(90deg, rgba(11,13,21,1), transparent)' }} />
+      <div className="absolute right-0 top-0 bottom-0 w-32 z-10" style={{ background: 'linear-gradient(270deg, rgba(11,13,21,1), transparent)' }} />
+
+      {/* Subtle top glow line */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(123,47,242,0.3), rgba(233,30,140,0.3), transparent)' }} />
+      <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(0,180,216,0.2), rgba(123,47,242,0.2), transparent)' }} />
+
+      <div className="relative flex animate-[marquee-banner_35s_linear_infinite] whitespace-nowrap py-4">
+        {tripled.map((item, i) => (
+          <div key={i} className="flex items-center gap-3 mx-10 shrink-0 group cursor-default">
+            {/* Icon with glow */}
+            <div className="relative">
+              <div
+                className="h-8 w-8 rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+                style={{
+                  background: `${item.color}10`,
+                  borderColor: `${item.color}25`,
+                  boxShadow: `0 0 12px ${item.color}15`,
+                }}
+              >
+                <Globe className="h-3.5 w-3.5 transition-colors" style={{ color: `${item.color}CC` }} />
+              </div>
+            </div>
+
+            {/* Name */}
+            <span
+              className="text-[13px] font-bold tracking-[0.15em] uppercase transition-colors duration-300"
+              style={{ color: `${item.color}90` }}
+            >
+              {item.name}
+            </span>
+
+            {/* Separator dot */}
+            <span className="ml-6 text-white/[0.08] text-lg">•</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
