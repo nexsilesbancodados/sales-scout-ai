@@ -336,10 +336,10 @@ export default function Landing() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 animate-bounce">
           <a href="#recursos" className="block" aria-label="Rolar para baixo">
-            <div className="w-6 h-10 rounded-full border-2 border-white/20 flex justify-center pt-2">
-              <div className="w-1 h-2.5 bg-white/40 rounded-full landing-scroll-dot" />
+            <div className="w-5 h-8 rounded-full border-2 border-white/20 flex justify-center pt-1.5">
+              <div className="w-1 h-2 bg-white/40 rounded-full landing-scroll-dot" />
             </div>
           </a>
         </div>
