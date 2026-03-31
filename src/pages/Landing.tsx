@@ -21,6 +21,7 @@ import { ExpandableGallery } from '@/components/landing/ExpandableGallery';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { UrgencyCTABanner, SocialProofStrip, FeatureHighlightStrip } from '@/components/landing/BannerStrips';
+import { ScrollStackingCards } from '@/components/landing/ScrollStackingCards';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(threshold = 0.15) {
