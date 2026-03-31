@@ -409,6 +409,45 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ MARQUEE SECTION ═══ */}
+      <section className="relative h-[400px] flex items-center justify-center overflow-hidden bg-[#0B0D15]">
+        {/* Black band (behind) */}
+        <div
+          className="absolute select-none whitespace-nowrap overflow-hidden flex py-2"
+          style={{ width: '160%', left: '-30%', transform: 'rotate(0.8deg)', top: '50%', zIndex: 5, borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}
+        >
+          <div className="flex w-max marquee-scroll-reverse">
+            {Array.from({ length: 40 }).map((_, i) => {
+              const words = ['Prospecção', 'Automação', 'WhatsApp', 'Leads', 'Conversão', 'Google Maps', 'Instagram', 'IA', 'CRM', 'Pipeline'];
+              return (
+                <span key={`b-${i}`} className="flex items-center text-[20px] font-light uppercase tracking-wide text-white/80 px-2">
+                  {words[i % words.length]}
+                  <span className="w-[5px] h-[5px] rounded-full bg-white/60 ml-2.5 inline-block" />
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* White band (front) */}
+        <div
+          className="absolute select-none whitespace-nowrap overflow-hidden flex py-2 bg-white shadow-[0_8px_25px_rgba(0,0,0,0.7)]"
+          style={{ width: '160%', left: '-30%', transform: 'rotate(-3deg)', top: '48%', zIndex: 10 }}
+        >
+          <div className="flex w-max marquee-scroll">
+            {Array.from({ length: 40 }).map((_, i) => {
+              const words = ['NexaProspect', 'SDR Agent', 'Anti-Ban', 'Spintax', 'Follow-Up', 'Reuniões', 'BANT', 'Funil', 'Multi-Chip', 'ROI'];
+              return (
+                <span key={`w-${i}`} className="flex items-center text-[20px] font-light uppercase tracking-wide text-black px-2">
+                  {words[i % words.length]}
+                  <span className="w-[5px] h-[5px] rounded-full bg-black ml-2.5 inline-block" />
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
