@@ -16,6 +16,7 @@ import { ComparisonTable } from '@/components/landing/ComparisonTable';
 import { ROICalculator } from '@/components/landing/ROICalculator';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { TestimonialsFlipCards } from '@/components/landing/TestimonialsFlipCards';
+import { ExpandableGallery } from '@/components/landing/ExpandableGallery';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { UrgencyCTABanner, SocialProofStrip, FeatureHighlightStrip } from '@/components/landing/BannerStrips';
