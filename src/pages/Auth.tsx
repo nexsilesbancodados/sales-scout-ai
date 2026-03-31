@@ -156,13 +156,6 @@ export default function AuthPage() {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-[#07080E]">
 
-      {/* Ambient light effects */}
-      <div className="absolute inset-0 pointer-events-none z-[1]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] opacity-20"
-          style={{ background: 'radial-gradient(ellipse, rgba(123,47,242,0.4) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-10"
-          style={{ background: 'radial-gradient(circle, rgba(233,30,140,0.5) 0%, transparent 70%)' }} />
-      </div>
 
       <div className="relative z-10 flex items-center justify-center w-full h-full p-4">
         <div className="w-full max-w-[420px] animate-scale-in">
