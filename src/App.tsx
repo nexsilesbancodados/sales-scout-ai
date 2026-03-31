@@ -166,6 +166,7 @@ const App = () => (
               </SubscriptionLayout>
             </BrowserRouter>
             <PWAInstallBanner />
+            <CommandPalette />
           </TooltipProvider>
         </RealtimeNotificationsProvider>
       </AuthProvider>

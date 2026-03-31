@@ -93,6 +93,12 @@ export default function DashboardPage() {
     <DashboardLayout title="Dashboard">
       <OnboardingWizard />
 
+      <WelcomeCard
+        userName={settings?.agent_name}
+        totalLeads={metrics?.totalLeads || 0}
+        whatsappConnected={!!settings?.whatsapp_connected}
+      />
+
       <div className="mb-6 flex items-center justify-between animate-fade-in">
         <div>
           <h2 className="text-lg font-bold">Visão Geral</h2>
