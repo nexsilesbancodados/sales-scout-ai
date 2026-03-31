@@ -822,3 +822,8 @@ div[style*="Edit with Lovable"],
 .wave-shape {
   will-change: transform, left;
 }
+
+/* Smooth scroll for landing */
+html {
+  scroll-behavior: smooth;
+}
