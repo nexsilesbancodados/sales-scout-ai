@@ -57,9 +57,9 @@ const FAQ_DATA = [
 ];
 
 const STEPS = [
-  { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
-  { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
-  { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
+  { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg, backDetails: ['Google Maps & Places API', 'Instagram & Facebook Extractor', 'Filtros por nicho, cidade e avaliação', 'Deduplicação automática'] },
+  { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg, backDetails: ['Spintax & variações automáticas', 'Anti-ban com delays humanizados', 'Warmup progressivo do chip', 'Personalização com nome e nicho'] },
+  { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg, backDetails: ['Agente SDR com IA DeepSeek', 'Qualificação BANT automática', 'Responde objeções em tempo real', 'Integração Google Meet'] },
 ];
 
 const STATS = [
