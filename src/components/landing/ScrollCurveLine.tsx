@@ -31,7 +31,7 @@ export function ScrollCurveLine() {
         if (!container) { ticking = false; return; }
         const rect = container.getBoundingClientRect();
         const vh = window.innerHeight;
-        const totalTravel = rect.height + vh;
+        const totalTravel = rect.height * 0.7;
         const traveled = vh - rect.top;
         const pct = Math.max(0, Math.min(1, traveled / totalTravel));
         
