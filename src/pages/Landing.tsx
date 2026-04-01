@@ -413,7 +413,7 @@ export default function Landing() {
                 </button>
               </div>
               <div className="flex items-center justify-center gap-4 mt-4">
-                {['7 dias grátis', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
+                {['Leads ilimitados', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
                   <span key={t} className="flex items-center gap-1 text-[10px] text-white/25">
                     <Check className="h-3 w-3 text-emerald-500/50" /> {t}
                   </span>
