@@ -240,7 +240,7 @@ export default function ConversationsPage() {
         </Card>
 
         {/* Chat Area */}
-        <Card className="lg:col-span-2 flex flex-col overflow-hidden">
+        <Card className={`lg:col-span-2 flex flex-col overflow-hidden ${!selectedConversation ? 'hidden lg:flex' : ''}`}>
           {selectedConversation ? (
             <>
               <CardHeader className="border-b bg-muted/30 py-4">
