@@ -13,40 +13,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ADVANTAGES = [
-  {
-    id: 1,
-    icon: Search,
-    title: 'Prospecção Automática',
-    subtitle: 'Google Maps · Instagram · Facebook',
-    image: advantageProspecting,
-    detail: 'A IA varre milhares de empresas no Google Maps, Instagram e Facebook, extraindo leads qualificados com nome, telefone e e-mail — sem você mover um dedo.',
-  },
-  {
-    id: 2,
-    icon: MessageSquare,
-    title: 'Envio Inteligente',
-    subtitle: 'WhatsApp · Anti-Ban · Spintax',
-    image: advantageMessaging,
-    detail: 'Mensagens personalizadas enviadas pelo WhatsApp com sistema anti-bloqueio, variações de texto e delay humanizado.',
-  },
-  {
-    id: 3,
-    icon: Bot,
-    title: 'Agente SDR com IA',
-    subtitle: 'Qualifica · Responde · Converte',
-    image: advantageSdr,
-    detail: 'Um agente de IA conversa com seus leads 24/7, qualifica pelo método BANT, contorna objeções e avança o lead no funil.',
-  },
-  {
-    id: 4,
-    icon: CalendarCheck,
-    title: 'Reuniões Agendadas',
-    subtitle: 'Google Meet · Automático · CRM',
-    image: advantageMeetings,
-    detail: 'O sistema agenda reuniões direto no Google Meet e move o lead para a etapa certa do CRM.',
-  },
-];
+
+
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos', icon: Zap },
