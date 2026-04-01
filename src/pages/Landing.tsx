@@ -11,6 +11,10 @@ import googleGIcon from '@/assets/google-g-icon.png';
 import stepCaptureImg from '@/assets/step-capture.png';
 import stepMessagesImg from '@/assets/step-messages.png';
 import stepMeetingsImg from '@/assets/step-meetings.png';
+import avatar1 from '@/assets/avatar-1.png';
+import avatar2 from '@/assets/avatar-2.png';
+import avatar3 from '@/assets/avatar-3.png';
+import avatar4 from '@/assets/avatar-4.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
@@ -219,8 +223,8 @@ export default function Landing() {
             <div className="flex items-center gap-5 sm:gap-6 mt-7 sm:mt-8 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               <div className="flex items-center gap-2.5">
                 <div className="flex -space-x-2.5">
-                  {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
-                    <div key={i} className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg" style={{ background: `linear-gradient(135deg, ${c}, ${c}99)` }} />
+                  {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
+                    <img key={i} src={src} alt="" className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg object-cover" loading="lazy" width={28} height={28} />
                   ))}
                 </div>
                 <span className="text-[11px] sm:text-[12px] text-white/40 font-medium">+2.400 ativos</span>
