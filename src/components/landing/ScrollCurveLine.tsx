@@ -69,15 +69,6 @@ export function ScrollCurveLine() {
           </filter>
         </defs>
 
-        {/* Track (dim background path) */}
-        <path
-          d={curvePath}
-          fill="none"
-          stroke="rgba(123,47,242,0.08)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray="10 18"
-        />
 
         {/* Active drawn line */}
         <path
