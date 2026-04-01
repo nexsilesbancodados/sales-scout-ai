@@ -140,7 +140,7 @@ export default function BillingPage() {
                   {statusBadge.label}
                 </Badge>
                 <Badge className="bg-primary/15 text-primary border-primary/20 font-semibold">
-                  {currentPlanData.name}
+                  {currentPlanInfo.name}
                 </Badge>
               </div>
             </div>
@@ -175,130 +175,79 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
-        {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <span className={cn("text-sm font-medium transition-colors", !isAnnual ? 'text-foreground' : 'text-muted-foreground')}>
-            Mensal
-          </span>
-          <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-          <span className={cn("text-sm font-medium transition-colors flex items-center gap-2", isAnnual ? 'text-foreground' : 'text-muted-foreground')}>
-            Anual
-            <Badge className="bg-emerald-500/15 text-emerald-400 border-0 text-[10px] font-bold px-2">
-              -20%
-            </Badge>
-          </span>
-        </div>
+        {/* Single Plan */}
+        <Card className={cn(
+          "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up max-w-lg mx-auto",
+          "bg-gradient-to-b from-primary/15 via-primary/5 to-transparent",
+          "ring-2 ring-primary/30 shadow-xl shadow-primary/5",
+          isActive && 'ring-2 ring-primary/40'
+        )}>
+          <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-        {/* Plans Grid */}
-        <div className="grid gap-5 md:grid-cols-3">
-          {plans.map((plan, index) => {
-            const isCurrentPlan = plan.id === currentPlan;
-            const PlanIcon = plan.icon;
-            const price = getPrice(plan.monthlyPrice);
-            const checkoutUrl = getCheckoutUrl(plan.id);
+          <CardContent className="p-6 pt-7">
+            <div className="mb-6">
+              <div className="inline-flex p-3 rounded-2xl mb-4 bg-primary/15">
+                <Crown className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold">{currentPlanInfo.name}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{currentPlanInfo.tagline}</p>
+            </div>
 
-            return (
-              <Card
-                key={plan.id}
-                className={cn(
-                  "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up",
-                  `bg-gradient-to-b ${plan.gradient}`,
-                  plan.highlight
-                    ? 'ring-2 ring-primary/30 shadow-xl shadow-primary/5 scale-[1.02]'
-                    : 'hover:ring-1 hover:ring-border shadow-md',
-                  isCurrentPlan && 'ring-2 ring-primary/40'
-                )}
-                style={{ animationDelay: `${index * 80}ms` }}
-              >
-                {plan.highlight && (
-                  <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
-                )}
-                
-                {plan.highlight && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-primary-foreground text-[10px] font-bold shadow-md gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      Popular
-                    </Badge>
+            <div className="mb-6">
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm text-muted-foreground">R$</span>
+                <span className="text-4xl font-extrabold tracking-tight">{currentPlanInfo.monthlyPrice}</span>
+                <span className="text-sm text-muted-foreground">/mês</span>
+              </div>
+            </div>
+
+            <ul className="space-y-2.5 mb-6">
+              {currentPlanInfo.features.map((feature) => (
+                <li key={feature} className="flex items-center gap-2.5 text-sm">
+                  <div className="p-0.5 rounded-full bg-primary/15">
+                    <Check className="h-3 w-3 text-primary" />
                   </div>
-                )}
+                  <span className="text-muted-foreground">{feature}</span>
+                </li>
+              ))}
+            </ul>
 
-                <CardContent className="p-6 pt-7">
-                  {/* Plan header */}
-                  <div className="mb-6">
-                    <div className={cn("inline-flex p-3 rounded-2xl mb-4", plan.iconBg)}>
-                      <PlanIcon className={cn("h-6 w-6", plan.iconColor)} />
-                    </div>
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{plan.tagline}</p>
-                  </div>
+            <Button
+              className={cn(
+                "w-full h-11 font-semibold text-sm gap-2 transition-all",
+                !isActive && "gradient-primary shadow-md hover:shadow-lg",
+                isActive && "bg-muted text-muted-foreground"
+              )}
+              variant={isActive ? 'secondary' : 'default'}
+              disabled={isActive}
+              asChild={!isActive}
+            >
+              {isActive ? (
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Plano atual
+                </span>
+              ) : (
+                <a
+                  href={checkoutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  Assinar agora
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              )}
+            </Button>
 
-                  {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-sm text-muted-foreground">R$</span>
-                      <span className="text-4xl font-extrabold tracking-tight">{price}</span>
-                      <span className="text-sm text-muted-foreground">/mês</span>
-                    </div>
-                    {isAnnual && (
-                      <p className="text-[11px] text-emerald-400 font-medium mt-1">
-                        R$ {price * 12}/ano — economia de R$ {plan.monthlyPrice * 12 - price * 12}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Features */}
-                  <ul className="space-y-2.5 mb-6">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2.5 text-sm">
-                        <div className={cn("p-0.5 rounded-full", plan.iconBg)}>
-                          <Check className={cn("h-3 w-3", plan.iconColor)} />
-                        </div>
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA Button */}
-                  <Button
-                    className={cn(
-                      "w-full h-11 font-semibold text-sm gap-2 transition-all",
-                      plan.highlight && !isCurrentPlan && "gradient-primary shadow-md hover:shadow-lg",
-                      isCurrentPlan && "bg-muted text-muted-foreground"
-                    )}
-                    variant={isCurrentPlan ? 'secondary' : plan.highlight ? 'default' : 'outline'}
-                    disabled={isCurrentPlan}
-                    asChild={!isCurrentPlan}
-                  >
-                    {isCurrentPlan ? (
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Plano atual
-                      </span>
-                    ) : (
-                      <a
-                        href={checkoutUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2"
-                      >
-                        Assinar agora
-                        <ArrowRight className="h-4 w-4" />
-                      </a>
-                    )}
-                  </Button>
-
-                  {!isCurrentPlan && (
-                    <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 mt-3">
-                      <Shield className="h-3 w-3" />
-                      Pagamento seguro via Cakto
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+            {!isActive && (
+              <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 mt-3">
+                <Shield className="h-3 w-3" />
+                Pagamento seguro via Cakto
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Payment History */}
         {paymentHistory.length > 0 && (
