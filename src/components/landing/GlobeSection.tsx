@@ -66,7 +66,7 @@ export function GlobeSection() {
           <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
             Prospecte em todo o <span className="landing-gradient-text">Brasil e no mundo</span>
           </h2>
-          <p className="text-[14px] text-white/40 mt-4 max-w-[520px] mx-auto">
+          <p className="text-[14px] text-white/55 mt-4 max-w-[520px] mx-auto">
             Nossa plataforma alcança leads em qualquer cidade do Brasil e nas principais capitais do mundo.
           </p>
         </motion.div>
@@ -167,7 +167,7 @@ export function GlobeSection() {
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-xl md:text-2xl font-black landing-gradient-text">{stat.value}</div>
-              <div className="text-[11px] text-white/35 mt-1">{stat.label}</div>
+              <div className="text-[11px] text-white/50 mt-1">{stat.label}</div>
             </div>
           ))}
         </div>
