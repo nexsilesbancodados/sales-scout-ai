@@ -12,6 +12,7 @@ import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import ToolsTimeline from '@/components/landing/ToolsTimeline';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
+import { WaveDivider } from '@/components/landing/WaveDivider';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -382,38 +383,13 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ MARQUEE ═══ */}
-      <section className="relative h-[160px] flex items-center justify-center overflow-hidden">
-        <div className="absolute select-none whitespace-nowrap overflow-hidden flex py-2" style={{ width: '160%', left: '-30%', transform: 'rotate(0.8deg)', top: '50%', zIndex: 5, borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <div className="flex w-max marquee-scroll-reverse">
-            {Array.from({ length: 40 }).map((_, i) => {
-              const words = ['Prospecção', 'Automação', 'WhatsApp', 'Leads', 'Conversão', 'Google Maps', 'Instagram', 'IA', 'CRM', 'Pipeline'];
-              return (
-                <span key={`b-${i}`} className="flex items-center text-[16px] font-light uppercase tracking-wide text-white/80 px-2">
-                  {words[i % words.length]}
-                  <span className="w-[4px] h-[4px] rounded-full bg-white/60 ml-2 inline-block" />
-                </span>
-              );
-            })}
-          </div>
-        </div>
-        <div className="absolute select-none whitespace-nowrap overflow-hidden flex py-2 bg-white shadow-[0_8px_25px_rgba(0,0,0,0.7)]" style={{ width: '160%', left: '-30%', transform: 'rotate(-3deg)', top: '48%', zIndex: 10 }}>
-          <div className="flex w-max marquee-scroll">
-            {Array.from({ length: 40 }).map((_, i) => {
-              const words = ['NexaProspect', 'SDR Agent', 'Anti-Ban', 'Spintax', 'Follow-Up', 'Reuniões', 'BANT', 'Funil', 'Multi-Chip', 'ROI'];
-              return (
-                <span key={`w-${i}`} className="flex items-center text-[16px] font-light uppercase tracking-wide text-black px-2">
-                  {words[i % words.length]}
-                  <span className="w-[4px] h-[4px] rounded-full bg-black ml-2 inline-block" />
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ═══ WAVE DIVIDER ═══ */}
+      <WaveDivider />
 
       {/* ═══ FERRAMENTAS TIMELINE ═══ */}
       <ToolsTimeline />
+
+      <WaveDivider />
 
 
       {/* ═══ PRICING ═══ */}
@@ -438,6 +414,8 @@ export default function Landing() {
           ))}
         </div>
       </section>
+
+      <WaveDivider />
 
       {/* ═══ FAQ ═══ */}
       <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
