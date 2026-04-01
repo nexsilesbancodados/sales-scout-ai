@@ -25,50 +25,27 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq', icon: HelpCircle },
 ];
 
-const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
-  starter: {
-    monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
-    annual: 'https://pay.cakto.com.br/STARTER_ANUAL',
-  },
-  pro: {
-    monthly: 'https://pay.cakto.com.br/PRO_MENSAL',
-    annual: 'https://pay.cakto.com.br/PRO_ANUAL',
-  },
-  enterprise: {
-    monthly: 'https://pay.cakto.com.br/ENTERPRISE_MENSAL',
-    annual: 'https://pay.cakto.com.br/ENTERPRISE_ANUAL',
-  },
-};
+const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/o5dfn8a_827823';
 
-const PRICING_PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 97,
-    annual: 77,
-    features: ['Disparos ilimitados', '1 chip WhatsApp', 'Google Maps + Radar CNPJ', 'Funil de vendas', 'Leads ilimitados', 'Suporte por email'],
-    cta: 'Assinar agora',
-    highlight: false,
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 149,
-    annual: 119,
-    features: ['Disparos ilimitados', '3 chips WhatsApp', 'Todos os extratores', 'Agente SDR ativo', 'Leads ilimitados', 'Relatórios avançados', 'Suporte prioritário'],
-    cta: 'Assinar agora',
-    highlight: true,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 199,
-    annual: 159,
-    features: ['Disparos ilimitados', '10 chips WhatsApp', 'API pública', 'Leads ilimitados', 'Múltiplos funis', 'Gerente dedicado', 'SLA garantido'],
-    cta: 'Assinar agora',
-    highlight: false,
-  },
-];
+const SINGLE_PLAN = {
+  id: 'pro',
+  name: 'Profissional',
+  price: 149,
+  features: [
+    'Disparos ilimitados',
+    '3 chips WhatsApp',
+    'Todos os extratores',
+    'Agente SDR ativo',
+    'Google Maps + Radar CNPJ',
+    'Leads ilimitados',
+    'Relatórios avançados',
+    'Anti-Ban inteligente',
+    'Funil de vendas completo',
+    'Suporte prioritário',
+  ],
+  cta: 'Assinar agora',
+  highlight: true,
+};
 
 const FAQ_DATA = [
   { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
@@ -108,7 +85,6 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('');
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
-  const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
@@ -386,25 +362,11 @@ export default function Landing() {
 
         {/* ═══ 8. PRICING ═══ */}
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-          <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
-          <div className="flex items-center justify-center gap-3 mb-10">
-            <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
-            <button onClick={() => setAnnualPricing(!annualPricing)} className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}>
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
-            </button>
-            <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
-            {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
-            {PRICING_PLANS.map((plan, i) => {
-              const urls = CAKTO_CHECKOUT_URLS[plan.id];
-              const checkoutUrl = annualPricing ? urls.annual : urls.monthly;
-              return (
-                <div key={plan.name} className="h-[520px] sm:h-[560px]">
-                  <PremiumPricingCard plan={plan} annual={annualPricing} index={i} checkoutUrl={checkoutUrl} />
-                </div>
-              );
-            })}
+          <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
+          <div className="max-w-md mx-auto">
+            <div className="h-[560px]">
+              <PremiumPricingCard plan={{ ...SINGLE_PLAN, annual: SINGLE_PLAN.price }} annual={false} index={0} checkoutUrl={CAKTO_CHECKOUT_URL} />
+            </div>
           </div>
         </section>
 
