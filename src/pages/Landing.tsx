@@ -375,7 +375,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Testar grátis por 7 dias</span>
+                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
               </button>
             </div>
             <div className="flex items-center justify-center gap-4 mt-4">
