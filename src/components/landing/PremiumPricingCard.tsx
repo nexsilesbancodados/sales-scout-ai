@@ -85,7 +85,7 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             <div>
               <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
               <p className={cn('text-[10px] uppercase tracking-wider font-bold', s.label)}>
-                {index === 0 ? 'Para começar' : index === 1 ? 'Alta Performance' : 'Sem limites'}
+                {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
           </div>
