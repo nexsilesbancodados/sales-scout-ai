@@ -236,7 +236,7 @@ export default function CRMPipelinePage() {
   const wonCount = leads.filter(l => l.stage === 'Ganho').length;
 
   return (
-    <div className="p-4 sm:p-6 flex flex-col h-[calc(100vh-0px)] md:h-screen overflow-hidden">
+    <div className="p-4 sm:p-6 flex flex-col h-[calc(100vh-56px)] md:h-screen overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3 shrink-0">
         <div>
