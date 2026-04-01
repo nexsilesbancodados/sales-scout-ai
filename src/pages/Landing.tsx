@@ -297,7 +297,7 @@ export default function Landing() {
       <section
         id="recursos"
         ref={advantagesRef}
-        className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-12"
+        className="relative py-16 flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 scroll-mt-24"
       >
         <div className="text-center mb-10 relative z-10">
           <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Por que NexaProspect</span>
