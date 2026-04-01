@@ -54,12 +54,12 @@ const PRICING_PLANS = [
 ];
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito?', a: 'Sim, o pagamento é processado de forma segura no momento da assinatura.' },
-  { q: 'Meu WhatsApp pode ser banido?', a: 'Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, spintax e rotação de chips para proteger seu número.' },
-  { q: 'Quanto tempo leva para configurar?', a: 'Menos de 5 minutos. Conecte o WhatsApp, escolha o nicho e a IA já começa a prospectar automaticamente.' },
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem burocracia. Cancele com 1 clique no painel.' },
-  { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos diferentes e a IA adapta a abordagem para cada segmento.' },
-  { q: 'O agente SDR substitui minha equipe?', a: 'Ele complementa. A IA cuida da prospecção e qualificação 24/7, e sua equipe foca em fechar os deals quentes.' },
+  { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
+  { q: 'Meu WhatsApp pode ser banido?', a: 'Extremamente improvável. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano, spintax inteligente e rotação automática de chips. Mais de 2.400 contas ativas sem incidentes.' },
+  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A configuração leva menos de 5 minutos: conecte o WhatsApp, escolha o nicho e a IA começa a prospectar sozinha.' },
+  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3%.' },
+  { q: 'Funciona para o meu nicho específico?', a: 'Com certeza. Temos templates otimizados para +50 nichos e a IA adapta tom, linguagem e abordagem automaticamente para cada segmento do mercado.' },
+  { q: 'O agente SDR substitui minha equipe comercial?', a: 'Ele potencializa. A IA trabalha 24/7 prospectando e qualificando leads — sua equipe entra só na hora de fechar. Resultado: mais deals, menos esforço operacional.' },
 ];
 
 export default function Landing() {
