@@ -226,6 +226,10 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ SCROLL CURVE LINE ═══ */}
+      <div className="relative">
+        <ScrollCurveLine />
+
       {/* ═══ MOCKUP SHOWCASE ═══ */}
       <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
