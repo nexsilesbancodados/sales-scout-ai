@@ -5,12 +5,7 @@ import { ArrowRight, Star, Check, Menu, X, Sparkles, CreditCard, Zap, BarChart3,
 import { motion, AnimatePresence } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
-import advantageProspecting from '@/assets/advantage-prospecting.jpg';
-import advantageMessaging from '@/assets/advantage-messaging.jpg';
-import advantageSdr from '@/assets/advantage-sdr.jpg';
-import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
-import ToolsTimeline from '@/components/landing/ToolsTimeline';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 
 import gsap from 'gsap';
