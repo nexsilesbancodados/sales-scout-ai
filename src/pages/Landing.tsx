@@ -324,8 +324,13 @@ export default function Landing() {
         </div>
       </section>
 
-      
+      {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
+      <section className="relative py-12 px-4 md:px-8">
+        <SectionHeader tag="Feedbacks" title={<>O que nossos clientes <span className="landing-gradient-text">dizem.</span></>} />
+        <StoriesTestimonials />
+      </section>
 
+      
       {/* ═══ FAQ ═══ */}
       <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
         <SectionHeader tag="FAQ" title={<>Perguntas <span className="text-white/20">frequentes.</span></>} />
