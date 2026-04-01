@@ -151,7 +151,7 @@
   <body>
     <!-- Loading screen -->
     <div id="app-loading">
-      <img src="/logo.png" alt="NexaProspect" />
+      <img src="/logo.png" alt="NexaProspect" fetchpriority="high" width="56" height="56" />
       <div class="loading-spinner"></div>
     </div>
 
@@ -160,7 +160,7 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Remove loading screen when app is ready -->
-    <script>
+    <script defer>
       window.addEventListener('load', function() {
         setTimeout(function() {
           var loading = document.getElementById('app-loading');
