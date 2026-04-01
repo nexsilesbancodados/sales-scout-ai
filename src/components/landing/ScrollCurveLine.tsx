@@ -43,6 +43,10 @@ export function ScrollCurveLine() {
         
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
+        // Broadcast progress so sections can light up
+        document.documentElement.style.setProperty('--line-progress', `${pct}`);
+        window.dispatchEvent(new CustomEvent('line-progress', { detail: { pct } }));
+
         // Position the glow dot at the tip of the drawn line
         if (glow && pct > 0.01) {
           const point = path.getPointAtLength(pathLen * pct);
