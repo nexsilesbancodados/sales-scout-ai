@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, Send, Users, Bot, ArrowRight, Sparkles } from 'lucide-react';
+import { Target, Send, Users, Bot, ArrowRight, Sparkles, Wifi, WifiOff } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface WelcomeCardProps {
   userName?: string | null;
@@ -10,10 +11,10 @@ interface WelcomeCardProps {
 }
 
 const quickActions = [
-  { label: 'Prospectar', icon: Target, path: '/prospecting', color: 'text-primary' },
-  { label: 'Disparar', icon: Send, path: '/mass-send', color: 'text-info' },
-  { label: 'Ver Leads', icon: Users, path: '/leads', color: 'text-success' },
-  { label: 'Agente IA', icon: Bot, path: '/sdr-agent', color: 'text-warning' },
+  { label: 'Prospectar', icon: Target, path: '/prospecting', gradient: 'from-primary/20 to-primary/5', color: 'text-primary' },
+  { label: 'Disparar', icon: Send, path: '/mass-send', gradient: 'from-info/20 to-info/5', color: 'text-info' },
+  { label: 'Ver Leads', icon: Users, path: '/leads', gradient: 'from-success/20 to-success/5', color: 'text-success' },
+  { label: 'Agente IA', icon: Bot, path: '/sdr-agent', gradient: 'from-warning/20 to-warning/5', color: 'text-warning' },
 ];
 
 export function WelcomeCard({ userName, totalLeads, whatsappConnected }: WelcomeCardProps) {
@@ -21,51 +22,71 @@ export function WelcomeCard({ userName, totalLeads, whatsappConnected }: Welcome
   const displayName = userName?.split(' ')[0] || 'Usuário';
 
   return (
-    <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/10 mb-6">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+    <Card className="relative overflow-hidden border-border/50 mb-6 bg-gradient-to-br from-card via-card to-primary/[0.03]">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/[0.03] rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-primary/[0.02] rounded-full translate-y-1/2 -translate-x-1/3 blur-2xl" />
+
       <CardContent className="relative p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-              <p className="text-xs font-medium text-primary uppercase tracking-wider">{greeting}</p>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+                <Sparkles className="h-3 w-3 text-primary" />
+                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{greeting}</span>
+              </div>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
               Olá, {displayName}! 👋
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {totalLeads === 0
                 ? 'Comece capturando seus primeiros leads hoje!'
-                : `Você tem ${totalLeads} leads. Continue prospectando!`}
+                : `Você tem ${totalLeads.toLocaleString('pt-BR')} leads na base. Continue prospectando!`}
             </p>
           </div>
 
-          {!whatsappConnected && (
-            <Button asChild size="sm" variant="outline" className="border-warning/50 text-warning hover:bg-warning/10 shrink-0">
-              <Link to="/settings/connections" className="gap-1.5">
-                Conectar WhatsApp
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* WhatsApp status badge */}
+            <div className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              whatsappConnected
+                ? "bg-success/10 text-success border-success/20"
+                : "bg-muted/50 text-muted-foreground border-border/50"
+            )}>
+              {whatsappConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {whatsappConnected ? 'Conectado' : 'Desconectado'}
+            </div>
+
+            {!whatsappConnected && (
+              <Button asChild size="sm" className="gradient-primary text-primary-foreground h-8 text-xs">
+                <Link to="/settings/connections" className="gap-1.5">
+                  Conectar
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {quickActions.map((action) => (
-            <Button
+            <Link
               key={action.path}
-              asChild
-              variant="outline"
-              size="sm"
-              className="h-11 justify-start gap-2 bg-background/60 backdrop-blur-sm hover:bg-background/80 border-border/50"
+              to={action.path}
+              className={cn(
+                "group flex items-center gap-2.5 p-3 rounded-xl border border-border/50",
+                "bg-gradient-to-br hover:border-primary/20 transition-all duration-300",
+                "hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5",
+                action.gradient
+              )}
             >
-              <Link to={action.path}>
-                <action.icon className={`h-4 w-4 ${action.color}`} />
-                <span className="text-xs font-medium">{action.label}</span>
-              </Link>
-            </Button>
+              <div className={cn("p-2 rounded-lg bg-background/80 shadow-sm", action.color)}>
+                <action.icon className="h-4 w-4" />
+              </div>
+              <span className="text-xs font-semibold text-foreground">{action.label}</span>
+            </Link>
           ))}
         </div>
       </CardContent>

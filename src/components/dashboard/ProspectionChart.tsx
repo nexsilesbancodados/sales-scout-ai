@@ -26,22 +26,27 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
     }));
   }, [data]);
 
-  const linePath = useMemo(
-    () => points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' '),
-    [points],
-  );
+  // Smooth curved path using bezier curves
+  const linePath = useMemo(() => {
+    if (points.length < 2) return `M ${points[0]?.x || 0} ${points[0]?.y || 0}`;
+    
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const current = points[i];
+      const next = points[i + 1];
+      const cpx = (current.x + next.x) / 2;
+      path += ` C ${cpx} ${current.y}, ${cpx} ${next.y}, ${next.x} ${next.y}`;
+    }
+    return path;
+  }, [points]);
 
   const areaPath = useMemo(() => {
     const firstPoint = points[0];
     const lastPoint = points[points.length - 1];
-
     return `${linePath} L ${lastPoint.x} ${BASELINE_Y} L ${firstPoint.x} ${BASELINE_Y} Z`;
   }, [linePath, points]);
 
-  const highlightPoints = useMemo(() => {
-    const middleIndex = Math.floor(points.length / 2);
-    return points.filter((_, index) => index === 0 || index === middleIndex || index === points.length - 1);
-  }, [points]);
+  const totalLeads = data.reduce((sum, d) => sum + d.leads, 0);
 
   const labels = useMemo(() => {
     if (data.length <= 3) return data;
@@ -49,23 +54,40 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
   }, [data]);
 
   return (
-    <Card>
+    <Card className="border-border/50 hover:border-primary/10 transition-colors duration-300">
       <CardHeader className="pb-2">
-        <div className="flex items-center gap-2.5">
-          <div className="rounded-lg bg-primary/10 p-1.5">
-            <TrendingUp className="h-4 w-4 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="rounded-xl bg-primary/10 p-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-sm font-semibold">Leads Capturados</CardTitle>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Evolução do período</p>
+            </div>
           </div>
-          <CardTitle className="text-sm font-semibold">Leads Capturados</CardTitle>
+          <div className="text-right">
+            <p className="text-lg font-bold tabular-nums">{totalLeads.toLocaleString('pt-BR')}</p>
+            <p className="text-[10px] text-muted-foreground">total</p>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px] overflow-hidden rounded-xl border border-border/50 bg-muted/20 p-3">
+        <div className="h-[200px] overflow-hidden rounded-xl border border-border/30 bg-gradient-to-b from-muted/10 to-muted/30 p-3">
           <svg viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="h-full w-full" preserveAspectRatio="none">
             <defs>
               <linearGradient id="dashboard-leads-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.32" />
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.25" />
+                <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
                 <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
               </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
             </defs>
 
             {Array.from({ length: 4 }).map((_, index) => {
@@ -78,8 +100,8 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
                   y1={y}
                   y2={y}
                   stroke="hsl(var(--border))"
-                  strokeDasharray="4 6"
-                  opacity="0.8"
+                  strokeDasharray="3 8"
+                  opacity="0.5"
                 />
               );
             })}
@@ -89,21 +111,36 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
               d={linePath}
               fill="none"
               stroke="hsl(var(--primary))"
-              strokeWidth="3"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
+              filter="url(#glow)"
             />
 
-            {highlightPoints.map((point) => (
-              <g key={`${point.date}-${point.x}`}>
-                <circle cx={point.x} cy={point.y} r="6" fill="hsl(var(--background))" opacity="0.95" />
-                <circle cx={point.x} cy={point.y} r="3.5" fill="hsl(var(--primary))" />
+            {/* Last point highlight */}
+            {points.length > 0 && (
+              <g>
+                <circle
+                  cx={points[points.length - 1].x}
+                  cy={points[points.length - 1].y}
+                  r="8"
+                  fill="hsl(var(--primary))"
+                  opacity="0.15"
+                />
+                <circle
+                  cx={points[points.length - 1].x}
+                  cy={points[points.length - 1].y}
+                  r="4"
+                  fill="hsl(var(--background))"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="2"
+                />
               </g>
-            ))}
+            )}
           </svg>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground/60 font-medium">
           {labels.map((label, index) => (
             <span key={`${label.date}-${index}`}>Dia {label.date}</span>
           ))}
