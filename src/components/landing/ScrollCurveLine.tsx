@@ -31,10 +31,15 @@ export function ScrollCurveLine() {
         if (!container) { ticking = false; return; }
         const rect = container.getBoundingClientRect();
         const vh = window.innerHeight;
-        // Line should complete drawing by the time user scrolls ~75% through the container
-        const totalTravel = rect.height * 0.9;
-        const traveled = vh - rect.top;
-        const pct = Math.max(0, Math.min(1, traveled / totalTravel));
+
+        // Line starts when container top enters viewport bottom
+        // Line completes when container bottom reaches viewport center
+        const startTrigger = vh; // container.top == vh (just entering)
+        const endTrigger = vh * 0.45; // container.bottom near center
+        const currentPos = rect.bottom;
+        const totalRange = rect.height + vh - endTrigger;
+        const traveled = startTrigger - rect.top;
+        const pct = Math.max(0, Math.min(1, traveled / totalRange));
         
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
@@ -46,7 +51,7 @@ export function ScrollCurveLine() {
           glow.style.opacity = `${Math.min(1, pct * 3)}`;
         }
         
-        const reached = pct > 0.82;
+        const reached = pct > 0.95;
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
