@@ -120,7 +120,7 @@ function LeadCard({ lead, onDragStart, isDragging, onClick }: {
           </p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
