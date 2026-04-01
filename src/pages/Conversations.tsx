@@ -104,7 +104,7 @@ export default function ConversationsPage() {
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-200px)] animate-fade-in">
         {/* Conversations List */}
-        <Card className="lg:col-span-1 overflow-hidden">
+        <Card className={`lg:col-span-1 overflow-hidden ${selectedConversation ? 'hidden lg:flex lg:flex-col' : 'flex flex-col'}`}>
           <CardHeader className="pb-3 bg-muted/30 border-b">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
