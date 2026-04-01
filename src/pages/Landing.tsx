@@ -296,7 +296,7 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        {/* ═══ 4. MOCKUP SHOWCASE ═══ */}
+        <ScrollLightUpSection threshold={0.35}>
         <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
@@ -325,8 +325,9 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        </ScrollLightUpSection>
 
-        {/* ═══ 5. NÚMEROS QUE IMPRESSIONAM ═══ */}
+        <ScrollLightUpSection threshold={0.55}>
         <section className="relative py-20 px-4 md:px-8 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
           <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
@@ -359,9 +360,11 @@ export default function Landing() {
             ))}
           </motion.div>
         </section>
+        </ScrollLightUpSection>
 
-        {/* ═══ 6. GLOBE - ALCANCE GLOBAL ═══ */}
+        <ScrollLightUpSection threshold={0.8}>
         <GlobeSection />
+        </ScrollLightUpSection>
 
       </div>{/* end scroll curve wrapper */}
 
