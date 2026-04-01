@@ -7,8 +7,6 @@ import {
   Send,
   MessageSquare,
   TrendingUp,
-  Target,
-  Sparkles,
 } from 'lucide-react';
 
 export function ProspectingDashboard() {
@@ -27,61 +25,65 @@ export function ProspectingDashboard() {
       icon: Search,
       value: totalLeadsProspected || leads.length,
       label: 'Encontrados',
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
-      gradient: 'from-primary/5 to-primary/10',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/15',
+      borderColor: 'border-blue-500/20',
+      glowColor: 'shadow-blue-500/10',
     },
     {
       icon: Send,
       value: totalLeadsContacted,
       label: 'Contatados',
-      color: 'text-info',
-      bgColor: 'bg-info/10',
-      gradient: 'from-info/5 to-info/10',
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/15',
+      borderColor: 'border-emerald-500/20',
+      glowColor: 'shadow-emerald-500/10',
     },
     {
       icon: MessageSquare,
       value: totalLeadsResponded,
       label: 'Respostas',
-      color: 'text-success',
-      bgColor: 'bg-success/10',
-      gradient: 'from-success/5 to-success/10',
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/15',
+      borderColor: 'border-amber-500/20',
+      glowColor: 'shadow-amber-500/10',
     },
     {
       icon: TrendingUp,
       value: `${responseRate}%`,
       label: 'Taxa Resposta',
-      color: 'text-warning',
-      bgColor: 'bg-warning/10',
-      gradient: 'from-warning/5 to-warning/10',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/15',
+      borderColor: 'border-purple-500/20',
+      glowColor: 'shadow-purple-500/10',
     },
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
         <Card 
           key={stat.label} 
-          className="relative overflow-hidden group cursor-default animate-fade-in"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className={cn(
+            "relative overflow-hidden group cursor-default border transition-all duration-300 hover:scale-[1.02]",
+            stat.borderColor,
+            `hover:shadow-lg ${stat.glowColor}`
+          )}
+          style={{ animationDelay: `${index * 80}ms` }}
         >
-          {/* Gradient overlay on hover */}
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-            stat.gradient
-          )} />
-          
-          <CardContent className="p-5 relative">
-            <div className="flex items-center gap-4">
+          <CardContent className="p-4 sm:p-5 relative">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className={cn(
-                "p-3 rounded-xl transition-transform duration-200 group-hover:scale-110",
+                "p-2.5 sm:p-3 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
                 stat.bgColor
               )}>
-                <stat.icon className={cn("h-5 w-5", stat.color)} />
+                <stat.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", stat.color)} />
               </div>
-              <div className="space-y-0.5">
-                <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <div className="min-w-0">
+                <p className={cn("text-xl sm:text-2xl font-bold tracking-tight", stat.color)}>
+                  {stat.value}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{stat.label}</p>
               </div>
             </div>
           </CardContent>
