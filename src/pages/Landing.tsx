@@ -293,75 +293,95 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ VANTAGENS — FLIP CARDS ═══ */}
+      {/* ═══ ECOSSISTEMA ALL-IN-ONE ═══ */}
       <section
         id="recursos"
         ref={advantagesRef}
-        className="relative py-16 flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 scroll-mt-24"
+        className="relative py-20 md:py-28 flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 scroll-mt-24"
       >
-        <div className="text-center mb-10 relative z-10">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Por que NexaProspect</span>
-          <h2 className="text-2xl sm:text-4xl font-black tracking-[-0.03em] mt-2 text-white">
-            Tudo que você precisa.<br className="hidden sm:block" />
-            <span className="text-white/20">Num só lugar.</span>
-          </h2>
+        {/* Title */}
+        <div className="text-center mb-14 relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-[0.04em] text-white leading-tight"
+          >
+            Ecossistema completo<br />
+            <span className="landing-gradient-text">para vendas modernas</span>
+          </motion.h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[1400px] w-full">
-          {ADVANTAGES.map((item, index) => {
+
+        {/* 3 Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] w-full mb-20">
+          {ADVANTAGES.slice(0, 3).map((item, index) => {
             const Icon = item.icon;
             return (
-              <div key={item.id} className="h-[380px] w-full" style={{ perspective: '2000px' }}>
-                <div
-                  ref={(el) => { flipCardsRef.current[index] = el; }}
-                  className="relative w-full h-full cursor-pointer"
-                  onClick={() => setFlippedCards(prev => { const n = [...prev]; n[index] = !n[index]; return n; })}
-                  style={{ transformStyle: 'preserve-3d', transition: 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)', transform: flippedCards[index] ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
-                >
-                  <div className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6">
-                      <div className="w-8 h-8 rounded-lg bg-[#F7941D]/20 border border-[#F7941D]/30 flex items-center justify-center mb-2">
-                        <Icon className="h-4 w-4 text-[#F7941D]" />
-                      </div>
-                      <h3 className="text-lg font-bold text-white">{item.title}</h3>
-                      <p className="text-[11px] text-white/50 uppercase tracking-[0.15em] font-medium mt-1">{item.subtitle}</p>
-                    </div>
-                  </div>
-                  <div
-                    className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 flex flex-col"
-                    style={{
-                      backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)',
-                      background: 'linear-gradient(160deg, #0B0D15 0%, #111827 50%, #0B0D15 100%)',
-                    }}
-                  >
-                    <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#F7941D] to-transparent" />
-                    <div className="relative h-full flex flex-col justify-between p-6 z-10">
-                      <div>
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-8 h-8 rounded-lg bg-[#F7941D]/10 border border-[#F7941D]/20 flex items-center justify-center">
-                            <Icon className="h-4 w-4 text-[#F7941D]" />
-                          </div>
-                          <span className="text-[10px] text-[#F7941D]/70 uppercase tracking-[0.2em] font-bold">{item.subtitle}</span>
-                        </div>
-                        <div className="relative">
-                          <div className="absolute -left-1 -top-3 text-[#F7941D]/20"><Quote size={24} fill="currentColor" strokeWidth={0} /></div>
-                          <p className="text-white/90 text-[14px] leading-[1.7] font-light pl-3 border-l-2 border-[#F7941D]/40">{item.detail}</p>
-                        </div>
-                      </div>
-                      <div className="pt-4 flex items-end justify-between">
-                        <div>
-                          <div className="w-8 h-[2px] bg-gradient-to-r from-[#F7941D] to-[#F7941D]/30 mb-2 rounded-full" />
-                          <p className="text-white font-black text-sm uppercase tracking-tight">{item.title}</p>
-                        </div>
-                        <div className="text-[#F7941D]/10 text-[48px] font-black leading-none select-none">0{item.id}</div>
-                      </div>
-                    </div>
-                  </div>
+              <motion.div
+                key={item.id}
+                ref={(el) => { flipCardsRef.current[index] = el; }}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className="group relative rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-6 text-center hover:border-[#7B2FF2]/30 hover:bg-white/[0.05] transition-all duration-500"
+              >
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#7B2FF2]/30 to-[#F7941D]/20 border border-[#7B2FF2]/30 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="h-6 w-6 text-[#7B2FF2]" />
                 </div>
-              </div>
+                <h3 className="text-white text-base font-bold mb-2">{item.title}</h3>
+                <p className="text-white/40 text-xs leading-relaxed">{item.detail}</p>
+              </motion.div>
             );
           })}
+        </div>
+
+        {/* Dashboard Mockup + Stats */}
+        <div className="relative max-w-[1100px] w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Mockup Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative"
+          >
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#7B2FF2]/20 via-transparent to-[#F7941D]/10 rounded-3xl blur-2xl opacity-50" />
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-[#7B2FF2]/10">
+              <img src={advantageProspecting} alt="Dashboard NexaProspect" className="w-full h-auto object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15]/60 via-transparent to-transparent" />
+            </div>
+          </motion.div>
+
+          {/* Stats + Text */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="space-y-6"
+          >
+            <p className="text-white/50 text-sm leading-relaxed max-w-md">
+              Junte-se a mais de <strong className="text-white/80">2.400 empresas</strong> que já automatizaram prospecção, envio e qualificação com IA.
+            </p>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { value: '99.9%', label: 'uptime garantido' },
+                { value: '5 min', label: 'setup completo' },
+                { value: '50+', label: 'nichos atendidos' },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <p className="text-2xl md:text-3xl font-black landing-gradient-text">{stat.value}</p>
+                  <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-11 !min-w-[180px] mt-4">
+              <span className="nav-shimmer-icon !w-9 !h-9"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
+              <span className="nav-shimmer-text !text-[13px]">7 dias grátis</span>
+            </button>
+          </motion.div>
         </div>
       </section>
 
