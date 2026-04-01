@@ -8,7 +8,7 @@ import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
-
+import { ScrollLine } from '@/components/landing/ScrollLine';
 
 
 
