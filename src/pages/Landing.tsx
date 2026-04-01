@@ -68,7 +68,7 @@ export default function Landing() {
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [activeToolIcon, setActiveToolIcon] = useState<number | null>(null);
+  
   
 
   useEffect(() => {
@@ -253,13 +253,7 @@ export default function Landing() {
           </motion.div>
 
           {/* Floating Phone */}
-          <motion.div
-            initial={{ opacity: 0, y: 80, scale: 0.88 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative mt-16 flex items-center justify-center"
-          >
+          <div className="relative mt-16 flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
             {/* Glow */}
             <div className="absolute inset-0 -m-16 pointer-events-none" style={{
               background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.18) 0%, rgba(123,47,242,0.04) 50%, transparent 75%)',
@@ -275,56 +269,28 @@ export default function Landing() {
               />
             </div>
 
-            {/* Floating Tool Icons */}
+            {/* Floating Tool Icons - pure CSS, no motion */}
             {[
-              { icon: <MapPin className="h-4 w-4" />, label: 'Google Maps', color: '#34A853', x: '-left-4 md:-left-12', y: 'top-[20%]', delay: 0.4, float: '5s', desc: 'Captura leads automaticamente do Google Maps com dados de contato, avaliações e localização.' },
-              { icon: <MessageSquare className="h-4 w-4" />, label: 'WhatsApp', color: '#25D366', x: '-left-2 md:-left-8', y: 'bottom-[30%]', delay: 0.6, float: '6s', desc: 'Envio automatizado de mensagens com anti-ban, delays humanizados e spintax inteligente.' },
-              { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg>, label: 'Facebook', color: '#1877F2', x: '-right-4 md:-right-12', y: 'top-[15%]', delay: 0.5, float: '7s', desc: 'Extrai leads de grupos e páginas do Facebook com filtros por nicho e localização.' },
-              { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>, label: 'Instagram', color: '#E4405F', x: '-right-2 md:-right-8', y: 'bottom-[25%]', delay: 0.7, float: '5.5s', desc: 'Prospecta seguidores e perfis comerciais do Instagram para encontrar clientes ideais.' },
-              { icon: <TrendingUp className="h-4 w-4" />, label: 'Analytics', color: '#F7941D', x: 'left-[10%]', y: 'top-[5%]', delay: 0.9, float: '6.5s', desc: 'Dashboard de métricas em tempo real com taxas de conversão, resposta e ROI das campanhas.' },
-              { icon: <Zap className="h-4 w-4" />, label: 'SDR Agent', color: '#7B2FF2', x: 'right-[10%]', y: 'bottom-[10%]', delay: 1.1, float: '7.5s', desc: 'Agente de IA que qualifica leads, responde objeções e agenda reuniões automaticamente.' },
+              { icon: <MapPin className="h-4 w-4" />, label: 'Google Maps', color: '#34A853', x: '-left-4 md:-left-12', y: 'top-[20%]', float: '5s' },
+              { icon: <MessageSquare className="h-4 w-4" />, label: 'WhatsApp', color: '#25D366', x: '-left-2 md:-left-8', y: 'bottom-[30%]', float: '6s' },
+              { icon: <TrendingUp className="h-4 w-4" />, label: 'Analytics', color: '#F7941D', x: 'left-[10%]', y: 'top-[5%]', float: '6.5s' },
+              { icon: <Zap className="h-4 w-4" />, label: 'SDR Agent', color: '#7B2FF2', x: 'right-[10%]', y: 'bottom-[10%]', float: '7.5s' },
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, scale: 0 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: item.delay, duration: 0.5, type: 'spring', stiffness: 200 }}
-                className={`absolute ${item.x} ${item.y} z-30`}
-                style={{ animation: activeToolIcon === i ? 'none' : `floating ${item.float} ease-in-out infinite` }}
+                className={`absolute ${item.x} ${item.y} z-30 animate-fade-in`}
+                style={{ animation: `floating ${item.float} ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}
               >
                 <div
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-lg cursor-pointer group relative"
-                  style={{ background: `${item.color}15`, boxShadow: activeToolIcon === i ? `0 0 30px ${item.color}40` : `0 0 20px ${item.color}20`, borderColor: activeToolIcon === i ? `${item.color}50` : undefined }}
-                  onClick={(e) => { e.stopPropagation(); setActiveToolIcon(activeToolIcon === i ? null : i); }}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center border border-white/10 shadow-lg"
+                  style={{ background: `${item.color}15`, boxShadow: `0 0 20px ${item.color}20` }}
+                  title={item.label}
                 >
-                  <span style={{ color: item.color }} className="drop-shadow-sm group-hover:scale-110 transition-transform">
-                    {item.icon}
-                  </span>
+                  <span style={{ color: item.color }}>{item.icon}</span>
                 </div>
-                <AnimatePresence>
-                  {activeToolIcon === i && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.85, y: 8 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.85, y: 8 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-[#0E1018]/95 backdrop-blur-2xl border border-white/10 rounded-xl p-3 shadow-2xl pointer-events-auto"
-                      style={{ boxShadow: `0 8px 32px ${item.color}15` }}
-                    >
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span style={{ color: item.color }}>{item.icon}</span>
-                        <span className="text-[12px] font-bold text-white">{item.label}</span>
-                      </div>
-                      <p className="text-[11px] text-white/50 leading-relaxed">{item.desc}</p>
-                      <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-[#0E1018]/95 border-l border-t border-white/10" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+              </div>
             ))}
-
-          </motion.div>
+          </div>
         </div>
       </section>
 
