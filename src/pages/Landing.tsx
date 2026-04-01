@@ -177,64 +177,66 @@ export default function Landing() {
       {/* ═══ 2. HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" />
           <div className="absolute inset-0 hero-energy-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/80 via-[#0B0D15]/40 to-[#0B0D15]/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/30" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D15]/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/90 via-[#0B0D15]/60 to-[#0B0D15]/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-transparent to-[#0B0D15]/50" />
         </div>
-        <div className="relative z-10 max-w-[1280px] mx-auto px-6 lg:px-8 w-full">
-          <div className="max-w-[620px] pt-24">
-            <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+        <div className="relative z-10 max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-[620px] pt-28 sm:pt-24">
+            <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-[12px] text-white/60">+2.400 empresas faturam mais no automático</span>
+              <span className="text-[11px] sm:text-[12px] text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
-            <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+            <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Seus concorrentes </span>
               <span className="text-white/30">prospectam.</span>
               <br className="hidden sm:block" />
               <span className="text-white">Você </span>
               <span className="landing-gradient-text">fecha.</span>
             </h1>
-            <p className="text-[16px] text-white/50 max-w-[460px] mt-7 leading-[1.8] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[460px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
               IA que captura leads do Google Maps, Instagram e Facebook, envia mensagens personalizadas no WhatsApp e agenda reuniões — <strong className="text-white/70">mesmo às 3h da manhã.</strong>
             </p>
-            <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
                 <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
               </button>
-              <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#produto" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
-            <div className="flex flex-wrap items-center gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
               {['7 dias grátis', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
-                <span key={t} className="flex items-center gap-1.5 text-[11px] text-white/30">
+                <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/30">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
               ))}
             </div>
-            <div className="flex items-center gap-6 mt-8 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
+
+            {/* Social proof row */}
+            <div className="flex items-center gap-5 sm:gap-6 mt-7 sm:mt-8 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+              <div className="flex items-center gap-2.5">
+                <div className="flex -space-x-2.5">
                   {['#7B2FF2', '#E91E8C', '#00B4D8', '#F7941D'].map((c, i) => (
-                    <div key={i} className="h-7 w-7 rounded-full border-2 border-[#0B0D15]" style={{ background: c }} />
+                    <div key={i} className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg" style={{ background: `linear-gradient(135deg, ${c}, ${c}99)` }} />
                   ))}
                 </div>
-                <span className="text-[12px] text-white/40">+2.400 ativos</span>
+                <span className="text-[11px] sm:text-[12px] text-white/40 font-medium">+2.400 ativos</span>
               </div>
+              <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-[#F7941D] fill-[#F7941D]" />)}
-                <span className="text-[12px] text-white/35 ml-1">4.9/5</span>
+                <span className="text-[11px] sm:text-[12px] text-white/35 ml-1 font-medium">4.9/5</span>
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 animate-bounce">
           <a href="#como-funciona" className="block" aria-label="Rolar para baixo">
-            <div className="w-5 h-8 rounded-full border-2 border-white/20 flex justify-center pt-1.5">
-              <div className="w-1 h-2 bg-white/40 rounded-full landing-scroll-dot" />
+            <div className="w-5 h-8 rounded-full border-2 border-white/15 flex justify-center pt-1.5">
+              <div className="w-1 h-2 bg-white/30 rounded-full landing-scroll-dot" />
             </div>
           </a>
         </div>
