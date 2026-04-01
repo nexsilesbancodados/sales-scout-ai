@@ -100,7 +100,7 @@ export function usePushNotifications() {
 
       new Notification(data.title, {
         body: data.body,
-        icon: data.icon || '/favicon.ico',
+        icon: data.icon || '/logo.png',
         tag: data.tag,
         data: data.data,
       });
