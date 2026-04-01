@@ -17,12 +17,8 @@ import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
 import { GlobeSection } from '@/components/landing/GlobeSection';
 import { StoriesTestimonials } from '@/components/landing/StoriesTestimonials';
 
-
-
-
-
 const NAV_LINKS = [
-  { label: 'Recursos', href: '#recursos', icon: Zap },
+  { label: 'Como funciona', href: '#como-funciona', icon: Zap },
   { label: 'Produto', href: '#produto', icon: BarChart3 },
   { label: 'Preços', href: '#precos', icon: CreditCard },
   { label: 'Cases', href: '#cases', icon: Star },
@@ -65,6 +61,28 @@ const FAQ_DATA = [
   { q: 'O agente SDR substitui minha equipe comercial?', a: 'Ele potencializa. A IA trabalha 24/7 prospectando e qualificando leads — sua equipe entra só na hora de fechar. Resultado: mais deals, menos esforço operacional.' },
 ];
 
+const STEPS = [
+  { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
+  { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
+  { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
+];
+
+const STATS = [
+  { value: '2.4M+', label: 'Leads capturados', icon: Target, color: '#7B2FF2', delay: 0 },
+  { value: '890K+', label: 'Mensagens enviadas', icon: MessageSquare, color: '#F7941D', delay: 0.1 },
+  { value: '23x', label: 'ROI médio', icon: TrendingUp, color: '#00B4D8', delay: 0.2 },
+  { value: '48h', label: 'Até 1ª reunião', icon: Clock, color: '#E91E8C', delay: 0.3 },
+];
+
+const FLOATING_ICONS = [
+  { icon: <img src={googleMapsIcon} alt="Google Maps" className="h-5 w-5 object-contain" />, label: 'Google Maps', color: '#34A853', x: 'left-[5%] md:left-[12%]', y: 'top-[18%]', float: '5s' },
+  { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>, label: 'WhatsApp', color: '#25D366', x: 'left-[2%] md:left-[10%]', y: 'bottom-[28%]', float: '6s' },
+  { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Facebook', color: '#1877F2', x: 'right-[5%] md:right-[12%]', y: 'top-[12%]', float: '7s' },
+  { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>, label: 'Instagram', color: '#E4405F', x: 'right-[2%] md:right-[10%]', y: 'bottom-[22%]', float: '5.5s' },
+  { icon: <img src={googleGIcon} alt="Google" className="h-5 w-5 object-contain" />, label: 'Google', color: '#4285F4', x: 'left-[18%] md:left-[22%]', y: 'top-[2%]', float: '6.5s' },
+  { icon: <Zap className="h-4 w-4" />, label: 'SDR Agent', color: '#7B2FF2', x: 'right-[15%] md:right-[18%]', y: 'bottom-[8%]', float: '7.5s' },
+];
+
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -74,8 +92,6 @@ export default function Landing() {
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  
-  
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
@@ -104,9 +120,6 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-
-
-
   const SectionHeader = ({ tag, title, subtitle, id }: { tag: string; title: React.ReactNode; subtitle?: string; id?: string }) => (
     <div id={id} className="text-center mb-8 scroll-mt-24">
       <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">{tag}</span>
@@ -118,9 +131,8 @@ export default function Landing() {
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
-      
 
-      {/* ═══ FLOATING GLASS NAVBAR ═══ */}
+      {/* ═══ 1. FLOATING GLASS NAVBAR ═══ */}
       <nav className="fixed top-0 w-full z-50 flex justify-center pt-4 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: -20 }}
@@ -168,7 +180,7 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ═══ HERO ═══ */}
+      {/* ═══ 2. HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
           <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-60" />
@@ -226,7 +238,7 @@ export default function Landing() {
           </div>
         </div>
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <a href="#recursos" className="block" aria-label="Rolar para baixo">
+          <a href="#como-funciona" className="block" aria-label="Rolar para baixo">
             <div className="w-5 h-8 rounded-full border-2 border-white/20 flex justify-center pt-1.5">
               <div className="w-1 h-2 bg-white/40 rounded-full landing-scroll-dot" />
             </div>
@@ -234,304 +246,200 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ SCROLL CURVE LINE ═══ */}
+      {/* ═══ SCROLL CURVE LINE WRAPPER ═══ */}
       <div className="relative">
         <ScrollCurveLine />
 
-      {/* ═══ MOCKUP SHOWCASE ═══ */}
-      <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
-
-        <div className="relative z-10 max-w-[900px] mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
-            <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-              Venda de <span className="landing-gradient-text">qualquer lugar</span>
-            </h2>
-            <p className="text-[14px] text-white/40 mt-4 max-w-[420px] mx-auto">
-              Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
-            </p>
-          </motion.div>
-
-          {/* Floating Phone */}
-          <div className="relative mt-16 flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-            {/* Glow */}
-            <div className="absolute inset-0 -m-16 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.18) 0%, rgba(123,47,242,0.04) 50%, transparent 75%)',
-            }} />
-
-            {/* Float animation wrapper */}
-            <div className="animate-[floating_6s_ease-in-out_infinite]">
-              <img
-                src={heroPhonesImg}
-                alt="NexaProspect no celular"
-                className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]"
-                loading="lazy"
-              />
-            </div>
-
-            {/* Floating Tool Icons - official brand icons, close to phones */}
-            {[
-              { icon: <img src={googleMapsIcon} alt="Google Maps" className="h-5 w-5 object-contain" />, label: 'Google Maps', color: '#34A853', x: 'left-[5%] md:left-[12%]', y: 'top-[18%]', float: '5s' },
-              { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>, label: 'WhatsApp', color: '#25D366', x: 'left-[2%] md:left-[10%]', y: 'bottom-[28%]', float: '6s' },
-              { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Facebook', color: '#1877F2', x: 'right-[5%] md:right-[12%]', y: 'top-[12%]', float: '7s' },
-              { icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>, label: 'Instagram', color: '#E4405F', x: 'right-[2%] md:right-[10%]', y: 'bottom-[22%]', float: '5.5s' },
-              { icon: <img src={googleGIcon} alt="Google" className="h-5 w-5 object-contain" />, label: 'Google', color: '#4285F4', x: 'left-[18%] md:left-[22%]', y: 'top-[2%]', float: '6.5s' },
-              { icon: <Zap className="h-4 w-4" />, label: 'SDR Agent', color: '#7B2FF2', x: 'right-[15%] md:right-[18%]', y: 'bottom-[8%]', float: '7.5s' },
-            ].map((item, i) => (
-              <div
+        {/* ═══ 3. COMO FUNCIONA - 3 STEPS ═══ */}
+        <section id="como-funciona" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
+          <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
+          <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            {STEPS.map((item, i) => (
+              <motion.div
                 key={i}
-                className={`absolute ${item.x} ${item.y} z-30`}
-                style={{ animation: `floating ${item.float} ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}
+                initial={{ opacity: 0, y: 80, scale: 0.85, rotateX: 12 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.8, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
+                className="relative group"
+                style={{ perspective: '800px' }}
               >
-                <div
-                  className="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center border border-white/10"
-                  style={{ background: `${item.color}12`, boxShadow: `0 0 18px ${item.color}25` }}
-                  title={item.label}
-                >
-                  <span style={{ color: item.color }}>{item.icon}</span>
+                <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.15] transition-all duration-500 h-full overflow-hidden hover:shadow-[0_0_40px_rgba(123,47,242,0.08)]">
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
+                  <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
+
+                  <motion.div
+                    className="flex justify-center mb-4"
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
+                  >
+                    <div className="relative">
+                      <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
+                      <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
+                    </div>
+                  </motion.div>
+
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
+                    <item.icon className="h-4 w-4" style={{ color: item.color }} />
+                  </div>
+                  <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
+                  <p className="text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
+                  {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />}
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══ 4. MOCKUP SHOWCASE ═══ */}
+        <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
+          <div className="relative z-10 max-w-[900px] mx-auto text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
+              <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
+                Venda de <span className="landing-gradient-text">qualquer lugar</span>
+              </h2>
+              <p className="text-[14px] text-white/40 mt-4 max-w-[420px] mx-auto">
+                Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
+              </p>
+            </motion.div>
+
+            <div className="relative mt-16 flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+              <div className="absolute inset-0 -m-16 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.18) 0%, rgba(123,47,242,0.04) 50%, transparent 75%)' }} />
+              <div className="animate-[floating_6s_ease-in-out_infinite]">
+                <img src={heroPhonesImg} alt="NexaProspect no celular" className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]" loading="lazy" />
+              </div>
+              {FLOATING_ICONS.map((item, i) => (
+                <div key={i} className={`absolute ${item.x} ${item.y} z-30`} style={{ animation: `floating ${item.float} ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}>
+                  <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center border border-white/10" style={{ background: `${item.color}12`, boxShadow: `0 0 18px ${item.color}25` }} title={item.label}>
+                    <span style={{ color: item.color }}>{item.icon}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ 5. NÚMEROS QUE IMPRESSIONAM ═══ */}
+        <section className="relative py-20 px-4 md:px-8 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
+          <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
+          <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            {STATS.map((stat, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 40, rotateX: 15 }} whileInView={{ opacity: 1, y: 0, rotateX: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }} className="group">
+                <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm text-center hover:border-white/[0.12] transition-all duration-500 overflow-hidden">
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${stat.color}12, transparent 70%)` }} />
+                  <div className="relative z-10">
+                    <stat.icon className="h-5 w-5 mx-auto mb-3 opacity-50" style={{ color: stat.color }} />
+                    <motion.span initial={{ scale: 0.5 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: stat.delay + 0.3, type: 'spring', stiffness: 200 }} className="block text-2xl md:text-3xl font-black tracking-[-0.03em]" style={{ color: stat.color }}>
+                      {stat.value}
+                    </motion.span>
+                    <span className="text-[11px] text-white/35 mt-1 block">{stat.label}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.5 }} className="flex flex-wrap items-center justify-center gap-6 mt-10">
+            {[
+              { icon: Users, text: '+2.400 empresas ativas' },
+              { icon: Rocket, text: 'Setup em 5 min' },
+              { icon: Star, text: '4.9/5 de avaliação' },
+            ].map((badge, i) => (
+              <span key={i} className="flex items-center gap-2 text-[11px] text-white/30">
+                <badge.icon className="h-3.5 w-3.5 text-[#F7941D]/50" />
+                {badge.text}
+              </span>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* ═══ 6. FEEDBACKS - INSTAGRAM STORIES ═══ */}
+        <section id="cases" className="relative py-12 px-4 md:px-8 scroll-mt-24">
+          <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
+          <StoriesTestimonials />
+        </section>
+
+        {/* ═══ 7. GLOBE - ALCANCE GLOBAL ═══ */}
+        <GlobeSection />
+
+        {/* ═══ 8. PRICING ═══ */}
+        <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
+          <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
+            <button onClick={() => setAnnualPricing(!annualPricing)} className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}>
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
+            </button>
+            <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
+            {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
+            {PRICING_PLANS.map((plan, i) => (
+              <div key={plan.name} className="h-[520px]">
+                <PremiumPricingCard plan={plan} annual={annualPricing} index={i} />
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══ GLOBE - ALCANCE GLOBAL ═══ */}
-      <GlobeSection />
+        {/* ═══ 9. FAQ ═══ */}
+        <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
+          <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
+          <div className="max-w-2xl mx-auto space-y-2">
+            {FAQ_DATA.map((item, i) => (
+              <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
+                  <span className="text-[13px] font-semibold text-white/80">{item.q}</span>
+                  <ChevronDown className={`h-4 w-4 text-white/30 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+                      <p className="px-5 pb-4 text-[13px] text-white/45 leading-relaxed">{item.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      {/* ═══ COMO FUNCIONA - 3 STEPS ═══ */}
-      <section id="recursos" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
-        <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
-        <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          {[
-            { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
-            { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
-            { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 80, scale: 0.85, rotateX: 12 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.8, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
-              className="relative group"
-              style={{ perspective: '800px' }}
-            >
-              <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.15] transition-all duration-500 h-full overflow-hidden hover:shadow-[0_0_40px_rgba(123,47,242,0.08)]">
-                {/* Glow on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
-                
-                {/* Step number watermark */}
-                <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
-                
-                {/* Image */}
-                <motion.div
-                  className="flex justify-center mb-4"
-                  initial={{ scale: 0.7, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
-                >
-                  <div className="relative">
-                    <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
-                    <img
-                      src={item.img}
-                      alt={item.title}
-                      className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]"
-                      loading="lazy"
-                      width={96}
-                      height={96}
-                    />
-                  </div>
-                </motion.div>
-
-                {/* Icon badge */}
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
-                  <item.icon className="h-4 w-4" style={{ color: item.color }} />
-                </div>
-                
-                <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
-                <p className="text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
-
-                {/* Connecting line */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />
-                )}
+        {/* ═══ 10. FINAL CTA ═══ */}
+        <section className="relative py-20 px-4 md:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+              <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
+                Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
+              </h2>
+              <p className="text-white/40 text-sm mt-4 max-w-md mx-auto">
+                +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+                <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
+                  <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
+                  <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
+                </button>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-4">
+                {['7 dias grátis', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
+                  <span key={t} className="flex items-center gap-1 text-[10px] text-white/25">
+                    <Check className="h-3 w-3 text-emerald-500/50" /> {t}
+                  </span>
+                ))}
               </div>
             </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ PRICING ═══ */}
-      <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
-          <button
-            onClick={() => setAnnualPricing(!annualPricing)}
-            className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
-          >
-            <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
-          </button>
-          <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
-          {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
-          {PRICING_PLANS.map((plan, i) => (
-            <div key={plan.name} className="h-[520px]">
-              <PremiumPricingCard plan={plan} annual={annualPricing} index={i} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
-      <section className="relative py-12 px-4 md:px-8">
-        <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
-        <StoriesTestimonials />
-      </section>
-
-      {/* ═══ NÚMEROS QUE IMPRESSIONAM ═══ */}
-      <section className="relative py-20 px-4 md:px-8 overflow-hidden">
-        {/* Background accent */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
-        
-        <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
-        
-        <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
-          {[
-            { value: '2.4M+', label: 'Leads capturados', icon: Target, color: '#7B2FF2', delay: 0 },
-            { value: '890K+', label: 'Mensagens enviadas', icon: MessageSquare, color: '#F7941D', delay: 0.1 },
-            { value: '23x', label: 'ROI médio', icon: TrendingUp, color: '#00B4D8', delay: 0.2 },
-            { value: '48h', label: 'Até 1ª reunião', icon: Clock, color: '#E91E8C', delay: 0.3 },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40, rotateX: 15 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }}
-              className="group"
-            >
-              <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm text-center hover:border-white/[0.12] transition-all duration-500 overflow-hidden">
-                {/* Hover glow */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${stat.color}12, transparent 70%)` }} />
-                
-                <div className="relative z-10">
-                  <stat.icon className="h-5 w-5 mx-auto mb-3 opacity-50" style={{ color: stat.color }} />
-                  <motion.span
-                    initial={{ scale: 0.5 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: stat.delay + 0.3, type: 'spring', stiffness: 200 }}
-                    className="block text-2xl md:text-3xl font-black tracking-[-0.03em]"
-                    style={{ color: stat.color }}
-                  >
-                    {stat.value}
-                  </motion.span>
-                  <span className="text-[11px] text-white/35 mt-1 block">{stat.label}</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Bottom trust badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-6 mt-10"
-        >
-          {[
-            { icon: Users, text: '+2.400 empresas ativas' },
-            { icon: Rocket, text: 'Setup em 5 min' },
-            { icon: Star, text: '4.9/5 de avaliação' },
-          ].map((badge, i) => (
-            <span key={i} className="flex items-center gap-2 text-[11px] text-white/30">
-              <badge.icon className="h-3.5 w-3.5 text-[#F7941D]/50" />
-              {badge.text}
-            </span>
-          ))}
-        </motion.div>
-      </section>
-
-      <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
-        <div className="max-w-2xl mx-auto space-y-2">
-          {FAQ_DATA.map((item, i) => (
-            <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
-              <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between px-5 py-4 text-left"
-              >
-                <span className="text-[13px] font-semibold text-white/80">{item.q}</span>
-                <ChevronDown className={`h-4 w-4 text-white/30 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {openFaq === i && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-5 pb-4 text-[13px] text-white/45 leading-relaxed">{item.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="relative py-20 px-4 md:px-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
-              Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
-            </h2>
-            <p className="text-white/40 text-sm mt-4 max-w-md mx-auto">
-              +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-              <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
-                <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
-              </button>
-            </div>
-            <div className="flex items-center justify-center gap-4 mt-4">
-              {['7 dias grátis', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
-                <span key={t} className="flex items-center gap-1 text-[10px] text-white/25">
-                  <Check className="h-3 w-3 text-emerald-500/50" /> {t}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
 
       </div>{/* end scroll curve wrapper */}
 
-      {/* ═══ FOOTER ═══ */}
+      {/* ═══ 11. FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-12 px-4 md:px-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
@@ -541,8 +449,6 @@ export default function Landing() {
               A máquina de vendas com IA que prospecta, qualifica e agenda reuniões no piloto automático.
             </p>
           </div>
-
-          {/* Contato */}
           <div className="flex flex-col gap-2.5">
             <span className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-1">Contato</span>
             <a href="mailto:devcriador1@gmail.com" className="text-[12px] text-white/40 hover:text-white/70 transition-colors flex items-center gap-2">
@@ -558,15 +464,12 @@ export default function Landing() {
               @Focussdev
             </a>
           </div>
-
-          {/* Legal */}
           <div className="flex flex-col gap-2.5 md:items-end">
             <span className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-1">Legal</span>
             <p className="text-[11px] text-white/30">FOCUSS DEV</p>
             <p className="text-[11px] text-white/30">CNPJ 65.132.412/0001-20</p>
           </div>
         </div>
-
         <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-[10px] text-white/20">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV. Todos os direitos reservados.</p>
           <div className="flex gap-4">
