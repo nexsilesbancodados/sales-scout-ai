@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Wraps landing sections. Dims them until the scroll-line tip reaches their Y position.
- * Uses the tip's actual page-Y coordinate for precise synchronization.
+ * Listens to the line-progress event which broadcasts tipViewportY (the tip's Y in viewport coords).
  */
 export function ScrollLightUpSection({
   children,
@@ -13,32 +13,33 @@ export function ScrollLightUpSection({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const litRef = useRef(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
       const el = ref.current;
-      if (!el || litRef.current) return;
+      if (!el) return;
+      if (litRef.current) return;
 
-      const { tipViewportY } = (e as CustomEvent).detail as { tipViewportY: number };
+      const { tipViewportY, pct } = (e as CustomEvent).detail;
       const rect = el.getBoundingClientRect();
 
-      // Section top relative to viewport
-      const sectionTop = rect.top;
-      // The line "touches" the section when the tip Y reaches the section's top
-      // Full light when tip is 30% into the section
-      const enterY = sectionTop;
-      const fullY = sectionTop + rect.height * 0.3;
+      // When the tip's viewport Y reaches the top of this section (with a 150px lead), start lighting
+      const startLight = rect.top - 150;
+      const endLight = rect.top + Math.min(rect.height * 0.35, 250);
 
-      if (tipViewportY < enterY - 100) {
-        // Line hasn't reached this section yet
-        el.style.opacity = '0.1';
-        el.style.filter = 'brightness(0.25)';
-        el.style.setProperty('--glow-opacity', '0');
+      if (tipViewportY < startLight) {
+        // Not reached yet — stay dark
+        if (!initializedRef.current) {
+          initializedRef.current = true;
+          el.style.opacity = '0.08';
+          el.style.filter = 'brightness(0.2)';
+        }
         return;
       }
 
-      if (tipViewportY >= fullY) {
-        // Line has passed through — fully lit
+      if (tipViewportY >= endLight || pct >= 0.99) {
+        // Fully lit
         litRef.current = true;
         el.style.opacity = '1';
         el.style.filter = 'brightness(1)';
@@ -46,16 +47,20 @@ export function ScrollLightUpSection({
         return;
       }
 
-      // Line is passing through this section — interpolate
-      const range = fullY - (enterY - 100);
-      const progress = Math.min(1, Math.max(0, (tipViewportY - (enterY - 100)) / range));
-      
-      el.style.opacity = `${0.1 + 0.9 * progress}`;
-      el.style.filter = `brightness(${0.25 + 0.75 * progress})`;
+      // Interpolate
+      const range = endLight - startLight;
+      const progress = (tipViewportY - startLight) / range;
+      const clamped = Math.max(0, Math.min(1, progress));
 
-      // Glow sweep peaks at 50% progress
-      const glowIntensity = progress > 0.2 && progress < 0.9
-        ? (1 - Math.abs(progress - 0.5) / 0.5) * 0.5
+      // Ease-out curve for smoother feel
+      const eased = 1 - Math.pow(1 - clamped, 2.5);
+
+      el.style.opacity = `${0.08 + 0.92 * eased}`;
+      el.style.filter = `brightness(${0.2 + 0.8 * eased})`;
+
+      // Glow sweep peaks in the middle
+      const glowIntensity = clamped > 0.15 && clamped < 0.85
+        ? (1 - Math.abs(clamped - 0.5) / 0.5) * 0.6
         : 0;
       el.style.setProperty('--glow-opacity', `${glowIntensity}`);
     };
@@ -64,25 +69,25 @@ export function ScrollLightUpSection({
     return () => window.removeEventListener('line-progress', handler);
   }, []);
 
-  // Fallback for sections below the curve or fast scroll
+  // Fallback: sections below the curve or fast scroll
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0.25) {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
           setTimeout(() => {
             if (!litRef.current) {
               litRef.current = true;
-              el.style.transition = 'opacity 0.8s ease, filter 0.8s ease';
+              el.style.transition = 'opacity 1s ease, filter 1s ease';
               el.style.opacity = '1';
               el.style.filter = 'brightness(1)';
               el.style.setProperty('--glow-opacity', '0');
             }
-          }, 400);
+          }, 300);
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -92,7 +97,11 @@ export function ScrollLightUpSection({
     <div
       ref={ref}
       className={`scroll-lightup-section ${className}`}
-      style={{ opacity: 0.1, filter: 'brightness(0.25)', transition: 'opacity 0.3s ease, filter 0.3s ease' }}
+      style={{
+        opacity: 0.08,
+        filter: 'brightness(0.2)',
+        transition: 'opacity 0.25s ease-out, filter 0.25s ease-out',
+      }}
     >
       <div className="scroll-lightup-glow" />
       {children}
