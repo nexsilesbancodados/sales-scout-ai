@@ -208,7 +208,7 @@ export default function CRMPipelinePage() {
             return (
               <div
                 key={stage}
-                className="flex flex-col"
+                className="flex flex-col min-w-[260px] snap-start md:min-w-0"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={e => handleDrop(e, stage)}
