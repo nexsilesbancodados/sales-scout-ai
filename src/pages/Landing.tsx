@@ -53,7 +53,7 @@ const PRICING_PLANS = [
 ];
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito para testar?', a: 'Não. O trial de 7 dias é 100% gratuito. Você só paga se decidir continuar.' },
+  { q: 'Preciso de cartão de crédito?', a: 'Sim, o pagamento é processado de forma segura no momento da assinatura.' },
   { q: 'Meu WhatsApp pode ser banido?', a: 'Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, spintax e rotação de chips para proteger seu número.' },
   { q: 'Quanto tempo leva para configurar?', a: 'Menos de 5 minutos. Conecte o WhatsApp, escolha o nicho e a IA já começa a prospectar automaticamente.' },
   { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem burocracia. Cancele com 1 clique no painel.' },
