@@ -225,6 +225,105 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ MOCKUP SHOWCASE ═══ */}
+      <section id="produto" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
+        {/* Subtle top gradient blend */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
+        
+        <div className="relative z-10 max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            
+            {/* Left — Copy */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Como funciona</span>
+              <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
+                Prospecte no <span className="landing-gradient-text">piloto automático</span>
+              </h2>
+              <p className="text-[15px] text-white/45 mt-5 leading-relaxed max-w-[440px]">
+                A Nexa encontra leads qualificados no Google Maps, envia mensagens personalizadas no WhatsApp e agenda reuniões — tudo sem você mover um dedo.
+              </p>
+              
+              <div className="mt-8 space-y-5">
+                {[
+                  { icon: MapPin, title: 'Captura inteligente', desc: 'Encontre leads por nicho e localização automaticamente' },
+                  { icon: MessageSquare, title: 'Abordagem com IA', desc: 'Mensagens personalizadas que geram 3x mais respostas' },
+                  { icon: TrendingUp, title: 'Resultados reais', desc: 'Acompanhe conversões e otimize em tempo real' },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
+                    className="flex items-start gap-4 group"
+                  >
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#7B2FF2]/20 group-hover:border-[#7B2FF2]/30 transition-colors duration-300">
+                      <item.icon className="h-4.5 w-4.5 text-white/50 group-hover:text-[#7B2FF2] transition-colors duration-300" />
+                    </div>
+                    <div>
+                      <h3 className="text-[14px] font-semibold text-white/90">{item.title}</h3>
+                      <p className="text-[13px] text-white/35 mt-0.5">{item.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            
+            {/* Right — Phone Mockup Image */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, scale: 0.92 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="relative flex items-center justify-center"
+            >
+              {/* Glow behind phones */}
+              <div className="absolute inset-0 -m-12 rounded-3xl pointer-events-none" style={{
+                background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.15) 0%, rgba(123,47,242,0.05) 40%, transparent 70%)',
+              }} />
+              
+              <img
+                src={heroPhonesImg}
+                alt="NexaProspect - Prospecção inteligente no celular"
+                className="relative z-10 w-full max-w-[560px] h-auto drop-shadow-2xl"
+                loading="lazy"
+              />
+
+              {/* Floating stat badge */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="absolute -right-2 md:right-0 top-1/4 bg-[#0E1018]/90 backdrop-blur-xl border border-white/[0.1] rounded-xl px-4 py-3 shadow-xl z-20"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[11px] text-white/70 font-medium">48 leads capturados hoje</span>
+                </div>
+              </motion.div>
+
+              {/* Floating conversion badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 1, duration: 0.6 }}
+                className="absolute -left-2 md:left-0 bottom-1/4 bg-[#0E1018]/90 backdrop-blur-xl border border-white/[0.1] rounded-xl px-4 py-3 shadow-xl z-20"
+              >
+                <p className="text-[10px] text-white/40 mb-0.5">Taxa de resposta</p>
+                <p className="text-lg font-bold text-[#7B2FF2]">34.7%</p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
         <SectionHeader tag="Preços" title={<>Plano ideal para <span className="landing-gradient-text">cada fase.</span></>} />
