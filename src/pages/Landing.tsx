@@ -39,7 +39,7 @@ const PRICING_PLANS = [
     price: 197,
     annual: 149,
     features: ['1.000 leads/mês', 'Agente SDR com IA', 'CRM completo', 'Follow-up automático', 'Analytics avançado'],
-    cta: 'Testar 7 dias grátis',
+    cta: 'Começar agora',
     highlight: true,
   },
   {
