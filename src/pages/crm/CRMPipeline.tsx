@@ -236,33 +236,31 @@ export default function CRMPipelinePage() {
   const wonCount = leads.filter(l => l.stage === 'Ganho').length;
 
   return (
-    <div className="p-4 sm:p-6 h-full flex flex-col">
+    <div className="p-4 sm:p-6 flex flex-col h-[calc(100vh-56px)] md:h-screen overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-5 gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3 shrink-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Pipeline</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Gerencie seus deals e acompanhe o funil de vendas</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-3 py-1.5 rounded-lg">
-              <DollarSign className="h-3.5 w-3.5" />
-              <span className="font-semibold">{fmt(totalPipeline)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg">
-              <TrendingUp className="h-3.5 w-3.5" />
-              <span className="font-semibold">{wonCount} ganhos</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              <span className="font-semibold">{leads.length}</span>
-            </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-3 py-1.5 rounded-lg text-sm">
+            <DollarSign className="h-3.5 w-3.5" />
+            <span className="font-semibold">{fmt(totalPipeline)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm">
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="font-semibold">{wonCount} ganhos</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg text-muted-foreground text-sm">
+            <Users className="h-3.5 w-3.5" />
+            <span className="font-semibold">{leads.length}</span>
           </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="mb-4">
+      <div className="mb-3 shrink-0">
         <div className="relative max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -282,7 +280,7 @@ export default function CRMPipelinePage() {
           </div>
         </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto flex-1 min-h-0 pb-2 snap-x snap-mandatory">
           {allStages.map((stage) => {
             const stageLeads = filteredLeads.filter(l => l.stage === stage);
             const isDragOver = dragOverStage === stage;
@@ -292,13 +290,13 @@ export default function CRMPipelinePage() {
             return (
               <div
                 key={stage}
-                className="flex flex-col min-w-[280px] max-w-[320px] flex-1 snap-start"
+                className="flex flex-col min-w-[270px] max-w-[310px] flex-1 snap-start"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={e => handleDrop(e, stage)}
               >
                 {/* Column header */}
-                <div className={`rounded-t-xl p-3 border border-b-0 border-border/40 transition-all ${isDragOver ? 'ring-2 ring-primary shadow-lg' : ''}`}>
+                <div className={`rounded-t-xl p-3 border border-b-0 border-border/40 shrink-0 transition-all ${isDragOver ? 'ring-2 ring-primary shadow-lg' : ''}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-sm">{config.emoji}</span>
@@ -330,7 +328,6 @@ export default function CRMPipelinePage() {
                       {fmtCompact(stageValue)}
                     </p>
                   )}
-                  {/* Progress bar showing proportion */}
                   <div className="h-1 rounded-full bg-muted mt-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full bg-gradient-to-r ${config.gradient} transition-all duration-500`}
@@ -339,26 +336,26 @@ export default function CRMPipelinePage() {
                   </div>
                 </div>
 
-                {/* Column body */}
-                <div className={`flex-1 border border-t-0 border-border/40 rounded-b-xl p-2 transition-all ${isDragOver ? 'bg-primary/5 ring-2 ring-primary' : 'bg-muted/20'}`}>
-                  <ScrollArea className="h-[calc(100vh-320px)]">
-                    <div className="space-y-2 pr-2">
-                        {stageLeads.length === 0 ? (
-                          <div className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}>
-                            <span className="text-2xl mb-2">{config.emoji}</span>
-                            <p className="text-xs">Arraste leads aqui</p>
-                          </div>
-                        ) : (
-                          stageLeads.map(lead => (
-                            <LeadCard
-                              key={lead.id}
-                              lead={lead}
-                              onDragStart={e => handleDragStart(e, lead)}
-                              isDragging={draggedLead?.id === lead.id}
-                              onClick={() => navigate(`/crm/contacts/${lead.id}`)}
-                            />
-                          ))
-                        )}
+                {/* Column body - fills remaining space */}
+                <div className={`flex-1 min-h-0 border border-t-0 border-border/40 rounded-b-xl transition-all ${isDragOver ? 'bg-primary/5 ring-2 ring-primary' : 'bg-muted/20'}`}>
+                  <ScrollArea className="h-full">
+                    <div className="p-2 space-y-2">
+                      {stageLeads.length === 0 ? (
+                        <div className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}>
+                          <span className="text-2xl mb-2">{config.emoji}</span>
+                          <p className="text-xs">Arraste leads aqui</p>
+                        </div>
+                      ) : (
+                        stageLeads.map(lead => (
+                          <LeadCard
+                            key={lead.id}
+                            lead={lead}
+                            onDragStart={e => handleDragStart(e, lead)}
+                            isDragging={draggedLead?.id === lead.id}
+                            onClick={() => navigate(`/crm/contacts/${lead.id}`)}
+                          />
+                        ))
+                      )}
                     </div>
                   </ScrollArea>
                 </div>
