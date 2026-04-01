@@ -62,46 +62,68 @@ export function GlobeSection() {
           </p>
         </motion.div>
 
-        <div className="relative flex items-center justify-center">
-          {/* Glow backdrop */}
+        <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
+          {/* Base ambient glow - always subtle */}
           <div
-            className="absolute inset-0 pointer-events-none transition-all duration-1000"
+            className="absolute pointer-events-none rounded-full"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.25) 0%, transparent 60%)',
-              opacity: lineReached ? 1 : 0.3,
-              transform: lineReached ? 'scale(1.2)' : 'scale(1)',
+              width: 500,
+              height: 500,
+              background: 'radial-gradient(circle, rgba(123,47,242,0.08) 0%, transparent 70%)',
             }}
           />
 
-          {/* Outer ring glow */}
+          {/* CONNECTED glow - intense purple burst */}
           <div
-            className="absolute w-[480px] h-[480px] rounded-full pointer-events-none transition-all duration-1000"
+            className="absolute pointer-events-none rounded-full"
             style={{
-              boxShadow: lineReached
-                ? '0 0 80px 20px rgba(123,47,242,0.4), 0 0 160px 60px rgba(123,47,242,0.15), inset 0 0 60px 10px rgba(123,47,242,0.1)'
-                : 'none',
+              width: 600,
+              height: 600,
+              background: 'radial-gradient(circle, rgba(123,47,242,0.5) 0%, rgba(123,47,242,0.2) 30%, rgba(247,148,29,0.1) 50%, transparent 70%)',
               opacity: lineReached ? 1 : 0,
+              transform: lineReached ? 'scale(1)' : 'scale(0.6)',
+              transition: 'opacity 0.8s ease-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           />
 
-          {/* Pulse ring on connection */}
+          {/* Outer pulsing ring */}
           <div
-            className="absolute w-[500px] h-[500px] rounded-full pointer-events-none border-2 border-primary/40"
+            className="absolute pointer-events-none rounded-full"
             style={{
+              width: 520,
+              height: 520,
+              border: '2px solid rgba(123,47,242,0.5)',
+              boxShadow: '0 0 30px rgba(123,47,242,0.3), inset 0 0 30px rgba(123,47,242,0.1)',
               opacity: lineReached ? 1 : 0,
-              transform: lineReached ? 'scale(1.1)' : 'scale(0.9)',
-              transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              animation: lineReached ? 'pulse 2s ease-in-out infinite' : 'none',
+              transform: lineReached ? 'scale(1)' : 'scale(0.8)',
+              transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)',
+              animation: lineReached ? 'pulse 2.5s ease-in-out infinite' : 'none',
             }}
           />
 
+          {/* Second pulsing ring - delayed */}
           <div
-            className="w-full max-w-[460px] transition-all duration-700"
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              width: 580,
+              height: 580,
+              border: '1px solid rgba(123,47,242,0.25)',
+              opacity: lineReached ? 0.7 : 0,
+              transform: lineReached ? 'scale(1)' : 'scale(0.7)',
+              transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
+              animation: lineReached ? 'pulse 3s ease-in-out infinite 0.5s' : 'none',
+            }}
+          />
+
+          {/* Globe container with dramatic glow */}
+          <div
+            className="w-full max-w-[460px] relative z-10"
             style={{
               filter: lineReached
-                ? 'drop-shadow(0 0 60px rgba(123,47,242,0.5)) drop-shadow(0 0 120px rgba(123,47,242,0.2))'
-                : 'none',
-              transform: lineReached ? 'scale(1.03)' : 'scale(1)',
+                ? 'drop-shadow(0 0 40px rgba(123,47,242,0.6)) drop-shadow(0 0 80px rgba(123,47,242,0.3)) drop-shadow(0 0 120px rgba(123,47,242,0.15))'
+                : 'drop-shadow(0 0 10px rgba(123,47,242,0.1))',
+              transform: lineReached ? 'scale(1.04)' : 'scale(1)',
+              transition: 'filter 1s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             {isVisible ? (
@@ -110,11 +132,11 @@ export function GlobeSection() {
                   markers={markers}
                   arcs={arcs}
                   dark={1}
-                  baseColor={lineReached ? [0.2, 0.15, 0.35] : [0.15, 0.12, 0.25]}
+                  baseColor={[0.15, 0.12, 0.25]}
                   markerColor={[0.48, 0.18, 0.95]}
                   arcColor={[0.97, 0.58, 0.11]}
-                  glowColor={lineReached ? [0.35, 0.2, 0.6] : [0.25, 0.15, 0.45]}
-                  mapBrightness={lineReached ? 8 : 6}
+                  glowColor={[0.25, 0.15, 0.45]}
+                  mapBrightness={6}
                   speed={0.002}
                   markerSize={0.03}
                   mapSamples={10000}
