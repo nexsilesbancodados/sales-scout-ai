@@ -379,7 +379,6 @@ export default function Landing() {
       {/* ═══ FERRAMENTAS TIMELINE ═══ */}
       <ToolsTimeline />
 
-      <WaveDivider />
 
 
       {/* ═══ PRICING ═══ */}
