@@ -85,7 +85,6 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState('');
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
-  const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
