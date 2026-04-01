@@ -463,8 +463,8 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-[10px] text-white/50">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV. Todos os direitos reservados.</p>
           <div className="flex gap-4">
-            <a href="#" className="text-[10px] text-white/50 hover:text-white/55 transition-colors">Termos de Uso</a>
-            <a href="#" className="text-[10px] text-white/50 hover:text-white/55 transition-colors">Privacidade</a>
+            <a href="#" className="text-[10px] text-white/50 hover:text-white/70 transition-colors">Termos de Uso</a>
+            <a href="#" className="text-[10px] text-white/50 hover:text-white/70 transition-colors">Privacidade</a>
           </div>
         </div>
       </footer>
