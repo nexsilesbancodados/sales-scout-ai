@@ -73,9 +73,7 @@ export function StoriesTestimonials() {
             className="flex flex-col items-center gap-1.5 shrink-0 group"
           >
             <div className={`w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-gradient-to-br ${t.gradient} p-[2.5px] transition-transform group-hover:scale-110`}>
-              <div className="w-full h-full rounded-full bg-[#0a0a14] flex items-center justify-center text-2xl">
-                {t.avatar}
-              </div>
+              <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" />
             </div>
             <span className="text-[10px] text-white/50 max-w-[72px] truncate">{t.name}</span>
           </button>
