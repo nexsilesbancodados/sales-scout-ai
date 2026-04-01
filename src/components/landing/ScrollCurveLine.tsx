@@ -32,33 +32,36 @@ export function ScrollCurveLine() {
         const rect = container.getBoundingClientRect();
         const vh = window.innerHeight;
 
-        // Line starts when container top enters viewport bottom
-        // Line completes when container bottom reaches viewport center
-        const startTrigger = vh; // container.top == vh (just entering)
-        const endTrigger = vh * 0.45; // container.bottom near center
-        const currentPos = rect.bottom;
+        const startTrigger = vh;
+        const endTrigger = vh * 0.45;
         const totalRange = rect.height + vh - endTrigger;
         const traveled = startTrigger - rect.top;
         const pct = Math.max(0, Math.min(1, traveled / totalRange));
         
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
-        // Broadcast progress so sections can light up
+        // Calculate the tip's actual Y position on the page
+        const tipSVG = path.getPointAtLength(pathLen * pct);
+        // SVG viewBox is 0-4600 in Y, container maps to rect
+        const tipPageY = rect.top + window.scrollY + (tipSVG.y / 4600) * rect.height;
+        const tipViewportY = rect.top + (tipSVG.y / 4600) * rect.height;
+
+        // Broadcast both pct AND the tip's absolute page Y position
         document.documentElement.style.setProperty('--line-progress', `${pct}`);
-        window.dispatchEvent(new CustomEvent('line-progress', { detail: { pct } }));
+        window.dispatchEvent(new CustomEvent('line-progress', { 
+          detail: { pct, tipPageY, tipViewportY } 
+        }));
 
         // Position the glow dot at the tip of the drawn line
         if (glow && pct > 0.01) {
-          const point = path.getPointAtLength(pathLen * pct);
-          glow.setAttribute('cx', `${point.x}`);
-          glow.setAttribute('cy', `${point.y}`);
+          glow.setAttribute('cx', `${tipSVG.x}`);
+          glow.setAttribute('cy', `${tipSVG.y}`);
           glow.style.opacity = `${Math.min(1, pct * 3)}`;
         }
         
-        // Globe center is at x=500, y=4600 (end of path). Trigger when tip enters globe radius.
+        // Globe
         const globeCX = 500, globeCY = 4600, globeR = 1200;
-        const tip = path.getPointAtLength(pathLen * pct);
-        const dist = Math.hypot(tip.x - globeCX, tip.y - globeCY);
+        const dist = Math.hypot(tipSVG.x - globeCX, tipSVG.y - globeCY);
         const reached = dist <= globeR && pct > 0.4;
         if (reached !== lastReached) {
           lastReached = reached;
@@ -73,7 +76,6 @@ export function ScrollCurveLine() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // The curve ends right at the globe center area
   const curvePath = `M 500 0 
      C 900 400, 900 700, 500 1266 
      C 100 1766, 100 2166, 500 2633 
@@ -112,7 +114,6 @@ export function ScrollCurveLine() {
           style={{ transition: 'stroke-dashoffset 0.15s linear' }}
         />
 
-        {/* Glowing tip dot that follows the drawn path */}
         <circle
           ref={glowRef}
           r="12"

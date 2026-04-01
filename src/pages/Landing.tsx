@@ -252,7 +252,7 @@ export default function Landing() {
         <ScrollCurveLine />
 
         {/* ═══ 3. COMO FUNCIONA - 3 STEPS ═══ */}
-        <ScrollLightUpSection threshold={0.15}>
+        <ScrollLightUpSection>
         <section id="como-funciona" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
           <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
           <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
@@ -296,7 +296,7 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={0.35}>
+        <ScrollLightUpSection>
         <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
@@ -327,7 +327,7 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={0.55}>
+        <ScrollLightUpSection>
         <section className="relative py-20 px-4 md:px-8 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
           <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
@@ -362,13 +362,13 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={0.8}>
+        <ScrollLightUpSection>
         <GlobeSection />
         </ScrollLightUpSection>
 
       </div>{/* end scroll curve wrapper */}
 
-        <ScrollLightUpSection threshold={0.88}>
+        <ScrollLightUpSection>
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
           <div className="max-w-md mx-auto">
@@ -379,14 +379,14 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={0.93}>
+        <ScrollLightUpSection>
         <section id="cases" className="relative py-12 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
           <StoriesTestimonials />
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={0.97}>
+        <ScrollLightUpSection>
         <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/50">saber.</span></>} />
           <div className="max-w-2xl mx-auto space-y-2">
@@ -409,7 +409,7 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
-        <ScrollLightUpSection threshold={1.0}>
+        <ScrollLightUpSection>
         <section className="relative py-20 px-4 md:px-8">
           <div className="max-w-2xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
