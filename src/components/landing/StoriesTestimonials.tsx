@@ -2,17 +2,28 @@ import { useState, useRef, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import avatar1 from '@/assets/avatars/avatar-1.jpg';
+import avatar2 from '@/assets/avatars/avatar-2.jpg';
+import avatar3 from '@/assets/avatars/avatar-3.jpg';
+import avatar4 from '@/assets/avatars/avatar-4.jpg';
+import avatar5 from '@/assets/avatars/avatar-5.jpg';
+import avatar6 from '@/assets/avatars/avatar-6.jpg';
+import avatar7 from '@/assets/avatars/avatar-7.jpg';
+import avatar8 from '@/assets/avatars/avatar-8.jpg';
+import avatar9 from '@/assets/avatars/avatar-9.jpg';
+import avatar10 from '@/assets/avatars/avatar-10.jpg';
+
 const TESTIMONIALS = [
-  { name: 'Rafael S.', role: 'Agência Digital', text: 'Em 2 semanas já tinha fechado 8 clientes novos. A IA faz um trabalho absurdo de personalização.', avatar: '🧑‍💻', gradient: 'from-violet-500 to-fuchsia-500' },
-  { name: 'Camila R.', role: 'Consultoria RH', text: 'Antes eu prospectava manualmente por horas. Agora a plataforma faz tudo sozinha enquanto durmo.', avatar: '👩‍💼', gradient: 'from-pink-500 to-rose-500' },
-  { name: 'Lucas M.', role: 'Marketing', text: 'O anti-ban funciona de verdade. Já enviei milhares de mensagens sem problema nenhum.', avatar: '👨‍🎨', gradient: 'from-blue-500 to-cyan-500' },
-  { name: 'Juliana P.', role: 'Arquitetura', text: 'Consegui 3x mais reuniões agendadas no primeiro mês. ROI absurdo.', avatar: '👩‍🔧', gradient: 'from-emerald-500 to-teal-500' },
-  { name: 'Marcos T.', role: 'Advocacia', text: 'A segmentação por nicho é muito precisa. Só chega lead qualificado.', avatar: '👨‍⚖️', gradient: 'from-amber-500 to-orange-500' },
-  { name: 'Fernanda L.', role: 'E-commerce', text: 'Melhor investimento que fiz pro meu negócio. Paga-se no primeiro cliente.', avatar: '👩‍🏫', gradient: 'from-red-500 to-pink-500' },
-  { name: 'André C.', role: 'Contabilidade', text: 'O CRM integrado é um diferencial enorme. Tudo num lugar só.', avatar: '👨‍💻', gradient: 'from-indigo-500 to-violet-500' },
-  { name: 'Patrícia N.', role: 'Imobiliária', text: 'Fechei 12 contratos em 30 dias usando o follow-up automático. Incrível!', avatar: '👩‍💻', gradient: 'from-sky-500 to-blue-500' },
-  { name: 'Diego F.', role: 'SaaS B2B', text: 'A prospecção por Google Maps traz leads super quentes. Taxa de resposta de 35%.', avatar: '🧔', gradient: 'from-lime-500 to-green-500' },
-  { name: 'Beatriz A.', role: 'Clínica Estética', text: 'Nunca imaginei automatizar prospecção assim. Simplesmente funciona.', avatar: '👩‍⚕️', gradient: 'from-fuchsia-500 to-purple-500' },
+  { name: 'Rafael S.', role: 'Agência Digital', text: 'Em 2 semanas já tinha fechado 8 clientes novos. A IA faz um trabalho absurdo de personalização.', avatar: avatar1, gradient: 'from-violet-500 to-fuchsia-500' },
+  { name: 'Camila R.', role: 'Consultoria RH', text: 'Antes eu prospectava manualmente por horas. Agora a plataforma faz tudo sozinha enquanto durmo.', avatar: avatar2, gradient: 'from-pink-500 to-rose-500' },
+  { name: 'Lucas M.', role: 'Marketing', text: 'O anti-ban funciona de verdade. Já enviei milhares de mensagens sem problema nenhum.', avatar: avatar3, gradient: 'from-blue-500 to-cyan-500' },
+  { name: 'Juliana P.', role: 'Arquitetura', text: 'Consegui 3x mais reuniões agendadas no primeiro mês. ROI absurdo.', avatar: avatar4, gradient: 'from-emerald-500 to-teal-500' },
+  { name: 'Marcos T.', role: 'Advocacia', text: 'A segmentação por nicho é muito precisa. Só chega lead qualificado.', avatar: avatar5, gradient: 'from-amber-500 to-orange-500' },
+  { name: 'Fernanda L.', role: 'E-commerce', text: 'Melhor investimento que fiz pro meu negócio. Paga-se no primeiro cliente.', avatar: avatar6, gradient: 'from-red-500 to-pink-500' },
+  { name: 'André C.', role: 'Contabilidade', text: 'O CRM integrado é um diferencial enorme. Tudo num lugar só.', avatar: avatar7, gradient: 'from-indigo-500 to-violet-500' },
+  { name: 'Patrícia N.', role: 'Imobiliária', text: 'Fechei 12 contratos em 30 dias usando o follow-up automático. Incrível!', avatar: avatar8, gradient: 'from-sky-500 to-blue-500' },
+  { name: 'Diego F.', role: 'SaaS B2B', text: 'A prospecção por Google Maps traz leads super quentes. Taxa de resposta de 35%.', avatar: avatar9, gradient: 'from-lime-500 to-green-500' },
+  { name: 'Beatriz A.', role: 'Clínica Estética', text: 'Nunca imaginei automatizar prospecção assim. Simplesmente funciona.', avatar: avatar10, gradient: 'from-fuchsia-500 to-purple-500' },
 ];
 
 export function StoriesTestimonials() {
