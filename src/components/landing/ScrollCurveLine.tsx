@@ -32,7 +32,7 @@ export function ScrollCurveLine() {
         const rect = container.getBoundingClientRect();
         const vh = window.innerHeight;
         // Line should complete drawing by the time user scrolls ~75% through the container
-        const totalTravel = rect.height * 0.75;
+        const totalTravel = rect.height * 0.9;
         const traveled = vh - rect.top;
         const pct = Math.max(0, Math.min(1, traveled / totalTravel));
         
