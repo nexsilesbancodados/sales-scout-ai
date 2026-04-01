@@ -336,6 +336,8 @@ export function WhatsAppConnection() {
                           src={qrCode.startsWith('data:') ? qrCode : `data:image/png;base64,${qrCode}`} 
                           alt="QR Code" 
                           className="w-full h-full object-contain"
+                          width={256}
+                          height={256}
                         />
                       ) : (
                         <div className="text-center p-4">

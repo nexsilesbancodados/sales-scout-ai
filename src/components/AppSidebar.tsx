@@ -172,7 +172,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
           <div className="relative">
-            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-xl object-contain transition-transform duration-300 group-hover:scale-105" />
+            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-xl object-contain transition-transform duration-300 group-hover:scale-105" width={32} height={32} />
             <div className="absolute inset-0 rounded-xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
           {!collapsed && (

@@ -130,7 +130,7 @@ export function StoriesTestimonials() {
 
                   {/* Avatar large */}
                   <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[2px] shadow-2xl`}>
-                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" />
+                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={80} height={80} />
                   </div>
 
                   {/* Quote */}

@@ -310,7 +310,7 @@ export default function Landing() {
             <div className="relative mt-16 flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <div className="absolute inset-0 -m-16 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.18) 0%, rgba(123,47,242,0.04) 50%, transparent 75%)' }} />
               <div className="animate-[floating_6s_ease-in-out_infinite]">
-                <img src={heroPhonesImg} alt="NexaProspect no celular" className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]" loading="lazy" />
+                <img src={heroPhonesImg} alt="NexaProspect no celular" className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]" loading="lazy" width={620} height={620} />
               </div>
               {FLOATING_ICONS.map((item, i) => (
                 <div key={i} className={`absolute ${item.x} ${item.y} z-30`} style={{ animation: `floating ${item.float} ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}>

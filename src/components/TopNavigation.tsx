@@ -180,7 +180,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
         <div className="container flex h-[60px] items-center px-4">
           <Link to="/dashboard" className="flex items-center gap-2.5 mr-6">
-            <img src="/logo.png" alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
+            <img src="/logo.png" alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
             <span className="text-sm font-bold text-gradient hidden sm:inline">NexaProspect</span>
           </Link>
 
