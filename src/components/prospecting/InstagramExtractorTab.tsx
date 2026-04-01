@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useToast } from '@/hooks/use-toast';
@@ -25,9 +24,12 @@ import {
   Phone,
   Mail,
   Link as LinkIcon,
-  ChevronDown,
   Users,
   Save,
+  CheckCircle2,
+  Sparkles,
+  Download,
+  Instagram,
 } from 'lucide-react';
 
 interface InstagramProfile {
@@ -54,15 +56,14 @@ export function InstagramExtractorTab() {
   const { toast } = useToast();
 
   const [apifyToken, setApifyToken] = useState('');
-  const [setupOpen, setSetupOpen] = useState(true);
   const [niche, setNiche] = useState('');
   const [location, setLocation] = useState('');
   const [quantity, setQuantity] = useState([30]);
   const [contactOnly, setContactOnly] = useState(true);
   const [loading, setLoading] = useState(false);
   const [profiles, setProfiles] = useState<InstagramProfile[]>([]);
+  const [imported, setImported] = useState<Set<string>>(new Set());
 
-  // Check if token exists in settings
   const hasToken = !!(settings as any)?.apify_token;
 
   const handleSaveToken = () => {
@@ -71,7 +72,7 @@ export function InstagramExtractorTab() {
       return;
     }
     updateSettings({ apify_token: apifyToken } as any);
-    setSetupOpen(false);
+    toast({ title: 'Token Apify salvo com sucesso!' });
   };
 
   const handleSearch = async () => {
@@ -82,6 +83,7 @@ export function InstagramExtractorTab() {
 
     setLoading(true);
     setProfiles([]);
+    setImported(new Set());
     try {
       const { data, error } = await supabase.functions.invoke('instagram-scraper', {
         body: {
@@ -138,224 +140,323 @@ export function InstagramExtractorTab() {
       reviews_count: 0,
       total_messages_exchanged: 0,
     } as any);
+    setImported(prev => new Set(prev).add(profile.username));
+    toast({ title: `@${profile.username} importado como lead!` });
   };
 
   const importAllWithContact = () => {
-    const withContact = profiles.filter(p => p.phone || p.email || p.externalUrl);
-    withContact.forEach(addProfileAsLead);
-    toast({ title: `${withContact.length} perfis importados como leads` });
+    const withContact = profiles.filter(p => (p.phone || p.email || p.externalUrl) && !imported.has(p.username));
+    withContact.forEach(p => {
+      createLead({
+        business_name: p.fullName || `@${p.username}`,
+        phone: p.phone || '',
+        email: p.email || null,
+        website: p.externalUrl || `https://instagram.com/${p.username}`,
+        notes: p.biography,
+        niche: niche,
+        source: 'instagram',
+        stage: 'Contato',
+        temperature: 'morno',
+        message_sent: false,
+        follow_up_count: 0,
+        lead_score: 0,
+        score_factors: {},
+        analyzed_needs: {},
+        tags: ['instagram'],
+        quality_score: 0,
+        reviews_count: 0,
+        total_messages_exchanged: 0,
+      } as any);
+    });
+    const newImported = new Set(imported);
+    withContact.forEach(p => newImported.add(p.username));
+    setImported(newImported);
+    toast({ title: `${withContact.length} perfis importados como leads!` });
   };
 
-  if (!hasToken) {
-    return (
-      <div className="space-y-4">
-        <Card className="border-dashed border-2">
-          <CardContent className="pt-6">
-            <div className="text-center py-8 space-y-4">
-              <Key className="h-12 w-12 mx-auto text-muted-foreground opacity-40" />
-              <div>
-                <h3 className="text-lg font-semibold">Configure seu Token Apify</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  O Apify é necessário para extrair perfis do Instagram. Crie uma conta gratuita.
-                </p>
+  const contactCount = profiles.filter(p => p.phone || p.email).length;
+  const businessCount = profiles.filter(p => p.isBusinessAccount).length;
+
+  return (
+    <div className="space-y-6">
+      {/* Apify Token Setup */}
+      {!hasToken && (
+        <Card className="border-primary/30 bg-primary/5 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0 mt-0.5">
+                <Key className="h-5 w-5" />
               </div>
-              <div className="flex gap-2 max-w-md mx-auto">
-                <Input
-                  type="password"
-                  placeholder="Seu Apify Token..."
-                  value={apifyToken}
-                  onChange={e => setApifyToken(e.target.value)}
-                />
-                <Button onClick={handleSaveToken}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar
-                </Button>
+              <div className="flex-1 space-y-3">
+                <div>
+                  <h3 className="font-semibold text-foreground">Configure seu Apify Token para usar os extratores</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Plano gratuito inclui $5/mês em créditos (~500 páginas)
+                  </p>
+                </div>
+                <div className="flex gap-2 max-w-lg">
+                  <Input
+                    type="password"
+                    placeholder="Cole seu Apify Token aqui"
+                    value={apifyToken}
+                    onChange={e => setApifyToken(e.target.value)}
+                    className="bg-background/60 border-border/50"
+                  />
+                  <Button onClick={handleSaveToken} className="shrink-0">
+                    Salvar
+                  </Button>
+                </div>
+                <a
+                  href="https://apify.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  Criar conta gratuita no Apify
+                  <ExternalLink className="h-3 w-3" />
+                </a>
               </div>
-              <a
-                href="https://apify.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Criar conta gratuita no Apify
-              </a>
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div className="space-y-4">
-      <Collapsible open={setupOpen} onOpenChange={setSetupOpen}>
-        <CollapsibleTrigger asChild>
-          <Alert className="cursor-pointer border-primary/20 bg-primary/5">
-            <Info className="h-4 w-4" />
-            <AlertTitle className="flex items-center justify-between">
-              Configuração Apify
-              <ChevronDown className={`h-4 w-4 transition-transform ${setupOpen ? 'rotate-180' : ''}`} />
-            </AlertTitle>
-          </Alert>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <Card className="mt-2">
-            <CardContent className="pt-4 space-y-3">
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  placeholder="Atualizar Apify Token..."
-                  value={apifyToken}
-                  onChange={e => setApifyToken(e.target.value)}
-                />
-                <Button variant="outline" onClick={handleSaveToken}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Atualizar
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-primary" />
-            Extrair Perfis do Instagram
-          </CardTitle>
-          <CardDescription>Encontre perfis de negócios por hashtag ou nicho</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Hashtag ou Nicho</Label>
-              <Input placeholder="Ex: restaurante, academia" value={niche} onChange={e => setNiche(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Cidade/Região</Label>
-              <Input placeholder="Ex: São Paulo" value={location} onChange={e => setLocation(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Quantidade de perfis: {quantity[0]}</Label>
-            <Slider value={quantity} onValueChange={setQuantity} min={10} max={100} step={5} />
-          </div>
-
+      {/* Search Form */}
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
           <div className="flex items-center gap-3">
-            <Switch checked={contactOnly} onCheckedChange={setContactOnly} />
-            <Label>Apenas perfis com contato (telefone/email/link)</Label>
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-400">
+              <Instagram className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Buscar perfis no Instagram</h3>
+              <p className="text-sm text-muted-foreground">Encontre negócios por hashtag, nicho ou localização</p>
+            </div>
+          </div>
+        </div>
+        <CardContent className="p-6 space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hashtag ou nicho</Label>
+              <Input
+                placeholder="Ex: restaurante, pizzaria, academia"
+                value={niche}
+                onChange={e => setNiche(e.target.value)}
+                className="bg-background/60 border-border/50 focus:border-primary/60"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cidade/Região (opcional)</Label>
+              <Input
+                placeholder="Ex: São Paulo, Campinas"
+                value={location}
+                onChange={e => setLocation(e.target.value)}
+                className="bg-background/60 border-border/50 focus:border-primary/60"
+              />
+            </div>
           </div>
 
-          <Button onClick={handleSearch} disabled={loading} className="w-full">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
-            Extrair Perfis do Instagram
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quantidade de perfis</Label>
+              <Badge variant="secondary" className="text-xs font-mono tabular-nums px-2.5">
+                {quantity[0]} perfis
+              </Badge>
+            </div>
+            <Slider value={quantity} onValueChange={setQuantity} min={10} max={100} step={5} className="py-1" />
+            <div className="flex justify-between text-[10px] text-muted-foreground/60 px-0.5">
+              <span>10</span>
+              <span>50</span>
+              <span>100</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 py-1">
+            <Switch checked={contactOnly} onCheckedChange={setContactOnly} />
+            <Label className="text-sm">Apenas perfis com contato (telefone/email/link)</Label>
+          </div>
+
+          <Button
+            onClick={handleSearch}
+            disabled={loading || !niche.trim() || !hasToken}
+            className="w-full gap-2 h-11"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Extrair perfis do Instagram
           </Button>
+
+          {!hasToken && (
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Info className="h-3.5 w-3.5 shrink-0" />
+              <span>Configure seu token Apify acima para começar</span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
+      {/* Loading */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <Skeleton className="h-12 w-12 rounded-full" />
+        <Card className="border-border/60">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Extraindo perfis do Instagram...</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-border/30 bg-muted/20">
+                  <Skeleton className="h-11 w-11 rounded-full shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-48" />
-                    <Skeleton className="h-3 w-40" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3 w-44" />
+                    <Skeleton className="h-3 w-36" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {!loading && profiles.length === 0 && niche && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12 text-muted-foreground">
-              <Globe className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>Nenhum perfil encontrado. Tente outro nicho ou localização.</p>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
+      {/* Empty State */}
+      {!loading && profiles.length === 0 && niche && (
+        <Card className="border-border/60">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-muted/50 mb-4">
+              <Globe className="h-8 w-8 opacity-40" />
+            </div>
+            <p className="font-medium text-foreground/70">Nenhum perfil encontrado</p>
+            <p className="text-sm mt-1">Tente outro nicho ou localização para encontrar resultados</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Results */}
       {profiles.length > 0 && (
-        <>
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{profiles.length} perfis encontrados</p>
-            <Button onClick={importAllWithContact} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Importar todos com contato
-            </Button>
+        <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+          {/* Results Header */}
+          <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-4">
+                <h3 className="font-semibold text-foreground">
+                  {profiles.length} perfis encontrados
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="gap-1 text-xs">
+                    <Phone className="h-3 w-3" />
+                    {contactCount} com contato
+                  </Badge>
+                  <Badge variant="outline" className="gap-1 text-xs">
+                    <Sparkles className="h-3 w-3" />
+                    {businessCount} business
+                  </Badge>
+                </div>
+              </div>
+              <Button size="sm" onClick={importAllWithContact} className="gap-1.5">
+                <Download className="h-3.5 w-3.5" />
+                Importar todos com contato
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {profiles.map((profile) => (
-              <Card key={profile.username} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={profile.profilePicUrl} />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {(profile.fullName || profile.username)[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <a
-                          href={`https://instagram.com/${profile.username}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-semibold text-primary hover:underline"
-                        >
-                          @{profile.username}
-                        </a>
-                        <span className="text-xs text-muted-foreground">
-                          {formatFollowers(profile.followersCount)} seguidores
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium">{profile.fullName}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{profile.biography}</p>
+          {/* Results Grid */}
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {profiles.map((profile) => {
+                const isImported = imported.has(profile.username);
+                return (
+                  <div
+                    key={profile.username}
+                    className={`relative p-4 rounded-xl border transition-all ${
+                      isImported
+                        ? 'border-primary/30 bg-primary/5'
+                        : 'border-border/40 bg-background/40 hover:border-border/60 hover:bg-background/60'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-11 w-11 ring-2 ring-border/30">
+                        <AvatarImage src={profile.profilePicUrl} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                          {(profile.fullName || profile.username)[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <a
+                            href={`https://instagram.com/${profile.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-semibold text-primary hover:underline truncate"
+                          >
+                            @{profile.username}
+                          </a>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                            <Users className="h-3 w-3" />
+                            {formatFollowers(profile.followersCount)}
+                          </div>
+                        </div>
+                        {profile.fullName && (
+                          <p className="text-sm font-medium text-foreground/90 truncate">{profile.fullName}</p>
+                        )}
+                        {profile.biography && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{profile.biography}</p>
+                        )}
 
-                      <div className="flex gap-1.5 mt-2 flex-wrap">
-                        {profile.phone && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Phone className="h-3 w-3 mr-1" />
-                            Telefone
-                          </Badge>
-                        )}
-                        {profile.email && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Mail className="h-3 w-3 mr-1" />
-                            Email
-                          </Badge>
-                        )}
-                        {profile.externalUrl && (
-                          <Badge variant="secondary" className="text-xs">
-                            <LinkIcon className="h-3 w-3 mr-1" />
-                            Link
-                          </Badge>
-                        )}
-                      </div>
+                        {/* Contact badges */}
+                        <div className="flex gap-1.5 mt-2.5 flex-wrap">
+                          {profile.phone && (
+                            <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
+                              <Phone className="h-2.5 w-2.5" />
+                              Telefone
+                            </Badge>
+                          )}
+                          {profile.email && (
+                            <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
+                              <Mail className="h-2.5 w-2.5" />
+                              Email
+                            </Badge>
+                          )}
+                          {profile.externalUrl && (
+                            <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
+                              <LinkIcon className="h-2.5 w-2.5" />
+                              Link
+                            </Badge>
+                          )}
+                          {profile.isBusinessAccount && (
+                            <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0 h-5">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Business
+                            </Badge>
+                          )}
+                        </div>
 
-                      <Button size="sm" variant="outline" className="mt-3 w-full" onClick={() => addProfileAsLead(profile)}>
-                        <Plus className="h-3 w-3 mr-1" />
-                        Adicionar como Lead
-                      </Button>
+                        {/* Action */}
+                        <div className="mt-3">
+                          {isImported ? (
+                            <div className="flex items-center gap-1.5 text-xs text-primary">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              <span className="font-medium">Importado como lead</span>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full h-8 text-xs gap-1"
+                              onClick={() => addProfileAsLead(profile)}
+                            >
+                              <Plus className="h-3 w-3" />
+                              Adicionar como Lead
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
