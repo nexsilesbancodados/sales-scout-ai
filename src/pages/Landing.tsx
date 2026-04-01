@@ -328,7 +328,7 @@ export default function Landing() {
         <ScrollLightUpSection>
         <section className="relative py-20 px-4 md:px-8 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
-          <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
+          <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de empresas que substituíram a prospecção manual pela IA." />
           <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             {STATS.map((stat, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 40, rotateX: 15 }} whileInView={{ opacity: 1, y: 0, rotateX: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }} className="group">
