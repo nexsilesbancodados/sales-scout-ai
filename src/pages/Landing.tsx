@@ -25,50 +25,27 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq', icon: HelpCircle },
 ];
 
-const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
-  starter: {
-    monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
-    annual: 'https://pay.cakto.com.br/STARTER_ANUAL',
-  },
-  pro: {
-    monthly: 'https://pay.cakto.com.br/PRO_MENSAL',
-    annual: 'https://pay.cakto.com.br/PRO_ANUAL',
-  },
-  enterprise: {
-    monthly: 'https://pay.cakto.com.br/ENTERPRISE_MENSAL',
-    annual: 'https://pay.cakto.com.br/ENTERPRISE_ANUAL',
-  },
-};
+const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/o5dfn8a_827823';
 
-const PRICING_PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 97,
-    annual: 77,
-    features: ['Disparos ilimitados', '1 chip WhatsApp', 'Google Maps + Radar CNPJ', 'Funil de vendas', 'Leads ilimitados', 'Suporte por email'],
-    cta: 'Assinar agora',
-    highlight: false,
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 149,
-    annual: 119,
-    features: ['Disparos ilimitados', '3 chips WhatsApp', 'Todos os extratores', 'Agente SDR ativo', 'Leads ilimitados', 'Relatórios avançados', 'Suporte prioritário'],
-    cta: 'Assinar agora',
-    highlight: true,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 199,
-    annual: 159,
-    features: ['Disparos ilimitados', '10 chips WhatsApp', 'API pública', 'Leads ilimitados', 'Múltiplos funis', 'Gerente dedicado', 'SLA garantido'],
-    cta: 'Assinar agora',
-    highlight: false,
-  },
-];
+const SINGLE_PLAN = {
+  id: 'pro',
+  name: 'Profissional',
+  price: 149,
+  features: [
+    'Disparos ilimitados',
+    '3 chips WhatsApp',
+    'Todos os extratores',
+    'Agente SDR ativo',
+    'Google Maps + Radar CNPJ',
+    'Leads ilimitados',
+    'Relatórios avançados',
+    'Anti-Ban inteligente',
+    'Funil de vendas completo',
+    'Suporte prioritário',
+  ],
+  cta: 'Assinar agora',
+  highlight: true,
+};
 
 const FAQ_DATA = [
   { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
