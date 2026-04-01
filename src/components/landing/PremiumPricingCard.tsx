@@ -24,9 +24,18 @@ interface PremiumPricingCardProps {
 
 const CARD_IMAGES = [pricingStarterImg, pricingProImg, pricingEnterpriseImg];
 
-export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardProps) {
+export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: PremiumPricingCardProps) {
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
+
+  const handleCheckout = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (checkoutUrl) {
+      window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate('/auth');
+    }
+  };
 
   const schemes = [
     { glow1: 'hsla(270, 80%, 50%, 1)', glow2: 'hsla(260, 90%, 75%, 1)', glow3: 'hsla(280, 70%, 60%, 1)', check: 'bg-purple-400', label: 'text-purple-400/80', border: '#7B2FF2' },
