@@ -20,9 +20,6 @@ import {
   MessageSquare,
   Target,
   Send,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
   Flame,
   ThermometerSun,
   Snowflake,
@@ -62,28 +59,31 @@ export default function DashboardPage() {
   if (metricsLoading && !metrics) {
     return (
       <DashboardLayout title="Dashboard">
-        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
+        <div className="space-y-6">
+          <Skeleton className="h-[160px] rounded-xl" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="border-border/50">
+                <CardContent className="p-5">
+                  <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
+                  <Skeleton className="mb-2 h-8 w-20" />
+                  <Skeleton className="h-3 w-28" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card className="border-border/50">
               <CardContent className="p-5">
-                <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
-                <Skeleton className="mb-2 h-8 w-20" />
-                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-[250px] rounded-xl" />
               </CardContent>
             </Card>
-          ))}
-        </div>
-        <div className="mb-6 grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardContent className="p-5">
-              <Skeleton className="h-[200px]" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-5">
-              <Skeleton className="h-[200px]" />
-            </CardContent>
-          </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-5">
+                <Skeleton className="h-[250px] rounded-xl" />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -99,15 +99,17 @@ export default function DashboardPage() {
         whatsappConnected={!!settings?.whatsapp_connected}
       />
 
-      <div className="mb-6 flex items-center justify-between animate-fade-in">
+      {/* Section header */}
+      <div className="mb-5 flex items-center justify-between animate-fade-in">
         <div>
-          <h2 className="text-lg font-bold">Visão Geral</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Acompanhe seus resultados</p>
+          <h2 className="text-base font-bold tracking-tight">Visão Geral</h2>
+          <p className="text-[11px] text-muted-foreground/60 mt-0.5 font-medium">Métricas do período selecionado</p>
         </div>
         <PeriodFilter value={period} onChange={setPeriod} />
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* KPIs */}
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KPICard
           icon={<Users className="h-5 w-5 text-primary" />}
           label="Total de Leads"
@@ -141,22 +143,33 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Charts */}
       <div className="mb-6 grid gap-4 lg:grid-cols-2 animate-slide-up" style={{ animationDelay: '200ms' }}>
         <ProspectionChart data={chartData} />
         <ConversionFunnelChart stages={funnelStages} totalLeads={totalFunnelLeads} />
       </div>
 
+      {/* Bottom section */}
       <div className="grid gap-4 lg:grid-cols-3 animate-slide-up" style={{ animationDelay: '300ms' }}>
         <div className="lg:col-span-2">
           <RecentActivity activities={activities} isLoading={activitiesLoading} />
         </div>
 
         <div className="space-y-4">
-          <Card>
+          {/* Temperature Card */}
+          <Card className="border-border/50 hover:border-primary/10 transition-colors duration-300">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold">Temperatura dos Leads</CardTitle>
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <ThermometerSun className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm font-semibold">Temperatura</CardTitle>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Engajamento dos leads</p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-3">
               <TemperatureBar
                 icon={Flame}
                 label="Quente"
@@ -184,14 +197,15 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Quick actions */}
           <div className="grid grid-cols-2 gap-2">
-            <Button asChild size="sm" className="gradient-primary h-10 text-xs font-semibold">
+            <Button asChild size="sm" className="gradient-primary h-11 text-xs font-semibold shadow-sm shadow-primary/20">
               <Link to="/prospecting">
                 <Target className="mr-1.5 h-3.5 w-3.5" />
                 Prospectar
               </Link>
             </Button>
-            <Button asChild variant="outline" size="sm" className="h-10 text-xs font-semibold">
+            <Button asChild variant="outline" size="sm" className="h-11 text-xs font-semibold border-border/50 hover:border-primary/20">
               <Link to="/leads">
                 <Users className="mr-1.5 h-3.5 w-3.5" />
                 Ver Leads
@@ -222,43 +236,22 @@ function TemperatureBar({
   const percentage = total > 0 ? (count / total) * 100 : 0;
 
   return (
-    <div>
-      <div className="mb-1 flex items-center justify-between">
-        <div className={cn('flex items-center gap-1.5 text-xs font-medium', textColor)}>
+    <div className="group">
+      <div className="mb-1.5 flex items-center justify-between">
+        <div className={cn('flex items-center gap-1.5 text-xs font-semibold', textColor)}>
           <Icon className="h-3.5 w-3.5" />
           {label}
         </div>
-        <span className="text-xs font-bold">{count}</span>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${percentage}%` }} />
-      </div>
-    </div>
-  );
-}
-
-function StatusItem({
-  icon: Icon,
-  label,
-  connected,
-}: {
-  icon: LucideIcon;
-  label: string;
-  connected: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 p-2.5">
-      <div className="flex items-center gap-2">
-        <div className={cn('rounded-md p-1', connected ? 'bg-success/10' : 'bg-muted')}>
-          <Icon className={cn('h-3.5 w-3.5', connected ? 'text-success' : 'text-muted-foreground')} />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-bold tabular-nums">{count}</span>
+          <span className="text-[10px] text-muted-foreground/40 tabular-nums">
+            {percentage.toFixed(0)}%
+          </span>
         </div>
-        <span className="text-xs font-medium">{label}</span>
       </div>
-      {connected ? (
-        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-      ) : (
-        <AlertCircle className="h-3.5 w-3.5 text-muted-foreground/40" />
-      )}
+      <div className="h-1.5 overflow-hidden rounded-full bg-muted/50">
+        <div className={cn('h-full rounded-full transition-all duration-700 ease-out', color)} style={{ width: `${percentage}%` }} />
+      </div>
     </div>
   );
 }
