@@ -193,7 +193,7 @@ export default function ToolsTimeline() {
             d={curvePath}
             fill="none"
             stroke="rgba(255,255,255,0.04)"
-            strokeWidth="6"
+            strokeWidth="10"
             strokeLinecap="round"
           />
 
@@ -203,28 +203,10 @@ export default function ToolsTimeline() {
             d={curvePath}
             fill="none"
             stroke="url(#curve-gradient)"
-            strokeWidth="4"
+            strokeWidth="8"
             strokeLinecap="round"
             filter="url(#glow-filter)"
             className="transition-[stroke-dashoffset] duration-75 ease-linear"
-          />
-
-          {/* Glowing dot */}
-          <circle
-            ref={dotRef}
-            cx="500"
-            cy="0"
-            r="16"
-            fill="white"
-            opacity="0.3"
-            filter="url(#glow-filter)"
-          />
-          <circle
-            ref={dotInnerRef}
-            cx="500"
-            cy="0"
-            r="6"
-            fill="#F7941D"
           />
         </svg>
 
