@@ -5,7 +5,7 @@ import { ArrowRight, Star, Check, Menu, X, Sparkles, CreditCard, Zap, BarChart3,
 import { motion, AnimatePresence } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
-import heroPhonesImg from '@/assets/hero-phones-nobg.png';
+import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 
