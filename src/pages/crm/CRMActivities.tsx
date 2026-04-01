@@ -4,14 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMeetings } from '@/hooks/use-meetings';
 import { useLeads } from '@/hooks/use-leads';
-import { format, isSameDay, isToday, isBefore } from 'date-fns';
+import { format, isSameDay, isToday, isBefore, isTomorrow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   Calendar as CalendarIcon, Video, CheckCircle, XCircle, Clock,
-  MessageCircle, ExternalLink, Loader2,
+  MessageCircle, Loader2, AlertCircle, TrendingUp, Users, Flame,
 } from 'lucide-react';
+
+const statusConfig: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
+  scheduled: { label: 'Agendada', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: <CalendarIcon className="h-3 w-3" /> },
+  completed: { label: 'Concluída', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', icon: <CheckCircle className="h-3 w-3" /> },
+  cancelled: { label: 'Cancelada', className: 'bg-red-500/10 text-red-500 border-red-500/20', icon: <XCircle className="h-3 w-3" /> },
+  no_show: { label: 'No Show', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20', icon: <AlertCircle className="h-3 w-3" /> },
+};
 
 export default function CRMActivitiesPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -31,30 +40,89 @@ export default function CRMActivitiesPage() {
   );
 
   const pendingFollowUps = useMemo(() =>
-    leads.filter(l => l.next_follow_up_at && isBefore(new Date(l.next_follow_up_at), new Date()) && l.stage !== 'Perdido'),
+    leads.filter(l => l.next_follow_up_at && isBefore(new Date(l.next_follow_up_at), new Date()) && !['Ganho', 'Perdido'].includes(l.stage))
+      .sort((a, b) => new Date(a.next_follow_up_at!).getTime() - new Date(b.next_follow_up_at!).getTime()),
     [leads]
   );
 
-  const todayMeetingsCount = useMemo(() => meetings.filter(m => isToday(new Date(m.scheduled_at))).length, [meetings]);
+  const hotLeads = useMemo(() =>
+    leads.filter(l => l.temperature === 'quente' && !['Ganho', 'Perdido'].includes(l.stage))
+      .slice(0, 5),
+    [leads]
+  );
 
-  const statusBadge = (status: string) => {
-    const map: Record<string, string> = { scheduled: 'bg-blue-500/10 text-blue-600', completed: 'bg-green-500/10 text-green-600', cancelled: 'bg-red-500/10 text-red-600', no_show: 'bg-amber-500/10 text-amber-600' };
-    return <Badge variant="outline" className={`text-xs ${map[status] || ''}`}>{status}</Badge>;
-  };
+  const todayMeetings = useMemo(() => meetings.filter(m => isToday(new Date(m.scheduled_at))), [meetings]);
+  const tomorrowMeetings = useMemo(() => meetings.filter(m => isTomorrow(new Date(m.scheduled_at))), [meetings]);
+  const completedThisMonth = useMemo(() => {
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    return meetings.filter(m => m.status === 'completed' && new Date(m.scheduled_at) >= monthStart).length;
+  }, [meetings]);
+
+  const dateLabel = isToday(selectedDate)
+    ? 'Hoje'
+    : isTomorrow(selectedDate)
+    ? 'Amanhã'
+    : format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR });
 
   return (
-    <div className="p-6">
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card><CardContent className="pt-4 text-center"><p className="text-2xl font-bold">{todayMeetingsCount}</p><p className="text-xs text-muted-foreground">Reuniões hoje</p></CardContent></Card>
-        <Card><CardContent className="pt-4 text-center"><p className="text-2xl font-bold">{pendingFollowUps.length}</p><p className="text-xs text-muted-foreground">Follow-ups pendentes</p></CardContent></Card>
-        <Card><CardContent className="pt-4 text-center"><p className="text-2xl font-bold">{dayMeetings.length}</p><p className="text-xs text-muted-foreground">Atividades em {format(selectedDate, 'dd/MM')}</p></CardContent></Card>
+    <div className="p-4 sm:p-6">
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Atividades</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Reuniões, follow-ups e tarefas do dia</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <Card className="border-border/50">
+          <CardContent className="pt-3 pb-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <CalendarIcon className="h-4 w-4 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{todayMeetings.length}</p>
+              <p className="text-[11px] text-muted-foreground">Hoje</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="pt-3 pb-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-purple-500/10 flex items-center justify-center">
+              <Clock className="h-4 w-4 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{tomorrowMeetings.length}</p>
+              <p className="text-[11px] text-muted-foreground">Amanhã</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="pt-3 pb-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{pendingFollowUps.length}</p>
+              <p className="text-[11px] text-muted-foreground">Follow-ups</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="pt-3 pb-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{completedThisMonth}</p>
+              <p className="text-[11px] text-muted-foreground">Concluídas</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* Calendar */}
         <div className="shrink-0">
-          <Card>
+          <Card className="border-border/50">
             <CardContent className="pt-4">
               <Calendar
                 mode="single"
@@ -62,64 +130,146 @@ export default function CRMActivitiesPage() {
                 onSelect={d => d && setSelectedDate(d)}
                 locale={ptBR}
                 modifiers={{ hasMeeting: (date) => meetingDates.has(format(date, 'yyyy-MM-dd')) }}
-                modifiersStyles={{ hasMeeting: { fontWeight: 'bold', textDecoration: 'underline', color: 'hsl(var(--primary))' } }}
+                modifiersStyles={{ hasMeeting: { fontWeight: 'bold', color: 'hsl(var(--primary))' } }}
+                className="rounded-xl"
               />
+            </CardContent>
+          </Card>
+
+          {/* Hot leads quick view */}
+          <Card className="border-border/50 mt-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Flame className="h-4 w-4 text-red-500" />
+                Leads Quentes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {hotLeads.length === 0 && <p className="text-xs text-muted-foreground">Nenhum lead quente</p>}
+              {hotLeads.map(lead => (
+                <div key={lead.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="h-7 w-7 rounded-full bg-red-500/10 flex items-center justify-center text-[10px] font-bold text-red-500">
+                    {lead.business_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">{lead.business_name}</p>
+                    <p className="text-[10px] text-muted-foreground">{lead.stage}</p>
+                  </div>
+                  <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="h-6 w-6 rounded-md bg-emerald-500/10 flex items-center justify-center hover:bg-emerald-500/20 transition-colors shrink-0">
+                    <MessageCircle className="h-3 w-3 text-emerald-500" />
+                  </a>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </div>
 
         {/* Day details */}
         <div className="flex-1 space-y-4">
-          <h3 className="font-semibold text-lg">{format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}</h3>
+          <h3 className="font-semibold text-base capitalize">{dateLabel}</h3>
 
           {/* Meetings */}
-          <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><CalendarIcon className="h-4 w-4" />Reuniões</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              {meetingsLoading && <Loader2 className="h-5 w-5 animate-spin" />}
-              {dayMeetings.length === 0 && !meetingsLoading && <p className="text-sm text-muted-foreground">Nenhuma reunião neste dia</p>}
-              {dayMeetings.map(m => (
-                <div key={m.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="text-center shrink-0">
-                    <p className="text-sm font-bold">{format(new Date(m.scheduled_at), 'HH:mm')}</p>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{m.title}</p>
-                    <p className="text-xs text-muted-foreground">{(m as any).lead?.business_name || 'Lead'}</p>
-                  </div>
-                  {statusBadge(m.status)}
-                  <div className="flex items-center gap-1">
-                    {m.meeting_link && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7" asChild><a href={m.meeting_link} target="_blank"><Video className="h-3.5 w-3.5" /></a></Button>
-                    )}
-                    {m.status === 'scheduled' && (
-                      <>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateMeeting({ id: m.id, status: 'completed' })}><CheckCircle className="h-3.5 w-3.5 text-green-500" /></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateMeeting({ id: m.id, status: 'no_show' })}><XCircle className="h-3.5 w-3.5 text-red-500" /></Button>
-                      </>
-                    )}
-                  </div>
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-primary" />
+                Reuniões
+                <Badge variant="secondary" className="ml-auto text-[10px]">{dayMeetings.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="max-h-[350px]">
+                <div className="space-y-2">
+                  {meetingsLoading && <div className="flex items-center justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>}
+                  {dayMeetings.length === 0 && !meetingsLoading && (
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <CalendarIcon className="h-8 w-8 mb-2 opacity-30" />
+                      <p className="text-sm">Nenhuma reunião neste dia</p>
+                    </div>
+                  )}
+                  {dayMeetings.map(m => {
+                    const status = statusConfig[m.status] || statusConfig.scheduled;
+                    return (
+                      <div key={m.id} className="flex items-center gap-3 p-3 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
+                        <div className="text-center shrink-0 bg-primary/5 rounded-lg px-2.5 py-1.5">
+                          <p className="text-sm font-bold text-primary">{format(new Date(m.scheduled_at), 'HH:mm')}</p>
+                          <p className="text-[9px] text-muted-foreground">{m.duration_minutes}min</p>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{m.title}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{m.description || 'Sem descrição'}</p>
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] px-1.5 ${status.className} shrink-0`}>
+                          {status.icon}
+                          <span className="ml-1">{status.label}</span>
+                        </Badge>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {m.meeting_link && (
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" asChild>
+                              <a href={m.meeting_link} target="_blank"><Video className="h-3.5 w-3.5 text-blue-500" /></a>
+                            </Button>
+                          )}
+                          {m.status === 'scheduled' && (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateMeeting({ id: m.id, status: 'completed' })}>
+                                <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateMeeting({ id: m.id, status: 'no_show' })}>
+                                <XCircle className="h-3.5 w-3.5 text-red-500" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              </ScrollArea>
             </CardContent>
           </Card>
 
           {/* Follow-ups */}
-          <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><Clock className="h-4 w-4" />Follow-ups Pendentes</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              {pendingFollowUps.length === 0 && <p className="text-sm text-muted-foreground">Nenhum follow-up pendente</p>}
-              {pendingFollowUps.slice(0, 10).map(lead => (
-                <div key={lead.id} className="flex items-center gap-3 p-2 border rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{lead.business_name}</p>
-                    <p className="text-xs text-muted-foreground">{lead.next_follow_up_at && format(new Date(lead.next_follow_up_at), 'dd/MM HH:mm')}</p>
-                  </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank"><MessageCircle className="h-3.5 w-3.5 mr-1" />WA</a>
-                  </Button>
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Clock className="h-4 w-4 text-amber-500" />
+                Follow-ups Pendentes
+                {pendingFollowUps.length > 0 && (
+                  <Badge variant="outline" className="ml-auto text-[10px] bg-amber-500/10 text-amber-500 border-amber-500/20">
+                    {pendingFollowUps.length} pendentes
+                  </Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="max-h-[300px]">
+                <div className="space-y-2">
+                  {pendingFollowUps.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
+                      <CheckCircle className="h-8 w-8 mb-2 opacity-30" />
+                      <p className="text-sm">Nenhum follow-up pendente 🎉</p>
+                    </div>
+                  )}
+                  {pendingFollowUps.slice(0, 10).map(lead => (
+                    <div key={lead.id} className="flex items-center gap-3 p-2.5 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
+                      <div className="h-8 w-8 rounded-full bg-amber-500/10 flex items-center justify-center text-[10px] font-bold text-amber-600">
+                        {lead.business_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{lead.business_name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Atrasado {lead.next_follow_up_at && format(new Date(lead.next_follow_up_at), 'dd/MM HH:mm')}
+                        </p>
+                      </div>
+                      <Button variant="outline" size="sm" className="h-7 rounded-lg text-xs shrink-0" asChild>
+                        <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank">
+                          <MessageCircle className="h-3 w-3 mr-1 text-emerald-500" />WA
+                        </a>
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>
