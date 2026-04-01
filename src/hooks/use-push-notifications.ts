@@ -76,8 +76,7 @@ export function usePushNotifications() {
       }
 
       return false;
-    } catch (error) {
-      console.error('Error requesting notification permission:', error);
+    } catch {
       return false;
     }
   }, [isSupported, registerServiceWorker, toast]);
