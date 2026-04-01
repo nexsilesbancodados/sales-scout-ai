@@ -12,7 +12,7 @@ import advantageMeetings from '@/assets/advantage-meetings.jpg';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import ToolsTimeline from '@/components/landing/ToolsTimeline';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
-import { WaveDivider } from '@/components/landing/WaveDivider';
+
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
