@@ -390,6 +390,8 @@ export default function Landing() {
         </div>
       </section>
 
+      </div>{/* end scroll curve wrapper */}
+
       {/* ═══ FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-8 px-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
