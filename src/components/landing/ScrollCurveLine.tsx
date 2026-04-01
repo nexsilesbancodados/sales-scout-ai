@@ -52,10 +52,10 @@ export function ScrollCurveLine() {
         }
         
         // Globe center is at x=500, y=4600 (end of path). Trigger when tip enters globe radius.
-        const globeCX = 500, globeCY = 4600, globeR = 600;
+        const globeCX = 500, globeCY = 4600, globeR = 1200;
         const tip = path.getPointAtLength(pathLen * pct);
         const dist = Math.hypot(tip.x - globeCX, tip.y - globeCY);
-        const reached = dist <= globeR && pct > 0.5;
+        const reached = dist <= globeR && pct > 0.4;
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
