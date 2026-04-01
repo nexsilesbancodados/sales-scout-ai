@@ -78,8 +78,6 @@ export default function ToolsTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const drawLineRef = useRef<SVGPathElement>(null);
-  const dotRef = useRef<SVGCircleElement>(null);
-  const dotInnerRef = useRef<SVGCircleElement>(null);
   const [pathLength, setPathLength] = useState(0);
   const [cardVisible, setCardVisible] = useState<boolean[]>(new Array(TOOLS_DATA.length).fill(false));
 
