@@ -53,12 +53,13 @@ const SINGLE_PLAN = {
 };
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
-  { q: 'Meu WhatsApp pode ser banido?', a: 'Extremamente improvável. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano, spintax inteligente e rotação automática de chips. Mais de 2.400 contas ativas sem incidentes.' },
-  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A configuração leva menos de 5 minutos: conecte o WhatsApp, escolha o nicho e a IA começa a prospectar sozinha.' },
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3%.' },
-  { q: 'Funciona para o meu nicho específico?', a: 'Com certeza. Temos templates otimizados para +50 nichos e a IA adapta tom, linguagem e abordagem automaticamente para cada segmento do mercado.' },
-  { q: 'O agente SDR substitui minha equipe comercial?', a: 'Ele potencializa. A IA trabalha 24/7 prospectando e qualificando leads — sua equipe entra só na hora de fechar. Resultado: mais deals, menos esforço operacional.' },
+  { q: 'Preciso de conhecimento técnico?', a: 'Zero. Em 5 minutos você conecta seu WhatsApp, escolhe o nicho e a IA começa a prospectar sozinha. A interface é intuitiva e temos tutoriais passo a passo para cada funcionalidade.' },
+  { q: 'Meu WhatsApp pode ser banido?', a: 'Praticamente impossível. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano real, spintax inteligente e rotação automática entre chips. Mais de 2.400 contas ativas sem um único bloqueio.' },
+  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A IA captura leads do Google Maps, envia mensagens personalizadas e faz follow-up — tudo automaticamente enquanto você foca em fechar negócios.' },
+  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique na sua conta. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3% — porque funciona.' },
+  { q: 'Funciona para qualquer tipo de negócio?', a: 'Sim. Temos templates otimizados para +50 nichos (agências, contabilidade, advocacia, clínicas, imobiliárias, SaaS…). A IA adapta tom, linguagem e abordagem automaticamente para cada segmento.' },
+  { q: 'O que o Agente SDR faz exatamente?', a: 'Ele é seu vendedor digital 24/7. Prospecta leads, envia a primeira mensagem, responde objeções com IA, faz follow-up automático e agenda reuniões no seu calendário. Sua equipe só entra na hora de fechar.' },
+  { q: 'Quais fontes de leads estão disponíveis?', a: 'Google Maps, Instagram, Facebook, Radar CNPJ, importação de planilhas, grupos de WhatsApp e busca web. Tudo integrado em uma única plataforma com dados enriquecidos.' },
 ];
 
 const STEPS = [
