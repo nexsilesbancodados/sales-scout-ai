@@ -5,7 +5,7 @@ export function PageLoadingFallback() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-5 animate-fade-in">
         <div className="relative">
-          <img src={logoImg} alt="Logo" className="h-14 w-auto animate-pulse" />
+          <img src={logoImg} alt="Logo" className="h-14 w-auto animate-pulse" width={56} height={56} />
           <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse-soft" />
         </div>
         <div className="flex items-center gap-2">

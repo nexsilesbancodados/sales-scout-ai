@@ -135,6 +135,9 @@ export function LeadResultsTable({
                       src={lead.photo_url}
                       alt={lead.business_name}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      width={300}
+                      height={96}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}

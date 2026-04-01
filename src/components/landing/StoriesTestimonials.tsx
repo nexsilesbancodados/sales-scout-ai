@@ -73,7 +73,7 @@ export function StoriesTestimonials() {
             className="flex flex-col items-center gap-1.5 shrink-0 group"
           >
             <div className={`w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-gradient-to-br ${t.gradient} p-[2.5px] transition-transform group-hover:scale-110`}>
-              <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" />
+              <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" width={72} height={72} />
             </div>
             <span className="text-[10px] text-white/50 max-w-[72px] truncate">{t.name}</span>
           </button>
@@ -120,7 +120,7 @@ export function StoriesTestimonials() {
                   {/* Header */}
                   <div className="flex items-center gap-3 absolute top-10 left-6">
                     <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[1.5px]`}>
-                      <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" />
+                      <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={36} height={36} />
                     </div>
                     <div className="text-left">
                       <p className="text-[13px] font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
@@ -130,7 +130,7 @@ export function StoriesTestimonials() {
 
                   {/* Avatar large */}
                   <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[2px] shadow-2xl`}>
-                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" />
+                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={80} height={80} />
                   </div>
 
                   {/* Quote */}

@@ -37,7 +37,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <img src={logoImg} alt="Logo" className="h-16 w-auto animate-pulse" />
+          <img src={logoImg} alt="Logo" className="h-16 w-auto animate-pulse" width={64} height={64} />
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
           <p className="text-muted-foreground">Verificando assinatura...</p>
         </div>
@@ -67,7 +67,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
       <div className="w-full max-w-md space-y-6 animate-fade-in">
         {/* Header */}
         <div className="text-center space-y-3">
-          <img src={logoImg} alt="Logo" className="h-14 w-auto mx-auto" />
+          <img src={logoImg} alt="Logo" className="h-14 w-auto mx-auto" width={56} height={56} />
           <div className="flex items-center justify-center gap-2">
             <AlertTriangle className="h-6 w-6 text-orange-500" />
             <h1 className="text-2xl font-bold tracking-tight">
