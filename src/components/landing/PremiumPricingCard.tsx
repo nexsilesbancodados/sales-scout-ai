@@ -30,10 +30,10 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
   const cardBg = `radial-gradient(at 88% 40%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 49% 30%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 14% 26%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 0% 64%, ${s.glow1} 0px, transparent 85%), radial-gradient(at 41% 94%, ${s.glow2} 0px, transparent 85%), radial-gradient(at 100% 99%, ${s.glow3} 0px, transparent 85%)`;
 
   const backPerks = index === 0
-    ? ['7 dias grátis sem cartão', '200 leads/mês inclusos', 'Suporte via WhatsApp', 'Templates prontos por nicho', 'Cancele quando quiser']
+    ? ['7 dias grátis, sem cartão', '200 leads qualificados/mês', 'Suporte real via WhatsApp', 'Templates prontos por nicho', 'Cancele com 1 clique']
     : index === 1
-    ? ['ROI médio de 23x', '1.000 leads/mês inclusos', 'Agente SDR com IA', 'Suporte prioritário', 'Setup assistido grátis']
-    : ['Leads ilimitados', 'Multi-chip com rotação', 'Gerente de conta dedicado', 'API completa + Webhooks', 'Onboarding personalizado'];
+    ? ['ROI médio de 23x comprovado', '1.000 leads qualificados/mês', 'Agente SDR que nunca dorme', 'Suporte prioritário em minutos', 'Setup assistido incluso']
+    : ['Volume ilimitado de leads', 'Multi-chip com rotação automática', 'Gerente de sucesso dedicado', 'API completa + Webhooks', 'Onboarding personalizado 1:1'];
 
   const emojis = ['🚀', '⚡', '👑'];
 
@@ -85,7 +85,7 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             <div>
               <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
               <p className={cn('text-[10px] uppercase tracking-wider font-bold', s.label)}>
-                {index === 0 ? 'Para começar' : index === 1 ? 'Alta Performance' : 'Sem limites'}
+                {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
           </div>

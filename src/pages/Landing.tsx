@@ -31,35 +31,35 @@ const PRICING_PLANS = [
     name: 'Starter',
     price: 97,
     annual: 77,
-    features: ['200 leads/mês', 'WhatsApp integrado', 'Templates prontos', 'Anti-ban básico', 'Suporte via chat'],
-    cta: 'Começar grátis',
+    features: ['200 leads qualificados/mês', 'WhatsApp com anti-ban', 'Templates por nicho', 'Proteção inteligente', 'Suporte humanizado'],
+    cta: 'Testar 7 dias grátis',
     highlight: false,
   },
   {
     name: 'Pro',
     price: 197,
     annual: 149,
-    features: ['1.000 leads/mês', 'Agente SDR com IA', 'CRM completo', 'Follow-up automático', 'Analytics avançado'],
-    cta: 'Começar agora',
+    features: ['1.000 leads qualificados/mês', 'Agente SDR autônomo (IA)', 'CRM com pipeline visual', 'Follow-up que converte', 'Relatórios de ROI em tempo real'],
+    cta: 'Quero escalar vendas',
     highlight: true,
   },
   {
     name: 'Enterprise',
     price: 497,
     annual: 397,
-    features: ['Leads ilimitados', 'Multi-chip rotação', 'API + Webhooks', 'Gerente dedicado', 'Onboarding VIP'],
-    cta: 'Falar com vendas',
+    features: ['Leads ilimitados', 'Multi-chip com rotação automática', 'API completa + Webhooks', 'Gerente de sucesso dedicado', 'Onboarding white-glove'],
+    cta: 'Agendar demonstração',
     highlight: false,
   },
 ];
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito?', a: 'Sim, o pagamento é processado de forma segura no momento da assinatura.' },
-  { q: 'Meu WhatsApp pode ser banido?', a: 'Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, spintax e rotação de chips para proteger seu número.' },
-  { q: 'Quanto tempo leva para configurar?', a: 'Menos de 5 minutos. Conecte o WhatsApp, escolha o nicho e a IA já começa a prospectar automaticamente.' },
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem burocracia. Cancele com 1 clique no painel.' },
-  { q: 'Funciona para qualquer nicho?', a: 'Sim. Temos templates otimizados para +50 nichos diferentes e a IA adapta a abordagem para cada segmento.' },
-  { q: 'O agente SDR substitui minha equipe?', a: 'Ele complementa. A IA cuida da prospecção e qualificação 24/7, e sua equipe foca em fechar os deals quentes.' },
+  { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
+  { q: 'Meu WhatsApp pode ser banido?', a: 'Extremamente improvável. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano, spintax inteligente e rotação automática de chips. Mais de 2.400 contas ativas sem incidentes.' },
+  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A configuração leva menos de 5 minutos: conecte o WhatsApp, escolha o nicho e a IA começa a prospectar sozinha.' },
+  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3%.' },
+  { q: 'Funciona para o meu nicho específico?', a: 'Com certeza. Temos templates otimizados para +50 nichos e a IA adapta tom, linguagem e abordagem automaticamente para cada segmento do mercado.' },
+  { q: 'O agente SDR substitui minha equipe comercial?', a: 'Ele potencializa. A IA trabalha 24/7 prospectando e qualificando leads — sua equipe entra só na hora de fechar. Resultado: mais deals, menos esforço operacional.' },
 ];
 
 export default function Landing() {
@@ -178,17 +178,17 @@ export default function Landing() {
           <div className="max-w-[620px] pt-24">
             <div className="inline-flex items-center gap-2.5 bg-white/[0.08] border border-white/[0.08] rounded-full px-4 py-2 mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-[12px] text-white/60">+2.400 empresas já automatizaram suas vendas</span>
+              <span className="text-[12px] text-white/60">+2.400 empresas faturam mais no automático</span>
             </div>
             <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Pare de </span>
-              <span className="text-white/30">perseguir</span>
+              <span className="text-white">Seus concorrentes </span>
+              <span className="text-white/30">prospectam.</span>
               <br className="hidden sm:block" />
-              <span className="text-white">leads. </span>
-              <span className="landing-gradient-text">Atraia-os.</span>
+              <span className="text-white">Você </span>
+              <span className="landing-gradient-text">fecha.</span>
             </h1>
             <p className="text-[16px] text-white/50 max-w-[460px] mt-7 leading-[1.8] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              A IA captura leads do Google Maps, Instagram e Facebook, envia mensagens no WhatsApp e agenda reuniões — <strong className="text-white/70">enquanto você dorme.</strong>
+              IA que captura leads do Google Maps, Instagram e Facebook, envia mensagens personalizadas no WhatsApp e agenda reuniões — <strong className="text-white/70">mesmo às 3h da manhã.</strong>
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
@@ -200,7 +200,7 @@ export default function Landing() {
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-              {['Sem cartão de crédito', 'Setup em 5 min', 'Cancele quando quiser'].map(t => (
+              {['7 dias grátis', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
                 <span key={t} className="flex items-center gap-1.5 text-[11px] text-white/30">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
@@ -246,12 +246,12 @@ export default function Landing() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Na palma da mão</span>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
             <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-              Prospecte de <span className="landing-gradient-text">qualquer lugar</span>
+              Venda de <span className="landing-gradient-text">qualquer lugar</span>
             </h2>
             <p className="text-[14px] text-white/40 mt-4 max-w-[420px] mx-auto">
-              Capture leads, envie mensagens e acompanhe resultados direto do celular.
+              Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
             </p>
           </motion.div>
 
@@ -304,7 +304,7 @@ export default function Landing() {
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Preços" title={<>Plano ideal para <span className="landing-gradient-text">cada fase.</span></>} />
+        <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
         <div className="flex items-center justify-center gap-3 mb-10">
           <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
           <button
@@ -327,14 +327,14 @@ export default function Landing() {
 
       {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
       <section className="relative py-12 px-4 md:px-8">
-        <SectionHeader tag="Feedbacks" title={<>O que nossos clientes <span className="landing-gradient-text">dizem.</span></>} />
+        <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
         <StoriesTestimonials />
       </section>
 
       
       {/* ═══ FAQ ═══ */}
       <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="FAQ" title={<>Perguntas <span className="text-white/20">frequentes.</span></>} />
+        <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
         <div className="max-w-2xl mx-auto space-y-2">
           {FAQ_DATA.map((item, i) => (
             <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
@@ -373,10 +373,10 @@ export default function Landing() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
-              Pronto para <span className="landing-gradient-text">automatizar</span> suas vendas?
+              Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
             </h2>
             <p className="text-white/40 text-sm mt-4 max-w-md mx-auto">
-              Junte-se a +2.400 empresas que já usam IA para prospectar, qualificar e fechar negócios no piloto automático.
+              +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
@@ -385,7 +385,7 @@ export default function Landing() {
               </button>
             </div>
             <div className="flex items-center justify-center gap-4 mt-4">
-              {['Sem cartão', 'Setup 5 min', 'Cancele a qualquer hora'].map(t => (
+              {['7 dias grátis', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
                 <span key={t} className="flex items-center gap-1 text-[10px] text-white/25">
                   <Check className="h-3 w-3 text-emerald-500/50" /> {t}
                 </span>
@@ -407,7 +407,7 @@ export default function Landing() {
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
             <p className="text-[11px] text-white/30 leading-relaxed max-w-[260px]">
-              Plataforma inteligente de prospecção automatizada com IA para escalar suas vendas.
+              A máquina de vendas com IA que prospecta, qualifica e agenda reuniões no piloto automático.
             </p>
           </div>
 
