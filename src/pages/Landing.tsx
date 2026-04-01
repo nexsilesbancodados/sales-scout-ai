@@ -8,6 +8,9 @@ import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import googleMapsIcon from '@/assets/google-maps-icon.png';
 import googleGIcon from '@/assets/google-g-icon.png';
+import stepCaptureImg from '@/assets/step-capture.png';
+import stepMessagesImg from '@/assets/step-messages.png';
+import stepMeetingsImg from '@/assets/step-meetings.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
@@ -307,26 +310,56 @@ export default function Landing() {
         <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
         <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
           {[
-            { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0 },
-            { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2 },
-            { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4 },
+            { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
+            { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
+            { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
           ].map((item, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 60, scale: 0.9 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.7, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 80, scale: 0.85, rotateX: 12 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.8, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
               className="relative group"
+              style={{ perspective: '800px' }}
             >
-              <div className="relative border border-white/[0.06] rounded-2xl p-7 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.12] transition-all duration-500 h-full overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 0%, ${item.color}15, transparent 70%)` }} />
-                <span className="text-[64px] font-black absolute top-3 right-5 leading-none" style={{ color: `${item.color}08` }}>{item.step}</span>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
-                  <item.icon className="h-5 w-5" style={{ color: item.color }} />
+              <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.15] transition-all duration-500 h-full overflow-hidden hover:shadow-[0_0_40px_rgba(123,47,242,0.08)]">
+                {/* Glow on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
+                
+                {/* Step number watermark */}
+                <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
+                
+                {/* Image */}
+                <motion.div
+                  className="flex justify-center mb-4"
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
+                >
+                  <div className="relative">
+                    <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
+                    <img
+                      src={item.img}
+                      alt={item.title}
+                      className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]"
+                      loading="lazy"
+                      width={96}
+                      height={96}
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Icon badge */}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
+                  <item.icon className="h-4 w-4" style={{ color: item.color }} />
                 </div>
-                <h3 className="text-[16px] font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-[13px] text-white/40 leading-relaxed">{item.desc}</p>
+                
+                <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
+                <p className="text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
+
+                {/* Connecting line */}
                 {i < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />
                 )}
