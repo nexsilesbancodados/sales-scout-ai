@@ -16,15 +16,12 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   Area,
   AreaChart,
   Legend,
 } from 'recharts';
 import {
   TrendingUp,
-  TrendingDown,
   Clock,
   Calendar,
   Target,
@@ -35,9 +32,12 @@ import {
   BarChart3,
   Activity,
   Flame,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react';
 import { format, subDays, startOfDay, eachDayOfInterval, parseISO, getHours, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const COLORS = ['#10b981', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -59,25 +59,85 @@ const TEMP_COLORS = {
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
+// Reusable KPI card for analytics
+function AnalyticsKPI({ 
+  icon: Icon, 
+  label, 
+  value, 
+  subtitle, 
+  trend, 
+  trendLabel,
+  gradient,
+  iconColor,
+  delay = 0 
+}: { 
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  subtitle?: string;
+  trend?: 'up' | 'down' | 'neutral';
+  trendLabel?: string;
+  gradient: string;
+  iconColor: string;
+  delay?: number;
+}) {
+  return (
+    <Card className={cn(
+      "relative overflow-hidden border-0 animate-slide-up",
+      gradient
+    )} style={{ animationDelay: `${delay}ms` }}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div className="p-2.5 rounded-xl bg-background/80 backdrop-blur-sm shadow-sm">
+            <Icon className={cn("h-5 w-5", iconColor)} />
+          </div>
+          {trend && trendLabel && (
+            <div className={cn(
+              "flex items-center gap-0.5 text-[11px] font-semibold px-2 py-1 rounded-full",
+              trend === 'up' ? "bg-emerald-500/15 text-emerald-400" : 
+              trend === 'down' ? "bg-red-500/15 text-red-400" :
+              "bg-muted text-muted-foreground"
+            )}>
+              {trend === 'up' ? <ArrowUpRight className="h-3 w-3" /> : 
+               trend === 'down' ? <ArrowDownRight className="h-3 w-3" /> : null}
+              {trendLabel}
+            </div>
+          )}
+        </div>
+        <p className="text-2xl font-bold tracking-tight">{value}</p>
+        <p className="text-xs text-muted-foreground mt-1 font-medium">{label}</p>
+        {subtitle && (
+          <p className="text-[11px] text-muted-foreground/70 mt-0.5">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const tooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: '10px',
+  boxShadow: '0 8px 30px -10px rgba(0,0,0,0.3)',
+  fontSize: '12px',
+};
+
 export function AdvancedAnalytics() {
   const { leads } = useLeads();
   const { data: metrics } = useDashboardMetrics();
   const { stats } = useProspectingStats();
 
-  // Calculate leads over time (last 30 days)
   const leadsOverTime = useMemo(() => {
     const last30Days = eachDayOfInterval({
       start: subDays(new Date(), 29),
       end: new Date(),
     });
-
     return last30Days.map(date => {
       const dayStart = startOfDay(date);
       const count = leads.filter(lead => {
         const leadDate = startOfDay(parseISO(lead.created_at));
         return leadDate.getTime() === dayStart.getTime();
       }).length;
-
       return {
         date: format(date, 'dd/MM', { locale: ptBR }),
         fullDate: format(date, 'dd MMM', { locale: ptBR }),
@@ -86,7 +146,6 @@ export function AdvancedAnalytics() {
     });
   }, [leads]);
 
-  // Calculate funnel data
   const funnelData = useMemo(() => {
     const stages = ['Contato', 'Qualificado', 'Proposta', 'Negociação', 'Ganho'];
     return stages.map(stage => ({
@@ -96,7 +155,6 @@ export function AdvancedAnalytics() {
     }));
   }, [metrics]);
 
-  // Calculate conversion between stages
   const conversionData = useMemo(() => {
     const stages = ['Contato', 'Qualificado', 'Proposta', 'Negociação', 'Ganho'];
     return stages.slice(1).map((stage, index) => {
@@ -104,20 +162,13 @@ export function AdvancedAnalytics() {
       const prevCount = metrics?.leadsByStage?.[previous as keyof typeof metrics.leadsByStage] || 0;
       const currCount = metrics?.leadsByStage?.[stage as keyof typeof metrics.leadsByStage] || 0;
       const rate = prevCount > 0 ? ((currCount / prevCount) * 100) : 0;
-      return {
-        name: `${previous} → ${stage}`,
-        rate: Math.round(rate),
-      };
+      return { name: `${previous} → ${stage}`, rate: Math.round(rate) };
     });
   }, [metrics]);
 
-  // Calculate best contact hours heatmap data
   const heatmapData = useMemo(() => {
     const data: { day: number; hour: number; value: number }[] = [];
-    
-    // Generate sample data based on leads creation time
     const hourCounts: Record<string, number> = {};
-    
     leads.forEach(lead => {
       const leadDate = parseISO(lead.created_at);
       const day = getDay(leadDate);
@@ -127,30 +178,21 @@ export function AdvancedAnalytics() {
         hourCounts[key] = (hourCounts[key] || 0) + 1;
       }
     });
-
-    // Fill heatmap
     for (let day = 0; day < 7; day++) {
       for (let hour = 8; hour < 19; hour++) {
         const key = `${day}-${hour}`;
-        data.push({
-          day,
-          hour,
-          value: hourCounts[key] || 0,
-        });
+        data.push({ day, hour, value: hourCounts[key] || 0 });
       }
     }
-
     return data;
   }, [leads]);
 
-  // Calculate leads by niche
   const nicheData = useMemo(() => {
     const nicheCounts: Record<string, number> = {};
     leads.forEach(lead => {
       const niche = lead.niche || 'Outros';
       nicheCounts[niche] = (nicheCounts[niche] || 0) + 1;
     });
-    
     return Object.entries(nicheCounts)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 6)
@@ -161,211 +203,154 @@ export function AdvancedAnalytics() {
       }));
   }, [leads]);
 
-  // Calculate temperature distribution
-  const temperatureData = useMemo(() => {
-    return [
-      { name: 'Quentes', value: metrics?.hotLeads || 0, fill: TEMP_COLORS.quente },
-      { name: 'Mornos', value: metrics?.warmLeads || 0, fill: TEMP_COLORS.morno },
-      { name: 'Frios', value: metrics?.coldLeads || 0, fill: TEMP_COLORS.frio },
-    ];
-  }, [metrics]);
+  const temperatureData = useMemo(() => [
+    { name: 'Quentes', value: metrics?.hotLeads || 0, fill: TEMP_COLORS.quente },
+    { name: 'Mornos', value: metrics?.warmLeads || 0, fill: TEMP_COLORS.morno },
+    { name: 'Frios', value: metrics?.coldLeads || 0, fill: TEMP_COLORS.frio },
+  ], [metrics]);
 
-  // Calculate average conversion time
   const avgConversionDays = useMemo(() => {
     const wonLeads = leads.filter(l => l.stage === 'Ganho');
     if (wonLeads.length === 0) return 0;
-    
     const totalDays = wonLeads.reduce((sum, lead) => {
       const created = new Date(lead.created_at);
       const updated = new Date(lead.updated_at);
       return sum + Math.floor((updated.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
     }, 0);
-    
     return Math.round(totalDays / wonLeads.length);
   }, [leads]);
 
-  // Weekly performance
   const weeklyPerformance = useMemo(() => {
     const last7Days = eachDayOfInterval({
       start: subDays(new Date(), 6),
       end: new Date(),
     });
-
     return last7Days.map(date => {
       const dayStart = startOfDay(date);
       const dayLeads = leads.filter(lead => {
         const leadDate = startOfDay(parseISO(lead.created_at));
         return leadDate.getTime() === dayStart.getTime();
       });
-
       return {
         day: format(date, 'EEE', { locale: ptBR }),
         leads: dayLeads.length,
-        messages: Math.floor(dayLeads.length * 1.5), // Approximation
-        responses: Math.floor(dayLeads.length * 0.3), // Approximation
+        messages: Math.floor(dayLeads.length * 1.5),
+        responses: Math.floor(dayLeads.length * 0.3),
       };
     });
   }, [leads]);
 
   const maxHeatmapValue = Math.max(...heatmapData.map(d => d.value), 1);
 
+  const activeLeads = (metrics?.totalLeads || 0) - (metrics?.leadsByStage?.Ganho || 0) - (metrics?.leadsByStage?.Perdido || 0);
+  const responseRate = metrics?.totalLeads ? ((metrics?.warmLeads || 0 + (metrics?.hotLeads || 0)) / metrics.totalLeads * 100).toFixed(1) : '0';
+
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Taxa de Resposta</p>
-                <p className="text-3xl font-bold">
-                  {metrics?.totalLeads ? ((metrics?.warmLeads || 0 + (metrics?.hotLeads || 0)) / metrics.totalLeads * 100).toFixed(1) : 0}%
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-primary/20">
-                <MessageSquare className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-sm text-green-500">
-              <TrendingUp className="h-4 w-4" />
-              <span>+12% vs semana passada</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Tempo Médio de Conversão</p>
-                <p className="text-3xl font-bold">{avgConversionDays} dias</p>
-              </div>
-              <div className="p-3 rounded-xl bg-blue-500/20">
-                <Clock className="h-6 w-6 text-blue-500" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-              <Activity className="h-4 w-4" />
-              <span>Do primeiro contato à venda</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Leads Ativos</p>
-                <p className="text-3xl font-bold">
-                  {(metrics?.totalLeads || 0) - (metrics?.leadsByStage?.Ganho || 0) - (metrics?.leadsByStage?.Perdido || 0)}
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-orange-500/20">
-                <Users className="h-6 w-6 text-orange-500" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-sm text-orange-500">
-              <Zap className="h-4 w-4" />
-              <span>Em negociação ativa</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Win Rate</p>
-                <p className="text-3xl font-bold">{(metrics?.conversionRate || 0).toFixed(1)}%</p>
-              </div>
-              <div className="p-3 rounded-xl bg-purple-500/20">
-                <Award className="h-6 w-6 text-purple-500" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-sm text-green-500">
-              <TrendingUp className="h-4 w-4" />
-              <span>{metrics?.leadsByStage?.Ganho || 0} vendas fechadas</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <AnalyticsKPI
+          icon={MessageSquare}
+          label="Taxa de Resposta"
+          value={`${responseRate}%`}
+          trend="up"
+          trendLabel="+12%"
+          subtitle="vs semana passada"
+          gradient="bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border-primary/20"
+          iconColor="text-primary"
+          delay={0}
+        />
+        <AnalyticsKPI
+          icon={Clock}
+          label="Tempo Médio de Conversão"
+          value={`${avgConversionDays} dias`}
+          subtitle="Do contato à venda"
+          trend="neutral"
+          gradient="bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent border-sky-500/20"
+          iconColor="text-sky-500"
+          delay={50}
+        />
+        <AnalyticsKPI
+          icon={Users}
+          label="Leads Ativos"
+          value={activeLeads}
+          subtitle="Em negociação ativa"
+          trend={activeLeads > 0 ? 'up' : 'neutral'}
+          trendLabel={activeLeads > 0 ? `${activeLeads}` : undefined}
+          gradient="bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/20"
+          iconColor="text-amber-500"
+          delay={100}
+        />
+        <AnalyticsKPI
+          icon={Award}
+          label="Win Rate"
+          value={`${(metrics?.conversionRate || 0).toFixed(1)}%`}
+          trend={metrics?.leadsByStage?.Ganho ? 'up' : 'neutral'}
+          trendLabel={`${metrics?.leadsByStage?.Ganho || 0} vendas`}
+          gradient="bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent border-violet-500/20"
+          iconColor="text-violet-500"
+          delay={150}
+        />
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Leads over time */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Leads ao Longo do Tempo
-            </CardTitle>
-            <CardDescription>Últimos 30 dias</CardDescription>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/10">
+                    <BarChart3 className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  Leads ao Longo do Tempo
+                </CardTitle>
+                <CardDescription className="mt-1">Últimos 30 dias</CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">30D</Badge>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+          <CardContent className="pt-2">
+            <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={leadsOverTime}>
                 <defs>
-                  <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  <linearGradient id="colorLeadsAnalytics" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.35}/>
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 12 }} 
-                  className="text-muted-foreground"
-                  interval="preserveStartEnd"
-                />
-                <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="leads"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorLeads)"
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} interval="preserveStartEnd" axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="leads" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#colorLeadsAnalytics)" dot={false} activeDot={{ r: 5, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Funnel Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Funil de Vendas
-            </CardTitle>
-            <CardDescription>Distribuição por estágio</CardDescription>
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-1.5 rounded-lg bg-indigo-500/10">
+                    <Target className="h-4 w-4 text-indigo-500" />
+                  </div>
+                  Funil de Vendas
+                </CardTitle>
+                <CardDescription className="mt-1">Distribuição por estágio</CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={funnelData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis 
-                  type="category" 
-                  dataKey="stage" 
-                  tick={{ fontSize: 12 }} 
-                  width={90}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+          <CardContent className="pt-2">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={funnelData} layout="vertical" barCategoryGap="20%">
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="stage" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} width={85} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={24}>
                   {funnelData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
@@ -377,112 +362,86 @@ export function AdvancedAnalytics() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Leads by Niche */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Leads por Nicho</CardTitle>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Leads por Nicho</CardTitle>
             <CardDescription>Top 6 nichos</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie
-                  data={nicheData}
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
+                <Pie data={nicheData} innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value" strokeWidth={0}>
                   {nicheData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <Tooltip contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              {nicheData.map((item, index) => (
-                <div key={item.name} className="flex items-center gap-2 text-sm">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: item.fill }}
-                  />
-                  <span className="truncate">{item.name}</span>
-                  <span className="text-muted-foreground ml-auto">{item.value}</span>
+            <div className="grid grid-cols-2 gap-1.5 mt-3">
+              {nicheData.map((item) => (
+                <div key={item.name} className="flex items-center gap-2 text-xs px-2 py-1 rounded-md bg-muted/30">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
+                  <span className="truncate text-muted-foreground">{item.name}</span>
+                  <span className="font-semibold ml-auto">{item.value}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Temperature Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Flame className="h-5 w-5" />
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Flame className="h-4 w-4 text-orange-500" />
               Temperatura dos Leads
             </CardTitle>
             <CardDescription>Engajamento atual</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie
-                  data={temperatureData}
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
+                <Pie data={temperatureData} innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value" strokeWidth={0}>
                   {temperatureData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
+                <Tooltip contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="flex justify-center gap-6 mt-4">
+            <div className="flex justify-center gap-5 mt-3">
               {temperatureData.map(item => (
                 <div key={item.name} className="text-center">
-                  <p className="text-2xl font-bold" style={{ color: item.fill }}>
-                    {item.value}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{item.name}</p>
+                  <p className="text-xl font-bold" style={{ color: item.fill }}>{item.value}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium">{item.name}</p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Conversion Rates */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Taxas de Conversão</CardTitle>
-            <CardDescription>Entre estágios</CardDescription>
+        <Card className="border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Taxas de Conversão</CardTitle>
+            <CardDescription>Entre estágios do funil</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3.5 pt-1">
             {conversionData.map(item => (
               <div key={item.name}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm">{item.name}</span>
-                  <Badge variant={item.rate > 50 ? 'default' : 'secondary'}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-muted-foreground">{item.name}</span>
+                  <Badge 
+                    variant={item.rate > 50 ? 'default' : 'secondary'} 
+                    className={cn(
+                      "text-[10px] h-5",
+                      item.rate > 50 && "bg-emerald-500/15 text-emerald-400 border-0"
+                    )}
+                  >
                     {item.rate}%
                   </Badge>
                 </div>
-                <Progress value={item.rate} className="h-2" />
+                <Progress value={item.rate} className="h-1.5" />
               </div>
             ))}
           </CardContent>
@@ -490,46 +449,46 @@ export function AdvancedAnalytics() {
       </div>
 
       {/* Heatmap */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Melhores Horários para Contato
-          </CardTitle>
-          <CardDescription>
-            Baseado em respostas e engajamento dos leads
-          </CardDescription>
+      <Card className="border-border/50">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="p-1.5 rounded-lg bg-teal-500/10">
+                  <Calendar className="h-4 w-4 text-teal-500" />
+                </div>
+                Melhores Horários para Contato
+              </CardTitle>
+              <CardDescription className="mt-1">Baseado em respostas e engajamento</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <div className="min-w-[600px]">
-              {/* Hours header */}
+            <div className="min-w-[550px]">
               <div className="flex mb-2">
-                <div className="w-12" />
+                <div className="w-10" />
                 {HOURS.slice(8, 19).map(hour => (
-                  <div 
-                    key={hour} 
-                    className="flex-1 text-center text-xs text-muted-foreground"
-                  >
+                  <div key={hour} className="flex-1 text-center text-[10px] text-muted-foreground font-medium">
                     {hour}h
                   </div>
                 ))}
               </div>
-              
-              {/* Heatmap grid */}
               {DAYS.map((day, dayIndex) => (
                 <div key={day} className="flex items-center mb-1">
-                  <div className="w-12 text-sm text-muted-foreground">{day}</div>
-                  <div className="flex flex-1 gap-1">
+                  <div className="w-10 text-xs text-muted-foreground font-medium">{day}</div>
+                  <div className="flex flex-1 gap-0.5">
                     {HOURS.slice(8, 19).map(hour => {
                       const cell = heatmapData.find(d => d.day === dayIndex && d.hour === hour);
                       const intensity = cell ? cell.value / maxHeatmapValue : 0;
                       return (
                         <div
                           key={`${day}-${hour}`}
-                          className="flex-1 h-8 rounded-sm transition-colors cursor-pointer hover:ring-2 hover:ring-primary"
+                          className="flex-1 h-7 rounded transition-all cursor-pointer hover:ring-1 hover:ring-primary/50 hover:scale-110"
                           style={{
-                            backgroundColor: `rgba(16, 185, 129, ${0.1 + intensity * 0.8})`,
+                            backgroundColor: intensity > 0 
+                              ? `rgba(16, 185, 129, ${0.15 + intensity * 0.75})`
+                              : 'hsl(var(--muted) / 0.3)',
                           }}
                           title={`${day} ${hour}h: ${cell?.value || 0} contatos`}
                         />
@@ -538,20 +497,14 @@ export function AdvancedAnalytics() {
                   </div>
                 </div>
               ))}
-              
-              {/* Legend */}
-              <div className="flex items-center justify-end gap-2 mt-4">
-                <span className="text-xs text-muted-foreground">Menos</span>
-                <div className="flex gap-1">
+              <div className="flex items-center justify-end gap-2 mt-3">
+                <span className="text-[10px] text-muted-foreground">Menos</span>
+                <div className="flex gap-0.5">
                   {[0.1, 0.3, 0.5, 0.7, 0.9].map(opacity => (
-                    <div
-                      key={opacity}
-                      className="w-4 h-4 rounded-sm"
-                      style={{ backgroundColor: `rgba(16, 185, 129, ${opacity})` }}
-                    />
+                    <div key={opacity} className="w-4 h-4 rounded" style={{ backgroundColor: `rgba(16, 185, 129, ${opacity})` }} />
                   ))}
                 </div>
-                <span className="text-xs text-muted-foreground">Mais</span>
+                <span className="text-[10px] text-muted-foreground">Mais</span>
               </div>
             </div>
           </div>
@@ -559,25 +512,33 @@ export function AdvancedAnalytics() {
       </Card>
 
       {/* Weekly Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance Semanal</CardTitle>
-          <CardDescription>Leads, mensagens e respostas dos últimos 7 dias</CardDescription>
+      <Card className="border-border/50">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="p-1.5 rounded-lg bg-sky-500/10">
+                  <Activity className="h-4 w-4 text-sky-500" />
+                </div>
+                Performance Semanal
+              </CardTitle>
+              <CardDescription className="mt-1">Leads, mensagens e respostas - últimos 7 dias</CardDescription>
+            </div>
+            <Badge variant="secondary" className="text-[10px]">7D</Badge>
+          </div>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={weeklyPerformance}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                }}
+        <CardContent className="pt-2">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={weeklyPerformance} barCategoryGap="25%">
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend 
+                wrapperStyle={{ fontSize: '12px' }}
+                iconType="circle"
+                iconSize={8}
               />
-              <Legend />
               <Bar dataKey="leads" name="Leads" fill="#10b981" radius={[4, 4, 0, 0]} />
               <Bar dataKey="messages" name="Mensagens" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
               <Bar dataKey="responses" name="Respostas" fill="#f59e0b" radius={[4, 4, 0, 0]} />
