@@ -86,6 +86,7 @@ export default function Landing() {
   const [activeNav, setActiveNav] = useState('');
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
