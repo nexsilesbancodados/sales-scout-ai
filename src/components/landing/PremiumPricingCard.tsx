@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ChevronRight, Sparkles, ArrowRight, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import pricingStarterImg from '@/assets/pricing-starter.png';
+import pricingProImg from '@/assets/pricing-pro.png';
+import pricingEnterpriseImg from '@/assets/pricing-enterprise.png';
 
 interface PricingPlan {
   name: string;
@@ -17,8 +21,11 @@ interface PremiumPricingCardProps {
   index: number;
 }
 
+const CARD_IMAGES = [pricingStarterImg, pricingProImg, pricingEnterpriseImg];
+
 export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardProps) {
   const navigate = useNavigate();
+  const [flipped, setFlipped] = useState(false);
 
   const schemes = [
     { glow1: 'hsla(270, 80%, 50%, 1)', glow2: 'hsla(260, 90%, 75%, 1)', glow3: 'hsla(280, 70%, 60%, 1)', check: 'bg-purple-400', label: 'text-purple-400/80', border: '#7B2FF2' },
@@ -38,8 +45,11 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
   const emojis = ['🚀', '⚡', '👑'];
 
   return (
-    <div className="group/flip relative h-full" style={{ perspective: '1200px' }}>
-      {/* Popular badge */}
+    <div
+      className="relative h-full cursor-pointer"
+      style={{ perspective: '1200px' }}
+      onClick={() => setFlipped(!flipped)}
+    >
       {plan.highlight && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
           Mais popular
@@ -47,8 +57,11 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
       )}
 
       <div
-        className="relative w-full h-full transition-transform duration-700 ease-out group-hover/flip:[transform:rotateY(180deg)]"
-        style={{ transformStyle: 'preserve-3d' }}
+        className="relative w-full h-full transition-transform duration-700 ease-out"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}
       >
         {/* ═══ FRONT ═══ */}
         <div
@@ -73,27 +86,39 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             />
           </div>
 
-          <div className="flex items-center gap-3 mb-6">
+          {/* Image illustration */}
+          <div className="flex justify-center mb-4 -mt-1">
+            <img
+              src={CARD_IMAGES[index]}
+              alt={plan.name}
+              className="h-28 w-28 object-contain drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]"
+              loading="lazy"
+              width={112}
+              height={112}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 mb-4">
             <div className={cn(
-              'h-10 w-10 rounded-xl border flex items-center justify-center',
+              'h-9 w-9 rounded-xl border flex items-center justify-center',
               plan.highlight
                 ? 'border-cyan-400/20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20'
                 : 'border-purple-400/20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20'
             )}>
-              <span className="text-lg">{emojis[index]}</span>
+              <span className="text-base">{emojis[index]}</span>
             </div>
             <div>
-              <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
+              <h3 className="text-lg font-semibold tracking-tight text-white">{plan.name}</h3>
               <p className={cn('text-[10px] uppercase tracking-wider font-bold', s.label)}>
                 {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex items-baseline gap-1">
               <span className="text-xs font-medium text-blue-200/60 mr-1">R$</span>
-              <span className="text-4xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
+              <span className="text-3xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
               <span className="text-sm text-blue-200/60 ml-1">/mês</span>
             </div>
             {annual && (
@@ -101,7 +126,7 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             )}
           </div>
 
-          <ul className="space-y-3 text-sm text-blue-50/90 mb-8">
+          <ul className="space-y-2.5 text-sm text-blue-50/90 mb-6">
             {plan.features.map(f => (
               <li key={f} className="flex items-start gap-3">
                 <div className={cn('w-4 h-4 rounded-full flex items-center justify-center mt-0.5 shrink-0', s.check)}>
@@ -113,8 +138,8 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
           </ul>
 
           <button
-            onClick={() => navigate('/auth')}
-            className="aura-btn group/btn isolate inline-flex items-center w-full h-[54px] cursor-pointer overflow-hidden rounded-[18px] relative"
+            onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
+            className="aura-btn group/btn isolate inline-flex items-center w-full h-[50px] cursor-pointer overflow-hidden rounded-[18px] relative"
             style={{ backgroundColor: plan.highlight ? '#A9DDF7' : 'hsl(260, 60%, 75%)', clipPath: 'inset(0 round 18px)' }}
           >
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-60">
@@ -142,6 +167,9 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
               <span className="aura-texto-hover whitespace-nowrap">Vamos começar?</span>
             </div>
           </button>
+
+          {/* Flip hint */}
+          <p className="text-[10px] text-white/20 text-center mt-3">Clique para ver detalhes →</p>
         </div>
 
         {/* ═══ BACK ═══ */}
@@ -158,7 +186,6 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             transform: 'rotateY(180deg)',
           }}
         >
-          {/* Back header */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-2xl">{emojis[index]}</span>
@@ -168,7 +195,6 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
               Por que escolher este plano?
             </p>
 
-            {/* Perks */}
             <ul className="space-y-4">
               {backPerks.map((perk, i) => (
                 <li key={i} className="flex items-center gap-3">
@@ -182,7 +208,6 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             </ul>
           </div>
 
-          {/* Back CTA */}
           <div className="mt-6 space-y-3">
             <div className="flex items-center justify-center gap-1 text-white/30">
               {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-current text-[#F7941D]" />)}
@@ -190,13 +215,15 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             </div>
 
             <button
-              onClick={() => navigate('/auth')}
+              onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
               className="w-full h-[52px] rounded-xl font-semibold text-white text-[14px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
               style={{ background: `linear-gradient(135deg, ${s.border}, ${s.border}CC)` }}
             >
               Começar agora
               <ArrowRight className="h-4 w-4" />
             </button>
+
+            <p className="text-[10px] text-white/20 text-center">← Clique para voltar</p>
           </div>
         </div>
       </div>
