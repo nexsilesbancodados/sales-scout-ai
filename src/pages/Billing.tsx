@@ -313,7 +313,7 @@ export default function BillingPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label className="text-[10px] text-muted-foreground/60">URL do Webhook</Label>
+              <p className="text-[10px] text-muted-foreground/60">URL do Webhook</p>
               <div className="flex items-center gap-2 mt-1">
                 <code className="flex-1 text-[11px] bg-muted/50 p-2.5 rounded-lg font-mono break-all select-all text-muted-foreground">
                   {webhookUrl}
