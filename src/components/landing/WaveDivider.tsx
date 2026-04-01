@@ -1,6 +1,6 @@
 export function WaveDivider({ flip = false, className = '' }: { flip?: boolean; className?: string }) {
   return (
-    <div className={`relative w-full overflow-hidden leading-[0] h-[100px] ${flip ? 'rotate-180' : ''} ${className}`}>
+    <div className={`relative w-full overflow-hidden leading-[0] h-[50px] -my-1 ${flip ? 'rotate-180' : ''} ${className}`}>
       <svg
         className="wave-shape wave-light-blue absolute bottom-[10px] left-0 block h-[80px] opacity-50 z-[2]"
         style={{ width: '200%', animation: 'waveShift 10s ease-in-out infinite' }}
