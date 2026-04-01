@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 
 export function ScrollCurveLine() {
   const pathRef = useRef<SVGPathElement>(null);
-  const glowRef = useRef<SVGCircleElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const pathLengthRef = useRef(0);
 
@@ -17,7 +16,6 @@ export function ScrollCurveLine() {
     const pathLen = pathLengthRef.current;
     if (!pathLen || !containerRef.current) return;
     const path = pathRef.current;
-    const glow = glowRef.current;
     if (!path) return;
 
     let ticking = false;
@@ -40,24 +38,13 @@ export function ScrollCurveLine() {
         
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
-        // Calculate the tip's actual Y position on the page
         const tipSVG = path.getPointAtLength(pathLen * pct);
-        // SVG viewBox is 0-4600 in Y, container maps to rect
-        const tipPageY = rect.top + window.scrollY + (tipSVG.y / 4600) * rect.height;
         const tipViewportY = rect.top + (tipSVG.y / 4600) * rect.height;
 
-        // Broadcast both pct AND the tip's absolute page Y position
         document.documentElement.style.setProperty('--line-progress', `${pct}`);
         window.dispatchEvent(new CustomEvent('line-progress', { 
-          detail: { pct, tipPageY, tipViewportY } 
+          detail: { pct, tipViewportY } 
         }));
-
-        // Position the glow dot at the tip of the drawn line
-        if (glow && pct > 0.01) {
-          glow.setAttribute('cx', `${tipSVG.x}`);
-          glow.setAttribute('cy', `${tipSVG.y}`);
-          glow.style.opacity = `${Math.min(1, pct * 3)}`;
-        }
         
         // Globe
         const globeCX = 500, globeCY = 4600, globeR = 1200;
@@ -97,11 +84,6 @@ export function ScrollCurveLine() {
             <stop offset="85%" stopColor="#7B2FF2" stopOpacity="0.9" />
             <stop offset="100%" stopColor="#7B2FF2" stopOpacity="1" />
           </linearGradient>
-          <radialGradient id="tip-glow">
-            <stop offset="0%" stopColor="#F7941D" stopOpacity="1" />
-            <stop offset="40%" stopColor="#F7941D" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#F7941D" stopOpacity="0" />
-          </radialGradient>
         </defs>
 
         <path
@@ -113,7 +95,6 @@ export function ScrollCurveLine() {
           strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.15s linear' }}
         />
-
       </svg>
     </div>
   );
