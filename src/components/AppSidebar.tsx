@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -106,6 +107,8 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminRole();
+  const { state } = useSidebar();
+  const collapsed = state === 'collapsed';
 
   const handleSignOut = async () => {
     await signOut();
@@ -132,25 +135,25 @@ export function AppSidebar() {
           asChild
           isActive={active}
           className={cn(
-            "relative h-9 rounded-lg transition-all duration-200 group/item",
+            "relative h-9 rounded-xl transition-all duration-200 group/item",
             active
-              ? "gradient-primary text-primary-foreground shadow-md"
-              : "hover:bg-accent text-muted-foreground hover:text-accent-foreground"
+              ? "gradient-primary text-primary-foreground shadow-md shadow-primary/20"
+              : "hover:bg-accent/50 text-muted-foreground hover:text-foreground"
           )}
         >
           <Link to={item.path} className="flex items-center gap-3 px-3">
             <item.icon className={cn(
-              "h-[17px] w-[17px] shrink-0 transition-colors",
-              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-accent-foreground'
+              "h-[17px] w-[17px] shrink-0 transition-all duration-200",
+              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-foreground'
             )} />
             <span className={cn(
-              "text-[13px] font-medium truncate",
+              "text-[13px] font-medium truncate transition-all duration-200",
               active ? "text-primary-foreground font-semibold" : ""
             )}>
               {item.title}
             </span>
             {item.highlight && !active && (
-              <Sparkles className="h-3 w-3 text-primary ml-auto opacity-50" />
+              <Sparkles className="h-3 w-3 text-primary/40 ml-auto" />
             )}
           </Link>
         </SidebarMenuButton>
@@ -159,17 +162,22 @@ export function AppSidebar() {
   };
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="px-4 pt-4 pb-1 text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.14em]">
+    <p className="px-4 pt-5 pb-1.5 text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.16em]">
       {children}
     </p>
   );
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-4 pb-5">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-sidebar">
+      <SidebarHeader className="p-4 pb-6">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
-          <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
+          <div className="relative">
+            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-xl object-contain transition-transform duration-300 group-hover:scale-105" />
+            <div className="absolute inset-0 rounded-xl bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          {!collapsed && (
+            <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
+          )}
         </Link>
       </SidebarHeader>
 
@@ -195,7 +203,7 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-sidebar-border space-y-1">
+      <SidebarFooter className="p-3 border-t border-sidebar-border/30 space-y-1">
         <SidebarMenu className="space-y-0.5">
           {[
             { title: 'Configurações', icon: Settings, path: '/settings' },
@@ -206,10 +214,10 @@ export function AppSidebar() {
                 asChild
                 isActive={isActive(item.path)}
                 className={cn(
-                  "rounded-lg h-9 transition-all duration-200",
+                  "rounded-xl h-9 transition-all duration-200",
                   isActive(item.path)
-                    ? 'gradient-primary text-primary-foreground shadow-md'
-                    : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
+                    ? 'gradient-primary text-primary-foreground shadow-md shadow-primary/20'
+                    : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Link to={item.path} className="flex items-center gap-3 px-3">
@@ -225,26 +233,30 @@ export function AppSidebar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-auto py-2 rounded-lg hover:bg-accent transition-colors"
+              className="w-full justify-start gap-3 h-auto py-2.5 rounded-xl hover:bg-accent/50 transition-all duration-200"
             >
-              <Avatar className="h-7 w-7 ring-2 ring-primary/20">
+              <Avatar className="h-8 w-8 ring-2 ring-primary/10">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="gradient-primary text-primary-foreground text-[10px] font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 text-left min-w-0">
-                <p className="text-[12px] font-semibold truncate">
-                  {user?.user_metadata?.full_name || 'Usuário'}
-                </p>
-                <p className="text-[10px] text-muted-foreground truncate">
-                  {user?.email}
-                </p>
-              </div>
-              <ChevronUp className="h-3 w-3 text-muted-foreground shrink-0" />
+              {!collapsed && (
+                <>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-[12px] font-semibold truncate">
+                      {user?.user_metadata?.full_name || 'Usuário'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/50 truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <ChevronUp className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                </>
+              )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 rounded-xl">
             <DropdownMenuItem asChild>
               <Link to="/settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />

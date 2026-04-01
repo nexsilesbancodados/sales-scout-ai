@@ -87,11 +87,11 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-screen overflow-y-auto">
           {/* Enhanced Header */}
-          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
+          <header className="sticky top-0 z-20 flex h-13 shrink-0 items-center border-b border-border/40 bg-background/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/50 safe-top">
             <div className="flex items-center gap-2 flex-1 px-4 sm:px-6">
               {/* Left: Sidebar trigger + breadcrumb */}
-              <SidebarTrigger className="-ml-1 tap-target text-muted-foreground hover:text-foreground transition-colors" />
-              <Separator orientation="vertical" className="mx-2 h-4 hidden sm:block" />
+              <SidebarTrigger className="-ml-1 tap-target text-muted-foreground/60 hover:text-foreground transition-colors" />
+              <Separator orientation="vertical" className="mx-2 h-4 hidden sm:block opacity-30" />
               <Breadcrumb className="flex-1 min-w-0">
                 <BreadcrumbList>
                   <BreadcrumbItem>
@@ -101,7 +101,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
               </Breadcrumb>
 
               {/* Right: Action buttons */}
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-0.5 shrink-0">
                 {/* Search shortcut */}
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -109,10 +109,10 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                       variant="ghost"
                       size="sm"
                       onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-                      className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hidden sm:flex"
+                      className="h-8 gap-1.5 text-muted-foreground/60 hover:text-foreground hidden sm:flex"
                     >
                       <Search className="h-3.5 w-3.5" />
-                      <kbd className="pointer-events-none text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border">⌘K</kbd>
+                      <kbd className="pointer-events-none text-[10px] font-mono bg-muted/50 px-1.5 py-0.5 rounded-md border border-border/40">⌘K</kbd>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Busca rápida</TooltipContent>
@@ -125,7 +125,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 {/* Notifications */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground relative">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/60 hover:text-foreground relative">
                       <Bell className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -139,7 +139,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                       variant="ghost"
                       size="icon"
                       onClick={toggleNavigationMode}
-                      className="h-8 w-8 hidden sm:flex text-muted-foreground hover:text-foreground"
+                      className="h-8 w-8 hidden sm:flex text-muted-foreground/60 hover:text-foreground"
                     >
                       <PanelTop className="h-4 w-4" />
                     </Button>
@@ -150,7 +150,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 {/* Theme toggle */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleTheme} className="tap-target h-8 w-8 text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="icon" onClick={toggleTheme} className="tap-target h-8 w-8 text-muted-foreground/60 hover:text-foreground">
                       <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                       <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     </Button>
@@ -163,7 +163,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
 
           <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-fade-in safe-bottom">
             {description && (
-              <p className="text-muted-foreground mb-6 text-[13px] sm:text-sm">{description}</p>
+              <p className="text-muted-foreground/60 mb-6 text-[13px] sm:text-sm font-medium">{description}</p>
             )}
             {children}
           </main>
