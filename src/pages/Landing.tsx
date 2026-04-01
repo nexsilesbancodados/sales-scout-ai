@@ -67,7 +67,7 @@ export default function Landing() {
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [unusedFlip] = useState(false); // kept for ref stability
+  
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
