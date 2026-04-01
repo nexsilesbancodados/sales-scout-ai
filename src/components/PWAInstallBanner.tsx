@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
