@@ -163,18 +163,6 @@ export default function Landing() {
         if (!card) return;
         enterTl.to(card, { opacity: 1, y: 0, duration: 0.5 }, i * 0.12);
       });
-      const flipTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: advantagesRef.current, start: 'top top', end: '+=300%', pin: true, scrub: 1.5, anticipatePin: 1,
-          snap: { snapTo: 1 / ADVANTAGES.length, duration: { min: 0.2, max: 0.6 }, ease: 'power1.inOut' },
-        },
-      });
-      flipCardsRef.current.forEach((card, index) => {
-        if (!card) return;
-        flipTl
-          .to(card, { rotationY: 90, ease: 'power2.in', duration: 0.5 }, index * 1)
-          .to(card, { rotationY: 180, ease: 'power2.out', duration: 0.5 }, index * 1 + 0.5);
-      });
     });
     return () => ctx.revert();
   }, []);
