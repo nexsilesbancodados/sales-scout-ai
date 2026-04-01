@@ -407,7 +407,7 @@ export default function Landing() {
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
             <p className="text-[11px] text-white/30 leading-relaxed max-w-[260px]">
-              Plataforma inteligente de prospecção automatizada com IA para escalar suas vendas.
+              A máquina de vendas com IA que prospecta, qualifica e agenda reuniões no piloto automático.
             </p>
           </div>
 
