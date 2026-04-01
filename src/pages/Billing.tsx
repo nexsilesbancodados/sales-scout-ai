@@ -157,7 +157,7 @@ export default function BillingPage() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 { icon: MessageSquare, label: 'Disparos', value: 'Ilimitados ∞', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                { icon: Smartphone, label: 'Chips WhatsApp', value: `${chipsConnected}/${currentPlanData.chips}`, color: 'text-sky-500', bg: 'bg-sky-500/10' },
+                { icon: Smartphone, label: 'Chips WhatsApp', value: `${chipsConnected}/${currentPlanInfo.chips}`, color: 'text-sky-500', bg: 'bg-sky-500/10' },
                 { icon: Star, label: 'Leads Capturados', value: `${leadsCount.toLocaleString()}`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                 { icon: CreditCard, label: 'Valor', value: subscription?.amount ? `R$ ${(subscription.amount / 100).toFixed(0)}/mês` : 'Gratuito', color: 'text-violet-500', bg: 'bg-violet-500/10' },
               ].map((stat) => (
