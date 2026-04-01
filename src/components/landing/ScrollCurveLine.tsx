@@ -1,0 +1,100 @@
+import { useEffect, useRef, useState } from 'react';
+
+export function ScrollCurveLine() {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pathLength, setPathLength] = useState(0);
+  const [drawOffset, setDrawOffset] = useState(0);
+
+  useEffect(() => {
+    if (!pathRef.current) return;
+    const len = pathRef.current.getTotalLength();
+    setPathLength(len);
+    setDrawOffset(len);
+  }, []);
+
+  useEffect(() => {
+    if (!pathLength || !containerRef.current) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          const rect = container.getBoundingClientRect();
+          const vh = window.innerHeight;
+          // progress: 0 when top of container hits bottom of viewport, 1 when bottom hits top
+          const totalTravel = rect.height + vh;
+          const traveled = vh - rect.top;
+          const pct = Math.max(0, Math.min(1, traveled / totalTravel));
+          setDrawOffset(pathLength * (1 - pct));
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [pathLength]);
+
+  const curvePath = `M 500 0 
+     C 900 400, 900 700, 500 1266 
+     C 100 1766, 100 2166, 500 2633 
+     C 900 3133, 900 3500, 500 3800`;
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-0 overflow-visible">
+      <svg
+        ref={svgRef}
+        viewBox="0 0 1000 3800"
+        className="absolute top-0 left-0 w-full h-full"
+        preserveAspectRatio="none"
+        style={{ overflow: 'visible' }}
+      >
+        <defs>
+          <linearGradient id="curve-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#7B2FF2" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#F7941D" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#7B2FF2" stopOpacity="0.8" />
+          </linearGradient>
+          <filter id="curve-glow">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Track (dim background path) */}
+        <path
+          d={curvePath}
+          fill="none"
+          stroke="rgba(123,47,242,0.08)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray="10 18"
+        />
+
+        {/* Active drawn line */}
+        <path
+          ref={pathRef}
+          d={curvePath}
+          fill="none"
+          stroke="url(#curve-gradient)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          filter="url(#curve-glow)"
+          style={{
+            strokeDasharray: pathLength || 1,
+            strokeDashoffset: drawOffset,
+            transition: 'stroke-dashoffset 0.12s ease-out',
+          }}
+        />
+      </svg>
+    </div>
+  );
+}

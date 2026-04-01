@@ -8,7 +8,7 @@ import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
-import { ScrollLine } from '@/components/landing/ScrollLine';
+import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
 
 
 
@@ -226,6 +226,10 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ SCROLL CURVE LINE ═══ */}
+      <div className="relative">
+        <ScrollCurveLine />
+
       {/* ═══ MOCKUP SHOWCASE ═══ */}
       <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
@@ -385,6 +389,8 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      </div>{/* end scroll curve wrapper */}
 
       {/* ═══ FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-8 px-4">
