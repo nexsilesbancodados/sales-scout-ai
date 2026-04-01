@@ -78,8 +78,6 @@ export default function ToolsTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const drawLineRef = useRef<SVGPathElement>(null);
-  const dotRef = useRef<SVGCircleElement>(null);
-  const dotInnerRef = useRef<SVGCircleElement>(null);
   const [pathLength, setPathLength] = useState(0);
   const [cardVisible, setCardVisible] = useState<boolean[]>(new Array(TOOLS_DATA.length).fill(false));
 
@@ -109,24 +107,15 @@ export default function ToolsTimeline() {
     const rect = containerRef.current.getBoundingClientRect();
     const wh = window.innerHeight;
 
-    // Progress: 0 when container top reaches 80% of viewport, 1 when container bottom hits 20% from top
-    const startOffset = wh * 0.8; // line starts drawing when top of container is at 80% of viewport
-    const scrolled = startOffset - rect.top;
-    const totalScroll = rect.height + startOffset - wh * 0.2;
+    // Progress: 0 when container top hits viewport top, 1 when bottom exits
+    const scrolled = -rect.top;
+    const totalScroll = rect.height - wh;
     const progress = Math.max(0, Math.min(1, scrolled / totalScroll));
 
     // Draw line
     const drawLength = pathLength * progress;
     drawLineRef.current.style.strokeDashoffset = `${pathLength - drawLength}`;
 
-    // Move dot
-    if (drawLength > 0 && drawLineRef.current) {
-      const point = drawLineRef.current.getPointAtLength(drawLength);
-      dotRef.current?.setAttribute('cx', String(point.x));
-      dotRef.current?.setAttribute('cy', String(point.y));
-      dotInnerRef.current?.setAttribute('cx', String(point.x));
-      dotInnerRef.current?.setAttribute('cy', String(point.y));
-    }
 
     // Card visibility
     setCardVisible(prev => {
@@ -204,7 +193,7 @@ export default function ToolsTimeline() {
             d={curvePath}
             fill="none"
             stroke="rgba(255,255,255,0.04)"
-            strokeWidth="6"
+            strokeWidth="10"
             strokeLinecap="round"
           />
 
@@ -214,28 +203,10 @@ export default function ToolsTimeline() {
             d={curvePath}
             fill="none"
             stroke="url(#curve-gradient)"
-            strokeWidth="4"
+            strokeWidth="8"
             strokeLinecap="round"
             filter="url(#glow-filter)"
             className="transition-[stroke-dashoffset] duration-75 ease-linear"
-          />
-
-          {/* Glowing dot */}
-          <circle
-            ref={dotRef}
-            cx="500"
-            cy="0"
-            r="16"
-            fill="white"
-            opacity="0.3"
-            filter="url(#glow-filter)"
-          />
-          <circle
-            ref={dotInnerRef}
-            cx="500"
-            cy="0"
-            r="6"
-            fill="#F7941D"
           />
         </svg>
 
