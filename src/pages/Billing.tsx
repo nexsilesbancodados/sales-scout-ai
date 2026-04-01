@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -13,6 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 import {
   Check,
   Crown,
@@ -31,12 +31,11 @@ import {
   Receipt,
   Copy,
   Shield,
+  ArrowRight,
+  Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 
-// ============================================================
-// CONFIGURE SEUS LINKS DE CHECKOUT DA CAKTO AQUI
-// Substitua pelos links reais dos seus produtos na Cakto
-// ============================================================
 const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
   starter: {
     monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
@@ -56,6 +55,7 @@ const plans = [
   {
     id: 'starter',
     name: 'Starter',
+    tagline: 'Para quem está começando',
     icon: Rocket,
     monthlyPrice: 97,
     features: [
@@ -68,10 +68,16 @@ const plans = [
     ],
     chips: 1,
     highlight: false,
+    gradient: 'from-sky-500/10 via-sky-500/5 to-transparent',
+    borderColor: 'border-sky-500/20',
+    iconBg: 'bg-sky-500/15',
+    iconColor: 'text-sky-500',
+    accentColor: 'text-sky-500',
   },
   {
     id: 'pro',
     name: 'Pro',
+    tagline: 'ROI comprovado',
     icon: Crown,
     monthlyPrice: 149,
     features: [
@@ -85,10 +91,16 @@ const plans = [
     ],
     chips: 3,
     highlight: true,
+    gradient: 'from-primary/15 via-primary/5 to-transparent',
+    borderColor: 'border-primary/30',
+    iconBg: 'bg-primary/15',
+    iconColor: 'text-primary',
+    accentColor: 'text-primary',
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
+    tagline: 'Escala máxima',
     icon: Building2,
     monthlyPrice: 199,
     features: [
@@ -102,13 +114,18 @@ const plans = [
     ],
     chips: 10,
     highlight: false,
+    gradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
+    borderColor: 'border-amber-500/20',
+    iconBg: 'bg-amber-500/15',
+    iconColor: 'text-amber-500',
+    accentColor: 'text-amber-500',
   },
 ];
 
 const EVENT_LABELS: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  purchase_approved: { label: 'Pagamento aprovado', color: 'text-green-600', icon: CheckCircle2 },
-  subscription_created: { label: 'Assinatura criada', color: 'text-green-600', icon: CheckCircle2 },
-  subscription_renewed: { label: 'Assinatura renovada', color: 'text-green-600', icon: CheckCircle2 },
+  purchase_approved: { label: 'Pagamento aprovado', color: 'text-emerald-500', icon: CheckCircle2 },
+  subscription_created: { label: 'Assinatura criada', color: 'text-emerald-500', icon: CheckCircle2 },
+  subscription_renewed: { label: 'Assinatura renovada', color: 'text-emerald-500', icon: CheckCircle2 },
   subscription_canceled: { label: 'Assinatura cancelada', color: 'text-destructive', icon: XCircle },
   subscription_renewal_refused: { label: 'Renovação recusada', color: 'text-orange-500', icon: AlertTriangle },
   refund: { label: 'Reembolso', color: 'text-orange-500', icon: AlertTriangle },
@@ -139,16 +156,12 @@ export default function BillingPage() {
 
   const webhookUrl = `https://oeztpxyprifabkvysroh.supabase.co/functions/v1/cakto-webhook`;
 
-  const getPrice = (monthly: number) => {
-    if (isAnnual) return Math.round(monthly * 0.8);
-    return monthly;
-  };
+  const getPrice = (monthly: number) => isAnnual ? Math.round(monthly * 0.8) : monthly;
 
   const getCheckoutUrl = (planId: string) => {
     const urls = CAKTO_CHECKOUT_URLS[planId];
     if (!urls) return '#';
     const baseUrl = isAnnual ? urls.annual : urls.monthly;
-    // Append email as query param for auto-identification
     const email = user?.email;
     if (email) {
       const separator = baseUrl.includes('?') ? '&' : '?';
@@ -167,102 +180,83 @@ export default function BillingPage() {
   return (
     <DashboardLayout
       title="Planos e Faturamento"
-      description="Gerencie seu plano e acompanhe pagamentos — integrado com Cakto"
+      description="Gerencie seu plano e acompanhe pagamentos"
     >
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-8 animate-fade-in">
         {/* Current Subscription Status */}
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                <CardTitle>Sua Assinatura</CardTitle>
+        <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary/8 via-primary/3 to-transparent shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary/15 shadow-sm">
+                  <Zap className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Sua Assinatura</h3>
+                  {subscription?.started_at && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Desde {format(new Date(subscription.started_at), "MMMM 'de' yyyy", { locale: ptBR })}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={statusBadge.variant}>
+                <Badge variant={statusBadge.variant} className="text-xs">
                   {statusBadge.label}
                 </Badge>
-                <Badge className="bg-primary text-primary-foreground">
-                  Plano {currentPlanData.name}
+                <Badge className="bg-primary/15 text-primary border-primary/20 font-semibold">
+                  {currentPlanData.name}
                 </Badge>
               </div>
             </div>
+
             {isPastDue && (
-              <div className="flex items-center gap-2 p-3 mt-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <div className="flex items-center gap-2.5 p-3 mb-5 rounded-xl bg-orange-500/10 border border-orange-500/20">
                 <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
-                <p className="text-sm text-orange-600">
-                  Seu pagamento está pendente. Regularize para manter o acesso completo.
+                <p className="text-sm text-orange-400">
+                  Pagamento pendente. Regularize para manter o acesso.
                 </p>
               </div>
             )}
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Disparos</p>
-                  <p className="font-semibold">Ilimitados ∞</p>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { icon: MessageSquare, label: 'Disparos', value: 'Ilimitados ∞', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                { icon: Smartphone, label: 'Chips WhatsApp', value: `${chipsConnected}/${currentPlanData.chips}`, color: 'text-sky-500', bg: 'bg-sky-500/10' },
+                { icon: Star, label: 'Leads Capturados', value: `${leadsCount.toLocaleString()}`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                { icon: CreditCard, label: 'Valor', value: subscription?.amount ? `R$ ${(subscription.amount / 100).toFixed(0)}/mês` : 'Gratuito', color: 'text-violet-500', bg: 'bg-violet-500/10' },
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-center gap-3 p-3.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
+                  <div className={cn("p-2 rounded-lg", stat.bg)}>
+                    <stat.icon className={cn("h-4 w-4", stat.color)} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground font-medium">{stat.label}</p>
+                    <p className="font-bold text-sm">{stat.value}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Smartphone className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Chips WhatsApp</p>
-                  <p className="font-semibold">{chipsConnected}/{currentPlanData.chips}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Star className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Leads</p>
-                  <p className="font-semibold">{leadsCount.toLocaleString()} — ∞</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <CreditCard className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Valor</p>
-                  <p className="font-semibold">
-                    {subscription?.amount
-                      ? `R$ ${(subscription.amount / 100).toFixed(2)}`
-                      : 'Gratuito'}
-                    {subscription?.payment_method && (
-                      <span className="text-xs text-muted-foreground ml-1">
-                        ({subscription.payment_method})
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
-            {subscription?.started_at && (
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Assinante desde {format(new Date(subscription.started_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                {subscription?.expires_at && (
-                  <span className="ml-2">
-                    • Expira em {format(new Date(subscription.expires_at), "dd/MM/yyyy")}
-                  </span>
-                )}
-              </p>
-            )}
           </CardContent>
         </Card>
 
         {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-3">
-          <Label className={!isAnnual ? 'font-semibold' : 'text-muted-foreground'}>Mensal</Label>
+        <div className="flex items-center justify-center gap-4 py-2">
+          <span className={cn("text-sm font-medium transition-colors", !isAnnual ? 'text-foreground' : 'text-muted-foreground')}>
+            Mensal
+          </span>
           <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-          <Label className={isAnnual ? 'font-semibold' : 'text-muted-foreground'}>
+          <span className={cn("text-sm font-medium transition-colors flex items-center gap-2", isAnnual ? 'text-foreground' : 'text-muted-foreground')}>
             Anual
-            <Badge variant="secondary" className="ml-2 text-xs bg-green-500/10 text-green-600">-20%</Badge>
-          </Label>
+            <Badge className="bg-emerald-500/15 text-emerald-400 border-0 text-[10px] font-bold px-2">
+              -20%
+            </Badge>
+          </span>
         </div>
 
         {/* Plans Grid */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {plans.map((plan) => {
+        <div className="grid gap-5 md:grid-cols-3">
+          {plans.map((plan, index) => {
             const isCurrentPlan = plan.id === currentPlan;
             const PlanIcon = plan.icon;
             const price = getPrice(plan.monthlyPrice);
@@ -271,52 +265,81 @@ export default function BillingPage() {
             return (
               <Card
                 key={plan.id}
-                className={`relative transition-all ${
+                className={cn(
+                  "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up",
+                  `bg-gradient-to-b ${plan.gradient}`,
                   plan.highlight
-                    ? 'border-primary shadow-lg ring-2 ring-primary/20 scale-[1.02]'
-                    : 'hover:border-primary/50'
-                } ${isCurrentPlan ? 'bg-primary/5' : ''}`}
+                    ? 'ring-2 ring-primary/30 shadow-xl shadow-primary/5 scale-[1.02]'
+                    : 'hover:ring-1 hover:ring-border shadow-md',
+                  isCurrentPlan && 'ring-2 ring-primary/40'
+                )}
+                style={{ animationDelay: `${index * 80}ms` }}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground shadow-md">
-                      <Star className="h-3 w-3 mr-1" />
-                      Mais popular
+                  <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+                )}
+                
+                {plan.highlight && (
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-primary text-primary-foreground text-[10px] font-bold shadow-md gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      Popular
                     </Badge>
                   </div>
                 )}
-                <CardHeader className="text-center pt-8">
-                  <div className="mx-auto p-3 rounded-xl bg-primary/10 w-fit mb-2">
-                    <PlanIcon className="h-6 w-6 text-primary" />
+
+                <CardContent className="p-6 pt-7">
+                  {/* Plan header */}
+                  <div className="mb-6">
+                    <div className={cn("inline-flex p-3 rounded-2xl mb-4", plan.iconBg)}>
+                      <PlanIcon className={cn("h-6 w-6", plan.iconColor)} />
+                    </div>
+                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{plan.tagline}</p>
                   </div>
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <div className="flex items-baseline justify-center gap-1 mt-2">
-                    <span className="text-3xl font-bold">R$ {price}</span>
-                    <span className="text-muted-foreground text-sm">/mês</span>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm text-muted-foreground">R$</span>
+                      <span className="text-4xl font-extrabold tracking-tight">{price}</span>
+                      <span className="text-sm text-muted-foreground">/mês</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-[11px] text-emerald-400 font-medium mt-1">
+                        R$ {price * 12}/ano — economia de R$ {plan.monthlyPrice * 12 - price * 12}
+                      </p>
+                    )}
                   </div>
-                  {isAnnual && (
-                    <p className="text-xs text-green-600">
-                      R$ {price * 12}/ano (economia de R$ {plan.monthlyPrice * 12 - price * 12})
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-3">
+
+                  {/* Features */}
+                  <ul className="space-y-2.5 mb-6">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-primary shrink-0" />
-                        {feature}
+                      <li key={feature} className="flex items-center gap-2.5 text-sm">
+                        <div className={cn("p-0.5 rounded-full", plan.iconBg)}>
+                          <Check className={cn("h-3 w-3", plan.iconColor)} />
+                        </div>
+                        <span className="text-muted-foreground">{feature}</span>
                       </li>
                     ))}
                   </ul>
+
+                  {/* CTA Button */}
                   <Button
-                    className="w-full"
+                    className={cn(
+                      "w-full h-11 font-semibold text-sm gap-2 transition-all",
+                      plan.highlight && !isCurrentPlan && "gradient-primary shadow-md hover:shadow-lg",
+                      isCurrentPlan && "bg-muted text-muted-foreground"
+                    )}
                     variant={isCurrentPlan ? 'secondary' : plan.highlight ? 'default' : 'outline'}
                     disabled={isCurrentPlan}
                     asChild={!isCurrentPlan}
                   >
                     {isCurrentPlan ? (
-                      <span>Plano atual</span>
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Plano atual
+                      </span>
                     ) : (
                       <a
                         href={checkoutUrl}
@@ -324,17 +347,17 @@ export default function BillingPage() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2"
                       >
-                        <CreditCard className="h-4 w-4" />
                         Assinar agora
-                        <ExternalLink className="h-3 w-3" />
+                        <ArrowRight className="h-4 w-4" />
                       </a>
                     )}
                   </Button>
+
                   {!isCurrentPlan && (
-                    <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
+                    <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 mt-3">
                       <Shield className="h-3 w-3" />
                       Pagamento seguro via Cakto
-                    </div>
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -344,16 +367,20 @@ export default function BillingPage() {
 
         {/* Payment History */}
         {paymentHistory.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg">Histórico de Pagamentos</CardTitle>
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Receipt className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">Histórico de Pagamentos</CardTitle>
+                  <CardDescription className="text-xs">Eventos via webhook Cakto</CardDescription>
+                </div>
               </div>
-              <CardDescription>Eventos recebidos via webhook Cakto</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {paymentHistory.map((event) => {
                   const eventInfo = EVENT_LABELS[event.event_type] || {
                     label: event.event_type,
@@ -365,24 +392,26 @@ export default function BillingPage() {
                   return (
                     <div
                       key={event.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-muted/20"
+                      className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <EventIcon className={`h-4 w-4 ${eventInfo.color}`} />
+                        <div className="p-1.5 rounded-lg bg-background">
+                          <EventIcon className={cn("h-3.5 w-3.5", eventInfo.color)} />
+                        </div>
                         <div>
                           <p className="text-sm font-medium">{eventInfo.label}</p>
                           {event.product_name && (
-                            <p className="text-xs text-muted-foreground">{event.product_name}</p>
+                            <p className="text-[11px] text-muted-foreground">{event.product_name}</p>
                           )}
                         </div>
                       </div>
                       <div className="text-right">
                         {event.amount > 0 && (
-                          <p className="text-sm font-semibold">
+                          <p className="text-sm font-bold">
                             R$ {(event.amount / 100).toFixed(2)}
                           </p>
                         )}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[10px] text-muted-foreground">
                           {format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}
                         </p>
                       </div>
@@ -394,42 +423,43 @@ export default function BillingPage() {
           </Card>
         )}
 
-        {/* Webhook Config for Admin */}
-        <Card className="border-dashed">
-          <CardHeader>
+        {/* Webhook Config */}
+        <Card className="border-dashed border-border/40">
+          <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-sm text-muted-foreground">Integração Cakto (Admin)</CardTitle>
+              <Zap className="h-4 w-4 text-muted-foreground/60" />
+              <CardTitle className="text-xs text-muted-foreground/60 font-medium">
+                Integração Cakto (Admin)
+              </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             <div>
-              <Label className="text-xs text-muted-foreground">URL do Webhook — configure na Cakto</Label>
+              <Label className="text-[10px] text-muted-foreground/60">URL do Webhook</Label>
               <div className="flex items-center gap-2 mt-1">
-                <code className="flex-1 text-xs bg-muted p-2.5 rounded-lg font-mono break-all select-all">
+                <code className="flex-1 text-[11px] bg-muted/50 p-2.5 rounded-lg font-mono break-all select-all text-muted-foreground">
                   {webhookUrl}
                 </code>
-                <Button variant="outline" size="sm" onClick={() => copyToClipboard(webhookUrl)} className="gap-1.5 shrink-0">
+                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(webhookUrl)} className="gap-1.5 shrink-0 h-8 text-xs">
                   <Copy className="h-3 w-3" />
                   Copiar
                 </Button>
               </div>
             </div>
 
-            <div className="rounded-lg border border-border/50 p-3 space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Como configurar:</p>
-              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Acesse o painel da Cakto → <strong>Integrações → Webhooks</strong></li>
+            <details className="group">
+              <summary className="text-[11px] text-muted-foreground/50 cursor-pointer hover:text-muted-foreground transition-colors list-none flex items-center gap-1">
+                <ArrowRight className="h-3 w-3 transition-transform group-open:rotate-90" />
+                Como configurar
+              </summary>
+              <ol className="text-[11px] text-muted-foreground/60 space-y-1 list-decimal list-inside mt-2 pl-4">
+                <li>Acesse Cakto → Integrações → Webhooks</li>
                 <li>Cole a URL acima como endpoint</li>
-                <li>Selecione os eventos:
-                  <span className="font-mono text-[10px] ml-1">
-                    purchase_approved, subscription_created, subscription_canceled, subscription_renewed, refund, chargeback
-                  </span>
-                </li>
-                <li>Crie produtos com nomes contendo "Starter", "Pro" ou "Enterprise"</li>
-                <li>O email do cliente na Cakto deve ser o mesmo do cadastro aqui</li>
+                <li>Selecione: purchase_approved, subscription_created, subscription_canceled, refund</li>
+                <li>Nomes dos produtos devem conter "Starter", "Pro" ou "Enterprise"</li>
+                <li>O email do cliente deve ser o mesmo do cadastro</li>
               </ol>
-            </div>
+            </details>
           </CardContent>
         </Card>
       </div>
