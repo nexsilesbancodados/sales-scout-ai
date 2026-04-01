@@ -183,8 +183,6 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none">
           <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" />
           <div className="absolute inset-0 hero-energy-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0B0D15]/90 via-[#0B0D15]/60 to-[#0B0D15]/90" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D15] via-[#0B0D15]/40 to-[#0B0D15]/50" />
         </div>
         {/* Bottom gradient fade — replaces hard edge */}
         <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-[5]" style={{ background: 'linear-gradient(to bottom, transparent 0%, #0B0D15 100%)' }} />
