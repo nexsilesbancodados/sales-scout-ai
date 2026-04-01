@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -8,6 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallBanner() {
+  const { user } = useAuth();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
 
@@ -18,7 +20,7 @@ export function PWAInstallBanner() {
     })();
     const isPreviewHost = window.location.hostname.includes('id-preview--') || window.location.hostname.includes('lovableproject.com');
     
-    if (isInIframe || isPreviewHost) return;
+    if (isInIframe || isPreviewHost || !user) return;
 
     // Check if already dismissed
     if (localStorage.getItem('pwa_banner_dismissed') === 'true') return;
