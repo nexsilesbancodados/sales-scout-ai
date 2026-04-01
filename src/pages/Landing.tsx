@@ -181,14 +181,14 @@ export default function Landing() {
               <span className="text-[12px] text-white/60">+2.400 empresas faturam mais no automático</span>
             </div>
             <h1 className="text-[42px] sm:text-[54px] lg:text-[68px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Pare de </span>
-              <span className="text-white/30">perseguir</span>
+              <span className="text-white">Seus concorrentes </span>
+              <span className="text-white/30">prospectam.</span>
               <br className="hidden sm:block" />
-              <span className="text-white">leads. </span>
-              <span className="landing-gradient-text">Atraia-os.</span>
+              <span className="text-white">Você </span>
+              <span className="landing-gradient-text">fecha.</span>
             </h1>
             <p className="text-[16px] text-white/50 max-w-[460px] mt-7 leading-[1.8] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              A IA captura leads do Google Maps, Instagram e Facebook, envia mensagens no WhatsApp e agenda reuniões — <strong className="text-white/70">enquanto você dorme.</strong>
+              IA que captura leads do Google Maps, Instagram e Facebook, envia mensagens personalizadas no WhatsApp e agenda reuniões — <strong className="text-white/70">mesmo às 3h da manhã.</strong>
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
