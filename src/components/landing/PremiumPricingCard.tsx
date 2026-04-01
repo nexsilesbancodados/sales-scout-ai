@@ -47,9 +47,9 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
   const cardBg = `radial-gradient(at 88% 40%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 49% 30%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 14% 26%, hsla(210, 30%, 8%, 1) 0px, transparent 85%), radial-gradient(at 0% 64%, ${s.glow1} 0px, transparent 85%), radial-gradient(at 41% 94%, ${s.glow2} 0px, transparent 85%), radial-gradient(at 100% 99%, ${s.glow3} 0px, transparent 85%)`;
 
   const backPerks = index === 0
-    ? ['7 dias grátis, sem cartão', '200 leads qualificados/mês', 'Suporte real via WhatsApp', 'Templates prontos por nicho', 'Cancele com 1 clique']
+    ? ['Leads ilimitados', 'Suporte real via WhatsApp', 'Templates prontos por nicho', 'Cancele com 1 clique', 'Setup em 5 minutos']
     : index === 1
-    ? ['ROI médio de 23x comprovado', '1.000 leads qualificados/mês', 'Agente SDR que nunca dorme', 'Suporte prioritário em minutos', 'Setup assistido incluso']
+    ? ['ROI médio de 23x comprovado', 'Leads ilimitados', 'Agente SDR que nunca dorme', 'Suporte prioritário em minutos', 'Setup assistido incluso']
     : ['Volume ilimitado de leads', 'Multi-chip com rotação automática', 'Gerente de sucesso dedicado', 'API completa + Webhooks', 'Onboarding personalizado 1:1'];
 
   const emojis = ['🚀', '⚡', '👑'];
