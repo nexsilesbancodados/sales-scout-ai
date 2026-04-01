@@ -323,31 +323,6 @@ export default function Landing() {
               </motion.div>
             ))}
 
-            {/* Floating badge — top right */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="absolute right-0 md:right-8 top-8 bg-[#0E1018]/90 backdrop-blur-xl border border-white/[0.1] rounded-xl px-4 py-3 shadow-xl z-20"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-[11px] text-white/70 font-medium">48 leads capturados</span>
-              </div>
-            </motion.div>
-
-            {/* Floating badge — bottom left */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="absolute left-0 md:left-8 bottom-12 bg-[#0E1018]/90 backdrop-blur-xl border border-white/[0.1] rounded-xl px-4 py-3 shadow-xl z-20"
-            >
-              <p className="text-[10px] text-white/40 mb-0.5">Conversão</p>
-              <p className="text-lg font-bold text-[#7B2FF2]">+34.7%</p>
-            </motion.div>
           </motion.div>
         </div>
       </section>
