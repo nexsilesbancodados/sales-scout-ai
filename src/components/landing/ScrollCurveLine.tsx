@@ -68,7 +68,7 @@ export function ScrollCurveLine() {
      C 300 4300, 400 4500, 500 4600`;
 
   return (
-    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-0 overflow-visible">
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-20 overflow-visible">
       <svg
         viewBox="0 0 1000 4600"
         className="absolute top-0 left-0 w-full h-full"
