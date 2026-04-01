@@ -102,7 +102,7 @@ export default function ConversationsPage() {
       title="Conversas"
       description="Conversas do WhatsApp em tempo real"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] animate-fade-in">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-200px)] animate-fade-in">
         {/* Conversations List */}
         <Card className="lg:col-span-1 overflow-hidden">
           <CardHeader className="pb-3 bg-muted/30 border-b">
