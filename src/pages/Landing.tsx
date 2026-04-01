@@ -375,8 +375,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══ WAVE DIVIDER ═══ */}
-      <WaveDivider />
 
       {/* ═══ FERRAMENTAS TIMELINE ═══ */}
       <ToolsTimeline />
