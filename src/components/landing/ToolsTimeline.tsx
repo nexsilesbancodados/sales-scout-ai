@@ -107,10 +107,9 @@ export default function ToolsTimeline() {
     const rect = containerRef.current.getBoundingClientRect();
     const wh = window.innerHeight;
 
-    // Progress: 0 when container top reaches 80% of viewport, 1 when container bottom hits 20% from top
-    const startOffset = wh * 0.8; // line starts drawing when top of container is at 80% of viewport
-    const scrolled = startOffset - rect.top;
-    const totalScroll = rect.height + startOffset - wh * 0.2;
+    // Progress: 0 when container top hits viewport top, 1 when bottom exits
+    const scrolled = -rect.top;
+    const totalScroll = rect.height - wh;
     const progress = Math.max(0, Math.min(1, scrolled / totalScroll));
 
     // Draw line
