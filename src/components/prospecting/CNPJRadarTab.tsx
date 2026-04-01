@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLeads } from '@/hooks/use-leads';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import {
   Building2,
   Search,
@@ -25,6 +25,10 @@ import {
   Mail,
   Calendar,
   Users,
+  Globe,
+  ExternalLink,
+  Briefcase,
+  Hash,
 } from 'lucide-react';
 
 const ESTADOS_BR = [
@@ -78,15 +82,19 @@ function cleanPhone(ddd_phone: string): string {
   return digits;
 }
 
+type TabType = 'individual' | 'massa';
+
 export function CNPJRadarTab() {
   const { createLead, leads } = useLeads();
   const { toast } = useToast();
-  
+
+  const [activeTab, setActiveTab] = useState<TabType>('individual');
+
   // Single lookup
   const [cnpjInput, setCnpjInput] = useState('');
   const [singleResult, setSingleResult] = useState<CNPJResult | null>(null);
   const [singleLoading, setSingleLoading] = useState(false);
-  
+
   // Mass search
   const [estado, setEstado] = useState('');
   const [cidade, setCidade] = useState('');
@@ -125,7 +133,7 @@ export function CNPJRadarTab() {
         municipio: data.estabelecimento?.cidade?.nome || '',
         uf: data.estabelecimento?.estado?.sigla || '',
         cep: data.estabelecimento?.cep || '',
-        ddd_telefone_1: data.estabelecimento?.ddd1 && data.estabelecimento?.telefone1 
+        ddd_telefone_1: data.estabelecimento?.ddd1 && data.estabelecimento?.telefone1
           ? `${data.estabelecimento.ddd1}${data.estabelecimento.telefone1}` : '',
         email: data.estabelecimento?.email || '',
         data_inicio_atividade: data.estabelecimento?.data_inicio_atividade || '',
@@ -154,18 +162,17 @@ export function CNPJRadarTab() {
       if (cidade) params.set('municipio', cidade.toUpperCase());
       if (cnae) params.set('cnae', cnae.replace(/\D/g, ''));
       if (porte) params.set('porte', porte);
-      
+
       const results: CNPJResult[] = [];
       const maxPages = Math.ceil(quantidade[0] / 20);
-      
+
       for (let page = 1; page <= maxPages && results.length < quantidade[0]; page++) {
         params.set('pagina', String(page));
         const res = await fetch(`https://publica.cnpj.ws/cnpj/s?${params.toString()}`);
         if (!res.ok) break;
         const data = await res.json();
-        if (!data || !Array.isArray(data)) break;
-        if (data.length === 0) break;
-        
+        if (!data || !Array.isArray(data) || data.length === 0) break;
+
         for (const item of data) {
           if (results.length >= quantidade[0]) break;
           results.push({
@@ -190,7 +197,7 @@ export function CNPJRadarTab() {
           });
         }
       }
-      
+
       setMassResults(results);
       if (results.length === 0) {
         toast({ title: 'Nenhuma empresa encontrada', description: 'Tente outros filtros.' });
@@ -212,7 +219,7 @@ export function CNPJRadarTab() {
     }
     createLead({
       business_name: item.nome_fantasia || item.razao_social,
-      phone: phone,
+      phone,
       email: item.email || null,
       address: `${item.descricao_tipo_de_logradouro} ${item.logradouro}, ${item.numero} ${item.complemento} - ${item.bairro}`.trim(),
       niche: item.cnae_fiscal_descricao,
@@ -275,260 +282,355 @@ export function CNPJRadarTab() {
     return existingPhones.has(phone);
   };
 
+  const tabs: { id: TabType; icon: typeof Search; label: string }[] = [
+    { id: 'individual', icon: Search, label: 'Consulta por CNPJ' },
+    { id: 'massa', icon: Users, label: 'Busca em Massa' },
+  ];
+
   return (
-    <Tabs defaultValue="individual" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="individual">
-          <Search className="h-4 w-4 mr-2" />
-          Consulta por CNPJ
-        </TabsTrigger>
-        <TabsTrigger value="massa">
-          <Users className="h-4 w-4 mr-2" />
-          Busca em Massa
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="individual" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              Consultar CNPJ
-            </CardTitle>
-            <CardDescription>Digite o CNPJ para consultar dados da empresa</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-3">
-              <Input
-                placeholder="XX.XXX.XXX/XXXX-XX"
-                value={cnpjInput}
-                onChange={(e) => setCnpjInput(formatCNPJ(e.target.value))}
-                className="max-w-xs"
-              />
-              <Button onClick={handleSingleLookup} disabled={singleLoading}>
-                {singleLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
-                Consultar
-              </Button>
-            </div>
-
-            {singleResult && (
-              <Card className="border-primary/20">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">{singleResult.nome_fantasia || singleResult.razao_social}</h3>
-                      <p className="text-sm text-muted-foreground">{singleResult.razao_social}</p>
-                    </div>
-                    <Badge variant={singleResult.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'destructive'}>
-                      {singleResult.situacao_cadastral || 'Desconhecido'}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span>{singleResult.cnae_fiscal_descricao}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{singleResult.municipio} - {singleResult.uf}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{cleanPhone(singleResult.ddd_telefone_1) || 'Sem telefone'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{singleResult.email || 'Sem email'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>Abertura: {singleResult.data_inicio_atividade}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>Porte: {singleResult.porte}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground">
-                    {`${singleResult.descricao_tipo_de_logradouro} ${singleResult.logradouro}, ${singleResult.numero} ${singleResult.complemento} - ${singleResult.bairro}, ${singleResult.municipio}/${singleResult.uf} - CEP ${singleResult.cep}`}
-                  </p>
-
-                  <Button onClick={() => addAsLead(singleResult)} className="w-full">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adicionar como Lead
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="massa" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Busca em Massa por Filtros
-            </CardTitle>
-            <CardDescription>Encontre empresas por estado, cidade, CNAE e porte</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Estado (UF)</Label>
-                <Select value={estado} onValueChange={setEstado}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
-                    {ESTADOS_BR.map(uf => (
-                      <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Cidade</Label>
-                <Input placeholder="Ex: São Paulo" value={cidade} onChange={e => setCidade(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>CNAE</Label>
-                <Input placeholder="Ex: 4712100" value={cnae} onChange={e => setCnae(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Porte</Label>
-                <Select value={porte} onValueChange={setPorte}>
-                  <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
-                  <SelectContent>
-                    {PORTES.map(p => (
-                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Quantidade: {quantidade[0]} empresas</Label>
-              <Slider value={quantidade} onValueChange={setQuantidade} min={10} max={200} step={10} />
-            </div>
-
-            <Button onClick={handleMassSearch} disabled={massLoading} className="w-full">
-              {massLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
-              Buscar Empresas
+    <div className="space-y-6">
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1.5">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const TabIcon = tab.icon;
+          return (
+            <Button
+              key={tab.id}
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "h-9 px-4 text-xs gap-2 rounded-lg transition-all duration-200",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 hover:text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              <TabIcon className="h-3.5 w-3.5" />
+              {tab.label}
             </Button>
-          </CardContent>
-        </Card>
+          );
+        })}
+      </div>
 
-        {massLoading && (
-          <Card>
-            <CardContent className="pt-6 space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {!massLoading && massResults.length === 0 && estado && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-12 text-muted-foreground">
-                <Building2 className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>Nenhuma empresa encontrada com esses filtros</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {massResults.length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{massResults.length} empresas encontradas</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={exportCSV}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Exportar CSV
-                  </Button>
-                  {selectedIds.size > 0 && (
-                    <Button size="sm" onClick={importSelected}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Importar {selectedIds.size} selecionados
-                    </Button>
-                  )}
+      {/* Individual Lookup */}
+      {activeTab === 'individual' && (
+        <div className="space-y-5 animate-fade-in">
+          <Card className="border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardContent className="p-0">
+              <div className="px-6 pt-6 pb-4 border-b border-border/30">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="p-2.5 rounded-xl bg-primary/10 ring-2 ring-primary/20">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base">Consultar CNPJ</h3>
+                    <p className="text-xs text-muted-foreground">Digite o CNPJ para consultar dados da empresa</p>
+                  </div>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[500px]">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-10">
-                        <Checkbox
-                          checked={selectedIds.size === massResults.length}
-                          onCheckedChange={toggleAll}
-                        />
-                      </TableHead>
-                      <TableHead>Empresa</TableHead>
-                      <TableHead>CNAE</TableHead>
-                      <TableHead>Cidade/UF</TableHead>
-                      <TableHead>Situação</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {massResults.map((item) => {
-                      const imported = isAlreadyImported(item);
-                      return (
-                        <TableRow key={item.cnpj}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedIds.has(item.cnpj)}
-                              onCheckedChange={() => toggleSelect(item.cnpj)}
-                              disabled={imported}
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {item.nome_fantasia || item.razao_social}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
-                            {item.cnae_fiscal_descricao}
-                          </TableCell>
-                          <TableCell>{item.municipio}/{item.uf}</TableCell>
-                          <TableCell>
-                            <Badge variant={item.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'secondary'} className="text-xs">
-                              {item.situacao_cadastral || '—'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">{cleanPhone(item.ddd_telefone_1) || '—'}</TableCell>
-                          <TableCell className="text-sm truncate max-w-[150px]">{item.email || '—'}</TableCell>
-                          <TableCell>
-                            {imported ? (
-                              <Badge variant="secondary" className="text-xs">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Importado
-                              </Badge>
-                            ) : (
-                              <Button size="sm" variant="ghost" onClick={() => addAsLead(item)}>
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+
+              <div className="p-6 space-y-5">
+                <div className="flex gap-3">
+                  <Input
+                    placeholder="XX.XXX.XXX/XXXX-XX"
+                    value={cnpjInput}
+                    onChange={(e) => setCnpjInput(formatCNPJ(e.target.value))}
+                    className="max-w-sm h-11"
+                    onKeyDown={(e) => e.key === 'Enter' && handleSingleLookup()}
+                  />
+                  <Button
+                    onClick={handleSingleLookup}
+                    disabled={singleLoading}
+                    className="h-11 gap-2 px-6 gradient-primary shadow-sm"
+                  >
+                    {singleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    Consultar
+                  </Button>
+                </div>
+
+                {singleResult && (
+                  <Card className="border-primary/20 bg-primary/5 overflow-hidden animate-fade-in">
+                    <CardContent className="p-6 space-y-5">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-bold truncate">
+                            {singleResult.nome_fantasia || singleResult.razao_social}
+                          </h3>
+                          <p className="text-sm text-muted-foreground truncate">{singleResult.razao_social}</p>
+                          <p className="text-xs text-muted-foreground mt-1 font-mono">CNPJ: {formatCNPJ(singleResult.cnpj)}</p>
+                        </div>
+                        <Badge
+                          variant={singleResult.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'destructive'}
+                          className="shrink-0"
+                        >
+                          {singleResult.situacao_cadastral || 'Desconhecido'}
+                        </Badge>
+                      </div>
+
+                      {/* Info Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <InfoRow icon={Briefcase} label="Atividade" value={singleResult.cnae_fiscal_descricao} />
+                        <InfoRow icon={MapPin} label="Cidade" value={`${singleResult.municipio} - ${singleResult.uf}`} />
+                        <InfoRow icon={Phone} label="Telefone" value={cleanPhone(singleResult.ddd_telefone_1) || 'Sem telefone'} />
+                        <InfoRow icon={Mail} label="Email" value={singleResult.email || 'Sem email'} />
+                        <InfoRow icon={Calendar} label="Abertura" value={singleResult.data_inicio_atividade} />
+                        <InfoRow icon={Building2} label="Porte" value={singleResult.porte} />
+                      </div>
+
+                      {/* Address */}
+                      <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <p className="text-xs text-muted-foreground flex items-start gap-2">
+                          <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          {`${singleResult.descricao_tipo_de_logradouro} ${singleResult.logradouro}, ${singleResult.numero} ${singleResult.complemento} - ${singleResult.bairro}, ${singleResult.municipio}/${singleResult.uf} - CEP ${singleResult.cep}`}
+                        </p>
+                      </div>
+
+                      <Button onClick={() => addAsLead(singleResult)} className="w-full h-11 gap-2 gradient-primary shadow-sm">
+                        <Plus className="h-4 w-4" />
+                        Adicionar como Lead
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!singleResult && !singleLoading && (
+                  <div className="text-center py-16 text-muted-foreground">
+                    <Search className="h-12 w-12 mx-auto mb-3 opacity-15" />
+                    <p className="text-sm">Digite um CNPJ acima para consultar</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-        )}
-      </TabsContent>
-    </Tabs>
+        </div>
+      )}
+
+      {/* Mass Search */}
+      {activeTab === 'massa' && (
+        <div className="space-y-5 animate-fade-in">
+          <Card className="border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
+            <CardContent className="p-0">
+              <div className="px-6 pt-6 pb-4 border-b border-border/30">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="p-2.5 rounded-xl bg-primary/10 ring-2 ring-primary/20">
+                      <Globe className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base">Busca em Massa</h3>
+                    <p className="text-xs text-muted-foreground">Encontre empresas por estado, cidade, CNAE e porte</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <MapPin className="h-3 w-3" /> Estado
+                    </Label>
+                    <Select value={estado} onValueChange={setEstado}>
+                      <SelectTrigger className="h-10"><SelectValue placeholder="UF" /></SelectTrigger>
+                      <SelectContent>
+                        {ESTADOS_BR.map(uf => (
+                          <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Building2 className="h-3 w-3" /> Cidade
+                    </Label>
+                    <Input placeholder="Ex: São Paulo" value={cidade} onChange={e => setCidade(e.target.value)} className="h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Hash className="h-3 w-3" /> CNAE
+                    </Label>
+                    <Input placeholder="Ex: 4712100" value={cnae} onChange={e => setCnae(e.target.value)} className="h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Briefcase className="h-3 w-3" /> Porte
+                    </Label>
+                    <Select value={porte} onValueChange={setPorte}>
+                      <SelectTrigger className="h-10"><SelectValue placeholder="Todos" /></SelectTrigger>
+                      <SelectContent>
+                        {PORTES.map(p => (
+                          <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-3 p-4 rounded-xl bg-muted/20 border border-border/50">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Quantidade de empresas</Label>
+                    <Badge variant="secondary" className="tabular-nums">{quantidade[0]}</Badge>
+                  </div>
+                  <Slider value={quantidade} onValueChange={setQuantidade} min={10} max={200} step={10} />
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>10</span>
+                    <span>200</span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleMassSearch}
+                  disabled={massLoading || !estado}
+                  className={cn(
+                    "w-full h-12 gap-2.5 text-sm font-semibold rounded-xl transition-all duration-300",
+                    estado && !massLoading
+                      ? "gradient-primary shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.01]"
+                      : ""
+                  )}
+                >
+                  {massLoading ? (
+                    <><Loader2 className="h-5 w-5 animate-spin" /> Buscando...</>
+                  ) : (
+                    <><Search className="h-5 w-5" /> Buscar Empresas</>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Loading */}
+          {massLoading && (
+            <Card className="border-border/50">
+              <CardContent className="pt-6 space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Empty State */}
+          {!massLoading && massResults.length === 0 && (
+            <div className="text-center py-16 text-muted-foreground">
+              <Building2 className="h-12 w-12 mx-auto mb-3 opacity-15" />
+              <p className="text-sm">{estado ? 'Nenhuma empresa encontrada com esses filtros' : 'Selecione um estado para iniciar a busca'}</p>
+            </div>
+          )}
+
+          {/* Results Table */}
+          {massResults.length > 0 && (
+            <Card className="border-border/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-border/30 bg-muted/20">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="tabular-nums">{massResults.length}</Badge>
+                    <span className="text-sm font-medium">empresas encontradas</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 h-8 text-xs">
+                      <Download className="h-3.5 w-3.5" />
+                      CSV
+                    </Button>
+                    {selectedIds.size > 0 && (
+                      <Button size="sm" onClick={importSelected} className="gap-1.5 h-8 text-xs gradient-primary">
+                        <Plus className="h-3.5 w-3.5" />
+                        Importar {selectedIds.size}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <CardContent className="p-0">
+                <ScrollArea className="h-[500px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-10">
+                          <Checkbox
+                            checked={selectedIds.size === massResults.length && massResults.length > 0}
+                            onCheckedChange={toggleAll}
+                          />
+                        </TableHead>
+                        <TableHead>Empresa</TableHead>
+                        <TableHead>CNAE</TableHead>
+                        <TableHead>Cidade/UF</TableHead>
+                        <TableHead>Situação</TableHead>
+                        <TableHead>Telefone</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {massResults.map((item) => {
+                        const imported = isAlreadyImported(item);
+                        return (
+                          <TableRow key={item.cnpj} className={cn(imported && "opacity-50")}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedIds.has(item.cnpj)}
+                                onCheckedChange={() => toggleSelect(item.cnpj)}
+                                disabled={imported}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium text-sm">{item.nome_fantasia || item.razao_social}</div>
+                              <div className="text-[10px] text-muted-foreground font-mono">{formatCNPJ(item.cnpj)}</div>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground max-w-[180px] truncate">
+                              {item.cnae_fiscal_descricao}
+                            </TableCell>
+                            <TableCell className="text-sm">{item.municipio}/{item.uf}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={item.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'secondary'}
+                                className="text-[10px] px-1.5 py-0"
+                              >
+                                {item.situacao_cadastral || '—'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs tabular-nums">{cleanPhone(item.ddd_telefone_1) || '—'}</TableCell>
+                            <TableCell className="text-xs truncate max-w-[140px]">{item.email || '—'}</TableCell>
+                            <TableCell className="text-right">
+                              {imported ? (
+                                <Badge variant="secondary" className="text-[10px] gap-1">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Importado
+                                </Badge>
+                              ) : (
+                                <Button size="sm" variant="ghost" onClick={() => addAsLead(item)} className="h-7 w-7 p-0">
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: typeof Building2; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/20 border border-border/30">
+      <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+      <div className="min-w-0">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-sm font-medium truncate">{value}</p>
+      </div>
+    </div>
   );
 }
