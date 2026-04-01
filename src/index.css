@@ -369,6 +369,22 @@
   background-clip: text;
 }
 
+/* Scroll light-up sections */
+.scroll-lightup-section {
+  position: relative;
+  will-change: opacity, filter;
+}
+.scroll-lightup-glow {
+  position: absolute;
+  inset: -40px;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at 50% 40%, rgba(123,47,242,0.25), rgba(247,148,29,0.1) 50%, transparent 80%);
+  opacity: var(--glow-opacity, 0);
+  transition: opacity 0.5s ease;
+  mix-blend-mode: screen;
+}
+
 /* Scroll indicator dot */
 .landing-scroll-dot {
   animation: landing-scroll-pulse 2s ease-in-out infinite;
