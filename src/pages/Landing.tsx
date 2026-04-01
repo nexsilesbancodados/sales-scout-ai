@@ -331,8 +331,114 @@ export default function Landing() {
         <StoriesTestimonials />
       </section>
 
-      
-      {/* ═══ FAQ ═══ */}
+      {/* ═══ COMO FUNCIONA - 3 STEPS ═══ */}
+      <section id="recursos" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
+        <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
+        <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          {[
+            { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0 },
+            { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2 },
+            { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4 },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 60, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
+              className="relative group"
+            >
+              <div className="relative border border-white/[0.06] rounded-2xl p-7 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.12] transition-all duration-500 h-full overflow-hidden">
+                {/* Glow on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 0%, ${item.color}15, transparent 70%)` }} />
+                
+                {/* Step number */}
+                <span className="text-[64px] font-black absolute top-3 right-5 leading-none" style={{ color: `${item.color}08` }}>{item.step}</span>
+                
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
+                  <item.icon className="h-5 w-5" style={{ color: item.color }} />
+                </div>
+                
+                <h3 className="text-[16px] font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-[13px] text-white/40 leading-relaxed">{item.desc}</p>
+
+                {/* Connecting line for desktop */}
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ NÚMEROS QUE IMPRESSIONAM ═══ */}
+      <section className="relative py-20 px-4 md:px-8 overflow-hidden">
+        {/* Background accent */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
+        
+        <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
+        
+        <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+          {[
+            { value: '2.4M+', label: 'Leads capturados', icon: Target, color: '#7B2FF2', delay: 0 },
+            { value: '890K+', label: 'Mensagens enviadas', icon: MessageSquare, color: '#F7941D', delay: 0.1 },
+            { value: '23x', label: 'ROI médio', icon: TrendingUp, color: '#00B4D8', delay: 0.2 },
+            { value: '48h', label: 'Até 1ª reunião', icon: Clock, color: '#E91E8C', delay: 0.3 },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 40, rotateX: 15 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }}
+              className="group"
+            >
+              <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm text-center hover:border-white/[0.12] transition-all duration-500 overflow-hidden">
+                {/* Hover glow */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${stat.color}12, transparent 70%)` }} />
+                
+                <div className="relative z-10">
+                  <stat.icon className="h-5 w-5 mx-auto mb-3 opacity-50" style={{ color: stat.color }} />
+                  <motion.span
+                    initial={{ scale: 0.5 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: stat.delay + 0.3, type: 'spring', stiffness: 200 }}
+                    className="block text-2xl md:text-3xl font-black tracking-[-0.03em]"
+                    style={{ color: stat.color }}
+                  >
+                    {stat.value}
+                  </motion.span>
+                  <span className="text-[11px] text-white/35 mt-1 block">{stat.label}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom trust badges */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex flex-wrap items-center justify-center gap-6 mt-10"
+        >
+          {[
+            { icon: Users, text: '+2.400 empresas ativas' },
+            { icon: Rocket, text: 'Setup em 5 min' },
+            { icon: Star, text: '4.9/5 de avaliação' },
+          ].map((badge, i) => (
+            <span key={i} className="flex items-center gap-2 text-[11px] text-white/30">
+              <badge.icon className="h-3.5 w-3.5 text-[#F7941D]/50" />
+              {badge.text}
+            </span>
+          ))}
+        </motion.div>
+      </section>
+
       <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
         <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
         <div className="max-w-2xl mx-auto space-y-2">
