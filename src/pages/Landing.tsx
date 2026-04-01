@@ -302,11 +302,6 @@ export default function Landing() {
             </div>
           </a>
         </div>
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] h-[60px] z-20 bg-transparent pointer-events-none">
-          <svg className="absolute inset-0 w-full h-full block bg-transparent" viewBox="0 0 1000 60" preserveAspectRatio="none">
-            <path d="M0,30 C150,50 350,10 500,30 C650,50 850,10 1000,30" fill="transparent" stroke="hsl(var(--primary)/.45)" strokeWidth="2" vectorEffect="non-scaling-stroke" shapeRendering="geometricPrecision" />
-          </svg>
-        </div>
       </section>
 
       {/* ═══ VANTAGENS — FLIP CARDS ═══ */}
