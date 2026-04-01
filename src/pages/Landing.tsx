@@ -66,9 +66,9 @@ const FAQ_DATA = [
 ];
 
 const STEPS = [
-  { icon: Search, step: '01', title: 'Capture leads qualificados', desc: 'A IA busca no Google Maps, Instagram e Facebook negócios do seu nicho com telefone, endereço e avaliações. Filtre por cidade, nota e categoria.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
-  { icon: MessageSquare, step: '02', title: 'Envie mensagens com IA', desc: 'Cada lead recebe uma mensagem personalizada no WhatsApp. O sistema anti-ban garante zero bloqueios com spintax, delays humanizados e rotação de chips.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
-  { icon: CalendarCheck, step: '03', title: 'Feche negócios no automático', desc: 'O Agente SDR responde objeções, faz follow-up inteligente e agenda reuniões no seu calendário — 24 horas por dia, 7 dias por semana.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
+  { icon: Search, step: '01', title: 'Capture leads qualificados', desc: 'A IA busca no Google Maps, Instagram e Facebook negócios do seu nicho com telefone, endereço e avaliações. Filtre por cidade, nota e categoria.', color: '#7B2FF2', delay: 0, img: stepCaptureImg, backImg: stepBack1, backTitle: 'Inteligência de Captura', backDesc: 'Algoritmos que varrem múltiplas fontes simultaneamente, cruzam dados e entregam leads com telefone validado e score de qualidade.' },
+  { icon: MessageSquare, step: '02', title: 'Envie mensagens com IA', desc: 'Cada lead recebe uma mensagem personalizada no WhatsApp. O sistema anti-ban garante zero bloqueios com spintax, delays humanizados e rotação de chips.', color: '#F7941D', delay: 0.2, img: stepMessagesImg, backImg: stepBack2, backTitle: 'Comunicação Humanizada', backDesc: 'Spintax + IA geram mensagens únicas para cada lead. Delays naturais e rotação de chips tornam cada envio indistinguível de uma conversa real.' },
+  { icon: CalendarCheck, step: '03', title: 'Feche negócios no automático', desc: 'O Agente SDR responde objeções, faz follow-up inteligente e agenda reuniões no seu calendário — 24 horas por dia, 7 dias por semana.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg, backImg: stepBack3, backTitle: 'Agente SDR Autônomo', backDesc: 'IA que entende contexto, responde objeções e agenda reuniões automaticamente. Seu time comercial só entra na hora de fechar o deal.' },
 ];
 
 const STATS = [
