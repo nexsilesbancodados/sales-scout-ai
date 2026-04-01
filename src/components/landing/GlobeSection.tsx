@@ -19,36 +19,38 @@ const arcs = [
 ];
 
 export function GlobeSection() {
-  const [glowing, setGlowing] = useState(false);
+  const [lineReached, setLineReached] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Trigger glow when globe is near center of viewport
+  // Listen to the scroll line event instead of independent scroll check
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setLineReached(!!detail?.reached);
+    };
+    window.addEventListener('line-reached-globe', handler);
+    return () => window.removeEventListener('line-reached-globe', handler);
+  }, []);
+
+  // Track visibility for lazy-loading the globe
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
     let ticking = false;
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
-        const globeCenterY = rect.top + rect.height / 2;
-        const screenCenterY = window.innerHeight * 0.5;
-        const near = Math.abs(globeCenterY - screenCenterY) < window.innerHeight * 0.6;
-        setGlowing(near);
         setIsVisible(rect.top < window.innerHeight + 200 && rect.bottom > -200);
         ticking = false;
       });
     };
-
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const lineReached = glowing;
 
   return (
     <section ref={sectionRef} className="relative py-20 px-4 md:px-8">
