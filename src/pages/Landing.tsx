@@ -304,7 +304,7 @@ export default function Landing() {
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Preços" title={<>Plano ideal para <span className="landing-gradient-text">cada fase.</span></>} />
+        <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
         <div className="flex items-center justify-center gap-3 mb-10">
           <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
           <button
