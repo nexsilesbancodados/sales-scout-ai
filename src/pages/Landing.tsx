@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { ArrowRight, Star, Check, Menu, X, Sparkles, CreditCard, Zap, BarChart3, HelpCircle, ChevronDown, MapPin, MessageSquare, TrendingUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
