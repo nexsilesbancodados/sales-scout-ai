@@ -36,91 +36,32 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
-  starter: {
-    monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
-    annual: 'https://pay.cakto.com.br/STARTER_ANUAL',
-  },
-  pro: {
-    monthly: 'https://pay.cakto.com.br/PRO_MENSAL',
-    annual: 'https://pay.cakto.com.br/PRO_ANUAL',
-  },
-  enterprise: {
-    monthly: 'https://pay.cakto.com.br/ENTERPRISE_MENSAL',
-    annual: 'https://pay.cakto.com.br/ENTERPRISE_ANUAL',
-  },
-};
+const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/o5dfn8a_827823';
 
-const plans = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    tagline: 'Para quem está começando',
-    icon: Rocket,
-    monthlyPrice: 97,
-    features: [
-      'Disparos ilimitados',
-      '1 chip WhatsApp',
-      'Google Maps + Radar CNPJ',
-      'Funil de vendas',
-      'Leads ilimitados',
-      'Suporte por email',
-    ],
-    chips: 1,
-    highlight: false,
-    gradient: 'from-sky-500/10 via-sky-500/5 to-transparent',
-    borderColor: 'border-sky-500/20',
-    iconBg: 'bg-sky-500/15',
-    iconColor: 'text-sky-500',
-    accentColor: 'text-sky-500',
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    tagline: 'ROI comprovado',
-    icon: Crown,
-    monthlyPrice: 149,
-    features: [
-      'Disparos ilimitados',
-      '3 chips WhatsApp',
-      'Todos os extratores',
-      'Agente SDR ativo',
-      'Leads ilimitados',
-      'Relatórios avançados',
-      'Suporte prioritário',
-    ],
-    chips: 3,
-    highlight: true,
-    gradient: 'from-primary/15 via-primary/5 to-transparent',
-    borderColor: 'border-primary/30',
-    iconBg: 'bg-primary/15',
-    iconColor: 'text-primary',
-    accentColor: 'text-primary',
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    tagline: 'Escala máxima',
-    icon: Building2,
-    monthlyPrice: 199,
-    features: [
-      'Disparos ilimitados',
-      '10 chips WhatsApp',
-      'API pública',
-      'Leads ilimitados',
-      'Múltiplos funis',
-      'Gerente dedicado',
-      'SLA garantido',
-    ],
-    chips: 10,
-    highlight: false,
-    gradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
-    borderColor: 'border-amber-500/20',
-    iconBg: 'bg-amber-500/15',
-    iconColor: 'text-amber-500',
-    accentColor: 'text-amber-500',
-  },
-];
+const currentPlanInfo = {
+  id: 'pro',
+  name: 'Profissional',
+  tagline: 'Acesso completo',
+  icon: Crown,
+  monthlyPrice: 149,
+  features: [
+    'Disparos ilimitados',
+    '3 chips WhatsApp',
+    'Todos os extratores',
+    'Agente SDR ativo',
+    'Google Maps + Radar CNPJ',
+    'Leads ilimitados',
+    'Relatórios avançados',
+    'Anti-Ban inteligente',
+    'Suporte prioritário',
+  ],
+  chips: 3,
+  gradient: 'from-primary/15 via-primary/5 to-transparent',
+  borderColor: 'border-primary/30',
+  iconBg: 'bg-primary/15',
+  iconColor: 'text-primary',
+  accentColor: 'text-primary',
+};
 
 const EVENT_LABELS: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
   purchase_approved: { label: 'Pagamento aprovado', color: 'text-emerald-500', icon: CheckCircle2 },
@@ -143,31 +84,24 @@ const STATUS_BADGES: Record<string, { label: string; variant: 'default' | 'secon
 };
 
 export default function BillingPage() {
-  const [isAnnual, setIsAnnual] = useState(false);
   const { leads } = useLeads();
   const { settings } = useUserSettings();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { subscription, paymentHistory, currentPlan, isActive, isPastDue, isLoading } = useSubscription();
+  const { subscription, paymentHistory, isActive, isPastDue, isLoading } = useSubscription();
 
   const chipsConnected = settings?.whatsapp_connected ? 1 : 0;
   const leadsCount = leads?.length || 0;
-  const currentPlanData = plans.find(p => p.id === currentPlan) || plans[0];
 
   const webhookUrl = `https://oeztpxyprifabkvysroh.supabase.co/functions/v1/cakto-webhook`;
 
-  const getPrice = (monthly: number) => isAnnual ? Math.round(monthly * 0.8) : monthly;
-
-  const getCheckoutUrl = (planId: string) => {
-    const urls = CAKTO_CHECKOUT_URLS[planId];
-    if (!urls) return '#';
-    const baseUrl = isAnnual ? urls.annual : urls.monthly;
+  const getCheckoutUrl = () => {
     const email = user?.email;
     if (email) {
-      const separator = baseUrl.includes('?') ? '&' : '?';
-      return `${baseUrl}${separator}email=${encodeURIComponent(email)}`;
+      const separator = CAKTO_CHECKOUT_URL.includes('?') ? '&' : '?';
+      return `${CAKTO_CHECKOUT_URL}${separator}email=${encodeURIComponent(email)}`;
     }
-    return baseUrl;
+    return CAKTO_CHECKOUT_URL;
   };
 
   const copyToClipboard = (text: string) => {
