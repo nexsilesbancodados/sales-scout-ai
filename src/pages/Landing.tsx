@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
+import googleMapsIcon from '@/assets/google-maps-icon.png';
+import googleGIcon from '@/assets/google-g-icon.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
