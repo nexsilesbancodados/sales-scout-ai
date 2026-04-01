@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
