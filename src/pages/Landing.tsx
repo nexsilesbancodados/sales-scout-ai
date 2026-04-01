@@ -396,11 +396,15 @@ export default function Landing() {
             {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
-            {PRICING_PLANS.map((plan, i) => (
-              <div key={plan.name} className="h-[520px]">
-                <PremiumPricingCard plan={plan} annual={annualPricing} index={i} />
-              </div>
-            ))}
+            {PRICING_PLANS.map((plan, i) => {
+              const urls = CAKTO_CHECKOUT_URLS[plan.id];
+              const checkoutUrl = annualPricing ? urls.annual : urls.monthly;
+              return (
+                <div key={plan.name} className="h-[560px]">
+                  <PremiumPricingCard plan={plan} annual={annualPricing} index={i} checkoutUrl={checkoutUrl} />
+                </div>
+              );
+            })}
           </div>
         </section>
 
