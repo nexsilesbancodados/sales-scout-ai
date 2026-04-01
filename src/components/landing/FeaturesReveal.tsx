@@ -69,9 +69,9 @@ export function FeaturesReveal() {
   const visibleImageIndex = openIndex !== null ? openIndex : -1;
 
   return (
-    <div className="relative flex items-center w-full max-w-[900px] mx-auto min-h-[520px] rounded-2xl overflow-hidden border border-white/[0.06] bg-black/40 backdrop-blur-sm">
+    <div className="relative flex flex-col md:flex-row items-stretch w-full max-w-[900px] mx-auto min-h-[400px] md:min-h-[520px] rounded-2xl overflow-hidden border border-white/[0.06] bg-black/40 backdrop-blur-sm">
       {/* Left column - details list */}
-      <div className="relative z-20 flex flex-col gap-2 py-8 pl-8 pr-4 w-[320px] shrink-0">
+      <div className="relative z-20 flex flex-col gap-2 py-6 px-4 md:py-8 md:pl-8 md:pr-4 w-full md:w-[320px] shrink-0">
         {FEATURES_DATA.map((f, i) => {
           const isOpen = openIndex === i;
           return (
