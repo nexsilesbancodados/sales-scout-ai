@@ -135,16 +135,16 @@ export function AppSidebar() {
           asChild
           isActive={active}
           className={cn(
-            "relative h-9 rounded-xl transition-all duration-200 group/item",
+            "relative h-9 rounded-xl transition-all duration-250 group/item",
             active
               ? "gradient-primary text-primary-foreground shadow-md shadow-primary/20"
-              : "hover:bg-accent/50 text-muted-foreground hover:text-foreground"
+              : "hover:bg-accent/50 text-muted-foreground hover:text-foreground active:scale-[0.98]"
           )}
         >
           <Link to={item.path} className="flex items-center gap-3 px-3">
             <item.icon className={cn(
-              "h-[17px] w-[17px] shrink-0 transition-all duration-200",
-              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-foreground'
+              "h-[17px] w-[17px] shrink-0 transition-all duration-250",
+              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-foreground group-hover/item:scale-110'
             )} />
             <span className={cn(
               "text-[13px] font-medium truncate transition-all duration-200",
@@ -153,7 +153,7 @@ export function AppSidebar() {
               {item.title}
             </span>
             {item.highlight && !active && (
-              <Sparkles className="h-3 w-3 text-primary/40 ml-auto" />
+              <Sparkles className="h-3 w-3 text-primary/40 ml-auto transition-opacity group-hover/item:text-primary/60" />
             )}
           </Link>
         </SidebarMenuButton>
