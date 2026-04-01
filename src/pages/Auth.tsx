@@ -180,7 +180,7 @@ export default function AuthPage() {
                 {/* Logo & Header */}
                 <div className="text-center space-y-3">
                   <div className="relative inline-block">
-                    <img src={logoImg} alt="NexaProspect" className="h-14 w-auto mx-auto drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]" />
+                    <img src={logoImg} alt="NexaProspect" className="h-14 w-auto mx-auto drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]" width={56} height={56} />
                     {/* Pulse ring behind logo */}
                     <div className="absolute -inset-3 rounded-full opacity-20 animate-pulse"
                       style={{ background: 'radial-gradient(circle, rgba(123,47,242,0.3), transparent 70%)' }} />

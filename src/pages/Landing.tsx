@@ -432,7 +432,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
+              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
             <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px]">
