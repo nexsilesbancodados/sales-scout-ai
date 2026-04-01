@@ -17,8 +17,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   Loader2, Plus, Flame, ThermometerSun, Snowflake,
-  MapPin, DollarSign, MessageCircle, Phone, Search,
-  TrendingUp, Users, Filter,
+  MapPin, DollarSign, MessageCircle, Search,
+  TrendingUp, Users,
 } from 'lucide-react';
 
 const stageConfig: Record<LeadStage, { color: string; gradient: string; bg: string; emoji: string }> = {
