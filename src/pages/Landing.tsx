@@ -314,7 +314,8 @@ export default function Landing() {
                 <div
                   ref={(el) => { flipCardsRef.current[index] = el; }}
                   className="relative w-full h-full cursor-pointer"
-                  style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+                  onClick={() => setFlippedCards(prev => { const n = [...prev]; n[index] = !n[index]; return n; })}
+                  style={{ transformStyle: 'preserve-3d', transition: 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)', transform: flippedCards[index] ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
                 >
                   <div className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
