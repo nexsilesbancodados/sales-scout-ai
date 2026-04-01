@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useLeads } from '@/hooks/use-leads';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -16,8 +13,6 @@ import { cn } from '@/lib/utils';
 import {
   Check,
   Crown,
-  Rocket,
-  Building2,
   MessageSquare,
   Smartphone,
   Zap,
@@ -33,7 +28,6 @@ import {
   Shield,
   ArrowRight,
   Sparkles,
-  TrendingUp,
 } from 'lucide-react';
 
 const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/o5dfn8a_827823';
