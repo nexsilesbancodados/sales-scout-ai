@@ -362,25 +362,11 @@ export default function Landing() {
 
         {/* ═══ 8. PRICING ═══ */}
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-          <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
-          <div className="flex items-center justify-center gap-3 mb-10">
-            <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
-            <button onClick={() => setAnnualPricing(!annualPricing)} className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}>
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
-            </button>
-            <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
-            {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
-            {PRICING_PLANS.map((plan, i) => {
-              const urls = CAKTO_CHECKOUT_URLS[plan.id];
-              const checkoutUrl = annualPricing ? urls.annual : urls.monthly;
-              return (
-                <div key={plan.name} className="h-[520px] sm:h-[560px]">
-                  <PremiumPricingCard plan={plan} annual={annualPricing} index={i} checkoutUrl={checkoutUrl} />
-                </div>
-              );
-            })}
+          <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
+          <div className="max-w-md mx-auto">
+            <div className="h-[560px]">
+              <PremiumPricingCard plan={{ ...SINGLE_PLAN, annual: SINGLE_PLAN.price }} annual={false} index={0} checkoutUrl={CAKTO_CHECKOUT_URL} />
+            </div>
           </div>
         </section>
 
