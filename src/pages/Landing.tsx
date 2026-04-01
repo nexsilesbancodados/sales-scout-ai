@@ -12,6 +12,7 @@ import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
 import { GlobeSection } from '@/components/landing/GlobeSection';
+import { StoriesTestimonials } from '@/components/landing/StoriesTestimonials';
 
 
 
