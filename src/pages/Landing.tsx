@@ -302,35 +302,6 @@ export default function Landing() {
       {/* ═══ GLOBE - ALCANCE GLOBAL ═══ */}
       <GlobeSection />
 
-      {/* ═══ PRICING ═══ */}
-      <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
-          <button
-            onClick={() => setAnnualPricing(!annualPricing)}
-            className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
-          >
-            <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
-          </button>
-          <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
-          {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
-          {PRICING_PLANS.map((plan, i) => (
-            <div key={plan.name} className="h-[480px]">
-              <PremiumPricingCard plan={plan} annual={annualPricing} index={i} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
-      <section className="relative py-12 px-4 md:px-8">
-        <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
-        <StoriesTestimonials />
-      </section>
-
       {/* ═══ COMO FUNCIONA - 3 STEPS ═══ */}
       <section id="recursos" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
         <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
@@ -349,21 +320,13 @@ export default function Landing() {
               className="relative group"
             >
               <div className="relative border border-white/[0.06] rounded-2xl p-7 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.12] transition-all duration-500 h-full overflow-hidden">
-                {/* Glow on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 0%, ${item.color}15, transparent 70%)` }} />
-                
-                {/* Step number */}
                 <span className="text-[64px] font-black absolute top-3 right-5 leading-none" style={{ color: `${item.color}08` }}>{item.step}</span>
-                
-                {/* Icon */}
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
                   <item.icon className="h-5 w-5" style={{ color: item.color }} />
                 </div>
-                
                 <h3 className="text-[16px] font-bold text-white mb-2">{item.title}</h3>
                 <p className="text-[13px] text-white/40 leading-relaxed">{item.desc}</p>
-
-                {/* Connecting line for desktop */}
                 {i < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />
                 )}
@@ -371,6 +334,35 @@ export default function Landing() {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* ═══ PRICING ═══ */}
+      <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
+        <SectionHeader tag="Investimento" title={<>O plano certo para o seu <span className="landing-gradient-text">momento.</span></>} subtitle="Todos os planos incluem suporte humanizado e atualizações gratuitas. Sem surpresas." />
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <span className={`text-[13px] transition-colors ${!annualPricing ? 'text-white' : 'text-white/40'}`}>Mensal</span>
+          <button
+            onClick={() => setAnnualPricing(!annualPricing)}
+            className={`relative w-12 h-6 rounded-full transition-colors ${annualPricing ? 'bg-[#7B2FF2]' : 'bg-white/20'}`}
+          >
+            <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${annualPricing ? 'translate-x-6' : 'translate-x-0.5'}`} />
+          </button>
+          <span className={`text-[13px] transition-colors ${annualPricing ? 'text-white' : 'text-white/40'}`}>Anual</span>
+          {annualPricing && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold">-20%</span>}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[1000px] mx-auto">
+          {PRICING_PLANS.map((plan, i) => (
+            <div key={plan.name} className="h-[520px]">
+              <PremiumPricingCard plan={plan} annual={annualPricing} index={i} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
+      <section className="relative py-12 px-4 md:px-8">
+        <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
+        <StoriesTestimonials />
       </section>
 
       {/* ═══ NÚMEROS QUE IMPRESSIONAM ═══ */}
