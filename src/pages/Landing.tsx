@@ -20,6 +20,7 @@ import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
 import { GlobeSection } from '@/components/landing/GlobeSection';
 import { StoriesTestimonials } from '@/components/landing/StoriesTestimonials';
+import { ScrollLightUpSection } from '@/components/landing/ScrollLightUp';
 
 const NAV_LINKS = [
   { label: 'Como funciona', href: '#como-funciona', icon: Zap },
