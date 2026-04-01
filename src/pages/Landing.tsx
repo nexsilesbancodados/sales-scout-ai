@@ -368,7 +368,7 @@ export default function Landing() {
 
       </div>{/* end scroll curve wrapper */}
 
-        {/* ═══ 7. PRICING ═══ */}
+        <ScrollLightUpSection threshold={0.88}>
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
           <div className="max-w-md mx-auto">
@@ -377,14 +377,16 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        </ScrollLightUpSection>
 
-        {/* ═══ 8. FEEDBACKS - INSTAGRAM STORIES ═══ */}
+        <ScrollLightUpSection threshold={0.93}>
         <section id="cases" className="relative py-12 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
           <StoriesTestimonials />
         </section>
+        </ScrollLightUpSection>
 
-        {/* ═══ 9. FAQ ═══ */}
+        <ScrollLightUpSection threshold={0.97}>
         <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/50">saber.</span></>} />
           <div className="max-w-2xl mx-auto space-y-2">
@@ -405,8 +407,9 @@ export default function Landing() {
             ))}
           </div>
         </section>
+        </ScrollLightUpSection>
 
-        {/* ═══ 10. FINAL CTA ═══ */}
+        <ScrollLightUpSection threshold={1.0}>
         <section className="relative py-20 px-4 md:px-8">
           <div className="max-w-2xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
@@ -432,6 +435,7 @@ export default function Landing() {
             </motion.div>
           </div>
         </section>
+        </ScrollLightUpSection>
 
       {/* ═══ 11. FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-12 px-4 md:px-8">
