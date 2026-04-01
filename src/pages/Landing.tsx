@@ -25,29 +25,47 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq', icon: HelpCircle },
 ];
 
+const CAKTO_CHECKOUT_URLS: Record<string, { monthly: string; annual: string }> = {
+  starter: {
+    monthly: 'https://pay.cakto.com.br/STARTER_MENSAL',
+    annual: 'https://pay.cakto.com.br/STARTER_ANUAL',
+  },
+  pro: {
+    monthly: 'https://pay.cakto.com.br/PRO_MENSAL',
+    annual: 'https://pay.cakto.com.br/PRO_ANUAL',
+  },
+  enterprise: {
+    monthly: 'https://pay.cakto.com.br/ENTERPRISE_MENSAL',
+    annual: 'https://pay.cakto.com.br/ENTERPRISE_ANUAL',
+  },
+};
+
 const PRICING_PLANS = [
   {
+    id: 'starter',
     name: 'Starter',
     price: 97,
     annual: 77,
-    features: ['200 leads qualificados/mês', 'WhatsApp com anti-ban', 'Templates por nicho', 'Proteção inteligente', 'Suporte humanizado'],
-    cta: 'Testar 7 dias grátis',
+    features: ['Disparos ilimitados', '1 chip WhatsApp', 'Google Maps + Radar CNPJ', 'Funil de vendas', 'Leads ilimitados', 'Suporte por email'],
+    cta: 'Assinar agora',
     highlight: false,
   },
   {
+    id: 'pro',
     name: 'Pro',
-    price: 197,
-    annual: 149,
-    features: ['1.000 leads qualificados/mês', 'Agente SDR autônomo (IA)', 'CRM com pipeline visual', 'Follow-up que converte', 'Relatórios de ROI em tempo real'],
-    cta: 'Quero escalar vendas',
+    price: 149,
+    annual: 119,
+    features: ['Disparos ilimitados', '3 chips WhatsApp', 'Todos os extratores', 'Agente SDR ativo', 'Leads ilimitados', 'Relatórios avançados', 'Suporte prioritário'],
+    cta: 'Assinar agora',
     highlight: true,
   },
   {
+    id: 'enterprise',
     name: 'Enterprise',
-    price: 497,
-    annual: 397,
-    features: ['Leads ilimitados', 'Multi-chip com rotação automática', 'API completa + Webhooks', 'Gerente de sucesso dedicado', 'Onboarding white-glove'],
-    cta: 'Agendar demonstração',
+    price: 199,
+    annual: 159,
+    features: ['Disparos ilimitados', '10 chips WhatsApp', 'API pública', 'Leads ilimitados', 'Múltiplos funis', 'Gerente dedicado', 'SLA garantido'],
+    cta: 'Assinar agora',
     highlight: false,
   },
 ];
