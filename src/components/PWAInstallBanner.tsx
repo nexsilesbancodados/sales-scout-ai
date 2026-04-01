@@ -20,7 +20,7 @@ export function PWAInstallBanner() {
     })();
     const isPreviewHost = window.location.hostname.includes('id-preview--') || window.location.hostname.includes('lovableproject.com');
     
-    if (isInIframe || isPreviewHost) return;
+    if (isInIframe || isPreviewHost || !user) return;
 
     // Check if already dismissed
     if (localStorage.getItem('pwa_banner_dismissed') === 'true') return;
