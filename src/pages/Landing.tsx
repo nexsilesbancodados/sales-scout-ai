@@ -127,7 +127,7 @@ export default function Landing() {
   );
 
   return (
-    <div className="text-white min-h-screen overflow-x-hidden relative">
+    <main className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
 
       {/* ═══ 1. FLOATING GLASS NAVBAR ═══ */}
