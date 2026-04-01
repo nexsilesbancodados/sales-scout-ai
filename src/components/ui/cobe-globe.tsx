@@ -64,6 +64,12 @@ export function Globe({
   const thetaOffsetRef = useRef(0)
   const isPausedRef = useRef(false)
 
+  // Use refs for values that change dynamically so globe doesn't recreate
+  const dynamicRef = useRef({ baseColor, markerColor, arcColor, glowColor, dark, mapBrightness, markerSize, markerElevation })
+  useEffect(() => {
+    dynamicRef.current = { baseColor, markerColor, arcColor, glowColor, dark, mapBrightness, markerSize, markerElevation }
+  }, [baseColor, markerColor, arcColor, glowColor, dark, mapBrightness, markerSize, markerElevation])
+
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       pointerInteracting.current = { x: e.clientX, y: e.clientY }
@@ -130,23 +136,24 @@ export function Globe({
       if (width === 0 || globe) return
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const d = dynamicRef.current
       globe = createGlobe(canvas, {
         devicePixelRatio: dpr,
         width,
         height: width,
         phi: 0,
         theta,
-        dark,
+        dark: d.dark,
         diffuse,
         mapSamples,
-        mapBrightness,
-        baseColor,
-        markerColor,
-        glowColor,
-        markerElevation,
+        mapBrightness: d.mapBrightness,
+        baseColor: d.baseColor,
+        markerColor: d.markerColor,
+        glowColor: d.glowColor,
+        markerElevation: d.markerElevation,
         markers: markers.map((m) => ({
           location: m.location,
-          size: markerSize,
+          size: d.markerSize,
           id: m.id,
         })),
         arcs: arcs.map((a) => ({
@@ -154,13 +161,14 @@ export function Globe({
           to: a.to,
           id: a.id,
         })),
-        arcColor,
+        arcColor: d.arcColor,
         arcWidth,
         arcHeight,
         opacity: 0.7,
       })
 
       function animate() {
+        const d = dynamicRef.current
         if (!isPausedRef.current) {
           phi += speed
           if (
@@ -183,15 +191,15 @@ export function Globe({
         globe!.update({
           phi: phi + phiOffsetRef.current + dragOffset.current.phi,
           theta: theta + thetaOffsetRef.current + dragOffset.current.theta,
-          dark,
-          mapBrightness,
-          markerColor,
-          baseColor,
-          arcColor,
-          markerElevation,
+          dark: d.dark,
+          mapBrightness: d.mapBrightness,
+          markerColor: d.markerColor,
+          baseColor: d.baseColor,
+          arcColor: d.arcColor,
+          markerElevation: d.markerElevation,
           markers: markers.map((m) => ({
             location: m.location,
-            size: markerSize,
+            size: d.markerSize,
             id: m.id,
           })),
           arcs: arcs.map((a) => ({
@@ -222,7 +230,8 @@ export function Globe({
       if (animationId) cancelAnimationFrame(animationId)
       if (globe) globe.destroy()
     }
-  }, [markers, arcs, markerColor, baseColor, arcColor, glowColor, dark, mapBrightness, markerSize, markerElevation, arcWidth, arcHeight, speed, theta, diffuse, mapSamples])
+    // Only recreate globe on structural changes, not color/brightness changes
+  }, [markers, arcs, arcWidth, arcHeight, speed, theta, diffuse, mapSamples])
 
   return (
     <div className={`relative aspect-square select-none ${className}`}>
