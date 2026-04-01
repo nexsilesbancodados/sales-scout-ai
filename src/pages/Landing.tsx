@@ -252,6 +252,7 @@ export default function Landing() {
         <ScrollCurveLine />
 
         {/* ═══ 3. COMO FUNCIONA - 3 STEPS ═══ */}
+        <ScrollLightUpSection threshold={0.15}>
         <section id="como-funciona" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
           <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
           <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
@@ -293,6 +294,7 @@ export default function Landing() {
             ))}
           </div>
         </section>
+        </ScrollLightUpSection>
 
         {/* ═══ 4. MOCKUP SHOWCASE ═══ */}
         <section id="produto" className="relative py-24 px-4 md:px-8 scroll-mt-24 overflow-hidden">
