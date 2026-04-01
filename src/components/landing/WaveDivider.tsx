@@ -13,7 +13,7 @@ export function WaveDivider({ flip = false, className = '' }: { flip?: boolean; 
         />
       </svg>
       <svg
-        className="wave-shape wave-white absolute bottom-0 left-0 block h-[80px] z-[3]"
+        className="wave-shape wave-white absolute bottom-0 left-0 block h-[40px] z-[3]"
         style={{ width: '200%', animation: 'waveShift 10s ease-in-out infinite' }}
         viewBox="0 0 1000 100"
         preserveAspectRatio="none"
