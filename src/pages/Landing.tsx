@@ -98,37 +98,8 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const advantagesRef = useRef<HTMLDivElement>(null);
-  const flipCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.to('.wave-light-blue', {
-        xPercent: 15, ease: 'none',
-        scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: 1.5 },
-      });
-      gsap.to('.wave-white', {
-        xPercent: -30, ease: 'none',
-        scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: 1 },
-      });
-    });
-    return () => ctx.revert();
-  }, []);
 
-  useEffect(() => {
-    if (!advantagesRef.current) return;
-    const ctx = gsap.context(() => {
-      gsap.set(flipCardsRef.current, { opacity: 0, y: 60 });
-      const enterTl = gsap.timeline({
-        scrollTrigger: { trigger: advantagesRef.current, start: 'top 80%', end: 'top 20%', scrub: 1 },
-      });
-      flipCardsRef.current.forEach((card, i) => {
-        if (!card) return;
-        enterTl.to(card, { opacity: 1, y: 0, duration: 0.5 }, i * 0.12);
-      });
-    });
-    return () => ctx.revert();
-  }, []);
 
   const SectionHeader = ({ tag, title, subtitle, id }: { tag: string; title: React.ReactNode; subtitle?: string; id?: string }) => (
     <div id={id} className="text-center mb-8 scroll-mt-24">
