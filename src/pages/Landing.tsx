@@ -122,7 +122,7 @@ export default function Landing() {
     <div id={id} className="text-center mb-8 scroll-mt-24">
       <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">{tag}</span>
       <h2 className="text-2xl md:text-4xl font-black tracking-[-0.03em] mt-2 text-white">{title}</h2>
-      {subtitle && <p className="text-white/35 text-sm mt-2 max-w-lg mx-auto">{subtitle}</p>}
+      {subtitle && <p className="text-white/50 text-sm mt-2 max-w-lg mx-auto">{subtitle}</p>}
     </div>
   );
 
@@ -149,7 +149,7 @@ export default function Landing() {
                 <a key={l.label} href={l.href} onMouseEnter={() => setHoveredNav(idx)} onMouseLeave={() => setHoveredNav(null)} className="nav-optn relative group">
                   <div className="nav-optn-inner">
                     <span className="nav-optn-icon"><Icon className="h-4 w-4 text-white" /></span>
-                    <span className={`text-[13px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/40 group-hover:text-white'}`}>{l.label}</span>
+                    <span className={`text-[13px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
                     {hoveredNav === idx && (
                       <motion.span layoutId="navGlow" initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }} className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]" />
                     )}
@@ -194,7 +194,7 @@ export default function Landing() {
             </div>
             <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Seus concorrentes </span>
-              <span className="text-white/30">prospectam.</span>
+              <span className="text-white/50">prospectam.</span>
               <br className="hidden sm:block" />
               <span className="text-white">Você </span>
               <span className="landing-gradient-text">fecha.</span>
@@ -213,7 +213,7 @@ export default function Landing() {
             </div>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
               {['Leads ilimitados', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
-                <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/30">
+                <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/50">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
               ))}
@@ -227,12 +227,12 @@ export default function Landing() {
                     <img key={i} src={src} alt="" className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg object-cover" loading="lazy" width={28} height={28} />
                   ))}
                 </div>
-                <span className="text-[11px] sm:text-[12px] text-white/40 font-medium">+2.400 ativos</span>
+                <span className="text-[11px] sm:text-[12px] text-white/55 font-medium">+2.400 ativos</span>
               </div>
               <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-[#F7941D] fill-[#F7941D]" />)}
-                <span className="text-[11px] sm:text-[12px] text-white/35 ml-1 font-medium">4.9/5</span>
+                <span className="text-[11px] sm:text-[12px] text-white/50 ml-1 font-medium">4.9/5</span>
               </div>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function Landing() {
                     <item.icon className="h-4 w-4" style={{ color: item.color }} />
                   </div>
                   <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
-                  <p className="text-[12px] text-white/40 leading-relaxed">{item.desc}</p>
+                  <p className="text-[12px] text-white/55 leading-relaxed">{item.desc}</p>
                   {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />}
                 </div>
               </motion.div>
@@ -302,7 +302,7 @@ export default function Landing() {
               <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
                 Venda de <span className="landing-gradient-text">qualquer lugar</span>
               </h2>
-              <p className="text-[14px] text-white/40 mt-4 max-w-[420px] mx-auto">
+              <p className="text-[14px] text-white/55 mt-4 max-w-[420px] mx-auto">
                 Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
               </p>
             </motion.div>
@@ -337,7 +337,7 @@ export default function Landing() {
                     <motion.span initial={{ scale: 0.5 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: stat.delay + 0.3, type: 'spring', stiffness: 200 }} className="block text-2xl md:text-3xl font-black tracking-[-0.03em]" style={{ color: stat.color }}>
                       {stat.value}
                     </motion.span>
-                    <span className="text-[11px] text-white/35 mt-1 block">{stat.label}</span>
+                    <span className="text-[11px] text-white/50 mt-1 block">{stat.label}</span>
                   </div>
                 </div>
               </motion.div>
@@ -349,7 +349,7 @@ export default function Landing() {
               { icon: Rocket, text: 'Setup em 5 min' },
               { icon: Star, text: '4.9/5 de avaliação' },
             ].map((badge, i) => (
-              <span key={i} className="flex items-center gap-2 text-[11px] text-white/30">
+              <span key={i} className="flex items-center gap-2 text-[11px] text-white/50">
                 <badge.icon className="h-3.5 w-3.5 text-[#F7941D]/50" />
                 {badge.text}
               </span>
@@ -380,18 +380,18 @@ export default function Landing() {
 
         {/* ═══ 9. FAQ ═══ */}
         <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-          <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
+          <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/50">saber.</span></>} />
           <div className="max-w-2xl mx-auto space-y-2">
             {FAQ_DATA.map((item, i) => (
               <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
                   <span className="text-[13px] font-semibold text-white/80">{item.q}</span>
-                  <ChevronDown className={`h-4 w-4 text-white/30 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-white/50 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
                   {openFaq === i && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
-                      <p className="px-5 pb-4 text-[13px] text-white/45 leading-relaxed">{item.a}</p>
+                      <p className="px-5 pb-4 text-[13px] text-white/55 leading-relaxed">{item.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -407,7 +407,7 @@ export default function Landing() {
               <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
                 Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
               </h2>
-              <p className="text-white/40 text-sm mt-4 max-w-md mx-auto">
+              <p className="text-white/55 text-sm mt-4 max-w-md mx-auto">
                 +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
@@ -418,7 +418,7 @@ export default function Landing() {
               </div>
               <div className="flex items-center justify-center gap-4 mt-4">
                 {['Leads ilimitados', 'Resultado em 48h', 'Cancele com 1 clique'].map(t => (
-                  <span key={t} className="flex items-center gap-1 text-[10px] text-white/25">
+                  <span key={t} className="flex items-center gap-1 text-[10px] text-white/50">
                     <Check className="h-3 w-3 text-emerald-500/50" /> {t}
                   </span>
                 ))}
@@ -435,36 +435,36 @@ export default function Landing() {
               <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
-            <p className="text-[11px] text-white/30 leading-relaxed max-w-[260px]">
+            <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px]">
               A máquina de vendas com IA que prospecta, qualifica e agenda reuniões no piloto automático.
             </p>
           </div>
           <div className="flex flex-col gap-2.5">
             <span className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-1">Contato</span>
-            <a href="mailto:devcriador1@gmail.com" className="text-[12px] text-white/40 hover:text-white/70 transition-colors flex items-center gap-2">
+            <a href="mailto:devcriador1@gmail.com" className="text-[12px] text-white/55 hover:text-white/80 transition-colors flex items-center gap-2">
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               devcriador1@gmail.com
             </a>
-            <a href="https://wa.me/5533984123591" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/40 hover:text-white/70 transition-colors flex items-center gap-2">
+            <a href="https://wa.me/5533984123591" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/55 hover:text-white/80 transition-colors flex items-center gap-2">
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0012.05 0zm0 21.785a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884z"/></svg>
               (33) 98412-3591
             </a>
-            <a href="https://instagram.com/Focussdev" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/40 hover:text-white/70 transition-colors flex items-center gap-2">
+            <a href="https://instagram.com/Focussdev" target="_blank" rel="noopener noreferrer" className="text-[12px] text-white/55 hover:text-white/80 transition-colors flex items-center gap-2">
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
               @Focussdev
             </a>
           </div>
           <div className="flex flex-col gap-2.5 md:items-end">
             <span className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-1">Legal</span>
-            <p className="text-[11px] text-white/30">FOCUSS DEV</p>
-            <p className="text-[11px] text-white/30">CNPJ 65.132.412/0001-20</p>
+            <p className="text-[11px] text-white/50">FOCUSS DEV</p>
+            <p className="text-[11px] text-white/50">CNPJ 65.132.412/0001-20</p>
           </div>
         </div>
         <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-[10px] text-white/20">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV. Todos os direitos reservados.</p>
+          <p className="text-[10px] text-white/50">© {new Date().getFullYear()} NexaProspect — FOCUSS DEV. Todos os direitos reservados.</p>
           <div className="flex gap-4">
-            <a href="#" className="text-[10px] text-white/20 hover:text-white/40 transition-colors">Termos de Uso</a>
-            <a href="#" className="text-[10px] text-white/20 hover:text-white/40 transition-colors">Privacidade</a>
+            <a href="#" className="text-[10px] text-white/50 hover:text-white/70 transition-colors">Termos de Uso</a>
+            <a href="#" className="text-[10px] text-white/50 hover:text-white/70 transition-colors">Privacidade</a>
           </div>
         </div>
       </footer>
