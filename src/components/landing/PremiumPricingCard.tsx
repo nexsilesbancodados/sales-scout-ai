@@ -19,6 +19,7 @@ interface PremiumPricingCardProps {
   plan: PricingPlan;
   annual: boolean;
   index: number;
+  checkoutUrl?: string;
 }
 
 const CARD_IMAGES = [pricingStarterImg, pricingProImg, pricingEnterpriseImg];
