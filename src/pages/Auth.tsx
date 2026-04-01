@@ -108,7 +108,7 @@ export default function AuthPage() {
               style={{ background: 'linear-gradient(145deg, rgba(15,15,25,0.9), rgba(10,10,18,0.95))' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-[#7B2FF2]/5 via-transparent to-[#E91E8C]/5 pointer-events-none" />
               <div className="relative z-10 space-y-6">
-                <img src={logoImg} alt="NexaProspect" className="h-10 w-auto mx-auto" />
+                <img src={logoImg} alt="NexaProspect" className="h-10 w-auto mx-auto" width={40} height={40} />
                 <div className="text-center">
                   <h1 className="text-xl font-bold text-white">Redefinir Senha</h1>
                   <p className="text-sm text-white/40 mt-1">Digite sua nova senha abaixo</p>
