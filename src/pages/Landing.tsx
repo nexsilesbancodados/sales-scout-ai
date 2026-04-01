@@ -373,10 +373,10 @@ export default function Landing() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
-              Pronto para <span className="landing-gradient-text">automatizar</span> suas vendas?
+              Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
             </h2>
             <p className="text-white/40 text-sm mt-4 max-w-md mx-auto">
-              Junte-se a +2.400 empresas que já usam IA para prospectar, qualificar e fechar negócios no piloto automático.
+              +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
