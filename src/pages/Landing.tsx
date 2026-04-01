@@ -243,7 +243,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ SCROLL CURVE LINE WRAPPER ═══ */}
-      <div className="relative">
+      <div className="relative overflow-visible">
         <ScrollCurveLine />
 
         {/* ═══ 3. COMO FUNCIONA - 3 STEPS ═══ */}
