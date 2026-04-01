@@ -823,6 +823,12 @@ div[style*="Edit with Lovable"],
   will-change: transform, left;
 }
 
+/* Floating phone animation */
+@keyframes floating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
 /* Smooth scroll for landing */
 html {
   scroll-behavior: smooth;
