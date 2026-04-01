@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Users,
   ChevronDown,
@@ -15,6 +16,7 @@ import {
   Search,
   MapPin,
   Star,
+  Eye,
 } from 'lucide-react';
 import { Lead } from '@/types/database';
 import { ProspectingHistoryLead } from '@/hooks/use-prospecting-history';
@@ -56,7 +58,6 @@ export function LeadSelector({
 
   const displayLeads = viewMode === 'pending' ? pendingLeads : sentLeads;
 
-  // Filter by search
   const filteredLeads = searchQuery
     ? displayLeads.filter(l =>
         l.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -66,7 +67,6 @@ export function LeadSelector({
       )
     : displayLeads;
 
-  // Group by niche
   const leadsByNiche = filteredLeads.reduce((acc, lead) => {
     const niche = lead.niche || 'Sem nicho';
     if (!acc[niche]) acc[niche] = [];
@@ -84,28 +84,41 @@ export function LeadSelector({
     });
   };
 
+  const tabs = [
+    { mode: 'pending' as ViewMode, label: 'Pendentes', count: pendingLeads.length, icon: Clock },
+    { mode: 'sent' as ViewMode, label: 'Enviados', count: sentLeads.length, icon: CheckCircle },
+    { mode: 'history' as ViewMode, label: 'Histórico', count: totalHistoryLeads, icon: History },
+  ];
+
   return (
-    <Card className="border-border/60">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Users className="h-5 w-5 text-primary" />
-          {isRemarketing ? 'Leads para Remarketing' : 'Selecionar Leads'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* View mode tabs */}
+    <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+      {/* Header */}
+      <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">
+              {isRemarketing ? 'Leads para Remarketing' : 'Selecionar Leads'}
+            </h3>
+            <p className="text-sm text-muted-foreground">Escolha os leads para envio em massa</p>
+          </div>
+        </div>
+      </div>
+
+      <CardContent className="p-5 space-y-4">
+        {/* Tabs */}
         {!isImported && (
-          <div className="flex gap-1.5 p-1 bg-muted rounded-lg">
-            {[
-              { mode: 'pending' as ViewMode, label: 'Pendentes', count: pendingLeads.length, icon: Clock },
-              { mode: 'sent' as ViewMode, label: 'Enviados', count: sentLeads.length, icon: CheckCircle },
-              { mode: 'history' as ViewMode, label: 'Histórico', count: totalHistoryLeads, icon: History },
-            ].map(tab => (
-              <Button
+          <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
+            {tabs.map(tab => (
+              <button
                 key={tab.mode}
-                variant={viewMode === tab.mode ? 'default' : 'ghost'}
-                size="sm"
-                className={`flex-1 gap-1.5 text-xs ${viewMode === tab.mode ? '' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-medium transition-all ${
+                  viewMode === tab.mode
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
                 onClick={() => {
                   setViewMode(tab.mode);
                   setSelectedLeads([]);
@@ -115,10 +128,10 @@ export function LeadSelector({
               >
                 <tab.icon className="h-3.5 w-3.5" />
                 {tab.label}
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-0.5">
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 ml-0.5 font-mono">
                   {tab.count}
                 </Badge>
-              </Button>
+              </button>
             ))}
           </div>
         )}
@@ -131,15 +144,15 @@ export function LeadSelector({
               placeholder="Buscar por nome, telefone, nicho..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 text-sm"
+              className="pl-9 h-9 text-sm bg-background/60 border-border/50"
             />
           </div>
         )}
 
-        {/* Select all / deselect */}
+        {/* Select controls */}
         {viewMode !== 'history' && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {selectedLeads.length} de {filteredLeads.length} selecionados
             </span>
             <Button
@@ -159,7 +172,7 @@ export function LeadSelector({
           </div>
         )}
 
-        {/* History View */}
+        {/* Content */}
         {viewMode === 'history' ? (
           <HistoryLeadsList
             historyLeadsByNiche={historyLeadsByNiche}
@@ -170,9 +183,11 @@ export function LeadSelector({
             toggleNicheExpand={toggleNicheExpand}
           />
         ) : filteredLeads.length === 0 ? (
-          <div className="py-10 text-center text-muted-foreground">
-            <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">
+          <div className="py-12 text-center text-muted-foreground">
+            <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-muted/50 mx-auto mb-3">
+              <Users className="h-7 w-7 opacity-40" />
+            </div>
+            <p className="font-medium text-foreground/70">
               {searchQuery ? 'Nenhum lead encontrado' : viewMode === 'pending' ? 'Nenhum lead pendente' : 'Nenhum lead enviado'}
             </p>
             <p className="text-xs mt-1">
@@ -180,111 +195,111 @@ export function LeadSelector({
             </p>
           </div>
         ) : (
-          <div className="max-h-[420px] overflow-y-auto space-y-1.5 pr-1">
-            {sortedNiches.map(([niche, nicheLeads]) => {
-              const isExpanded = expandedNiches.has(niche);
-              const nicheLeadIds = nicheLeads.map(l => l.id);
-              const selectedInNiche = nicheLeadIds.filter(id => selectedLeads.includes(id)).length;
-              const allNicheSelected = selectedInNiche === nicheLeads.length;
+          <ScrollArea className="h-[420px] pr-1">
+            <div className="space-y-1.5">
+              {sortedNiches.map(([niche, nicheLeads]) => {
+                const isExpanded = expandedNiches.has(niche);
+                const nicheLeadIds = nicheLeads.map(l => l.id);
+                const selectedInNiche = nicheLeadIds.filter(id => selectedLeads.includes(id)).length;
+                const allNicheSelected = selectedInNiche === nicheLeads.length;
 
-              return (
-                <div key={niche} className="border rounded-lg overflow-hidden">
-                  <div
-                    className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
-                      allNicheSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
-                    }`}
-                    onClick={() => toggleNicheExpand(niche)}
-                  >
-                    <Checkbox
-                      checked={allNicheSelected}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedLeads([...new Set([...selectedLeads, ...nicheLeadIds])]);
-                        } else {
-                          setSelectedLeads(selectedLeads.filter(id => !nicheLeadIds.includes(id)));
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate">{niche}</span>
-                        <Badge variant="secondary" className="text-[10px] px-1.5">
-                          {nicheLeads.length}
-                        </Badge>
-                        {selectedInNiche > 0 && selectedInNiche < nicheLeads.length && (
-                          <span className="text-[10px] text-primary font-medium">
-                            {selectedInNiche} sel.
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-
-                  {isExpanded && (
-                    <div className="border-t divide-y divide-border/50">
-                      {nicheLeads.map((lead) => (
-                        <div
-                          key={lead.id}
-                          className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
-                            selectedLeads.includes(lead.id) ? 'bg-primary/5' : 'hover:bg-muted/30'
-                          }`}
-                          onClick={() => {
-                            setSelectedLeads(
-                              selectedLeads.includes(lead.id)
-                                ? selectedLeads.filter(id => id !== lead.id)
-                                : [...selectedLeads, lead.id]
-                            );
-                          }}
-                        >
-                          <div className="w-5" />
-                          <Checkbox checked={selectedLeads.includes(lead.id)} />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate text-sm">{lead.business_name}</p>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>{lead.phone}</span>
-                              {lead.location && (
-                                <span className="flex items-center gap-0.5">
-                                  <MapPin className="h-3 w-3" />
-                                  {lead.location}
-                                </span>
-                              )}
-                              {lead.rating && (
-                                <span className="flex items-center gap-0.5">
-                                  <Star className="h-3 w-3 fill-warning text-warning" />
-                                  {lead.rating}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[10px] px-2 text-primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onPreview(lead.id);
-                            }}
-                            disabled={!canPreview}
-                          >
-                            Prévia
-                          </Button>
+                return (
+                  <div key={niche} className="border border-border/40 rounded-lg overflow-hidden">
+                    <div
+                      className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
+                        allNicheSelected ? 'bg-primary/10' : 'hover:bg-muted/40'
+                      }`}
+                      onClick={() => toggleNicheExpand(niche)}
+                    >
+                      <Checkbox
+                        checked={allNicheSelected}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedLeads([...new Set([...selectedLeads, ...nicheLeadIds])]);
+                          } else {
+                            setSelectedLeads(selectedLeads.filter(id => !nicheLeadIds.includes(id)));
+                          }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm truncate">{niche}</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 h-4 font-mono">
+                            {nicheLeads.length}
+                          </Badge>
+                          {selectedInNiche > 0 && selectedInNiche < nicheLeads.length && (
+                            <span className="text-[10px] text-primary font-medium">{selectedInNiche} sel.</span>
+                          )}
                         </div>
-                      ))}
+                      </div>
+                      {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+
+                    {isExpanded && (
+                      <div className="border-t border-border/30 divide-y divide-border/20">
+                        {nicheLeads.map((lead) => (
+                          <div
+                            key={lead.id}
+                            className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
+                              selectedLeads.includes(lead.id) ? 'bg-primary/5' : 'hover:bg-muted/30'
+                            }`}
+                            onClick={() => {
+                              setSelectedLeads(
+                                selectedLeads.includes(lead.id)
+                                  ? selectedLeads.filter(id => id !== lead.id)
+                                  : [...selectedLeads, lead.id]
+                              );
+                            }}
+                          >
+                            <div className="w-5" />
+                            <Checkbox checked={selectedLeads.includes(lead.id)} />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate text-sm">{lead.business_name}</p>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className="font-mono">{lead.phone}</span>
+                                {lead.location && (
+                                  <span className="flex items-center gap-0.5">
+                                    <MapPin className="h-3 w-3" />
+                                    {lead.location}
+                                  </span>
+                                )}
+                                {lead.rating && (
+                                  <span className="flex items-center gap-0.5 text-yellow-500">
+                                    <Star className="h-3 w-3 fill-current" />
+                                    {lead.rating}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-[10px] px-2 gap-1 text-muted-foreground hover:text-primary"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onPreview(lead.id);
+                              }}
+                              disabled={!canPreview}
+                            >
+                              <Eye className="h-3 w-3" />
+                              Prévia
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>
   );
 }
 
-// Sub-component for history leads
 function HistoryLeadsList({
   historyLeadsByNiche,
   totalHistoryLeads,
@@ -302,9 +317,11 @@ function HistoryLeadsList({
 }) {
   if (totalHistoryLeads === 0) {
     return (
-      <div className="py-10 text-center text-muted-foreground">
-        <Database className="h-12 w-12 mx-auto mb-3 opacity-30" />
-        <p className="font-medium">Nenhum lead no histórico</p>
+      <div className="py-12 text-center text-muted-foreground">
+        <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-muted/50 mx-auto mb-3">
+          <Database className="h-7 w-7 opacity-40" />
+        </div>
+        <p className="font-medium text-foreground/70">Nenhum lead no histórico</p>
         <p className="text-xs mt-1">Capture leads para popular o histórico</p>
       </div>
     );
@@ -313,7 +330,7 @@ function HistoryLeadsList({
   return (
     <>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {selectedHistoryLeads.length} leads selecionados
         </span>
         <Button
@@ -336,86 +353,88 @@ function HistoryLeadsList({
         </Button>
       </div>
 
-      <div className="max-h-[420px] overflow-y-auto space-y-1.5">
-        {Object.entries(historyLeadsByNiche).map(([niche, sessions]) => {
-          const isExpanded = expandedNiches.has(`history-${niche}`);
-          const allNicheLeads = sessions.flatMap(s => s.leads);
-          const selectedInNiche = allNicheLeads.filter(l =>
-            selectedHistoryLeads.some(sl => sl.id === l.id)
-          ).length;
-          const allSelected = selectedInNiche === allNicheLeads.length && allNicheLeads.length > 0;
+      <ScrollArea className="h-[420px]">
+        <div className="space-y-1.5">
+          {Object.entries(historyLeadsByNiche).map(([niche, sessions]) => {
+            const isExpanded = expandedNiches.has(`history-${niche}`);
+            const allNicheLeads = sessions.flatMap(s => s.leads);
+            const selectedInNiche = allNicheLeads.filter(l =>
+              selectedHistoryLeads.some(sl => sl.id === l.id)
+            ).length;
+            const allSelected = selectedInNiche === allNicheLeads.length && allNicheLeads.length > 0;
 
-          return (
-            <div key={niche} className="border rounded-lg overflow-hidden">
-              <div
-                className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
-                  allSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
-                }`}
-                onClick={() => toggleNicheExpand(`history-${niche}`)}
-              >
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSelectedHistoryLeads([
-                        ...selectedHistoryLeads,
-                        ...allNicheLeads.filter(l => !selectedHistoryLeads.some(sl => sl.id === l.id)),
-                      ]);
-                    } else {
-                      setSelectedHistoryLeads(
-                        selectedHistoryLeads.filter(sl => !allNicheLeads.some(l => l.id === sl.id))
-                      );
-                    }
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm truncate">{niche}</span>
-                    <Badge variant="secondary" className="text-[10px] px-1.5">
-                      {allNicheLeads.length}
-                    </Badge>
-                  </div>
-                </div>
-                {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-              </div>
-              {isExpanded && (
-                <div className="border-t divide-y divide-border/50">
-                  {allNicheLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
-                        selectedHistoryLeads.some(sl => sl.id === lead.id) ? 'bg-primary/5' : 'hover:bg-muted/30'
-                      }`}
-                      onClick={() => {
-                        const isSelected = selectedHistoryLeads.some(sl => sl.id === lead.id);
+            return (
+              <div key={niche} className="border border-border/40 rounded-lg overflow-hidden">
+                <div
+                  className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
+                    allSelected ? 'bg-primary/10' : 'hover:bg-muted/40'
+                  }`}
+                  onClick={() => toggleNicheExpand(`history-${niche}`)}
+                >
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedHistoryLeads([
+                          ...selectedHistoryLeads,
+                          ...allNicheLeads.filter(l => !selectedHistoryLeads.some(sl => sl.id === l.id)),
+                        ]);
+                      } else {
                         setSelectedHistoryLeads(
-                          isSelected
-                            ? selectedHistoryLeads.filter(sl => sl.id !== lead.id)
-                            : [...selectedHistoryLeads, lead]
+                          selectedHistoryLeads.filter(sl => !allNicheLeads.some(l => l.id === sl.id))
                         );
-                      }}
-                    >
-                      <div className="w-5" />
-                      <Checkbox checked={selectedHistoryLeads.some(sl => sl.id === lead.id)} />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate text-sm">{lead.business_name}</p>
-                        <p className="text-xs text-muted-foreground">{lead.phone}</p>
-                      </div>
-                      <Badge
-                        variant={lead.status === 'sent' ? 'default' : lead.status === 'error' ? 'destructive' : 'secondary'}
-                        className="text-[10px]"
-                      >
-                        {lead.status === 'pending' ? 'Pendente' : lead.status === 'sent' ? 'Enviado' : lead.status === 'error' ? 'Erro' : lead.status === 'duplicate' ? 'Duplicado' : 'Salvo'}
+                      }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm truncate">{niche}</span>
+                      <Badge variant="secondary" className="text-[10px] px-1.5 h-4 font-mono">
+                        {allNicheLeads.length}
                       </Badge>
                     </div>
-                  ))}
+                  </div>
+                  {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                {isExpanded && (
+                  <div className="border-t border-border/30 divide-y divide-border/20">
+                    {allNicheLeads.map((lead) => (
+                      <div
+                        key={lead.id}
+                        className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
+                          selectedHistoryLeads.some(sl => sl.id === lead.id) ? 'bg-primary/5' : 'hover:bg-muted/30'
+                        }`}
+                        onClick={() => {
+                          const isSelected = selectedHistoryLeads.some(sl => sl.id === lead.id);
+                          setSelectedHistoryLeads(
+                            isSelected
+                              ? selectedHistoryLeads.filter(sl => sl.id !== lead.id)
+                              : [...selectedHistoryLeads, lead]
+                          );
+                        }}
+                      >
+                        <div className="w-5" />
+                        <Checkbox checked={selectedHistoryLeads.some(sl => sl.id === lead.id)} />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate text-sm">{lead.business_name}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{lead.phone}</p>
+                        </div>
+                        <Badge
+                          variant={lead.status === 'sent' ? 'default' : lead.status === 'error' ? 'destructive' : 'secondary'}
+                          className="text-[10px] shrink-0"
+                        >
+                          {lead.status === 'pending' ? 'Pendente' : lead.status === 'sent' ? 'Enviado' : lead.status === 'error' ? 'Erro' : lead.status === 'duplicate' ? 'Duplicado' : 'Salvo'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </>
   );
 }

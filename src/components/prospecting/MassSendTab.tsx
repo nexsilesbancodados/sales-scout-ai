@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Lead } from '@/types/database';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Activity, RefreshCw, Users } from 'lucide-react';
+import { Activity, RefreshCw, Users, AlertTriangle } from 'lucide-react';
 import { MassSendStats } from './mass-send/MassSendStats';
 import { LeadSelector } from './mass-send/LeadSelector';
 import { MessageConfigurator, AVAILABLE_SERVICES } from './mass-send/MessageConfigurator';

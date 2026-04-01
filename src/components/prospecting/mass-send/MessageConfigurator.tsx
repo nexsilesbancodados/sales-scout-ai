@@ -1,10 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -17,13 +16,14 @@ import {
   Send,
   Loader2,
   Sparkles,
-  AlertCircle,
   Activity,
   Zap,
   MessageSquare,
   Filter,
   Briefcase,
   Users,
+  Info,
+  CheckCircle,
 } from 'lucide-react';
 import { Lead } from '@/types/database';
 
@@ -97,31 +97,33 @@ export function MessageConfigurator({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <Card className="border-border/60">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Filter className="h-4 w-4 text-primary" />
-            Filtros Inteligentes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
+              <Filter className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Filtros Inteligentes</h3>
+              <p className="text-sm text-muted-foreground">Segmente leads e defina o serviço</p>
+            </div>
+          </div>
+        </div>
+        <CardContent className="p-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <Label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <Users className="h-3.5 w-3.5" />
                 Tipo de Empresa
               </Label>
               <Select value={leadFilter} onValueChange={setLeadFilter}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-9 bg-background/60 border-border/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {LEAD_FILTERS.map((filter) => (
                     <SelectItem key={filter.id} value={filter.id}>
-                      <div>
-                        <span className="text-sm">{filter.label}</span>
-                        <span className="text-xs text-muted-foreground ml-2">— {filter.description}</span>
-                      </div>
+                      <span className="text-sm">{filter.label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -129,21 +131,18 @@ export function MessageConfigurator({
             </div>
 
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <Label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <Briefcase className="h-3.5 w-3.5" />
                 Serviço a Oferecer
               </Label>
               <Select value={selectedService} onValueChange={setSelectedService}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-9 bg-background/60 border-border/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {AVAILABLE_SERVICES.map((service) => (
                     <SelectItem key={service.id} value={service.id}>
-                      <div>
-                        <span className="text-sm">{service.label}</span>
-                        <span className="text-xs text-muted-foreground ml-2">— {service.description}</span>
-                      </div>
+                      <span className="text-sm">{service.label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -152,8 +151,8 @@ export function MessageConfigurator({
           </div>
 
           {selectedService === 'auto' && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/5 border border-primary/15">
-              <Sparkles className="h-4 w-4 text-primary flex-shrink-0" />
+            <div className="flex items-center gap-2.5 p-3 rounded-lg bg-primary/5 border border-primary/15">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
               <p className="text-xs text-primary">
                 A IA vai analisar cada lead e oferecer o serviço mais adequado automaticamente
               </p>
@@ -161,10 +160,10 @@ export function MessageConfigurator({
           )}
 
           {leadFilter === 'no_website' && selectedService === 'auto' && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20">
-              <Sparkles className="h-4 w-4 text-warning flex-shrink-0" />
-              <p className="text-xs text-warning">
-                💡 Para empresas sem site, considere selecionar "Sites e Landing Pages" diretamente
+            <div className="flex items-center gap-2.5 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <Info className="h-4 w-4 text-yellow-500 shrink-0" />
+              <p className="text-xs text-yellow-500">
+                Para empresas sem site, considere selecionar "Sites e Landing Pages" diretamente
               </p>
             </div>
           )}
@@ -172,31 +171,33 @@ export function MessageConfigurator({
       </Card>
 
       {/* Message Config */}
-      <Card className="border-border/60">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Configurar Mensagem
-          </CardTitle>
-          <CardDescription>
-            Escolha como as mensagens serão geradas
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
+        <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Configurar Mensagem</h3>
+              <p className="text-sm text-muted-foreground">Escolha como as mensagens serão geradas</p>
+            </div>
+          </div>
+        </div>
+        <CardContent className="p-5 space-y-4">
           <Tabs value={sendMode} onValueChange={(v) => setSendMode(v as 'template' | 'direct')}>
-            <TabsList className="grid w-full grid-cols-2 h-10">
-              <TabsTrigger value="template" className="gap-2 text-sm">
+            <TabsList className="grid w-full grid-cols-2 h-10 bg-muted/50">
+              <TabsTrigger value="template" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <MessageSquare className="h-4 w-4" />
                 Com Template
               </TabsTrigger>
-              <TabsTrigger value="direct" className="gap-2 text-sm">
+              <TabsTrigger value="direct" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <Zap className="h-4 w-4" />
                 IA Direta
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="template" className="space-y-4 mt-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/30">
                 <div>
                   <Label htmlFor="ai-personalization" className="text-sm font-medium">Personalização com IA</Label>
                   <p className="text-xs text-muted-foreground">Adapta tom e conteúdo para cada nicho</p>
@@ -208,10 +209,12 @@ export function MessageConfigurator({
                 />
               </div>
 
-              <div className="flex items-center gap-2 p-2 rounded bg-muted/30 border border-border/50">
-                <AlertCircle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/30 border border-border/30">
+                <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <p className="text-[11px] text-muted-foreground">
-                  Variáveis: <code className="bg-muted px-1 rounded text-primary">{'{empresa}'}</code> <code className="bg-muted px-1 rounded text-primary">{'{nicho}'}</code> <code className="bg-muted px-1 rounded text-primary">{'{cidade}'}</code>
+                  Variáveis: <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-mono text-[10px]">{'{empresa}'}</code>{' '}
+                  <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-mono text-[10px]">{'{nicho}'}</code>{' '}
+                  <code className="bg-muted px-1.5 py-0.5 rounded text-primary font-mono text-[10px]">{'{cidade}'}</code>
                 </p>
               </div>
 
@@ -220,7 +223,7 @@ export function MessageConfigurator({
                 value={massMessage}
                 onChange={(e) => setMassMessage(e.target.value)}
                 rows={5}
-                className="resize-none text-sm"
+                className="resize-none text-sm bg-background/60 border-border/50"
               />
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -230,56 +233,65 @@ export function MessageConfigurator({
             </TabsContent>
 
             <TabsContent value="direct" className="space-y-4 mt-4">
-              <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4 space-y-3">
+              <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5 space-y-4">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-primary" />
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/15 text-primary">
+                    <Zap className="h-4 w-4" />
+                  </div>
                   <span className="font-semibold text-sm">Disparo Direto com IA</span>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   A IA gera uma mensagem única para cada lead baseada nos dados do lead, persona do agente, serviço selecionado e base de conhecimento.
                 </p>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Mensagens únicas', 'Menor chance de ban', 'Sem template', 'Ultra personalizado'].map(benefit => (
-                    <div key={benefit} className="flex items-center gap-1.5 text-[11px] text-primary">
-                      <span className="h-1 w-1 rounded-full bg-primary" />
-                      {benefit}
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: 'Mensagens únicas', icon: Sparkles },
+                    { label: 'Menor chance de ban', icon: CheckCircle },
+                    { label: 'Sem template', icon: MessageSquare },
+                    { label: 'Ultra personalizado', icon: Zap },
+                  ].map(benefit => (
+                    <div key={benefit.label} className="flex items-center gap-2 text-[11px] text-primary/80">
+                      <benefit.icon className="h-3 w-3 text-primary" />
+                      {benefit.label}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="text-sm text-muted-foreground text-center py-2">
-                <span className="text-2xl font-bold text-foreground">{leadsToSendCount}</span>
-                <span className="ml-1">leads selecionados</span>
+              <div className="text-center py-3 rounded-lg bg-muted/30 border border-border/30">
+                <span className="text-3xl font-bold text-foreground">{leadsToSendCount}</span>
+                <p className="text-xs text-muted-foreground mt-0.5">leads selecionados para disparo</p>
               </div>
             </TabsContent>
           </Tabs>
 
           {/* Preview */}
           {previewMessage && previewLead && (
-            <div className="p-3 bg-muted/50 rounded-lg border border-border/50 space-y-2">
+            <div className="p-4 bg-muted/30 rounded-xl border border-border/40 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Prévia: {leads.find(l => l.id === previewLead)?.business_name}
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Prévia da mensagem
                 </span>
                 <Badge variant="outline" className="text-[10px]">
-                  {leads.find(l => l.id === previewLead)?.niche || 'Sem nicho'}
+                  {leads.find(l => l.id === previewLead)?.business_name}
                 </Badge>
               </div>
               {isGeneratingPreview ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-3">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   Gerando prévia com IA...
                 </div>
               ) : (
-                <p className="text-sm whitespace-pre-wrap bg-background p-3 rounded-md border">{previewMessage}</p>
+                <div className="text-sm whitespace-pre-wrap bg-background/80 p-3.5 rounded-lg border border-border/30 leading-relaxed">
+                  {previewMessage}
+                </div>
               )}
             </div>
           )}
 
           {/* Send Button */}
           <Button
-            className="w-full h-12 text-base font-semibold gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20 transition-all"
+            className="w-full h-12 text-base font-semibold gap-2 shadow-lg shadow-primary/15 transition-all"
             onClick={onSend}
             disabled={isCreating || hasActiveMassSend || !canSend}
           >
