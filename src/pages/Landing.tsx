@@ -106,6 +106,7 @@ export default function Landing() {
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [flippedCards, setFlippedCards] = useState<boolean[]>(new Array(ADVANTAGES.length).fill(false));
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
@@ -161,18 +162,6 @@ export default function Landing() {
       flipCardsRef.current.forEach((card, i) => {
         if (!card) return;
         enterTl.to(card, { opacity: 1, y: 0, duration: 0.5 }, i * 0.12);
-      });
-      const flipTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: advantagesRef.current, start: 'top top', end: '+=300%', pin: true, scrub: 1.5, anticipatePin: 1,
-          snap: { snapTo: 1 / ADVANTAGES.length, duration: { min: 0.2, max: 0.6 }, ease: 'power1.inOut' },
-        },
-      });
-      flipCardsRef.current.forEach((card, index) => {
-        if (!card) return;
-        flipTl
-          .to(card, { rotationY: 90, ease: 'power2.in', duration: 0.5 }, index * 1)
-          .to(card, { rotationY: 180, ease: 'power2.out', duration: 0.5 }, index * 1 + 0.5);
       });
     });
     return () => ctx.revert();
@@ -308,7 +297,7 @@ export default function Landing() {
       <section
         id="recursos"
         ref={advantagesRef}
-        className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4 md:px-12"
+        className="relative py-16 flex flex-col items-center justify-center overflow-hidden px-4 md:px-12 scroll-mt-24"
       >
         <div className="text-center mb-10 relative z-10">
           <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Por que NexaProspect</span>
@@ -325,7 +314,8 @@ export default function Landing() {
                 <div
                   ref={(el) => { flipCardsRef.current[index] = el; }}
                   className="relative w-full h-full cursor-pointer"
-                  style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+                  onClick={() => setFlippedCards(prev => { const n = [...prev]; n[index] = !n[index]; return n; })}
+                  style={{ transformStyle: 'preserve-3d', transition: 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)', transform: flippedCards[index] ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
                 >
                   <div className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
