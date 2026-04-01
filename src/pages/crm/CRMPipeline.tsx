@@ -343,16 +343,11 @@ export default function CRMPipelinePage() {
                 <div className={`flex-1 border border-t-0 border-border/40 rounded-b-xl p-2 transition-all ${isDragOver ? 'bg-primary/5 ring-2 ring-primary' : 'bg-muted/20'}`}>
                   <ScrollArea className="h-[calc(100vh-320px)]">
                     <div className="space-y-2 pr-2">
-                      <AnimatePresence>
                         {stageLeads.length === 0 ? (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}
-                          >
+                          <div className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}>
                             <span className="text-2xl mb-2">{config.emoji}</span>
                             <p className="text-xs">Arraste leads aqui</p>
-                          </motion.div>
+                          </div>
                         ) : (
                           stageLeads.map(lead => (
                             <LeadCard
@@ -364,7 +359,6 @@ export default function CRMPipelinePage() {
                             />
                           ))
                         )}
-                      </AnimatePresence>
                     </div>
                   </ScrollArea>
                 </div>
