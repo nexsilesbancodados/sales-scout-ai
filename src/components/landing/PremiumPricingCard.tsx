@@ -148,7 +148,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           </ul>
 
           <button
-            onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
+            onClick={handleCheckout}
             className="aura-btn group/btn isolate inline-flex items-center w-full h-[50px] cursor-pointer overflow-hidden rounded-[18px] relative"
             style={{ backgroundColor: plan.highlight ? '#A9DDF7' : 'hsl(260, 60%, 75%)', clipPath: 'inset(0 round 18px)' }}
           >
