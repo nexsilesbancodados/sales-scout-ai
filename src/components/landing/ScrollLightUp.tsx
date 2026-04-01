@@ -15,16 +15,18 @@ export function ScrollLightUpSection({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const litRef = useRef(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
       const { pct } = (e as CustomEvent).detail;
       const el = ref.current;
-      if (!el) return;
+      if (!el || litRef.current) return;
 
       // Section lights up from threshold-0.12 to threshold
       const fadeStart = Math.max(0, threshold - 0.12);
-      const localPct = Math.min(1, Math.max(0, (pct - fadeStart) / (threshold - fadeStart)));
+      const range = threshold - fadeStart || 0.01;
+      const localPct = Math.min(1, Math.max(0, (pct - fadeStart) / range));
 
       el.style.opacity = `${0.15 + 0.85 * localPct}`;
       el.style.filter = `brightness(${0.3 + 0.7 * localPct})`;
@@ -35,11 +37,41 @@ export function ScrollLightUpSection({
       } else {
         el.style.setProperty('--glow-opacity', '0');
       }
+
+      if (localPct >= 1) {
+        litRef.current = true;
+        el.style.opacity = '1';
+        el.style.filter = 'brightness(1)';
+      }
     };
 
     window.addEventListener('line-progress', handler);
     return () => window.removeEventListener('line-progress', handler);
   }, [threshold]);
+
+  // Fallback: if user scrolls past (e.g. fast scroll), ensure section lights up via IntersectionObserver
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+          // Give the line a moment to catch up, then force light
+          setTimeout(() => {
+            if (!litRef.current) {
+              litRef.current = true;
+              el.style.transition = 'opacity 0.8s ease, filter 0.8s ease';
+              el.style.opacity = '1';
+              el.style.filter = 'brightness(1)';
+            }
+          }, 600);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <div
@@ -47,7 +79,6 @@ export function ScrollLightUpSection({
       className={`scroll-lightup-section ${className}`}
       style={{ opacity: 0.15, filter: 'brightness(0.3)', transition: 'opacity 0.4s ease, filter 0.4s ease' }}
     >
-      {/* Sweep glow overlay */}
       <div className="scroll-lightup-glow" />
       {children}
     </div>
