@@ -19,29 +19,36 @@ const arcs = [
 ];
 
 export function GlobeSection() {
-  const [lineReached, setLineReached] = useState(false);
+  const [glowing, setGlowing] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      setLineReached((e as CustomEvent).detail.reached);
-    };
-    window.addEventListener('line-reached-globe', handler);
-    return () => window.removeEventListener('line-reached-globe', handler);
-  }, []);
-
-  // Only render globe when section is near viewport
+  // Trigger glow when globe is near center of viewport
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { rootMargin: '200px' }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const globeCenterY = rect.top + rect.height / 2;
+        const screenCenterY = window.innerHeight * 0.5;
+        const near = Math.abs(globeCenterY - screenCenterY) < window.innerHeight * 0.6;
+        setGlowing(near);
+        setIsVisible(rect.top < window.innerHeight + 200 && rect.bottom > -200);
+        ticking = false;
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const lineReached = glowing;
 
   return (
     <section ref={sectionRef} className="relative py-20 px-4 md:px-8">
