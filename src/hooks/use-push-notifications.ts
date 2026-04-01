@@ -25,8 +25,8 @@ export function usePushNotifications() {
       const registration = await navigator.serviceWorker.register('/sw-notifications.js');
       setSwRegistration(registration);
       return registration;
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
+    } catch {
+      // SW registration can fail in iframes, preview hosts, etc. — not a real error
       return null;
     }
   }, [swRegistration]);
@@ -76,8 +76,7 @@ export function usePushNotifications() {
       }
 
       return false;
-    } catch (error) {
-      console.error('Error requesting notification permission:', error);
+    } catch {
       return false;
     }
   }, [isSupported, registerServiceWorker, toast]);
@@ -89,8 +88,8 @@ export function usePushNotifications() {
       if (swRegistration) {
         swRegistration.showNotification(data.title, {
           body: data.body,
-          icon: data.icon || '/favicon.ico',
-          badge: '/favicon.ico',
+          icon: data.icon || '/logo.png',
+          badge: '/logo.png',
           tag: data.tag || 'prospecte-notification',
           data: data.data,
           requireInteraction: data.requireInteraction,
@@ -100,7 +99,7 @@ export function usePushNotifications() {
 
       new Notification(data.title, {
         body: data.body,
-        icon: data.icon || '/favicon.ico',
+        icon: data.icon || '/logo.png',
         tag: data.tag,
         data: data.data,
       });

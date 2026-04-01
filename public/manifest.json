@@ -1,53 +1,21 @@
 {
-  "name": "Prospecte - Prospecção Inteligente",
-  "short_name": "Prospecte",
+  "name": "NexaProspect - Prospecção Inteligente",
+  "short_name": "NexaProspect",
   "description": "Automatize sua prospecção de vendas com IA. Capture leads, personalize mensagens e envie via WhatsApp.",
   "start_url": "/dashboard",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0a0f14",
-  "theme_color": "#10b981",
+  "background_color": "#0B0D15",
+  "theme_color": "#7B2FF2",
   "scope": "/",
   "lang": "pt-BR",
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512x512.png",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-maskable-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icon-maskable-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshot-narrow.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -55,22 +23,19 @@
       "name": "Capturar Leads",
       "short_name": "Capturar",
       "description": "Iniciar captura de leads",
-      "url": "/prospecting?tab=capture",
-      "icons": [{ "src": "/shortcut-capture.png", "sizes": "96x96" }]
+      "url": "/prospecting?tab=capture"
     },
     {
       "name": "Conversas",
       "short_name": "Conversas",
       "description": "Ver conversas ativas",
-      "url": "/conversations",
-      "icons": [{ "src": "/shortcut-chat.png", "sizes": "96x96" }]
+      "url": "/conversations"
     },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Ver métricas",
-      "url": "/dashboard",
-      "icons": [{ "src": "/shortcut-dashboard.png", "sizes": "96x96" }]
+      "url": "/dashboard"
     }
   ],
   "prefer_related_applications": false
