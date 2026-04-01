@@ -299,12 +299,12 @@ export default function Landing() {
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
               <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-                Venda de <span className="landing-gradient-text">qualquer lugar</span>
+                Tudo em um <span className="landing-gradient-text">único painel</span>
               </h2>
-              <p className="text-[14px] text-white/55 mt-4 max-w-[420px] mx-auto">
-                Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
+              <p className="text-[14px] text-white/55 mt-4 max-w-[480px] mx-auto">
+                CRM, prospecção, envio em massa, follow-up, agente SDR e analytics — sem precisar de 5 ferramentas diferentes. Acesse do celular ou desktop.
               </p>
             </motion.div>
 
