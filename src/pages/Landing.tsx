@@ -67,6 +67,7 @@ export default function Landing() {
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [annualPricing, setAnnualPricing] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeToolIcon, setActiveToolIcon] = useState<number | null>(null);
   
 
   useEffect(() => {
