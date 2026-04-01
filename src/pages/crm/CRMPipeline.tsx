@@ -1,22 +1,34 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLeads } from '@/hooks/use-leads';
 import { Lead, LeadStage, LeadTemperature } from '@/types/database';
-import { allStages, stageBorderColors } from '@/constants/lead-icons';
+import { allStages } from '@/constants/lead-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  Loader2, Kanban, Plus, Flame, ThermometerSun, Snowflake,
-  MapPin, DollarSign, Instagram, Facebook, MessageCircle,
+  Loader2, Plus, Flame, ThermometerSun, Snowflake,
+  MapPin, DollarSign, MessageCircle, Phone, Search,
+  TrendingUp, Users, Filter,
 } from 'lucide-react';
+
+const stageConfig: Record<LeadStage, { color: string; gradient: string; bg: string; emoji: string }> = {
+  'Contato': { color: 'text-blue-500', gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-500/10', emoji: '📞' },
+  'Qualificado': { color: 'text-amber-500', gradient: 'from-amber-500 to-amber-600', bg: 'bg-amber-500/10', emoji: '⭐' },
+  'Proposta': { color: 'text-purple-500', gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-500/10', emoji: '📋' },
+  'Negociação': { color: 'text-orange-500', gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-500/10', emoji: '🤝' },
+  'Ganho': { color: 'text-emerald-500', gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-500/10', emoji: '🏆' },
+  'Perdido': { color: 'text-red-500', gradient: 'from-red-500 to-red-600', bg: 'bg-red-500/10', emoji: '❌' },
+};
 
 function hashColor(name: string): string {
   let hash = 0;
@@ -30,10 +42,13 @@ function getInitials(name: string) {
 }
 
 const tempConfig: Record<LeadTemperature, { icon: React.ReactNode; label: string; className: string }> = {
-  quente: { icon: <Flame className="h-3 w-3" />, label: '🔥 Quente', className: 'bg-red-500/10 text-red-600 border-red-500/20' },
-  morno: { icon: <ThermometerSun className="h-3 w-3" />, label: '🌡️ Morno', className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
-  frio: { icon: <Snowflake className="h-3 w-3" />, label: '❄️ Frio', className: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+  quente: { icon: <Flame className="h-3 w-3" />, label: 'Quente', className: 'bg-red-500/10 text-red-500 border-red-500/20' },
+  morno: { icon: <ThermometerSun className="h-3 w-3" />, label: 'Morno', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  frio: { icon: <Snowflake className="h-3 w-3" />, label: 'Frio', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
 };
+
+const fmt = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+const fmtCompact = (v: number) => new Intl.NumberFormat('pt-BR', { notation: 'compact', compactDisplay: 'short', style: 'currency', currency: 'BRL' }).format(v);
 
 function LeadCard({ lead, onDragStart, isDragging, onClick }: {
   lead: Lead; onDragStart: (e: React.DragEvent) => void; isDragging: boolean; onClick: () => void;
@@ -42,67 +57,74 @@ function LeadCard({ lead, onDragStart, isDragging, onClick }: {
   const temp = tempConfig[lead.temperature];
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       draggable
       onDragStart={onDragStart}
       onClick={onClick}
-      className={`p-3 rounded-xl border bg-card shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/50 hover:shadow-md transition-all duration-200 ${isDragging ? 'opacity-50 scale-95' : ''}`}
+      className={`p-3.5 rounded-xl border border-border/60 bg-card shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/30 hover:shadow-md transition-all duration-200 group ${isDragging ? 'opacity-40 scale-95 rotate-2' : ''}`}
     >
-      <div className="flex items-start gap-2.5">
-        <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: bg }}>
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ring-2 ring-background shadow-sm" style={{ backgroundColor: bg }}>
           {getInitials(lead.business_name)}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="font-medium text-sm truncate">{lead.business_name}</p>
-            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 h-5 border ${temp.className}`}>
-              {temp.label}
-            </Badge>
+          <p className="font-semibold text-sm truncate group-hover:text-primary transition-colors">{lead.business_name}</p>
+          {lead.niche && (
+            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{lead.niche}</p>
+          )}
+        </div>
+        <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-5 border shrink-0 ${temp.className}`}>
+          {temp.icon}
+        </Badge>
+      </div>
+
+      {(lead.location || lead.deal_value) && (
+        <>
+          <Separator className="my-2.5 opacity-50" />
+          <div className="flex items-center justify-between">
+            {lead.location && (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
+                <MapPin className="h-3 w-3 shrink-0" />{lead.location}
+              </p>
+            )}
+            {lead.deal_value ? (
+              <span className="text-[11px] font-semibold text-emerald-500 flex items-center gap-0.5 shrink-0 ml-auto">
+                {fmtCompact(lead.deal_value)}
+              </span>
+            ) : null}
           </div>
-          {lead.location && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-              <MapPin className="h-3 w-3" />{lead.location}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <Separator className="my-2" />
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {lead.deal_value && (
-            <span className="flex items-center gap-0.5 font-medium text-foreground">
-              <DollarSign className="h-3 w-3" />
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(lead.deal_value)}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          {lead.phone && (
-            <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-green-500 hover:text-green-600">
-              <MessageCircle className="h-3.5 w-3.5" />
-            </a>
-          )}
-          {lead.instagram_url && (
-            <a href={lead.instagram_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-pink-500 hover:text-pink-600">
-              <Instagram className="h-3.5 w-3.5" />
-            </a>
-          )}
-          {lead.facebook_url && (
-            <a href={lead.facebook_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-600 hover:text-blue-700">
-              <Facebook className="h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
-      </div>
-
-      {lead.last_contact_at && (
-        <p className="text-[10px] text-muted-foreground mt-1.5">
-          {formatDistanceToNow(new Date(lead.last_contact_at), { addSuffix: true, locale: ptBR })}
-        </p>
+        </>
       )}
-    </div>
+
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center gap-1.5">
+          {lead.phone && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href={`https://wa.me/${lead.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="h-6 w-6 rounded-md bg-emerald-500/10 flex items-center justify-center hover:bg-emerald-500/20 transition-colors">
+                  <MessageCircle className="h-3 w-3 text-emerald-500" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>WhatsApp</TooltipContent>
+            </Tooltip>
+          )}
+          {lead.lead_score > 0 && (
+            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-5 ${lead.lead_score > 60 ? 'text-emerald-500 border-emerald-500/20' : lead.lead_score > 30 ? 'text-amber-500 border-amber-500/20' : 'text-red-500 border-red-500/20'}`}>
+              {lead.lead_score}pts
+            </Badge>
+          )}
+        </div>
+        {lead.last_contact_at && (
+          <p className="text-[10px] text-muted-foreground/60">
+            {formatDistanceToNow(new Date(lead.last_contact_at), { addSuffix: true, locale: ptBR })}
+          </p>
+        )}
+      </div>
+    </motion.div>
   );
 }
 
@@ -111,6 +133,7 @@ function QuickAddDrawer({ stage, onClose }: { stage: LeadStage; onClose: () => v
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [temp, setTemp] = useState<LeadTemperature>('morno');
+  const [deal, setDeal] = useState('');
 
   const formatPhone = (v: string) => {
     const d = v.replace(/\D/g, '').slice(0, 11);
@@ -126,6 +149,7 @@ function QuickAddDrawer({ stage, onClose }: { stage: LeadStage; onClose: () => v
       phone: phone.replace(/\D/g, ''),
       stage,
       temperature: temp,
+      deal_value: deal ? parseFloat(deal) : null,
       source: 'manual',
       message_sent: false,
       follow_up_count: 0,
@@ -139,21 +163,44 @@ function QuickAddDrawer({ stage, onClose }: { stage: LeadStage; onClose: () => v
     onClose();
   };
 
+  const config = stageConfig[stage];
+
   return (
     <div className="space-y-4 pt-4">
-      <Input placeholder="Nome da empresa" value={name} onChange={e => setName(e.target.value)} />
-      <Input placeholder="(11) 99999-9999" value={phone} onChange={e => setPhone(formatPhone(e.target.value))} />
-      <Select value={temp} onValueChange={v => setTemp(v as LeadTemperature)}>
-        <SelectTrigger><SelectValue /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="quente">🔥 Quente</SelectItem>
-          <SelectItem value="morno">🌡️ Morno</SelectItem>
-          <SelectItem value="frio">❄️ Frio</SelectItem>
-        </SelectContent>
-      </Select>
-      <Badge variant="outline">{stage}</Badge>
-      <Button className="w-full" onClick={handleCreate} disabled={isCreating || !name || !phone}>
-        {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+      <div className={`flex items-center gap-2 p-3 rounded-xl ${config.bg}`}>
+        <span className="text-lg">{config.emoji}</span>
+        <div>
+          <p className="text-sm font-semibold">Novo lead em {stage}</p>
+          <p className="text-[11px] text-muted-foreground">Preencha os dados abaixo</p>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome da empresa *</label>
+          <Input placeholder="Ex: Empresa ABC" value={name} onChange={e => setName(e.target.value)} className="rounded-xl" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Telefone *</label>
+          <Input placeholder="(11) 99999-9999" value={phone} onChange={e => setPhone(formatPhone(e.target.value))} className="rounded-xl" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Valor do deal</label>
+          <Input type="number" placeholder="R$ 0" value={deal} onChange={e => setDeal(e.target.value)} className="rounded-xl" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">Temperatura</label>
+          <Select value={temp} onValueChange={v => setTemp(v as LeadTemperature)}>
+            <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="quente">🔥 Quente</SelectItem>
+              <SelectItem value="morno">🌡️ Morno</SelectItem>
+              <SelectItem value="frio">❄️ Frio</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <Button className="w-full rounded-xl h-11" onClick={handleCreate} disabled={isCreating || !name || !phone}>
+        {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
         Criar Lead
       </Button>
     </div>
@@ -166,6 +213,13 @@ export default function CRMPipelinePage() {
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
   const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null);
   const [addStage, setAddStage] = useState<LeadStage | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredLeads = useMemo(() => {
+    if (!searchTerm) return leads;
+    const s = searchTerm.toLowerCase();
+    return leads.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s));
+  }, [leads, searchTerm]);
 
   const handleDragStart = (e: React.DragEvent, lead: Lead) => {
     setDraggedLead(lead);
@@ -182,87 +236,142 @@ export default function CRMPipelinePage() {
     setDragOverStage(null);
   };
 
-  const totalPipeline = leads
-    .filter(l => !['Ganho', 'Perdido'].includes(l.stage))
-    .reduce((s, l) => s + (l.deal_value || 0), 0);
+  const totalPipeline = leads.filter(l => !['Ganho', 'Perdido'].includes(l.stage)).reduce((s, l) => s + (l.deal_value || 0), 0);
+  const wonCount = leads.filter(l => l.stage === 'Ganho').length;
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
-        <h1 className="text-xl sm:text-2xl font-bold">Pipeline CRM</h1>
-        <span className="text-sm font-medium text-muted-foreground">
-          Pipeline: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(totalPipeline)}
-        </span>
+    <div className="p-4 sm:p-6 h-full flex flex-col">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-5 gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Pipeline</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gerencie seus deals e acompanhe o funil de vendas</p>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-3 py-1.5 rounded-lg">
+              <DollarSign className="h-3.5 w-3.5" />
+              <span className="font-semibold">{fmt(totalPipeline)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-lg">
+              <TrendingUp className="h-3.5 w-3.5" />
+              <span className="font-semibold">{wonCount} ganhos</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              <span className="font-semibold">{leads.length}</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Search */}
+      <div className="mb-4">
+        <div className="relative max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar leads..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="pl-9 rounded-xl h-9 text-sm"
+          />
+        </div>
+      </div>
+
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex items-center justify-center py-16 flex-1">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">Carregando pipeline...</p>
+          </div>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 md:overflow-x-visible md:pb-0">
+        <div className="flex gap-3 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory">
           {allStages.map((stage) => {
-            const stageLeads = leads.filter(l => l.stage === stage);
+            const stageLeads = filteredLeads.filter(l => l.stage === stage);
             const isDragOver = dragOverStage === stage;
             const stageValue = stageLeads.reduce((s, l) => s + (l.deal_value || 0), 0);
+            const config = stageConfig[stage];
 
             return (
               <div
                 key={stage}
-                className="flex flex-col min-w-[260px] snap-start md:min-w-0"
+                className="flex flex-col min-w-[280px] max-w-[320px] flex-1 snap-start"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={e => handleDrop(e, stage)}
               >
-                <Card className={`border-t-4 ${stageBorderColors[stage]} transition-all ${isDragOver ? 'ring-2 ring-primary shadow-lg' : ''}`}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-sm font-semibold">{stage}</CardTitle>
-                        {stageValue > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(stageValue)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Badge variant="secondary" className="h-6 w-6 rounded-full flex items-center justify-center p-0 text-xs font-bold">
-                          {stageLeads.length}
-                        </Badge>
-                        <Sheet open={addStage === stage} onOpenChange={open => setAddStage(open ? stage : null)}>
-                          <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <Plus className="h-3.5 w-3.5" />
-                            </Button>
-                          </SheetTrigger>
-                          <SheetContent>
-                            <SheetHeader>
-                              <SheetTitle>Novo Lead — {stage}</SheetTitle>
-                            </SheetHeader>
-                            <QuickAddDrawer stage={stage} onClose={() => setAddStage(null)} />
-                          </SheetContent>
-                        </Sheet>
-                      </div>
+                {/* Column header */}
+                <div className={`rounded-t-xl p-3 border border-b-0 border-border/40 transition-all ${isDragOver ? 'ring-2 ring-primary shadow-lg' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{config.emoji}</span>
+                      <span className="text-sm font-semibold">{stage}</span>
+                      <Badge variant="secondary" className="h-5 min-w-5 rounded-full flex items-center justify-center p-0 px-1.5 text-[10px] font-bold">
+                        {stageLeads.length}
+                      </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2 min-h-[300px] max-h-[calc(100vh-280px)] overflow-y-auto">
-                    {stageLeads.length === 0 ? (
-                      <div className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}>
-                        <Kanban className="h-5 w-5 mb-2 opacity-50" />
-                        Arraste leads aqui
-                      </div>
-                    ) : (
-                      stageLeads.map(lead => (
-                        <LeadCard
-                          key={lead.id}
-                          lead={lead}
-                          onDragStart={e => handleDragStart(e, lead)}
-                          isDragging={draggedLead?.id === lead.id}
-                          onClick={() => navigate(`/crm/contacts/${lead.id}`)}
-                        />
-                      ))
-                    )}
-                  </CardContent>
-                </Card>
+                    <Sheet open={addStage === stage} onOpenChange={open => setAddStage(open ? stage : null)}>
+                      <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-primary/10">
+                          <Plus className="h-3.5 w-3.5" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className="sm:max-w-md">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center gap-2">
+                            <span>{config.emoji}</span>
+                            Novo Lead — {stage}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <QuickAddDrawer stage={stage} onClose={() => setAddStage(null)} />
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                  {stageValue > 0 && (
+                    <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      {fmtCompact(stageValue)}
+                    </p>
+                  )}
+                  {/* Progress bar showing proportion */}
+                  <div className="h-1 rounded-full bg-muted mt-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full bg-gradient-to-r ${config.gradient} transition-all duration-500`}
+                      style={{ width: `${leads.length > 0 ? (stageLeads.length / leads.length) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Column body */}
+                <div className={`flex-1 border border-t-0 border-border/40 rounded-b-xl p-2 transition-all ${isDragOver ? 'bg-primary/5 ring-2 ring-primary' : 'bg-muted/20'}`}>
+                  <ScrollArea className="h-[calc(100vh-320px)]">
+                    <div className="space-y-2 pr-2">
+                      <AnimatePresence>
+                        {stageLeads.length === 0 ? (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className={`flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-xl text-muted-foreground text-sm ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted'}`}
+                          >
+                            <span className="text-2xl mb-2">{config.emoji}</span>
+                            <p className="text-xs">Arraste leads aqui</p>
+                          </motion.div>
+                        ) : (
+                          stageLeads.map(lead => (
+                            <LeadCard
+                              key={lead.id}
+                              lead={lead}
+                              onDragStart={e => handleDragStart(e, lead)}
+                              isDragging={draggedLead?.id === lead.id}
+                              onClick={() => navigate(`/crm/contacts/${lead.id}`)}
+                            />
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
             );
           })}
