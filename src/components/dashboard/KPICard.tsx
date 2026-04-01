@@ -18,20 +18,26 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
 
   return (
     <Card
-      className="relative overflow-hidden group hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 animate-slide-up"
+      className="relative overflow-hidden group hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 animate-slide-up cursor-default"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Animated accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <CardContent className="relative p-5">
+      <CardContent className="relative p-4 sm:p-5">
         <div className="flex items-start justify-between mb-3">
-          <div className={cn("p-2.5 rounded-xl transition-transform duration-300 group-hover:scale-105", iconBg)}>
+          <div className={cn(
+            "p-2 sm:p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-md",
+            iconBg
+          )}>
             {icon}
           </div>
           {change !== undefined && (
             <div className={cn(
-              "flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded-full",
+              "flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded-full transition-transform duration-300 group-hover:scale-105",
               isPositive
                 ? "bg-success/10 text-success"
                 : "bg-destructive/10 text-destructive"
@@ -47,12 +53,14 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
         </div>
 
         <div className="space-y-0.5">
-          <p className="text-2xl sm:text-3xl font-bold tracking-tight tabular-nums">{formattedValue}</p>
+          <p className="text-2xl sm:text-3xl font-bold tracking-tight tabular-nums animate-count-up" style={{ animationDelay: `${delay + 200}ms` }}>
+            {formattedValue}
+          </p>
           <p className="text-xs font-medium text-muted-foreground">{label}</p>
         </div>
 
         {changeLabel && (
-          <p className="text-[10px] text-muted-foreground/50 mt-2 font-medium">{changeLabel}</p>
+          <p className="text-[10px] text-muted-foreground/50 mt-2.5 font-medium">{changeLabel}</p>
         )}
       </CardContent>
     </Card>
