@@ -39,7 +39,7 @@ const PRICING_PLANS = [
     price: 197,
     annual: 149,
     features: ['1.000 leads/mês', 'Agente SDR com IA', 'CRM completo', 'Follow-up automático', 'Analytics avançado'],
-    cta: 'Testar 7 dias grátis',
+    cta: 'Começar agora',
     highlight: true,
   },
   {
@@ -53,7 +53,7 @@ const PRICING_PLANS = [
 ];
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito para testar?', a: 'Não. O trial de 7 dias é 100% gratuito. Você só paga se decidir continuar.' },
+  { q: 'Preciso de cartão de crédito?', a: 'Sim, o pagamento é processado de forma segura no momento da assinatura.' },
   { q: 'Meu WhatsApp pode ser banido?', a: 'Nosso sistema anti-ban usa warm-up progressivo, delays humanizados, spintax e rotação de chips para proteger seu número.' },
   { q: 'Quanto tempo leva para configurar?', a: 'Menos de 5 minutos. Conecte o WhatsApp, escolha o nicho e a IA já começa a prospectar automaticamente.' },
   { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem burocracia. Cancele com 1 clique no painel.' },
@@ -192,7 +192,7 @@ export default function Landing() {
             <div className="flex flex-wrap items-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Testar grátis por 7 dias</span>
+                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
               </button>
               <a href="#produto" className="text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
@@ -375,7 +375,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Testar grátis por 7 dias</span>
+                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
               </button>
             </div>
             <div className="flex items-center justify-center gap-4 mt-4">
