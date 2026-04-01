@@ -115,15 +115,16 @@ export function GlobeSection() {
             }}
           />
 
-          {/* Globe container with dramatic glow */}
+          {/* Globe container - starts dark, lights up on connection */}
           <div
             className="w-full max-w-[460px] relative z-10"
             style={{
+              opacity: lineReached ? 1 : 0.2,
               filter: lineReached
-                ? 'drop-shadow(0 0 40px rgba(123,47,242,0.6)) drop-shadow(0 0 80px rgba(123,47,242,0.3)) drop-shadow(0 0 120px rgba(123,47,242,0.15))'
-                : 'drop-shadow(0 0 10px rgba(123,47,242,0.1))',
-              transform: lineReached ? 'scale(1.04)' : 'scale(1)',
-              transition: 'filter 1s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                ? 'brightness(1.3) drop-shadow(0 0 40px rgba(123,47,242,0.6)) drop-shadow(0 0 80px rgba(123,47,242,0.3)) drop-shadow(0 0 120px rgba(123,47,242,0.15))'
+                : 'brightness(0.3)',
+              transform: lineReached ? 'scale(1.04)' : 'scale(0.97)',
+              transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             {isVisible ? (
