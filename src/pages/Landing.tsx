@@ -354,6 +354,8 @@ export default function Landing() {
         {/* ═══ 6. GLOBE - ALCANCE GLOBAL ═══ */}
         <GlobeSection />
 
+      </div>{/* end scroll curve wrapper */}
+
         {/* ═══ 7. PRICING ═══ */}
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
@@ -418,8 +420,6 @@ export default function Landing() {
             </motion.div>
           </div>
         </section>
-
-      </div>{/* end scroll curve wrapper */}
 
       {/* ═══ 11. FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-12 px-4 md:px-8">
