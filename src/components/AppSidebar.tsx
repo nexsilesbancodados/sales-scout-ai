@@ -23,10 +23,7 @@ import {
 import {
   Target,
   LayoutDashboard,
-  Users,
   Kanban,
-  MessageSquare,
-  Calendar,
   BarChart3,
   Settings,
   LogOut,
@@ -39,7 +36,7 @@ import {
   Shield,
   Send,
   Mail,
-  History,
+  Calendar,
   FlaskConical,
   Building2,
   Globe,
@@ -48,49 +45,60 @@ import {
   Code2,
   ShieldCheck,
   Zap,
+  Search,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ─── PRINCIPAL ──────────────────────────────────────────
 const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { title: 'Automações', icon: Zap, path: '/automations', highlight: true },
 ];
 
-const captureItems = [
-  { title: 'Prospecção', icon: Target, path: '/prospecting', highlight: true },
+// ─── PROSPECÇÃO ─────────────────────────────────────────
+const prospectItems = [
+  { title: 'Buscar Leads', icon: Search, path: '/prospecting', highlight: true },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
   { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
-  { title: 'Facebook', icon: Globe, path: '/facebook-extractor' },
-  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
-  { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
+  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 
-const outreachItems = [
+// ─── ENGAJAMENTO ────────────────────────────────────────
+const engageItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
 ];
 
+// ─── CRM ────────────────────────────────────────────────
 const crmItems = [
   { title: 'CRM', icon: Kanban, path: '/crm/pipeline', highlight: true },
 ];
 
-const analyticsItems = [
+// ─── INTELIGÊNCIA ───────────────────────────────────────
+const insightItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'CRM Analytics', icon: BarChart3, path: '/crm/analytics' },
-  { title: 'Funil', icon: Kanban, path: '/funnel' },
+  { title: 'Funil', icon: TrendingUp, path: '/funnel' },
   { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
-  { title: 'Histórico', icon: History, path: '/prospecting-history' },
 ];
 
-const moreItems = [
-  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
+// ─── FERRAMENTAS ────────────────────────────────────────
+const toolItems = [
+  { title: 'Automações', icon: Zap, path: '/automations', highlight: true },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
+  { title: 'Email Finder', icon: Mail, path: '/email-finder' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
   { title: 'Reuniões', icon: Calendar, path: '/meetings' },
-  { title: 'Meta Ads', icon: Sparkles, path: '/crm/meta-ads' },
-  { title: 'Planos', icon: CreditCard, path: '/billing' },
-  { title: 'API', icon: Code2, path: '/api-reference' },
-  { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
+];
+
+const sections = [
+  { label: null, items: mainItems },
+  { label: 'Prospecção', items: prospectItems },
+  { label: 'Engajamento', items: engageItems },
+  { label: 'CRM', items: crmItems },
+  { label: 'Inteligência', items: insightItems },
+  { label: 'Ferramentas', items: toolItems },
 ];
 
 export function AppSidebar() {
@@ -112,7 +120,7 @@ export function AppSidebar() {
     .slice(0, 2) || user?.email?.[0].toUpperCase() || '?';
 
   const isActive = (path: string) => {
-    if (path.includes('?')) return location.pathname + location.search === path;
+    if (path === '/crm/pipeline') return location.pathname.startsWith('/crm');
     return location.pathname === path;
   };
 
@@ -124,7 +132,7 @@ export function AppSidebar() {
           asChild
           isActive={active}
           className={cn(
-            "relative h-10 rounded-lg transition-all duration-200 group/item",
+            "relative h-9 rounded-lg transition-all duration-200 group/item",
             active
               ? "gradient-primary text-primary-foreground shadow-md"
               : "hover:bg-accent text-muted-foreground hover:text-accent-foreground"
@@ -132,7 +140,7 @@ export function AppSidebar() {
         >
           <Link to={item.path} className="flex items-center gap-3 px-3">
             <item.icon className={cn(
-              "h-[18px] w-[18px] shrink-0 transition-colors",
+              "h-[17px] w-[17px] shrink-0 transition-colors",
               active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-accent-foreground'
             )} />
             <span className={cn(
@@ -142,7 +150,7 @@ export function AppSidebar() {
               {item.title}
             </span>
             {item.highlight && !active && (
-              <Sparkles className="h-3 w-3 text-primary ml-auto opacity-60" />
+              <Sparkles className="h-3 w-3 text-primary ml-auto opacity-50" />
             )}
           </Link>
         </SidebarMenuButton>
@@ -151,63 +159,31 @@ export function AppSidebar() {
   };
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <p className="px-4 pt-5 pb-1.5 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em]">
+    <p className="px-4 pt-4 pb-1 text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.14em]">
       {children}
     </p>
   );
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-5 pb-6">
+      <SidebarHeader className="p-4 pb-5">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <img src={logoImg} alt="NexaProspect" className="h-9 w-9 rounded-lg object-contain" />
-          <div>
-            <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
-          </div>
+          <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" />
+          <span className="text-base font-bold tracking-tight text-gradient">NexaProspect</span>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-3">
-        <SidebarMenu className="space-y-0.5">
-          {mainItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>Captura</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {captureItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>Disparo</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {outreachItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>CRM</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {crmItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>Análises</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {analyticsItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
-
-        <SectionLabel>Mais</SectionLabel>
-        <SidebarMenu className="space-y-0.5">
-          {moreItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
-        </SidebarMenu>
+      <SidebarContent className="px-3 overflow-y-auto">
+        {sections.map((section, i) => (
+          <div key={i}>
+            {section.label && <SectionLabel>{section.label}</SectionLabel>}
+            <SidebarMenu className="space-y-0.5">
+              {section.items.map((item) => (
+                <MenuItem key={item.path} item={item} />
+              ))}
+            </SidebarMenu>
+          </div>
+        ))}
 
         {isAdmin && (
           <>
@@ -219,48 +195,53 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={isActive('/settings')}
-              className={cn(
-                "rounded-lg h-10 transition-all duration-200",
-                isActive('/settings')
-                  ? 'gradient-primary text-primary-foreground shadow-md'
-                  : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
-              )}
-            >
-              <Link to="/settings" className="flex items-center gap-3 px-3">
-                <Settings className="h-[18px] w-[18px]" />
-                <span className="text-[13px] font-medium">Configurações</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+      <SidebarFooter className="p-3 border-t border-sidebar-border space-y-1">
+        <SidebarMenu className="space-y-0.5">
+          {[
+            { title: 'Configurações', icon: Settings, path: '/settings' },
+            { title: 'Planos', icon: CreditCard, path: '/billing' },
+          ].map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <SidebarMenuButton
+                asChild
+                isActive={isActive(item.path)}
+                className={cn(
+                  "rounded-lg h-9 transition-all duration-200",
+                  isActive(item.path)
+                    ? 'gradient-primary text-primary-foreground shadow-md'
+                    : 'hover:bg-accent text-muted-foreground hover:text-accent-foreground'
+                )}
+              >
+                <Link to={item.path} className="flex items-center gap-3 px-3">
+                  <item.icon className="h-[17px] w-[17px]" />
+                  <span className="text-[13px] font-medium">{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-auto py-2.5 mt-1 rounded-lg hover:bg-accent transition-colors"
+              className="w-full justify-start gap-3 h-auto py-2 rounded-lg hover:bg-accent transition-colors"
             >
-              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+              <Avatar className="h-7 w-7 ring-2 ring-primary/20">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="gradient-primary text-primary-foreground text-xs font-bold">
+                <AvatarFallback className="gradient-primary text-primary-foreground text-[10px] font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-[13px] font-semibold truncate">
+                <p className="text-[12px] font-semibold truncate">
                   {user?.user_metadata?.full_name || 'Usuário'}
                 </p>
-                <p className="text-[11px] text-muted-foreground truncate">
+                <p className="text-[10px] text-muted-foreground truncate">
                   {user?.email}
                 </p>
               </div>
-              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <ChevronUp className="h-3 w-3 text-muted-foreground shrink-0" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -268,6 +249,18 @@ export function AppSidebar() {
               <Link to="/settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Configurações
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/tutorial" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Tutorial
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/api-reference" className="flex items-center gap-2">
+                <Code2 className="h-4 w-4" />
+                API
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
