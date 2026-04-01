@@ -200,7 +200,7 @@ export default function Landing() {
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-              {['Sem cartão de crédito', 'Setup em 5 min', 'Cancele quando quiser'].map(t => (
+              {['7 dias grátis', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
                 <span key={t} className="flex items-center gap-1.5 text-[11px] text-white/30">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
