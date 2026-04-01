@@ -119,8 +119,8 @@ export function StoriesTestimonials() {
                 <div className="bg-[#0c0c1a] rounded-3xl px-8 py-12 min-h-[500px] flex flex-col items-center justify-center text-center gap-6">
                   {/* Header */}
                   <div className="flex items-center gap-3 absolute top-10 left-6">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} flex items-center justify-center text-lg`}>
-                      {TESTIMONIALS[activeStory].avatar}
+                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[1.5px]`}>
+                      <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" />
                     </div>
                     <div className="text-left">
                       <p className="text-[13px] font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
