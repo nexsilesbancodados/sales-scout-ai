@@ -116,7 +116,7 @@ export function FeaturesReveal() {
       </div>
 
       {/* Right column - images */}
-      <div className="relative flex-1 h-full min-h-[520px]" style={{ pointerEvents: 'none' }}>
+      <div className="relative flex-1 min-h-[250px] md:min-h-[520px]" style={{ pointerEvents: 'none' }}>
         {/* Default image (overview) */}
         <div
           className={cn(

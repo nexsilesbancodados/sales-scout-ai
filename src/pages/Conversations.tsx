@@ -254,9 +254,13 @@ export default function ConversationsPage() {
                     <CardTitle className="text-lg">{selectedConversation.lead.business_name}</CardTitle>
                     <p className="text-sm text-muted-foreground font-mono">{selectedConversation.lead.phone}</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    {/* Back button for mobile */}
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedConversation(null)} className="lg:hidden rounded-full">
+                      ← Voltar
+                    </Button>
                     {/* Auto-reply toggle */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
                       <Switch
                         id="auto-reply"
                         checked={autoReplyEnabled}
@@ -269,8 +273,8 @@ export default function ConversationsPage() {
                       </Label>
                     </div>
                     {temperatureIconsSmall[selectedConversation.lead.temperature || 'morno']}
-                    <Badge className="rounded-full">{selectedConversation.lead.stage}</Badge>
-                    <Button variant="outline" size="sm" onClick={handleViewDetails} className="rounded-full">
+                    <Badge className="rounded-full hidden sm:inline-flex">{selectedConversation.lead.stage}</Badge>
+                    <Button variant="outline" size="sm" onClick={handleViewDetails} className="rounded-full hidden sm:flex">
                       <Eye className="h-4 w-4 mr-1.5" />
                       Detalhes
                     </Button>

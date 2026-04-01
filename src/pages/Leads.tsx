@@ -232,12 +232,12 @@ export default function LeadsPage() {
               </div>
 
               {/* Filters */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Select 
                   value={stageFilter} 
                   onValueChange={(v) => handleFilterChange(setStageFilter, v as LeadStage | 'all')}
                 >
-                  <SelectTrigger className="w-[140px] bg-background">
+                  <SelectTrigger className="w-[120px] sm:w-[140px] bg-background">
                     <SelectValue placeholder="Estágio" />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,7 +252,7 @@ export default function LeadsPage() {
                   value={tempFilter} 
                   onValueChange={(v) => handleFilterChange(setTempFilter, v as LeadTemperature | 'all')}
                 >
-                  <SelectTrigger className="w-[140px] bg-background">
+                  <SelectTrigger className="w-[120px] sm:w-[140px] bg-background">
                     <SelectValue placeholder="Temperatura" />
                   </SelectTrigger>
                   <SelectContent>
@@ -267,9 +267,8 @@ export default function LeadsPage() {
                   value={messageSentFilter} 
                   onValueChange={(v) => handleFilterChange(setMessageSentFilter, v as 'all' | 'sent' | 'pending')}
                 >
-                  <SelectTrigger className="w-[180px] bg-background">
+                  <SelectTrigger className="w-[140px] sm:w-[180px] bg-background">
                     <SelectValue placeholder="Status Envio" />
-                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">
                       <div className="flex items-center justify-between gap-2 w-full">
