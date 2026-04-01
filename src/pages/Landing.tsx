@@ -8,10 +8,8 @@ import logoImg from '@/assets/logo.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+
 
 
 
