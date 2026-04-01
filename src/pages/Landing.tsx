@@ -9,7 +9,7 @@ import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
-import { Globe } from '@/components/ui/cobe-globe';
+import { GlobeSection } from '@/components/landing/GlobeSection';
 
 
 
@@ -329,89 +329,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ GLOBE - ALCANCE GLOBAL ═══ */}
-      <section className="relative py-20 px-4 md:px-8">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Alcance Global</span>
-            <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-              Prospecte em todo o <span className="landing-gradient-text">Brasil e no mundo</span>
-            </h2>
-            <p className="text-[14px] text-white/40 mt-4 max-w-[520px] mx-auto">
-              Nossa plataforma alcança leads em qualquer cidade do Brasil e nas principais capitais do mundo. Sem limites geográficos para o seu crescimento.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex items-center justify-center"
-          >
-            {/* Glow behind globe */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.15) 0%, transparent 60%)',
-            }} />
-            <div className="w-full max-w-[500px]">
-              <Globe
-                markers={[
-                  { id: "sp", location: [-23.5505, -46.6333], label: "São Paulo" },
-                  { id: "rj", location: [-22.9068, -43.1729], label: "Rio de Janeiro" },
-                  { id: "bh", location: [-19.9167, -43.9345], label: "Belo Horizonte" },
-                  { id: "ctb", location: [-25.4284, -49.2733], label: "Curitiba" },
-                  { id: "bsb", location: [-15.7975, -47.8919], label: "Brasília" },
-                  { id: "ssa", location: [-12.9714, -38.5124], label: "Salvador" },
-                  { id: "rec", location: [-8.0476, -34.877], label: "Recife" },
-                  { id: "nyc", location: [40.7128, -74.006], label: "New York" },
-                  { id: "london", location: [51.5074, -0.1278], label: "London" },
-                  { id: "dubai", location: [25.2048, 55.2708], label: "Dubai" },
-                  { id: "tokyo", location: [35.6762, 139.6503], label: "Tokyo" },
-                  { id: "lisbon", location: [38.7223, -9.1393], label: "Lisboa" },
-                ]}
-                arcs={[
-                  { id: "sp-nyc", from: [-23.5505, -46.6333], to: [40.7128, -74.006] },
-                  { id: "sp-lisbon", from: [-23.5505, -46.6333], to: [38.7223, -9.1393] },
-                  { id: "sp-dubai", from: [-23.5505, -46.6333], to: [25.2048, 55.2708] },
-                ]}
-                dark={1}
-                baseColor={[0.15, 0.12, 0.25]}
-                markerColor={[0.48, 0.18, 0.95]}
-                arcColor={[0.97, 0.58, 0.11]}
-                glowColor={[0.25, 0.15, 0.45]}
-                mapBrightness={6}
-                speed={0.002}
-                markerSize={0.03}
-              />
-            </div>
-          </motion.div>
-
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-8"
-          >
-            {[
-              { value: '5.570+', label: 'Cidades no Brasil' },
-              { value: '30+', label: 'Países alcançados' },
-              { value: '24/7', label: 'Prospecção ativa' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-xl md:text-2xl font-black landing-gradient-text">{stat.value}</div>
-                <div className="text-[11px] text-white/35 mt-1">{stat.label}</div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      <GlobeSection />
 
       {/* ═══ PRICING ═══ */}
       <section id="precos" className="relative py-8 px-4 md:px-8 scroll-mt-24">
