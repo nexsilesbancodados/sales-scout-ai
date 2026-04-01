@@ -327,7 +327,7 @@ export default function Landing() {
 
       {/* ═══ FEEDBACKS - INSTAGRAM STORIES STYLE ═══ */}
       <section className="relative py-12 px-4 md:px-8">
-        <SectionHeader tag="Feedbacks" title={<>O que nossos clientes <span className="landing-gradient-text">dizem.</span></>} />
+        <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
         <StoriesTestimonials />
       </section>
 
