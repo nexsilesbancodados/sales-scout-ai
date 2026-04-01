@@ -8,7 +8,7 @@ import logoImg from '@/assets/logo.png';
 import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
-
+import { ScrollLine } from '@/components/landing/ScrollLine';
 
 
 
@@ -110,6 +110,7 @@ export default function Landing() {
   return (
     <div className="text-white min-h-screen overflow-x-hidden relative">
       <CosmicBackground />
+      <ScrollLine />
 
       {/* ═══ FLOATING GLASS NAVBAR ═══ */}
       <nav className="fixed top-0 w-full z-50 flex justify-center pt-4 pointer-events-none">
