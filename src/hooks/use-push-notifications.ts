@@ -89,8 +89,8 @@ export function usePushNotifications() {
       if (swRegistration) {
         swRegistration.showNotification(data.title, {
           body: data.body,
-          icon: data.icon || '/favicon.ico',
-          badge: '/favicon.ico',
+          icon: data.icon || '/logo.png',
+          badge: '/logo.png',
           tag: data.tag || 'prospecte-notification',
           data: data.data,
           requireInteraction: data.requireInteraction,
