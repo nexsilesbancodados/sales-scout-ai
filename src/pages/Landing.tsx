@@ -246,12 +246,12 @@ export default function Landing() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Na palma da mão</span>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
             <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-              Prospecte de <span className="landing-gradient-text">qualquer lugar</span>
+              Venda de <span className="landing-gradient-text">qualquer lugar</span>
             </h2>
             <p className="text-[14px] text-white/40 mt-4 max-w-[420px] mx-auto">
-              Capture leads, envie mensagens e acompanhe resultados direto do celular.
+              Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
             </p>
           </motion.div>
 
