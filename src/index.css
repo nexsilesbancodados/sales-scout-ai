@@ -147,21 +147,32 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
     overflow-x: hidden;
     min-height: 100vh;
     min-height: 100dvh;
     font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
+  /* Better focus ring with animation */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   ::selection {
     @apply bg-primary/20 text-foreground;
   }
 
+  /* Smooth link/button transitions globally */
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -172,18 +183,29 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-full;
+    @apply bg-muted-foreground/15 rounded-full;
+    transition: background-color 0.2s;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/40;
+    @apply bg-muted-foreground/30;
   }
 
+  /* Hide scrollbar on touch devices */
   @media (pointer: coarse) {
     ::-webkit-scrollbar {
       width: 3px;
       height: 3px;
     }
+    /* Larger touch targets */
+    button, a, [role="button"] {
+      min-height: 36px;
+    }
+  }
+
+  /* Smooth transitions for interactive elements */
+  input, textarea, select {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
