@@ -195,26 +195,23 @@ export default function Landing() {
               <span className="text-[11px] sm:text-[12px] text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
             <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Seus concorrentes </span>
-              <span className="text-white/50">prospectam.</span>
-              <br className="hidden sm:block" />
-              <span className="text-white">Você </span>
-              <span className="landing-gradient-text">fecha.</span>
+              <span className="text-white">Sua máquina de </span>
+              <span className="landing-gradient-text">vendas com IA.</span>
             </h1>
-            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[460px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              IA que captura leads do Google Maps, Instagram e Facebook, envia mensagens personalizadas no WhatsApp e agenda reuniões — <strong className="text-white/70">mesmo às 3h da manhã.</strong>
+            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[480px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+              Captura leads do Google Maps, Instagram e Facebook. Envia mensagens personalizadas no WhatsApp. Faz follow-up automático. Agenda reuniões no seu calendário — <strong className="text-white/70">24 horas por dia, sem parar.</strong>
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
+                <span className="nav-shimmer-text !text-[14px]">Testar grátis agora</span>
               </button>
-              <a href="#produto" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#como-funciona" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-              {['Leads ilimitados', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
+              {['Leads ilimitados', 'Setup em 5 min', 'Anti-ban inteligente', 'Cancele com 1 clique'].map(t => (
                 <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/50">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
