@@ -19,10 +19,7 @@ import {
 import {
   Target,
   LayoutDashboard,
-  Users,
   Kanban,
-  MessageSquare,
-  Calendar,
   BarChart3,
   Settings,
   LogOut,
@@ -38,8 +35,14 @@ import {
   Shield,
   Send,
   Mail,
-  History,
+  Calendar,
   FlaskConical,
+  Building2,
+  Globe,
+  Bot,
+  Search,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -51,13 +54,14 @@ const mainItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
 ];
 
-const captureItems = [
-  { title: 'Prospecção', icon: Target, path: '/prospecting' },
+const prospectItems = [
+  { title: 'Buscar Leads', icon: Search, path: '/prospecting' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
-  { title: 'Agendado', icon: Calendar, path: '/scheduled-prospecting' },
+  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
+  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting' },
 ];
 
-const outreachItems = [
+const engageItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates' },
@@ -65,18 +69,21 @@ const outreachItems = [
 ];
 
 const crmItems = [
-  { title: 'Pipeline', icon: Kanban, path: '/crm/pipeline' },
-  { title: 'Contatos', icon: Users, path: '/crm/contacts' },
-  { title: 'Conversas', icon: MessageSquare, path: '/conversations' },
-  { title: 'Atividades', icon: Calendar, path: '/crm/activities' },
+  { title: 'CRM', icon: Kanban, path: '/crm/pipeline' },
+];
+
+const insightItems = [
+  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
+  { title: 'Funil', icon: TrendingUp, path: '/funnel' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
 ];
 
 const toolItems = [
-  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Buscador de Emails', icon: Mail, path: '/email-finder' },
-  { title: 'Histórico', icon: History, path: '/prospecting-history' },
-  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
-  { title: 'Tutorial', icon: BookOpen, path: '/tutorial' },
+  { title: 'Automações', icon: Zap, path: '/automations' },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent' },
+  { title: 'Email Finder', icon: Mail, path: '/email-finder' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
 ];
 
 interface TopNavigationProps {
@@ -95,9 +102,7 @@ export function TopNavigation({ children }: TopNavigationProps) {
     navigate('/auth');
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const userInitials = user?.user_metadata?.full_name
     ?.split(' ')
@@ -106,7 +111,10 @@ export function TopNavigation({ children }: TopNavigationProps) {
     .toUpperCase()
     .slice(0, 2) || user?.email?.[0].toUpperCase() || '?';
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/crm/pipeline') return location.pathname.startsWith('/crm');
+    return location.pathname === path;
+  };
 
   const NavLink = ({ item, mobile = false }: { item: typeof mainItems[0]; mobile?: boolean }) => {
     const active = isActive(item.path);
@@ -128,17 +136,54 @@ export function TopNavigation({ children }: TopNavigationProps) {
     );
   };
 
+  const DropdownSection = ({ label, icon: Icon, items }: { label: string; icon: React.ElementType; items: typeof mainItems }) => (
+    <NavigationMenuItem>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "flex items-center gap-2 h-10",
+              items.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+            <ChevronDown className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          {items.map((item) => (
+            <DropdownMenuItem key={item.path} asChild>
+              <Link to={item.path} className="flex items-center gap-2">
+                <item.icon className="h-4 w-4" />
+                {item.title}
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </NavigationMenuItem>
+  );
+
+  const mobileSections = [
+    { label: null, items: mainItems },
+    { label: 'Prospecção', items: prospectItems },
+    { label: 'Engajamento', items: engageItems },
+    { label: 'CRM', items: crmItems },
+    { label: 'Inteligência', items: insightItems },
+    { label: 'Ferramentas', items: toolItems },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 safe-top">
         <div className="container flex h-[60px] items-center px-4">
-          {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 mr-6">
             <img src="/logo.png" alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" />
             <span className="text-sm font-bold text-gradient hidden sm:inline">NexaProspect</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList className="gap-1">
               {mainItems.map((item) => (
@@ -158,121 +203,27 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </NavigationMenuItem>
               ))}
 
-              {/* Captura dropdown */}
+              <DropdownSection label="Prospecção" icon={Target} items={prospectItems} />
+              <DropdownSection label="Engajamento" icon={Send} items={engageItems} />
+
+              {/* CRM direct link */}
               <NavigationMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "flex items-center gap-2 h-10",
-                        captureItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
-                      )}
-                    >
-                      <Target className="h-4 w-4" />
-                      Captura
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    {captureItems.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <NavigationMenuLink
+                  asChild
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    isActive('/crm/pipeline') && "gradient-primary text-primary-foreground"
+                  )}
+                >
+                  <Link to="/crm/pipeline" className="flex items-center gap-2">
+                    <Kanban className="h-4 w-4" />
+                    CRM
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
 
-              {/* Disparo dropdown */}
-              <NavigationMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "flex items-center gap-2 h-10",
-                        outreachItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
-                      )}
-                    >
-                      <Send className="h-4 w-4" />
-                      Disparo
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    {outreachItems.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </NavigationMenuItem>
-
-              {/* CRM dropdown */}
-              <NavigationMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "flex items-center gap-2 h-10",
-                        crmItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
-                      )}
-                    >
-                      <Users className="h-4 w-4" />
-                      CRM
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    {crmItems.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </NavigationMenuItem>
-
-              {/* Ferramentas dropdown */}
-              <NavigationMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "flex items-center gap-2 h-10",
-                        toolItems.some(item => isActive(item.path)) && "gradient-primary text-primary-foreground"
-                      )}
-                    >
-                      <Zap className="h-4 w-4" />
-                      Ferramentas
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48">
-                    {toolItems.map((item) => (
-                      <DropdownMenuItem key={item.path} asChild>
-                        <Link to={item.path} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          {item.title}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </NavigationMenuItem>
+              <DropdownSection label="Inteligência" icon={BarChart3} items={insightItems} />
+              <DropdownSection label="Ferramentas" icon={Zap} items={toolItems} />
             </NavigationMenuList>
           </NavigationMenu>
 
@@ -338,45 +289,22 @@ export function TopNavigation({ children }: TopNavigationProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-72 p-4 overflow-y-auto">
-                <nav className="flex flex-col gap-4 mt-4">
-                  <div className="space-y-1">
-                    {mainItems.map((item) => (
-                      <NavLink key={item.path} item={item} mobile />
-                    ))}
-                  </div>
-                  <div className="border-t pt-4">
-                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Captura</p>
-                    <div className="space-y-1">
-                      {captureItems.map((item) => (
-                        <NavLink key={item.path} item={item} mobile />
-                      ))}
+                <nav className="flex flex-col gap-3 mt-4">
+                  {mobileSections.map((section, i) => (
+                    <div key={i} className={cn(i > 0 && "border-t pt-3")}>
+                      {section.label && (
+                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.14em] mb-2 px-3">
+                          {section.label}
+                        </p>
+                      )}
+                      <div className="space-y-0.5">
+                        {section.items.map((item) => (
+                          <NavLink key={item.path} item={item} mobile />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="border-t pt-4">
-                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Disparo</p>
-                    <div className="space-y-1">
-                      {outreachItems.map((item) => (
-                        <NavLink key={item.path} item={item} mobile />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t pt-4">
-                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">CRM</p>
-                    <div className="space-y-1">
-                      {crmItems.map((item) => (
-                        <NavLink key={item.path} item={item} mobile />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t pt-4">
-                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.12em] mb-2 px-3">Ferramentas</p>
-                    <div className="space-y-1">
-                      {toolItems.map((item) => (
-                        <NavLink key={item.path} item={item} mobile />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t pt-4">
+                  ))}
+                  <div className="border-t pt-3">
                     <NavLink item={{ title: 'Configurações', icon: Settings, path: '/settings' }} mobile />
                   </div>
                 </nav>
