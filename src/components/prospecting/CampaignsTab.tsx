@@ -5,7 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +28,7 @@ import {
 } from '@/components/ui/table';
 import { useCampaigns, CampaignStatus, Campaign } from '@/hooks/use-campaigns';
 import { useUserSettings } from '@/hooks/use-user-settings';
+import { useLeads } from '@/hooks/use-leads';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { NicheAutocomplete } from './NicheAutocomplete';
@@ -40,6 +44,9 @@ import {
   Zap,
   Users,
   Plus,
+  Sparkles,
+  FileText,
+  UserCheck,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -65,21 +72,34 @@ const statusLabels: Record<CampaignStatus, string> = {
 export function CampaignsTab() {
   const { campaigns, isLoading, createCampaign, isCreating, updateCampaign, deleteCampaign } = useCampaigns();
   const { settings } = useUserSettings();
+  const { leads } = useLeads();
   const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [campaignType, setCampaignType] = useState<'automatic' | 'manual'>('automatic');
+  const [campaignTab, setCampaignTab] = useState<'automatic' | 'manual'>('automatic');
   const [niches, setNiches] = useState<string[]>([]);
   const [locations, setLocations] = useState<string[]>([]);
   const [messageTemplate, setMessageTemplate] = useState('');
+  const [useAIMessage, setUseAIMessage] = useState(true);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+  const [leadSearch, setLeadSearch] = useState('');
+
+  const savedLeads = leads?.filter(l => !l.message_sent) || [];
+  const filteredLeads = savedLeads.filter(l =>
+    l.business_name.toLowerCase().includes(leadSearch.toLowerCase()) ||
+    (l.niche || '').toLowerCase().includes(leadSearch.toLowerCase())
+  );
 
   const resetForm = () => {
     setName('');
-    setCampaignType('automatic');
+    setCampaignTab('automatic');
     setNiches([]);
     setLocations([]);
     setMessageTemplate('');
+    setUseAIMessage(true);
+    setSelectedLeadIds([]);
+    setLeadSearch('');
   };
 
   const handleCreate = () => {
@@ -87,17 +107,23 @@ export function CampaignsTab() {
       toast({ title: 'Nome obrigatório', description: 'Dê um nome para sua campanha.', variant: 'destructive' });
       return;
     }
-    if (niches.length === 0 || locations.length === 0) {
+
+    if (campaignTab === 'automatic' && (niches.length === 0 || locations.length === 0)) {
       toast({ title: 'Campos obrigatórios', description: 'Selecione pelo menos um nicho e uma localização.', variant: 'destructive' });
+      return;
+    }
+
+    if (campaignTab === 'manual' && selectedLeadIds.length === 0) {
+      toast({ title: 'Selecione leads', description: 'Escolha pelo menos um lead para a campanha manual.', variant: 'destructive' });
       return;
     }
 
     createCampaign({
       name: name.trim(),
-      campaign_type: campaignType,
-      niches,
-      locations,
-      message_template: messageTemplate.trim() || null,
+      campaign_type: campaignTab,
+      niches: campaignTab === 'automatic' ? niches : [],
+      locations: campaignTab === 'automatic' ? locations : [],
+      message_template: useAIMessage ? null : (messageTemplate.trim() || null),
       status: 'draft',
       scheduled_at: null,
       started_at: null,
@@ -144,6 +170,20 @@ export function CampaignsTab() {
     updateCampaign({ id: campaign.id, status: 'paused' });
   };
 
+  const toggleLeadSelection = (id: string) => {
+    setSelectedLeadIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllLeads = () => {
+    if (selectedLeadIds.length === filteredLeads.length) {
+      setSelectedLeadIds([]);
+    } else {
+      setSelectedLeadIds(filteredLeads.map(l => l.id));
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -151,18 +191,19 @@ export function CampaignsTab() {
           <CardTitle>Suas Campanhas</CardTitle>
           <CardDescription>Gerencie e acompanhe suas campanhas de prospecção</CardDescription>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
               Nova Campanha
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Criar Nova Campanha</DialogTitle>
               <DialogDescription>Configure os detalhes da sua campanha de prospecção</DialogDescription>
             </DialogHeader>
+
             <div className="space-y-4 py-2">
               <div className="space-y-2">
                 <Label>Nome da Campanha</Label>
@@ -173,59 +214,135 @@ export function CampaignsTab() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Tipo</Label>
-                <Select value={campaignType} onValueChange={(v: 'automatic' | 'manual') => setCampaignType(v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="automatic">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-3.5 w-3.5" />
-                        Automática
+              <Tabs value={campaignTab} onValueChange={(v) => setCampaignTab(v as 'automatic' | 'manual')}>
+                <TabsList className="w-full grid grid-cols-2">
+                  <TabsTrigger value="automatic" className="gap-2">
+                    <Zap className="h-3.5 w-3.5" />
+                    Automática
+                  </TabsTrigger>
+                  <TabsTrigger value="manual" className="gap-2">
+                    <Users className="h-3.5 w-3.5" />
+                    Manual
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="automatic" className="space-y-4 mt-4">
+                  <p className="text-xs text-muted-foreground">
+                    A IA captura leads automaticamente com base nos nichos e localizações selecionados.
+                  </p>
+                  <div className="space-y-2">
+                    <Label>Nichos</Label>
+                    <NicheAutocomplete
+                      value={niches}
+                      onChange={setNiches}
+                      placeholder="Selecione os nichos..."
+                      maxSelections={10}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Localizações</Label>
+                    <LocationAutocomplete
+                      value={locations}
+                      onChange={setLocations}
+                      placeholder="Selecione as localizações..."
+                      maxSelections={10}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="manual" className="space-y-4 mt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Selecione leads salvos para disparar mensagens manualmente.
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Leads Salvos</Label>
+                      <span className="text-xs text-muted-foreground">
+                        {selectedLeadIds.length} selecionado{selectedLeadIds.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <Input
+                      placeholder="Buscar lead por nome ou nicho..."
+                      value={leadSearch}
+                      onChange={e => setLeadSearch(e.target.value)}
+                      className="mb-2"
+                    />
+                    {filteredLeads.length > 0 && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Checkbox
+                          checked={selectedLeadIds.length === filteredLeads.length && filteredLeads.length > 0}
+                          onCheckedChange={selectAllLeads}
+                          id="select-all"
+                        />
+                        <label htmlFor="select-all" className="text-xs text-muted-foreground cursor-pointer">
+                          Selecionar todos ({filteredLeads.length})
+                        </label>
                       </div>
-                    </SelectItem>
-                    <SelectItem value="manual">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-3.5 w-3.5" />
-                        Manual
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                    )}
+                    <ScrollArea className="h-48 rounded-md border">
+                      {filteredLeads.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full py-8 text-muted-foreground">
+                          <UserCheck className="h-8 w-8 mb-2 opacity-30" />
+                          <p className="text-sm">Nenhum lead pendente encontrado</p>
+                        </div>
+                      ) : (
+                        <div className="p-2 space-y-1">
+                          {filteredLeads.map(lead => (
+                            <label
+                              key={lead.id}
+                              className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
+                            >
+                              <Checkbox
+                                checked={selectedLeadIds.includes(lead.id)}
+                                onCheckedChange={() => toggleLeadSelection(lead.id)}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{lead.business_name}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {lead.niche || 'Sem nicho'} • {lead.location || 'Sem local'}
+                                </p>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </div>
+                </TabsContent>
+              </Tabs>
 
-              <div className="space-y-2">
-                <Label>Nichos</Label>
-                <NicheAutocomplete
-                  value={niches}
-                  onChange={setNiches}
-                  placeholder="Selecione os nichos..."
-                  maxSelections={10}
-                />
-              </div>
+              {/* Message Template Section */}
+              <div className="space-y-3 rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                    Modelo de Mensagem
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-xs font-medium">IA Automática</span>
+                    <Switch checked={useAIMessage} onCheckedChange={setUseAIMessage} />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label>Localizações</Label>
-                <LocationAutocomplete
-                  value={locations}
-                  onChange={setLocations}
-                  placeholder="Selecione as localizações..."
-                  maxSelections={10}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Modelo de Mensagem <span className="text-muted-foreground text-xs">(opcional)</span></Label>
-                <Textarea
-                  placeholder="Olá {nome}, vi que você atua em {nicho}..."
-                  value={messageTemplate}
-                  onChange={e => setMessageTemplate(e.target.value)}
-                  rows={3}
-                />
+                {useAIMessage ? (
+                  <div className="flex items-center gap-2 rounded-md bg-primary/5 border border-primary/10 px-3 py-2.5">
+                    <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      A IA gerará mensagens personalizadas automaticamente para cada lead com base no nicho, localização e perfil do negócio.
+                    </p>
+                  </div>
+                ) : (
+                  <Textarea
+                    placeholder="Olá {nome}, vi que você atua em {nicho}..."
+                    value={messageTemplate}
+                    onChange={e => setMessageTemplate(e.target.value)}
+                    rows={3}
+                  />
+                )}
               </div>
             </div>
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
               <Button onClick={handleCreate} disabled={isCreating} className="gap-2">
