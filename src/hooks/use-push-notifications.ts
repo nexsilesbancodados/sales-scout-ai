@@ -25,8 +25,8 @@ export function usePushNotifications() {
       const registration = await navigator.serviceWorker.register('/sw-notifications.js');
       setSwRegistration(registration);
       return registration;
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
+    } catch {
+      // SW registration can fail in iframes, preview hosts, etc. — not a real error
       return null;
     }
   }, [swRegistration]);
