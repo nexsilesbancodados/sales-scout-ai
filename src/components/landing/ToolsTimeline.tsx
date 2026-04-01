@@ -116,14 +116,6 @@ export default function ToolsTimeline() {
     const drawLength = pathLength * progress;
     drawLineRef.current.style.strokeDashoffset = `${pathLength - drawLength}`;
 
-    // Move dot
-    if (drawLength > 0 && drawLineRef.current) {
-      const point = drawLineRef.current.getPointAtLength(drawLength);
-      dotRef.current?.setAttribute('cx', String(point.x));
-      dotRef.current?.setAttribute('cy', String(point.y));
-      dotInnerRef.current?.setAttribute('cx', String(point.x));
-      dotInnerRef.current?.setAttribute('cy', String(point.y));
-    }
 
     // Card visibility
     setCardVisible(prev => {
