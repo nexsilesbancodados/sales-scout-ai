@@ -9,7 +9,7 @@ import heroPhonesImg from '@/assets/hero-phones-clean.png';
 import { CosmicBackground } from '@/components/landing/CosmicBackground';
 import { PremiumPricingCard } from '@/components/landing/PremiumPricingCard';
 import { ScrollCurveLine } from '@/components/landing/ScrollCurveLine';
-import { Globe } from '@/components/ui/cobe-globe';
+import { GlobeSection } from '@/components/landing/GlobeSection';
 
 
 
