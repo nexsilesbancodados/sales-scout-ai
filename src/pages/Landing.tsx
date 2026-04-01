@@ -351,16 +351,10 @@ export default function Landing() {
           </motion.div>
         </section>
 
-        {/* ═══ 6. FEEDBACKS - INSTAGRAM STORIES ═══ */}
-        <section id="cases" className="relative py-12 px-4 md:px-8 scroll-mt-24">
-          <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
-          <StoriesTestimonials />
-        </section>
-
-        {/* ═══ 7. GLOBE - ALCANCE GLOBAL ═══ */}
+        {/* ═══ 6. GLOBE - ALCANCE GLOBAL ═══ */}
         <GlobeSection />
 
-        {/* ═══ 8. PRICING ═══ */}
+        {/* ═══ 7. PRICING ═══ */}
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
           <div className="max-w-md mx-auto">
@@ -368,6 +362,12 @@ export default function Landing() {
               <PremiumPricingCard plan={{ ...SINGLE_PLAN, annual: SINGLE_PLAN.price }} annual={false} index={0} checkoutUrl={CAKTO_CHECKOUT_URL} />
             </div>
           </div>
+        </section>
+
+        {/* ═══ 8. FEEDBACKS - INSTAGRAM STORIES ═══ */}
+        <section id="cases" className="relative py-12 px-4 md:px-8 scroll-mt-24">
+          <SectionHeader tag="Resultados reais" title={<>Quem usa, <span className="landing-gradient-text">recomenda.</span></>} subtitle="Histórias de quem saiu da prospecção manual e nunca mais voltou." />
+          <StoriesTestimonials />
         </section>
 
         {/* ═══ 9. FAQ ═══ */}
