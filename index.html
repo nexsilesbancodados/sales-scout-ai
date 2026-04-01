@@ -66,12 +66,17 @@
     <link rel="icon" type="image/png" href="/logo.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
 
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/logo.png" as="image" fetchpriority="high" />
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
     <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
     <!-- Safe area for notched devices -->
     <style>
@@ -146,7 +151,7 @@
   <body>
     <!-- Loading screen -->
     <div id="app-loading">
-      <img src="/logo.png" alt="NexaProspect" />
+      <img src="/logo.png" alt="NexaProspect" fetchpriority="high" width="56" height="56" />
       <div class="loading-spinner"></div>
     </div>
 
@@ -155,7 +160,7 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Remove loading screen when app is ready -->
-    <script>
+    <script defer>
       window.addEventListener('load', function() {
         setTimeout(function() {
           var loading = document.getElementById('app-loading');
