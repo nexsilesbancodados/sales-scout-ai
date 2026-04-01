@@ -19,13 +19,23 @@ interface PremiumPricingCardProps {
   plan: PricingPlan;
   annual: boolean;
   index: number;
+  checkoutUrl?: string;
 }
 
 const CARD_IMAGES = [pricingStarterImg, pricingProImg, pricingEnterpriseImg];
 
-export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardProps) {
+export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: PremiumPricingCardProps) {
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
+
+  const handleCheckout = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (checkoutUrl) {
+      window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate('/auth');
+    }
+  };
 
   const schemes = [
     { glow1: 'hsla(270, 80%, 50%, 1)', glow2: 'hsla(260, 90%, 75%, 1)', glow3: 'hsla(280, 70%, 60%, 1)', check: 'bg-purple-400', label: 'text-purple-400/80', border: '#7B2FF2' },
@@ -138,7 +148,7 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
           </ul>
 
           <button
-            onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
+            onClick={handleCheckout}
             className="aura-btn group/btn isolate inline-flex items-center w-full h-[50px] cursor-pointer overflow-hidden rounded-[18px] relative"
             style={{ backgroundColor: plan.highlight ? '#A9DDF7' : 'hsl(260, 60%, 75%)', clipPath: 'inset(0 round 18px)' }}
           >
@@ -215,7 +225,7 @@ export function PremiumPricingCard({ plan, annual, index }: PremiumPricingCardPr
             </div>
 
             <button
-              onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
+              onClick={handleCheckout}
               className="w-full h-[52px] rounded-xl font-semibold text-white text-[14px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
               style={{ background: `linear-gradient(135deg, ${s.border}, ${s.border}CC)` }}
             >
