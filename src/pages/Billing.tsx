@@ -110,6 +110,7 @@ export default function BillingPage() {
   };
 
   const statusBadge = STATUS_BADGES[subscription?.status || 'free'] || STATUS_BADGES.free;
+  const checkoutUrl = getCheckoutUrl();
 
   return (
     <DashboardLayout
