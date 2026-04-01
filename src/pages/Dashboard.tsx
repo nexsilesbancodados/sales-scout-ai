@@ -184,25 +184,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold">Integrações</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <StatusItem icon={MessageSquare} label="WhatsApp" connected={!!settings?.whatsapp_connected} />
-              <StatusItem
-                icon={Target}
-                label="API de Busca"
-                connected={!!(settings?.serper_api_key || settings?.serpapi_api_key)}
-              />
-              <StatusItem
-                icon={Sparkles}
-                label="Agente IA"
-                connected={!!(settings?.agent_name && settings?.knowledge_base)}
-              />
-            </CardContent>
-          </Card>
-
           <div className="grid grid-cols-2 gap-2">
             <Button asChild size="sm" className="gradient-primary h-10 text-xs font-semibold">
               <Link to="/prospecting">
