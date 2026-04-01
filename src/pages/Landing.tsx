@@ -37,34 +37,35 @@ const SINGLE_PLAN = {
   name: 'Profissional',
   price: 149,
   features: [
-    'Disparos ilimitados',
-    '3 chips WhatsApp',
-    'Todos os extratores',
-    'Agente SDR ativo',
-    'Google Maps + Radar CNPJ',
-    'Leads ilimitados',
-    'Relatórios avançados',
-    'Anti-Ban inteligente',
-    'Funil de vendas completo',
-    'Suporte prioritário',
+    'Disparos ilimitados de mensagens',
+    '3 chips WhatsApp com rotação automática',
+    'Extratores: Google Maps, Instagram, Facebook',
+    'Agente SDR com IA — prospecta 24/7',
+    'Radar CNPJ para leads B2B qualificados',
+    'CRM completo com funil de vendas',
+    'Anti-Ban inteligente (zero bloqueios)',
+    'Relatórios e analytics em tempo real',
+    'Follow-up automático com spintax',
+    'Suporte prioritário via WhatsApp',
   ],
-  cta: 'Assinar agora',
+  cta: 'Quero vender no automático',
   highlight: true,
 };
 
 const FAQ_DATA = [
-  { q: 'Preciso de cartão de crédito para testar?', a: 'Não no plano Starter — você testa por 7 dias sem compromisso. Após o trial, escolha o plano que faz sentido pro seu momento.' },
-  { q: 'Meu WhatsApp pode ser banido?', a: 'Extremamente improvável. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano, spintax inteligente e rotação automática de chips. Mais de 2.400 contas ativas sem incidentes.' },
-  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A configuração leva menos de 5 minutos: conecte o WhatsApp, escolha o nicho e a IA começa a prospectar sozinha.' },
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3%.' },
-  { q: 'Funciona para o meu nicho específico?', a: 'Com certeza. Temos templates otimizados para +50 nichos e a IA adapta tom, linguagem e abordagem automaticamente para cada segmento do mercado.' },
-  { q: 'O agente SDR substitui minha equipe comercial?', a: 'Ele potencializa. A IA trabalha 24/7 prospectando e qualificando leads — sua equipe entra só na hora de fechar. Resultado: mais deals, menos esforço operacional.' },
+  { q: 'Preciso de conhecimento técnico?', a: 'Zero. Em 5 minutos você conecta seu WhatsApp, escolhe o nicho e a IA começa a prospectar sozinha. A interface é intuitiva e temos tutoriais passo a passo para cada funcionalidade.' },
+  { q: 'Meu WhatsApp pode ser banido?', a: 'Praticamente impossível. Nosso sistema anti-ban usa warm-up progressivo, delays que simulam comportamento humano real, spintax inteligente e rotação automática entre chips. Mais de 2.400 contas ativas sem um único bloqueio.' },
+  { q: 'Quanto tempo até eu ver resultados?', a: 'A maioria dos clientes agenda a primeira reunião em 48h. A IA captura leads do Google Maps, envia mensagens personalizadas e faz follow-up — tudo automaticamente enquanto você foca em fechar negócios.' },
+  { q: 'Posso cancelar a qualquer momento?', a: 'Sim, com 1 clique na sua conta. Sem multa, sem burocracia, sem letras miúdas. Mas spoiler: a taxa de cancelamento é menor que 3% — porque funciona.' },
+  { q: 'Funciona para qualquer tipo de negócio?', a: 'Sim. Temos templates otimizados para +50 nichos (agências, contabilidade, advocacia, clínicas, imobiliárias, SaaS…). A IA adapta tom, linguagem e abordagem automaticamente para cada segmento.' },
+  { q: 'O que o Agente SDR faz exatamente?', a: 'Ele é seu vendedor digital 24/7. Prospecta leads, envia a primeira mensagem, responde objeções com IA, faz follow-up automático e agenda reuniões no seu calendário. Sua equipe só entra na hora de fechar.' },
+  { q: 'Quais fontes de leads estão disponíveis?', a: 'Google Maps, Instagram, Facebook, Radar CNPJ, importação de planilhas, grupos de WhatsApp e busca web. Tudo integrado em uma única plataforma com dados enriquecidos.' },
 ];
 
 const STEPS = [
-  { icon: Search, step: '01', title: 'Capture leads', desc: 'A IA vasculha Google Maps, Instagram e Facebook para encontrar clientes ideais pro seu nicho.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
-  { icon: MessageSquare, step: '02', title: 'Envie mensagens', desc: 'Mensagens personalizadas são enviadas no WhatsApp com anti-ban, spintax e delays humanizados.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
-  { icon: CalendarCheck, step: '03', title: 'Agende reuniões', desc: 'O agente SDR qualifica, tira objeções e agenda reuniões no seu calendário — 24/7.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
+  { icon: Search, step: '01', title: 'Capture leads qualificados', desc: 'A IA busca no Google Maps, Instagram e Facebook negócios do seu nicho com telefone, endereço e avaliações. Filtre por cidade, nota e categoria.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
+  { icon: MessageSquare, step: '02', title: 'Envie mensagens com IA', desc: 'Cada lead recebe uma mensagem personalizada no WhatsApp. O sistema anti-ban garante zero bloqueios com spintax, delays humanizados e rotação de chips.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
+  { icon: CalendarCheck, step: '03', title: 'Feche negócios no automático', desc: 'O Agente SDR responde objeções, faz follow-up inteligente e agenda reuniões no seu calendário — 24 horas por dia, 7 dias por semana.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
 ];
 
 const STATS = [
@@ -194,26 +195,23 @@ export default function Landing() {
               <span className="text-[11px] sm:text-[12px] text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
             <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
-              <span className="text-white">Seus concorrentes </span>
-              <span className="text-white/50">prospectam.</span>
-              <br className="hidden sm:block" />
-              <span className="text-white">Você </span>
-              <span className="landing-gradient-text">fecha.</span>
+              <span className="text-white">Sua máquina de </span>
+              <span className="landing-gradient-text">vendas com IA.</span>
             </h1>
-            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[460px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
-              IA que captura leads do Google Maps, Instagram e Facebook, envia mensagens personalizadas no WhatsApp e agenda reuniões — <strong className="text-white/70">mesmo às 3h da manhã.</strong>
+            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[480px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+              Captura leads do Google Maps, Instagram e Facebook. Envia mensagens personalizadas no WhatsApp. Faz follow-up automático. Agenda reuniões no seu calendário — <strong className="text-white/70">24 horas por dia, sem parar.</strong>
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
               <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Começar agora</span>
+                <span className="nav-shimmer-text !text-[14px]">Testar grátis agora</span>
               </button>
-              <a href="#produto" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#como-funciona" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-              {['Leads ilimitados', 'Setup em 5 minutos', 'Cancele com 1 clique'].map(t => (
+              {['Leads ilimitados', 'Setup em 5 min', 'Anti-ban inteligente', 'Cancele com 1 clique'].map(t => (
                 <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/50">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
@@ -254,7 +252,7 @@ export default function Landing() {
         {/* ═══ 3. COMO FUNCIONA - 3 STEPS ═══ */}
         <ScrollLightUpSection>
         <section id="como-funciona" className="relative py-20 px-4 md:px-8 scroll-mt-24 overflow-hidden">
-          <SectionHeader tag="Simples assim" title={<>3 passos para <span className="landing-gradient-text">vender no automático.</span></>} subtitle="Configure uma vez. Colha resultados todos os dias." />
+          <SectionHeader tag="Como funciona" title={<>3 passos para <span className="landing-gradient-text">automatizar suas vendas.</span></>} subtitle="Conecte seu WhatsApp, escolha o nicho e deixe a IA trabalhar por você — todos os dias." />
           <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             {STEPS.map((item, i) => (
               <motion.div
@@ -301,12 +299,12 @@ export default function Landing() {
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Controle total</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
               <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-                Venda de <span className="landing-gradient-text">qualquer lugar</span>
+                Tudo em um <span className="landing-gradient-text">único painel</span>
               </h2>
-              <p className="text-[14px] text-white/55 mt-4 max-w-[420px] mx-auto">
-                Capture, qualifique e converta leads direto do celular. Seu comercial no bolso, 24/7.
+              <p className="text-[14px] text-white/55 mt-4 max-w-[480px] mx-auto">
+                CRM, prospecção, envio em massa, follow-up, agente SDR e analytics — sem precisar de 5 ferramentas diferentes. Acesse do celular ou desktop.
               </p>
             </motion.div>
 
@@ -330,7 +328,7 @@ export default function Landing() {
         <ScrollLightUpSection>
         <section className="relative py-20 px-4 md:px-8 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(123,47,242,0.06) 0%, transparent 60%)' }} />
-          <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de mais de 2.400 empresas que usam o NexaProspect." />
+          <SectionHeader tag="Resultados comprovados" title={<>Números que <span className="landing-gradient-text">falam por si.</span></>} subtitle="Dados reais de empresas que substituíram a prospecção manual pela IA." />
           <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             {STATS.map((stat, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 40, rotateX: 15 }} whileInView={{ opacity: 1, y: 0, rotateX: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }} className="group">
@@ -370,7 +368,7 @@ export default function Landing() {
 
         <ScrollLightUpSection>
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-          <SectionHeader tag="Investimento" title={<>Tudo que você precisa em um <span className="landing-gradient-text">único plano.</span></>} subtitle="Sem planos confusos. Acesso completo a todas as funcionalidades. Cancele quando quiser." />
+          <SectionHeader tag="Investimento" title={<>Um plano. <span className="landing-gradient-text">Acesso total.</span></>} subtitle="Sem surpresas. Todas as funcionalidades desbloqueadas desde o primeiro dia. Cancele quando quiser, sem burocracia." />
           <div className="max-w-md mx-auto">
             <div className="h-[560px]">
               <PremiumPricingCard plan={{ ...SINGLE_PLAN, annual: SINGLE_PLAN.price }} annual={false} index={0} checkoutUrl={CAKTO_CHECKOUT_URL} />
@@ -414,10 +412,10 @@ export default function Landing() {
           <div className="max-w-2xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
               <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
-                Enquanto você lê isso, seus concorrentes já estão <span className="landing-gradient-text">prospectando.</span>
+                Pare de prospectar manualmente. <span className="landing-gradient-text">Deixe a IA fechar por você.</span>
               </h2>
               <p className="text-white/55 text-sm mt-4 max-w-md mx-auto">
-                +2.400 empresas já colocaram a prospecção no automático. A pergunta não é se você vai aderir — é quando.
+                Enquanto você lê isso, +2.400 empresas já estão capturando leads, enviando mensagens e agendando reuniões no automático. Sua vez.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
                 <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[220px]">
@@ -446,7 +444,7 @@ export default function Landing() {
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
             <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px]">
-              A máquina de vendas com IA que prospecta, qualifica e agenda reuniões no piloto automático.
+              Plataforma de prospecção com IA que captura leads, envia mensagens no WhatsApp e agenda reuniões — tudo no piloto automático.
             </p>
           </div>
           <div className="flex flex-col gap-2.5">
