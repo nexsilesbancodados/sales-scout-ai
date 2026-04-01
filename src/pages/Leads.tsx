@@ -269,6 +269,7 @@ export default function LeadsPage() {
                 >
                   <SelectTrigger className="w-[140px] sm:w-[180px] bg-background">
                     <SelectValue placeholder="Status Envio" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">
                       <div className="flex items-center justify-between gap-2 w-full">
