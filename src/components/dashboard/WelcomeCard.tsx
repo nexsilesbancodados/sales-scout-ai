@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, Send, Users, Bot, ArrowRight, Sparkles, Wifi, WifiOff } from 'lucide-react';
+import { Target, Send, Users, Bot, ArrowRight, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface WelcomeCardProps {
@@ -11,10 +10,10 @@ interface WelcomeCardProps {
 }
 
 const quickActions = [
-  { label: 'Prospectar', icon: Target, path: '/prospecting', gradient: 'from-primary/20 to-primary/5', color: 'text-primary', hoverBorder: 'hover:border-primary/30' },
-  { label: 'Disparar', icon: Send, path: '/mass-send', gradient: 'from-info/20 to-info/5', color: 'text-info', hoverBorder: 'hover:border-info/30' },
-  { label: 'Ver Leads', icon: Users, path: '/leads', gradient: 'from-success/20 to-success/5', color: 'text-success', hoverBorder: 'hover:border-success/30' },
-  { label: 'Agente IA', icon: Bot, path: '/sdr-agent', gradient: 'from-warning/20 to-warning/5', color: 'text-warning', hoverBorder: 'hover:border-warning/30' },
+  { label: 'Prospectar', icon: Target, path: '/prospecting', color: 'text-primary', bg: 'bg-primary/8 group-hover:bg-primary/12' },
+  { label: 'Disparar', icon: Send, path: '/mass-send', color: 'text-info', bg: 'bg-info/8 group-hover:bg-info/12' },
+  { label: 'Ver Leads', icon: Users, path: '/leads', color: 'text-success', bg: 'bg-success/8 group-hover:bg-success/12' },
+  { label: 'Agente IA', icon: Bot, path: '/sdr-agent', color: 'text-warning', bg: 'bg-warning/8 group-hover:bg-warning/12' },
 ];
 
 export function WelcomeCard({ userName, totalLeads, whatsappConnected }: WelcomeCardProps) {
@@ -22,81 +21,61 @@ export function WelcomeCard({ userName, totalLeads, whatsappConnected }: Welcome
   const displayName = userName?.split(' ')[0] || 'Usuário';
 
   return (
-    <Card className="relative overflow-hidden border-border/50 mb-6 bg-gradient-to-br from-card via-card to-primary/[0.03] animate-fade-in">
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/[0.03] rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-primary/[0.02] rounded-full translate-y-1/2 -translate-x-1/3 blur-2xl" />
+    <div className="mb-8 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest mb-1">{greeting}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Olá, {displayName} 👋
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {totalLeads === 0
+              ? 'Comece capturando seus primeiros leads hoje.'
+              : `${totalLeads.toLocaleString('pt-BR')} leads na sua base.`}
+          </p>
+        </div>
 
-      <CardContent className="relative p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 animate-bounce-in">
-                <Sparkles className="h-3 w-3 text-primary" />
-                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{greeting}</span>
-              </div>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight animate-slide-up stagger-1">
-              Olá, {displayName}! 👋
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed animate-slide-up stagger-2">
-              {totalLeads === 0
-                ? 'Comece capturando seus primeiros leads hoje!'
-                : `Você tem ${totalLeads.toLocaleString('pt-BR')} leads na base. Continue prospectando!`}
-            </p>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className={cn(
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+            whatsappConnected
+              ? "bg-success/8 text-success border-success/15"
+              : "bg-muted/50 text-muted-foreground border-border/50"
+          )}>
+            {whatsappConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+            {whatsappConnected ? 'WhatsApp conectado' : 'WhatsApp desconectado'}
           </div>
+          {!whatsappConnected && (
+            <Button asChild size="sm" className="gradient-primary h-8 text-xs shadow-sm shadow-primary/15">
+              <Link to="/settings/connections" className="gap-1.5">
+                Conectar <ArrowRight className="h-3 w-3" />
+              </Link>
+            </Button>
+          )}
+        </div>
+      </div>
 
-          <div className="flex items-center gap-2 shrink-0 animate-slide-in-right stagger-2">
-            {/* WhatsApp status badge */}
-            <div className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-300",
-              whatsappConnected
-                ? "bg-success/10 text-success border-success/20 shadow-sm shadow-success/10"
-                : "bg-muted/50 text-muted-foreground border-border/50"
-            )}>
-              {whatsappConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-              {whatsappConnected ? 'Conectado' : 'Desconectado'}
-            </div>
-
-            {!whatsappConnected && (
-              <Button asChild size="sm" className="gradient-primary text-primary-foreground h-8 text-xs shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
-                <Link to="/settings/connections" className="gap-1.5">
-                  Conectar
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </Button>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        {quickActions.map((action, i) => (
+          <Link
+            key={action.path}
+            to={action.path}
+            className={cn(
+              "group flex items-center gap-3 p-3.5 rounded-xl border border-border/40",
+              "hover:border-border/60 hover:shadow-sm transition-all duration-200",
+              "active:scale-[0.98]",
+              `animate-slide-up stagger-${i + 1}`
             )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {quickActions.map((action, i) => (
-            <Link
-              key={action.path}
-              to={action.path}
-              className={cn(
-                "group flex items-center gap-2.5 p-3 rounded-xl border border-border/50",
-                "bg-gradient-to-br transition-all duration-300",
-                "hover:shadow-md hover:shadow-primary/5 hover:-translate-y-1",
-                "active:translate-y-0 active:shadow-sm",
-                `animate-slide-up stagger-${i + 3}`,
-                action.gradient,
-                action.hoverBorder
-              )}
-            >
-              <div className={cn(
-                "p-2 rounded-lg bg-background/80 shadow-sm transition-transform duration-300 group-hover:scale-110",
-                action.color
-              )}>
-                <action.icon className="h-4 w-4" />
-              </div>
-              <span className="text-xs font-semibold text-foreground group-hover:text-foreground/90">{action.label}</span>
-            </Link>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          >
+            <div className={cn("p-2 rounded-lg transition-colors duration-200", action.bg, action.color)}>
+              <action.icon className="h-4 w-4" />
+            </div>
+            <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{action.label}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
