@@ -114,12 +114,6 @@ export function ScrollCurveLine() {
           style={{ transition: 'stroke-dashoffset 0.15s linear' }}
         />
 
-        <circle
-          ref={glowRef}
-          r="12"
-          fill="url(#tip-glow)"
-          style={{ opacity: 0, transition: 'opacity 0.3s' }}
-        />
       </svg>
     </div>
   );
