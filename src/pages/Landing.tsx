@@ -270,7 +270,7 @@ export default function Landing() {
                 onClick={() => setFlippedCard(flippedCard === i ? null : i)}
               >
                 <div
-                  className="relative w-full transition-transform duration-700"
+                  className="relative w-full min-h-[340px] transition-transform duration-700"
                   style={{
                     transformStyle: 'preserve-3d',
                     transform: flippedCard === i ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -278,29 +278,23 @@ export default function Landing() {
                 >
                   {/* FRONT */}
                   <div
-                    className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm h-full overflow-hidden"
+                    className="absolute inset-0 border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm overflow-hidden"
                     style={{ backfaceVisibility: 'hidden' }}
                   >
                     {/* Sweep effect bar */}
                     <div
-                      className="absolute left-0 bottom-0 w-[5px] h-full z-0 transition-all duration-500 group-hover:w-full"
-                      style={{ background: item.color, opacity: flippedCard === i ? 0 : 1 }}
+                      className="absolute left-0 top-0 w-[5px] h-full z-0 transition-all duration-500 group-hover:w-full rounded-2xl"
+                      style={{ background: item.color, opacity: 0.15 }}
                     />
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
                     <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
 
-                    <motion.div
-                      className="flex justify-center mb-4 relative z-10"
-                      initial={{ scale: 0.7, opacity: 0 }}
-                      whileInView={{ scale: 1, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
-                    >
+                    <div className="flex justify-center mb-4 relative z-10">
                       <div className="relative">
                         <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
                         <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
                       </div>
-                    </motion.div>
+                    </div>
 
                     <div className="relative z-10">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
