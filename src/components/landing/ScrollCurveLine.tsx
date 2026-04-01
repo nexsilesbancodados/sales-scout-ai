@@ -51,7 +51,7 @@ export function ScrollCurveLine() {
           glow.style.opacity = `${Math.min(1, pct * 3)}`;
         }
         
-        const reached = pct > 0.95;
+        const reached = pct >= 0.995;
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
