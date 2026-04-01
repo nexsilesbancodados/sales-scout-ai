@@ -188,14 +188,6 @@ export default function ToolsTimeline() {
             </filter>
           </defs>
 
-          {/* Track (background) */}
-          <path
-            d={curvePath}
-            fill="none"
-            stroke="rgba(255,255,255,0.04)"
-            strokeWidth="10"
-            strokeLinecap="round"
-          />
 
           {/* Active drawn line */}
           <path
