@@ -187,9 +187,9 @@ export default function CRMPipelinePage() {
     .reduce((s, l) => s + (l.deal_value || 0), 0);
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Pipeline CRM</h1>
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold">Pipeline CRM</h1>
         <span className="text-sm font-medium text-muted-foreground">
           Pipeline: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(totalPipeline)}
         </span>
@@ -199,7 +199,7 @@ export default function CRMPipelinePage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 md:overflow-x-visible md:pb-0">
           {allStages.map((stage) => {
             const stageLeads = leads.filter(l => l.stage === stage);
             const isDragOver = dragOverStage === stage;
@@ -208,7 +208,7 @@ export default function CRMPipelinePage() {
             return (
               <div
                 key={stage}
-                className="flex flex-col"
+                className="flex flex-col min-w-[260px] snap-start md:min-w-0"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={e => handleDrop(e, stage)}

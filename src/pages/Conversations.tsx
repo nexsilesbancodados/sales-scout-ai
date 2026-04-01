@@ -102,9 +102,9 @@ export default function ConversationsPage() {
       title="Conversas"
       description="Conversas do WhatsApp em tempo real"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] animate-fade-in">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-200px)] animate-fade-in">
         {/* Conversations List */}
-        <Card className="lg:col-span-1 overflow-hidden">
+        <Card className={`lg:col-span-1 overflow-hidden ${selectedConversation ? 'hidden lg:flex lg:flex-col' : 'flex flex-col'}`}>
           <CardHeader className="pb-3 bg-muted/30 border-b">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -240,7 +240,7 @@ export default function ConversationsPage() {
         </Card>
 
         {/* Chat Area */}
-        <Card className="lg:col-span-2 flex flex-col overflow-hidden">
+        <Card className={`lg:col-span-2 flex flex-col overflow-hidden ${!selectedConversation ? 'hidden lg:flex' : ''}`}>
           {selectedConversation ? (
             <>
               <CardHeader className="border-b bg-muted/30 py-4">
@@ -254,9 +254,13 @@ export default function ConversationsPage() {
                     <CardTitle className="text-lg">{selectedConversation.lead.business_name}</CardTitle>
                     <p className="text-sm text-muted-foreground font-mono">{selectedConversation.lead.phone}</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    {/* Back button for mobile */}
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedConversation(null)} className="lg:hidden rounded-full">
+                      ← Voltar
+                    </Button>
                     {/* Auto-reply toggle */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
                       <Switch
                         id="auto-reply"
                         checked={autoReplyEnabled}
@@ -269,8 +273,8 @@ export default function ConversationsPage() {
                       </Label>
                     </div>
                     {temperatureIconsSmall[selectedConversation.lead.temperature || 'morno']}
-                    <Badge className="rounded-full">{selectedConversation.lead.stage}</Badge>
-                    <Button variant="outline" size="sm" onClick={handleViewDetails} className="rounded-full">
+                    <Badge className="rounded-full hidden sm:inline-flex">{selectedConversation.lead.stage}</Badge>
+                    <Button variant="outline" size="sm" onClick={handleViewDetails} className="rounded-full hidden sm:flex">
                       <Eye className="h-4 w-4 mr-1.5" />
                       Detalhes
                     </Button>
