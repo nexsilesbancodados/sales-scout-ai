@@ -11,6 +11,9 @@ import googleGIcon from '@/assets/google-g-icon.png';
 import stepCaptureImg from '@/assets/step-capture.png';
 import stepMessagesImg from '@/assets/step-messages.png';
 import stepMeetingsImg from '@/assets/step-meetings.png';
+import stepBack1 from '@/assets/step-back-1.jpg';
+import stepBack2 from '@/assets/step-back-2.jpg';
+import stepBack3 from '@/assets/step-back-3.jpg';
 import avatar1 from '@/assets/avatar-1.png';
 import avatar2 from '@/assets/avatar-2.png';
 import avatar3 from '@/assets/avatar-3.png';
@@ -63,9 +66,9 @@ const FAQ_DATA = [
 ];
 
 const STEPS = [
-  { icon: Search, step: '01', title: 'Capture leads qualificados', desc: 'A IA busca no Google Maps, Instagram e Facebook negócios do seu nicho com telefone, endereço e avaliações. Filtre por cidade, nota e categoria.', color: '#7B2FF2', delay: 0, img: stepCaptureImg },
-  { icon: MessageSquare, step: '02', title: 'Envie mensagens com IA', desc: 'Cada lead recebe uma mensagem personalizada no WhatsApp. O sistema anti-ban garante zero bloqueios com spintax, delays humanizados e rotação de chips.', color: '#F7941D', delay: 0.2, img: stepMessagesImg },
-  { icon: CalendarCheck, step: '03', title: 'Feche negócios no automático', desc: 'O Agente SDR responde objeções, faz follow-up inteligente e agenda reuniões no seu calendário — 24 horas por dia, 7 dias por semana.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg },
+  { icon: Search, step: '01', title: 'Capture leads qualificados', desc: 'A IA busca no Google Maps, Instagram e Facebook negócios do seu nicho com telefone, endereço e avaliações. Filtre por cidade, nota e categoria.', color: '#7B2FF2', delay: 0, img: stepCaptureImg, backImg: stepBack1, backTitle: 'Inteligência de Captura', backDesc: 'Algoritmos que varrem múltiplas fontes simultaneamente, cruzam dados e entregam leads com telefone validado e score de qualidade.' },
+  { icon: MessageSquare, step: '02', title: 'Envie mensagens com IA', desc: 'Cada lead recebe uma mensagem personalizada no WhatsApp. O sistema anti-ban garante zero bloqueios com spintax, delays humanizados e rotação de chips.', color: '#F7941D', delay: 0.2, img: stepMessagesImg, backImg: stepBack2, backTitle: 'Comunicação Humanizada', backDesc: 'Spintax + IA geram mensagens únicas para cada lead. Delays naturais e rotação de chips tornam cada envio indistinguível de uma conversa real.' },
+  { icon: CalendarCheck, step: '03', title: 'Feche negócios no automático', desc: 'O Agente SDR responde objeções, faz follow-up inteligente e agenda reuniões no seu calendário — 24 horas por dia, 7 dias por semana.', color: '#00B4D8', delay: 0.4, img: stepMeetingsImg, backImg: stepBack3, backTitle: 'Agente SDR Autônomo', backDesc: 'IA que entende contexto, responde objeções e agenda reuniões automaticamente. Seu time comercial só entra na hora de fechar o deal.' },
 ];
 
 const STATS = [
@@ -92,6 +95,7 @@ export default function Landing() {
   const [activeNav, setActiveNav] = useState('');
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [flippedCard, setFlippedCard] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
@@ -261,32 +265,67 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.8, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
-                className="relative group"
-                style={{ perspective: '800px' }}
+                className="relative group cursor-pointer"
+                style={{ perspective: '1000px' }}
+                onClick={() => setFlippedCard(flippedCard === i ? null : i)}
               >
-                <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.15] transition-all duration-500 h-full overflow-hidden hover:shadow-[0_0_40px_rgba(123,47,242,0.08)]">
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
-                  <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
-
-                  <motion.div
-                    className="flex justify-center mb-4"
-                    initial={{ scale: 0.7, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
+                <div
+                  className="relative w-full transition-transform duration-700"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: flippedCard === i ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  }}
+                >
+                  {/* FRONT */}
+                  <div
+                    className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm h-full overflow-hidden"
+                    style={{ backfaceVisibility: 'hidden' }}
                   >
-                    <div className="relative">
-                      <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
-                      <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
-                    </div>
-                  </motion.div>
+                    {/* Sweep effect bar */}
+                    <div
+                      className="absolute left-0 bottom-0 w-[5px] h-full z-0 transition-all duration-500 group-hover:w-full"
+                      style={{ background: item.color, opacity: flippedCard === i ? 0 : 1 }}
+                    />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 30%, ${item.color}18, transparent 70%)` }} />
+                    <span className="text-[64px] font-black absolute top-3 right-5 leading-none pointer-events-none" style={{ color: `${item.color}08` }}>{item.step}</span>
 
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
-                    <item.icon className="h-4 w-4" style={{ color: item.color }} />
+                    <motion.div
+                      className="flex justify-center mb-4 relative z-10"
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      whileInView={{ scale: 1, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: item.delay + 0.3, type: 'spring', stiffness: 180 }}
+                    >
+                      <div className="relative">
+                        <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
+                        <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
+                      </div>
+                    </motion.div>
+
+                    <div className="relative z-10">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
+                        <item.icon className="h-4 w-4" style={{ color: item.color }} />
+                      </div>
+                      <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
+                      <p className="text-[12px] text-white/55 leading-relaxed">{item.desc}</p>
+                    </div>
+                    <span className="absolute bottom-3 right-4 text-[10px] text-white/30 z-10">Clique para ver mais →</span>
+                    {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent z-20" />}
                   </div>
-                  <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
-                  <p className="text-[12px] text-white/55 leading-relaxed">{item.desc}</p>
-                  {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent" />}
+
+                  {/* BACK */}
+                  <div
+                    className="absolute inset-0 rounded-2xl overflow-hidden border border-white/[0.1]"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  >
+                    <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${item.color}CC 0%, ${item.color}44 40%, transparent 100%)` }} />
+                    <div className="relative z-10 h-full flex flex-col justify-end p-6">
+                      <h3 className="text-[16px] font-black text-white mb-2 drop-shadow-lg">{item.backTitle}</h3>
+                      <p className="text-[12px] text-white/90 leading-relaxed drop-shadow-md">{item.backDesc}</p>
+                      <span className="mt-3 text-[10px] text-white/50">← Clique para voltar</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))}
