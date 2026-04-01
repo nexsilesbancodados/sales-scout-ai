@@ -334,7 +334,7 @@ export default function Landing() {
       
       {/* ═══ FAQ ═══ */}
       <section id="faq" className="relative py-16 px-4 md:px-8 scroll-mt-24">
-        <SectionHeader tag="FAQ" title={<>Perguntas <span className="text-white/20">frequentes.</span></>} />
+        <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/20">saber.</span></>} />
         <div className="max-w-2xl mx-auto space-y-2">
           {FAQ_DATA.map((item, i) => (
             <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
