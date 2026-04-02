@@ -1827,6 +1827,7 @@ export type Database = {
       }
       user_settings: {
         Row: {
+          active_chip_ids: string[] | null
           agent_name: string | null
           agent_persona: string | null
           agent_type: string | null
@@ -1842,6 +1843,8 @@ export type Database = {
           auto_start_hour: number | null
           batch_size: number | null
           blacklist: string[] | null
+          chip_rotation_enabled: boolean | null
+          chip_rotation_strategy: string | null
           closing_style: string | null
           communication_style: string | null
           cooldown_after_batch: boolean | null
@@ -1852,6 +1855,7 @@ export type Database = {
           deepseek_api_key: string | null
           email_notifications: boolean | null
           emoji_usage: string | null
+          extra_chip_instances: Json | null
           follow_up_tone: string | null
           google_meet_link: string | null
           greeting_style: string | null
@@ -1898,6 +1902,7 @@ export type Database = {
           work_days_only: boolean | null
         }
         Insert: {
+          active_chip_ids?: string[] | null
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
@@ -1913,6 +1918,8 @@ export type Database = {
           auto_start_hour?: number | null
           batch_size?: number | null
           blacklist?: string[] | null
+          chip_rotation_enabled?: boolean | null
+          chip_rotation_strategy?: string | null
           closing_style?: string | null
           communication_style?: string | null
           cooldown_after_batch?: boolean | null
@@ -1923,6 +1930,7 @@ export type Database = {
           deepseek_api_key?: string | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
+          extra_chip_instances?: Json | null
           follow_up_tone?: string | null
           google_meet_link?: string | null
           greeting_style?: string | null
@@ -1969,6 +1977,7 @@ export type Database = {
           work_days_only?: boolean | null
         }
         Update: {
+          active_chip_ids?: string[] | null
           agent_name?: string | null
           agent_persona?: string | null
           agent_type?: string | null
@@ -1984,6 +1993,8 @@ export type Database = {
           auto_start_hour?: number | null
           batch_size?: number | null
           blacklist?: string[] | null
+          chip_rotation_enabled?: boolean | null
+          chip_rotation_strategy?: string | null
           closing_style?: string | null
           communication_style?: string | null
           cooldown_after_batch?: boolean | null
@@ -1994,6 +2005,7 @@ export type Database = {
           deepseek_api_key?: string | null
           email_notifications?: boolean | null
           emoji_usage?: string | null
+          extra_chip_instances?: Json | null
           follow_up_tone?: string | null
           google_meet_link?: string | null
           greeting_style?: string | null
