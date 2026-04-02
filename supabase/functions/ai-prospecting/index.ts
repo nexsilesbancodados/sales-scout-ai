@@ -743,20 +743,10 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // Use global API keys
-      const serperApiKey = Deno.env.get("SERPER_API_KEY");
-      const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
-      
-      // Check if at least one API is configured
-      if (!serperApiKey && !serpApiKey) {
-        return new Response(JSON.stringify({ 
-          error: "Nenhuma API de busca configurada no servidor.", 
-          leads: [] 
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // DuckDuckGo is FREE - no API keys needed
+      const serperApiKey = null; // Removed - using free DuckDuckGo
+      const serpApiKey = null; // Removed - using free DuckDuckGo
+      const preferredApi = 'duckduckgo';
 
       // MAPEAMENTO COMPLETO DE BAIRROS - TODAS AS CAPITAIS E PRINCIPAIS CIDADES DO BRASIL
       const CITY_REGIONS: Record<string, string[]> = {
