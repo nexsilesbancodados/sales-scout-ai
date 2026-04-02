@@ -134,12 +134,12 @@ const App = () => (
                   </Route>
                   <Route path="/tests" element={<ProtectedRoute><TestsPage /></ProtectedRoute>} />
                   <Route path="/cnpj-radar" element={<ProtectedRoute><CNPJRadarPage /></ProtectedRoute>} />
-                  <Route path="/instagram-extractor" element={<ProtectedRoute><InstagramExtractorPage /></ProtectedRoute>} />
+                  <Route path="/instagram-extractor" element={<Navigate to="/social-extractor" replace />} />
                   <Route path="/sdr-agent" element={<ProtectedRoute><SDRAgentPage /></ProtectedRoute>} />
                   <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
                   <Route path="/api-reference" element={<ProtectedRoute><APIReferencePage /></ProtectedRoute>} />
                   <Route path="/social-extractor" element={<ProtectedRoute><SocialExtractorPage /></ProtectedRoute>} />
-                  <Route path="/facebook-extractor" element={<ProtectedRoute><FacebookExtractorPage /></ProtectedRoute>} />
+                  <Route path="/facebook-extractor" element={<Navigate to="/social-extractor" replace />} />
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
 
                   {/* CRM Module */}
