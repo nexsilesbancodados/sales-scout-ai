@@ -233,20 +233,12 @@ Deno.serve(async (req) => {
       });
     }
     
-    // Get user settings to retrieve their API keys
-    const { data: userSettings } = await supabase
-      .from("user_settings")
-      .select("deepseek_api_key, serpapi_api_key, serper_api_key, preferred_search_api")
-      .eq("user_id", effectiveUserId)
-      .single();
-
-    const USER_DEEPSEEK_KEY = userSettings?.deepseek_api_key;
+    // Use global API keys only (no per-user keys)
+    const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // Helper function to call AI via DeepSeek (primary), falls back to Lovable AI
     async function callAI(systemPrompt: string, userPrompt: string) {
-      const DEEPSEEK_API_KEY = USER_DEEPSEEK_KEY || Deno.env.get("DEEPSEEK_API_KEY");
-      
       if (DEEPSEEK_API_KEY) {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
           method: "POST",
