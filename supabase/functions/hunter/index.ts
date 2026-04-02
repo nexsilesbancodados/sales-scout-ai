@@ -79,35 +79,41 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use global API key
-    const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
-    if (!SERPAPI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "SerpAPI não configurada no servidor." }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    // Use DuckDuckGo (FREE - no API key needed)
+    const searchQuery = `${niches[0]} em ${locations[0]} telefone contato`;
+    console.log(`Searching DuckDuckGo (FREE) for: ${searchQuery}`);
 
-    const searchQuery = `${niches[0]} em ${locations[0]}`;
-    console.log(`Searching SerpAPI for: ${searchQuery}`);
-
-    const serpResponse = await fetch(
-      `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${SERPAPI_API_KEY}&hl=pt-br`
+    const ddgResponse = await fetch(
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}&kl=br-pt`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html',
+        },
+      }
     );
 
-    if (!serpResponse.ok) {
-      const errorText = await serpResponse.text();
-      console.error("SerpAPI error:", errorText);
-      throw new Error("Failed to search businesses with SerpAPI");
+    if (!ddgResponse.ok) {
+      throw new Error("Failed to search businesses with DuckDuckGo");
     }
 
-    const serpData = await serpResponse.json();
-    const localResults = serpData.local_results || [];
+    const html = await ddgResponse.text();
+    const blocks = html.split('class="result__body"');
+    const localResults: any[] = [];
 
-    console.log(`Found ${localResults.length} businesses from SerpAPI`);
+    for (let i = 1; i < blocks.length; i++) {
+      const block = blocks[i];
+      const titleMatch = block.match(/class="result__a"[^>]*>([^<]+)</);
+      const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').trim() : '';
+      const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+      const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+      const phoneMatch = `${title} ${snippet}`.match(/\(?\d{2}\)?\s*\d{4,5}[-.\s]?\d{4}/);
+      if (phoneMatch) {
+        localResults.push({ title, phone: phoneMatch[0], address: snippet.substring(0, 100) });
+      }
+    }
+
+    console.log(`Found ${localResults.length} businesses from DuckDuckGo (FREE)`);
 
     // Map SerpAPI results to our lead format
     const foundLeads = localResults.slice(0, 5).map((result: any) => ({
