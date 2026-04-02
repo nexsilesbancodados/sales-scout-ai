@@ -118,6 +118,7 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminRole();
   const { state } = useSidebar();
+  const { theme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
 
   const handleSignOut = async () => {
