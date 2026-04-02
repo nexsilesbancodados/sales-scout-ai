@@ -117,6 +117,68 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* ROI Quick Metrics */}
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-lg bg-success/8">
+                <TrendingUp className="h-3.5 w-3.5 text-success" />
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">ROI</span>
+            </div>
+            <p className="text-lg font-bold tabular-nums">
+              {metrics?.totalLeads && metrics?.leadsByStage?.['Ganho']
+                ? `${((metrics.leadsByStage['Ganho'] / metrics.totalLeads) * 100).toFixed(1)}%`
+                : '0%'}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Taxa de conversão geral</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-lg bg-primary/8">
+                <Target className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Custo/Lead</span>
+            </div>
+            <p className="text-lg font-bold tabular-nums">R$ 0,00</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Prospecção gratuita</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-lg bg-warning/8">
+                <Flame className="h-3.5 w-3.5 text-warning" />
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Pipeline</span>
+            </div>
+            <p className="text-lg font-bold tabular-nums">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(
+                (metrics?.leadsByStage?.['Proposta'] || 0) * 500 + (metrics?.leadsByStage?.['Negociação'] || 0) * 1000
+              )}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Valor estimado</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-lg bg-info/8">
+                <MessageSquare className="h-3.5 w-3.5 text-info" />
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Engajamento</span>
+            </div>
+            <p className="text-lg font-bold tabular-nums">
+              {metrics?.hotLeads || 0}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Leads quentes ativos</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Charts */}
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <ProspectionChart data={chartData} />
