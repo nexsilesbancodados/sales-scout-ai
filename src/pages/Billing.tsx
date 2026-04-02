@@ -17,9 +17,7 @@ import {
   Smartphone,
   Zap,
   Star,
-  ExternalLink,
   CreditCard,
-  Clock,
   AlertTriangle,
   CheckCircle2,
   XCircle,
@@ -27,35 +25,70 @@ import {
   Copy,
   Shield,
   ArrowRight,
-  Sparkles,
+  Clock,
+  Rocket,
+  Building2,
 } from 'lucide-react';
 
 const CAKTO_CHECKOUT_URL = 'https://pay.cakto.com.br/o5dfn8a_827823';
 
-const currentPlanInfo = {
-  id: 'pro',
-  name: 'Profissional',
-  tagline: 'Acesso completo',
-  icon: Crown,
-  monthlyPrice: 149,
-  features: [
-    'Disparos ilimitados',
-    '3 chips WhatsApp',
-    'Todos os extratores',
-    'Agente SDR ativo',
-    'Google Maps + Radar CNPJ',
-    'Leads ilimitados',
-    'Relatórios avançados',
-    'Anti-Ban inteligente',
-    'Suporte prioritário',
-  ],
-  chips: 3,
-  gradient: 'from-primary/15 via-primary/5 to-transparent',
-  borderColor: 'border-primary/30',
-  iconBg: 'bg-primary/15',
-  iconColor: 'text-primary',
-  accentColor: 'text-primary',
-};
+const plans = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    tagline: 'Para começar',
+    icon: Rocket,
+    monthlyPrice: 49,
+    chips: 1,
+    features: [
+      'Até 500 disparos/mês',
+      '1 chip WhatsApp',
+      'Google Maps',
+      'Prospecção agendada',
+      'Templates básicos',
+      'Suporte por email',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Profissional',
+    tagline: 'Mais popular',
+    icon: Crown,
+    monthlyPrice: 149,
+    chips: 3,
+    popular: true,
+    features: [
+      'Disparos ilimitados',
+      '3 chips WhatsApp',
+      'Todos os extratores',
+      'Agente SDR ativo',
+      'Google Maps + Radar CNPJ',
+      'Anti-Ban inteligente',
+      'Relatórios avançados',
+      'Teste A/B',
+      'Suporte prioritário',
+    ],
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    tagline: 'Para grandes equipes',
+    icon: Building2,
+    monthlyPrice: 349,
+    chips: 10,
+    features: [
+      'Tudo do Pro',
+      '10 chips WhatsApp',
+      'API pública',
+      'Múltiplos funis',
+      'Equipe ilimitada',
+      'Webhooks avançados',
+      'Onboarding dedicado',
+      'SLA de suporte',
+      'White-label (em breve)',
+    ],
+  },
+];
 
 const EVENT_LABELS: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
   purchase_approved: { label: 'Pagamento aprovado', color: 'text-emerald-500', icon: CheckCircle2 },
@@ -82,10 +115,11 @@ export default function BillingPage() {
   const { settings } = useUserSettings();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { subscription, paymentHistory, isActive, isPastDue, isLoading } = useSubscription();
+  const { subscription, paymentHistory, isActive, isPastDue } = useSubscription();
 
   const chipsConnected = settings?.whatsapp_connected ? 1 : 0;
   const leadsCount = leads?.length || 0;
+  const currentPlanId = subscription?.plan || 'free';
 
   const webhookUrl = `https://oeztpxyprifabkvysroh.supabase.co/functions/v1/cakto-webhook`;
 
@@ -130,28 +164,21 @@ export default function BillingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={statusBadge.variant} className="text-xs">
-                  {statusBadge.label}
-                </Badge>
-                <Badge className="bg-primary/15 text-primary border-primary/20 font-semibold">
-                  {currentPlanInfo.name}
-                </Badge>
+                <Badge variant={statusBadge.variant} className="text-xs">{statusBadge.label}</Badge>
               </div>
             </div>
 
             {isPastDue && (
               <div className="flex items-center gap-2.5 p-3 mb-5 rounded-xl bg-orange-500/10 border border-orange-500/20">
                 <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />
-                <p className="text-sm text-orange-400">
-                  Pagamento pendente. Regularize para manter o acesso.
-                </p>
+                <p className="text-sm text-orange-400">Pagamento pendente. Regularize para manter o acesso.</p>
               </div>
             )}
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { icon: MessageSquare, label: 'Disparos', value: 'Ilimitados ∞', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                { icon: Smartphone, label: 'Chips WhatsApp', value: `${chipsConnected}/${currentPlanInfo.chips}`, color: 'text-sky-500', bg: 'bg-sky-500/10' },
+                { icon: MessageSquare, label: 'Disparos', value: isActive ? 'Ilimitados ∞' : '50/mês', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                { icon: Smartphone, label: 'Chips WhatsApp', value: `${chipsConnected} conectado(s)`, color: 'text-sky-500', bg: 'bg-sky-500/10' },
                 { icon: Star, label: 'Leads Capturados', value: `${leadsCount.toLocaleString()}`, color: 'text-amber-500', bg: 'bg-amber-500/10' },
                 { icon: CreditCard, label: 'Valor', value: subscription?.amount ? `R$ ${(subscription.amount / 100).toFixed(0)}/mês` : 'Gratuito', color: 'text-violet-500', bg: 'bg-violet-500/10' },
               ].map((stat) => (
@@ -169,79 +196,95 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
-        {/* Single Plan */}
-        <Card className={cn(
-          "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up max-w-lg mx-auto",
-          "bg-gradient-to-b from-primary/15 via-primary/5 to-transparent",
-          "ring-2 ring-primary/30 shadow-xl shadow-primary/5",
-          isActive && 'ring-2 ring-primary/40'
-        )}>
-          <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
-
-          <CardContent className="p-6 pt-7">
-            <div className="mb-6">
-              <div className="inline-flex p-3 rounded-2xl mb-4 bg-primary/15">
-                <Crown className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-bold">{currentPlanInfo.name}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{currentPlanInfo.tagline}</p>
-            </div>
-
-            <div className="mb-6">
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm text-muted-foreground">R$</span>
-                <span className="text-4xl font-extrabold tracking-tight">{currentPlanInfo.monthlyPrice}</span>
-                <span className="text-sm text-muted-foreground">/mês</span>
-              </div>
-            </div>
-
-            <ul className="space-y-2.5 mb-6">
-              {currentPlanInfo.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-2.5 text-sm">
-                  <div className="p-0.5 rounded-full bg-primary/15">
-                    <Check className="h-3 w-3 text-primary" />
-                  </div>
-                  <span className="text-muted-foreground">{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              className={cn(
-                "w-full h-11 font-semibold text-sm gap-2 transition-all",
-                !isActive && "gradient-primary shadow-md hover:shadow-lg",
-                isActive && "bg-muted text-muted-foreground"
-              )}
-              variant={isActive ? 'secondary' : 'default'}
-              disabled={isActive}
-              asChild={!isActive}
-            >
-              {isActive ? (
-                <span className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Plano atual
-                </span>
-              ) : (
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
+        {/* Plans grid */}
+        <div>
+          <h2 className="text-lg font-bold mb-4">Escolha seu plano</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {plans.map((plan, i) => {
+              const isCurrentPlan = currentPlanId === plan.id || (isActive && plan.id === 'pro');
+              const PlanIcon = plan.icon;
+              return (
+                <Card
+                  key={plan.id}
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up",
+                    plan.popular
+                      ? "ring-2 ring-primary/40 shadow-xl shadow-primary/10 bg-gradient-to-b from-primary/10 via-primary/3 to-transparent"
+                      : "bg-gradient-to-b from-muted/30 to-transparent ring-1 ring-border/50",
+                    isCurrentPlan && 'ring-2 ring-primary/50'
+                  )}
+                  style={{ animationDelay: `${i * 100}ms` }}
                 >
-                  Assinar agora
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              )}
-            </Button>
+                  {plan.popular && (
+                    <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+                  )}
 
-            {!isActive && (
-              <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 mt-3">
-                <Shield className="h-3 w-3" />
-                Pagamento seguro via Cakto
-              </p>
-            )}
-          </CardContent>
-        </Card>
+                  <CardContent className="p-5 pt-6">
+                    {plan.popular && (
+                      <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px]">
+                        Mais popular
+                      </Badge>
+                    )}
+
+                    <div className="mb-5">
+                      <div className={cn("inline-flex p-2.5 rounded-xl mb-3", plan.popular ? 'bg-primary/15' : 'bg-muted/50')}>
+                        <PlanIcon className={cn("h-5 w-5", plan.popular ? 'text-primary' : 'text-muted-foreground')} />
+                      </div>
+                      <h3 className="text-lg font-bold">{plan.name}</h3>
+                      <p className="text-xs text-muted-foreground">{plan.tagline}</p>
+                    </div>
+
+                    <div className="mb-5">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-sm text-muted-foreground">R$</span>
+                        <span className="text-3xl font-extrabold tracking-tight">{plan.monthlyPrice}</span>
+                        <span className="text-sm text-muted-foreground">/mês</span>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-2 mb-5">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm">
+                          <div className={cn("p-0.5 rounded-full", plan.popular ? 'bg-primary/15' : 'bg-muted/50')}>
+                            <Check className={cn("h-3 w-3", plan.popular ? 'text-primary' : 'text-muted-foreground')} />
+                          </div>
+                          <span className="text-muted-foreground text-xs">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      className={cn(
+                        "w-full h-10 font-semibold text-sm gap-2 transition-all",
+                        isCurrentPlan && "bg-muted text-muted-foreground",
+                        !isCurrentPlan && plan.popular && "gradient-primary shadow-md hover:shadow-lg",
+                      )}
+                      variant={isCurrentPlan ? 'secondary' : plan.popular ? 'default' : 'outline'}
+                      disabled={isCurrentPlan}
+                      asChild={!isCurrentPlan}
+                    >
+                      {isCurrentPlan ? (
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Plano atual
+                        </span>
+                      ) : (
+                        <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                          Assinar agora
+                          <ArrowRight className="h-4 w-4" />
+                        </a>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/50 mt-4">
+            <Shield className="h-3 w-3" />
+            Pagamento seguro via Cakto • Cancele quando quiser
+          </p>
+        </div>
 
         {/* Payment History */}
         {paymentHistory.length > 0 && (
@@ -260,38 +303,22 @@ export default function BillingPage() {
             <CardContent>
               <div className="space-y-1.5">
                 {paymentHistory.map((event) => {
-                  const eventInfo = EVENT_LABELS[event.event_type] || {
-                    label: event.event_type,
-                    color: 'text-muted-foreground',
-                    icon: Clock,
-                  };
+                  const eventInfo = EVENT_LABELS[event.event_type] || { label: event.event_type, color: 'text-muted-foreground', icon: Clock };
                   const EventIcon = eventInfo.icon;
-
                   return (
-                    <div
-                      key={event.id}
-                      className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors"
-                    >
+                    <div key={event.id} className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/40 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="p-1.5 rounded-lg bg-background">
                           <EventIcon className={cn("h-3.5 w-3.5", eventInfo.color)} />
                         </div>
                         <div>
                           <p className="text-sm font-medium">{eventInfo.label}</p>
-                          {event.product_name && (
-                            <p className="text-[11px] text-muted-foreground">{event.product_name}</p>
-                          )}
+                          {event.product_name && <p className="text-[11px] text-muted-foreground">{event.product_name}</p>}
                         </div>
                       </div>
                       <div className="text-right">
-                        {event.amount > 0 && (
-                          <p className="text-sm font-bold">
-                            R$ {(event.amount / 100).toFixed(2)}
-                          </p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground">
-                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}
-                        </p>
+                        {event.amount > 0 && <p className="text-sm font-bold">R$ {(event.amount / 100).toFixed(2)}</p>}
+                        <p className="text-[10px] text-muted-foreground">{format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}</p>
                       </div>
                     </div>
                   );
@@ -306,25 +333,19 @@ export default function BillingPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-muted-foreground/60" />
-              <CardTitle className="text-xs text-muted-foreground/60 font-medium">
-                Integração Cakto (Admin)
-              </CardTitle>
+              <CardTitle className="text-xs text-muted-foreground/60 font-medium">Integração Cakto (Admin)</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
               <p className="text-[10px] text-muted-foreground/60">URL do Webhook</p>
               <div className="flex items-center gap-2 mt-1">
-                <code className="flex-1 text-[11px] bg-muted/50 p-2.5 rounded-lg font-mono break-all select-all text-muted-foreground">
-                  {webhookUrl}
-                </code>
+                <code className="flex-1 text-[11px] bg-muted/50 p-2.5 rounded-lg font-mono break-all select-all text-muted-foreground">{webhookUrl}</code>
                 <Button variant="ghost" size="sm" onClick={() => copyToClipboard(webhookUrl)} className="gap-1.5 shrink-0 h-8 text-xs">
-                  <Copy className="h-3 w-3" />
-                  Copiar
+                  <Copy className="h-3 w-3" />Copiar
                 </Button>
               </div>
             </div>
-
             <details className="group">
               <summary className="text-[11px] text-muted-foreground/50 cursor-pointer hover:text-muted-foreground transition-colors list-none flex items-center gap-1">
                 <ArrowRight className="h-3 w-3 transition-transform group-open:rotate-90" />

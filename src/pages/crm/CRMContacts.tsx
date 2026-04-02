@@ -50,9 +50,12 @@ export default function CRMContactsPage() {
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [tempFilter, setTempFilter] = useState<string>('all');
   const [tagFilter, setTagFilter] = useState<string>('all');
+  const [scoreFilter, setScoreFilter] = useState<string>('all');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [newTagInput, setNewTagInput] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Get all unique tags
   const allTags = useMemo(() => {
@@ -61,17 +64,32 @@ export default function CRMContactsPage() {
     return Array.from(tagSet).sort();
   }, [leads]);
 
+  // Unique sources
+  const allSources = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.source && s.add(l.source));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter].filter(f => f !== 'all').length;
+
   const filtered = useMemo(() => {
     let result = leads;
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s));
+      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s));
     }
     if (stageFilter !== 'all') result = result.filter(l => l.stage === stageFilter);
     if (tempFilter !== 'all') result = result.filter(l => l.temperature === tempFilter);
     if (tagFilter !== 'all') result = result.filter(l => l.tags?.includes(tagFilter));
+    if (scoreFilter !== 'all') {
+      if (scoreFilter === 'high') result = result.filter(l => l.lead_score >= 60);
+      else if (scoreFilter === 'medium') result = result.filter(l => l.lead_score >= 30 && l.lead_score < 60);
+      else if (scoreFilter === 'low') result = result.filter(l => l.lead_score < 30);
+    }
+    if (sourceFilter !== 'all') result = result.filter(l => l.source === sourceFilter);
     return result;
-  }, [leads, search, stageFilter, tempFilter, tagFilter]);
+  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
@@ -225,7 +243,59 @@ export default function CRMContactsPage() {
           <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 rounded-lg" onClick={() => setViewMode('grid')}><LayoutGrid className="h-3.5 w-3.5" /></Button>
         </div>
         <Button variant="outline" size="sm" className="h-9 rounded-xl text-xs" onClick={exportCSV}><Download className="h-3.5 w-3.5 mr-1" />Exportar</Button>
+        <Button
+          variant={showAdvancedFilters ? 'secondary' : 'outline'}
+          size="sm"
+          className="h-9 rounded-xl text-xs gap-1"
+          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+        >
+          <Filter className="h-3.5 w-3.5" />
+          Filtros
+          {activeFilterCount > 0 && (
+            <Badge className="h-4 w-4 p-0 text-[9px] flex items-center justify-center rounded-full bg-primary text-primary-foreground">{activeFilterCount}</Badge>
+          )}
+        </Button>
       </div>
+
+      {/* Advanced filters */}
+      {showAdvancedFilters && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl bg-muted/20 border border-border/30 animate-fade-in">
+          <Select value={scoreFilter} onValueChange={setScoreFilter}>
+            <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue placeholder="Score" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos scores</SelectItem>
+              <SelectItem value="high">🟢 Alto (60+)</SelectItem>
+              <SelectItem value="medium">🟡 Médio (30-59)</SelectItem>
+              <SelectItem value="low">🔴 Baixo (&lt;30)</SelectItem>
+            </SelectContent>
+          </Select>
+          {allSources.length > 0 && (
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder="Fonte" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas fontes</SelectItem>
+                {allSources.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+          {activeFilterCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs gap-1 text-muted-foreground"
+              onClick={() => {
+                setStageFilter('all');
+                setTempFilter('all');
+                setTagFilter('all');
+                setScoreFilter('all');
+                setSourceFilter('all');
+              }}
+            >
+              <X className="h-3 w-3" /> Limpar filtros
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Bulk actions bar */}
       {selected.size > 0 && (
