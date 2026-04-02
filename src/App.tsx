@@ -101,6 +101,7 @@ const App = () => (
                   {/* Prospecção */}
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
                   <Route path="/google-maps" element={<ProtectedRoute><GoogleMapsPage /></ProtectedRoute>} />
+                  <Route path="/prospect-map" element={<ProtectedRoute><ProspectMapPage /></ProtectedRoute>} />
                   <Route path="/web-search" element={<ProtectedRoute><WebSearchPage /></ProtectedRoute>} />
                   <Route path="/whatsapp-groups" element={<ProtectedRoute><WhatsAppGroupsPage /></ProtectedRoute>} />
                   <Route path="/import-leads" element={<ProtectedRoute><ImportLeadsPage /></ProtectedRoute>} />
