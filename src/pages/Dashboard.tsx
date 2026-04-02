@@ -213,7 +213,7 @@ export default function DashboardPage() {
               <Link to="/prospecting"><Target className="mr-1.5 h-3.5 w-3.5" />Prospectar</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="h-10 text-xs font-semibold border-border/50">
-              <Link to="/leads"><Users className="mr-1.5 h-3.5 w-3.5" />Ver Leads</Link>
+              <Link to="/crm/contacts"><Users className="mr-1.5 h-3.5 w-3.5" />Ver Leads</Link>
             </Button>
           </div>
         </div>
