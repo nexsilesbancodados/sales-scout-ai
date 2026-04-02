@@ -292,7 +292,7 @@ export default function ProspectMapPage() {
                 <FlyToLocation lat={mapCenter.lat} lng={mapCenter.lng} zoom={mapCenter.zoom} />
                 <ReverseGeocodeClick onResult={handleReverseGeocode} />
 
-                <MarkerClusterGroup chunkedLoading>
+                <>
                   {results.map((r, i) => (
                     <Marker key={i} position={[r.lat, r.lng]}>
                       <Popup maxWidth={280}>
@@ -314,7 +314,7 @@ export default function ProspectMapPage() {
                       </Popup>
                     </Marker>
                   ))}
-                </MarkerClusterGroup>
+                </>
 
                 {clickPopup && (
                   <Popup position={[clickPopup.lat, clickPopup.lng]} eventHandlers={{ remove: () => setClickPopup(null) }}>
