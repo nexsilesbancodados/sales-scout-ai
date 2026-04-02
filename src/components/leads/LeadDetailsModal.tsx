@@ -243,6 +243,7 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
   const logoUrl = lead?.website ? enrichmentApi.getLogoUrl(lead.website) : null;
 
 
+  const priorityColors: Record<string, string> = {
     alta: 'bg-destructive/10 text-destructive border-destructive/20',
     media: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
     baixa: 'bg-muted text-muted-foreground border-muted',
