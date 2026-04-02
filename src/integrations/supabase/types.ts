@@ -811,6 +811,38 @@ export type Database = {
           },
         ]
       }
+      lead_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_qualification: {
         Row: {
           authority_confidence: number | null
@@ -915,13 +947,17 @@ export type Database = {
           hunter_email_confidence: number | null
           id: string
           industry: string | null
+          instagram_bio: string | null
+          instagram_fetched_at: string | null
           instagram_url: string | null
           last_contact_at: string | null
           last_response_at: string | null
           last_scored_at: string | null
+          lat: number | null
           lead_group: string | null
           lead_score: number | null
           linkedin_url: string | null
+          lng: number | null
           location: string | null
           message_sent: boolean | null
           next_follow_up_at: string | null
@@ -970,13 +1006,17 @@ export type Database = {
           hunter_email_confidence?: number | null
           id?: string
           industry?: string | null
+          instagram_bio?: string | null
+          instagram_fetched_at?: string | null
           instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
           last_scored_at?: string | null
+          lat?: number | null
           lead_group?: string | null
           lead_score?: number | null
           linkedin_url?: string | null
+          lng?: number | null
           location?: string | null
           message_sent?: boolean | null
           next_follow_up_at?: string | null
@@ -1025,13 +1065,17 @@ export type Database = {
           hunter_email_confidence?: number | null
           id?: string
           industry?: string | null
+          instagram_bio?: string | null
+          instagram_fetched_at?: string | null
           instagram_url?: string | null
           last_contact_at?: string | null
           last_response_at?: string | null
           last_scored_at?: string | null
+          lat?: number | null
           lead_group?: string | null
           lead_score?: number | null
           linkedin_url?: string | null
+          lng?: number | null
           location?: string | null
           message_sent?: boolean | null
           next_follow_up_at?: string | null
