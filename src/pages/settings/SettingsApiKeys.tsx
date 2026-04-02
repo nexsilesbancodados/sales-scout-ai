@@ -5,10 +5,9 @@ import { Sparkles, Search, Mail, Bot, Shield, CheckCircle2 } from 'lucide-react'
 
 const services = [
   { icon: Sparkles, label: 'DeepSeek IA', desc: 'Geração de mensagens, respostas automáticas e análise de leads', color: 'text-blue-500' },
-  { icon: Search, label: 'Serper.dev', desc: 'Busca de empresas no Google e Google Maps', color: 'text-green-500' },
-  { icon: Search, label: 'SerpAPI', desc: 'API alternativa de busca (fallback automático)', color: 'text-orange-500' },
-  { icon: Mail, label: 'Hunter.io', desc: 'Descoberta e verificação de emails profissionais', color: 'text-purple-500' },
-  { icon: Bot, label: 'Apify', desc: 'Extração de dados do Instagram e Facebook', color: 'text-pink-500' },
+  { icon: Search, label: 'DuckDuckGo', desc: 'Busca gratuita de empresas na web (sem custo de API)', color: 'text-green-500' },
+  { icon: Mail, label: 'Email Finder', desc: 'Descoberta de emails via padrões DNS e scraping (gratuito)', color: 'text-purple-500' },
+  { icon: Bot, label: 'Extrator Social', desc: 'Extração gratuita de perfis do Instagram e Facebook', color: 'text-pink-500' },
   { icon: Search, label: 'Firecrawl', desc: 'Busca e scraping avançado de websites', color: 'text-cyan-500' },
 ];
 
