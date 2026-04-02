@@ -55,6 +55,7 @@ import {
   Search,
   TrendingUp,
   Crown,
+  Map,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -66,6 +67,7 @@ const mainItems = [
 // ─── PROSPECÇÃO ─────────────────────────────────────────
 const prospectItems = [
   { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA' },
+  { title: 'Mapa', icon: Map, path: '/prospect-map' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
   { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
   { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting' },

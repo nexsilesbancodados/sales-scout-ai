@@ -21,6 +21,7 @@ const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
 const GoogleMapsPage = lazy(() => import("./pages/GoogleMaps"));
+const ProspectMapPage = lazy(() => import("./pages/ProspectMap"));
 const WebSearchPage = lazy(() => import("./pages/WebSearch"));
 const WhatsAppGroupsPage = lazy(() => import("./pages/WhatsAppGroups"));
 const ImportLeadsPage = lazy(() => import("./pages/ImportLeads"));
@@ -100,6 +101,7 @@ const App = () => (
                   {/* Prospecção */}
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
                   <Route path="/google-maps" element={<ProtectedRoute><GoogleMapsPage /></ProtectedRoute>} />
+                  <Route path="/prospect-map" element={<ProtectedRoute><ProspectMapPage /></ProtectedRoute>} />
                   <Route path="/web-search" element={<ProtectedRoute><WebSearchPage /></ProtectedRoute>} />
                   <Route path="/whatsapp-groups" element={<ProtectedRoute><WhatsAppGroupsPage /></ProtectedRoute>} />
                   <Route path="/import-leads" element={<ProtectedRoute><ImportLeadsPage /></ProtectedRoute>} />
