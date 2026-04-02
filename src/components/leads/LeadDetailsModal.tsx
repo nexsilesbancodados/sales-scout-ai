@@ -26,8 +26,9 @@ import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { useToast } from '@/hooks/use-toast';
 import {
   Building2,
@@ -51,6 +52,8 @@ import {
   DollarSign,
   FileText,
   Copy,
+  Search,
+  Shield,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -90,6 +93,8 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
   
   const [editMode, setEditMode] = useState(false);
   const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [enrichmentData, setEnrichmentData] = useState<Record<string, any> | null>(null);
   const [proposalText, setProposalText] = useState('');
   const [proposalOpen, setProposalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -217,6 +222,27 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     }
   };
 
+  const handleEnrichLead = async () => {
+    if (!lead) return;
+    setIsEnriching(true);
+    try {
+      const data = await enrichmentApi.enrichLead({
+        phone: lead.phone,
+        website: lead.website || undefined,
+        address: lead.address || undefined,
+      });
+      setEnrichmentData(data);
+      toast({ title: 'Enriquecimento concluído', description: 'Dados adicionais carregados com sucesso' });
+    } catch (err) {
+      toast({ title: 'Erro no enriquecimento', description: String(err), variant: 'destructive' });
+    } finally {
+      setIsEnriching(false);
+    }
+  };
+
+  const logoUrl = lead?.website ? enrichmentApi.getLogoUrl(lead.website) : null;
+
+
   const priorityColors: Record<string, string> = {
     alta: 'bg-destructive/10 text-destructive border-destructive/20',
     media: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
@@ -232,6 +258,7 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
+                {logoUrl && <AvatarImage src={logoUrl} alt={lead.business_name} />}
                 <AvatarFallback className="bg-primary/10 text-primary text-lg">
                   {lead.business_name[0]}
                 </AvatarFallback>
@@ -431,7 +458,56 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       ? <><Loader2 className="h-4 w-4 animate-spin" />Gerando proposta...</>
                       : <><FileText className="h-4 w-4" />Gerar Proposta com IA</>
                     }
-                  </Button>
+                   </Button>
+                   <Button
+                     variant="outline"
+                     onClick={handleEnrichLead}
+                     disabled={isEnriching}
+                     className="w-full gap-2"
+                   >
+                     {isEnriching
+                       ? <><Loader2 className="h-4 w-4 animate-spin" />Enriquecendo...</>
+                       : <><Search className="h-4 w-4" />Enriquecer Lead (CEP, WHOIS, DDD)</>
+                     }
+                   </Button>
+
+                   {enrichmentData && (
+                     <div className="space-y-3 mt-4 p-4 rounded-lg border bg-card">
+                       <p className="text-sm font-medium flex items-center gap-2">
+                         <Shield className="h-4 w-4 text-primary" />
+                         Dados Enriquecidos
+                       </p>
+                       {enrichmentData.ddd_info && !enrichmentData.ddd_info.error && (
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">DDD {enrichmentData.ddd_info.state}: </span>
+                           <span>{(enrichmentData.ddd_info.cities || []).slice(0, 5).join(', ')}</span>
+                         </div>
+                       )}
+                       {enrichmentData.whois && !enrichmentData.whois.error && (
+                         <div className="text-sm space-y-1">
+                           <p><span className="text-muted-foreground">Domínio: </span>{enrichmentData.whois.domain}</p>
+                           {enrichmentData.whois.registered_at && (
+                             <p><span className="text-muted-foreground">Registrado em: </span>{new Date(enrichmentData.whois.registered_at).toLocaleDateString('pt-BR')}</p>
+                           )}
+                           {enrichmentData.whois.expires_at && (
+                             <p><span className="text-muted-foreground">Expira em: </span>{new Date(enrichmentData.whois.expires_at).toLocaleDateString('pt-BR')}</p>
+                           )}
+                           {enrichmentData.whois.registrant_name && (
+                             <p><span className="text-muted-foreground">Proprietário: </span>{enrichmentData.whois.registrant_name}</p>
+                           )}
+                           {enrichmentData.whois.registrant_email && (
+                             <p><span className="text-muted-foreground">Email registrante: </span>{enrichmentData.whois.registrant_email}</p>
+                           )}
+                         </div>
+                       )}
+                       {enrichmentData.logo && (
+                         <div className="flex items-center gap-2 text-sm">
+                           <span className="text-muted-foreground">Logo: </span>
+                           <img src={enrichmentData.logo.logo_url} alt="Logo" className="h-6 w-6 rounded" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                         </div>
+                       )}
+                     </div>
+                   )}
                 </div>
               )}
             </div>
