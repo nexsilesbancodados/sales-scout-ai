@@ -33,8 +33,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
+    // Sanitize URL: remove trailing slashes and any extra path segments
+    let EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
     const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
+    
+    if (EVOLUTION_API_URL) {
+      // Remove trailing slash
+      EVOLUTION_API_URL = EVOLUTION_API_URL.replace(/\/+$/, "");
+      // If URL has extra path like /projects/xxx, strip it to base URL only
+      try {
+        const parsed = new URL(EVOLUTION_API_URL);
+        if (parsed.pathname && parsed.pathname !== "/" && parsed.pathname.length > 1) {
+          console.log(`Stripping extra path from EVOLUTION_API_URL: ${parsed.pathname}`);
+          EVOLUTION_API_URL = `${parsed.protocol}//${parsed.host}`;
+        }
+      } catch (_) {
+        // keep as-is if URL parsing fails
+      }
+      console.log(`Using Evolution API URL: ${EVOLUTION_API_URL}`);
+    }
 
     if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
       return new Response(
