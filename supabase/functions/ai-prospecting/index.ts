@@ -74,13 +74,17 @@ async function processSearchLeadsInBackground(
       for (let start = 0; start < 100; start += 20) {
         if (allLeads.length >= maxResults) break;
 
-        const searchQuery = `${searchTerm} em ${location}`;
-        console.log(`[Job ${jobId}] Searching: "${searchQuery}" (start: ${start})`);
+        const searchQuery = `${searchTerm} em ${location} telefone contato`;
+        console.log(`[Job ${jobId}] Searching DDG: "${searchQuery}"`);
         
         try {
-          const serpResponse = await fetch(
-            `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
-          );
+          const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}&kl=br-pt`;
+          const serpResponse = await fetch(ddgUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html',
+            },
+          });
 
           if (!serpResponse.ok) {
             console.error(`[Job ${jobId}] SerpAPI error:`, await serpResponse.text());
