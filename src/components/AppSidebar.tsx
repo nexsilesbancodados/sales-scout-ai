@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/lib/auth';
 import { useAdminRole } from '@/hooks/use-admin';
+import { useTheme } from 'next-themes';
 import {
   Sidebar,
   SidebarContent,
