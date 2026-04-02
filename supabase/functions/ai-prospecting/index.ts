@@ -759,10 +759,49 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // DuckDuckGo is FREE - no API keys needed
-      const serperApiKey = null; // Removed - using free DuckDuckGo
-      const serpApiKey = null; // Removed - using free DuckDuckGo
-      const preferredApi = 'duckduckgo';
+      // Get user's own API keys from settings
+      const { data: userSettings } = await supabase
+        .from("user_settings")
+        .select("serpapi_api_key, serper_api_key, preferred_search_api")
+        .eq("user_id", effectiveUserId)
+        .single();
+      
+      const serpApiKey = userSettings?.serpapi_api_key || null;
+      const serperApiKey = userSettings?.serper_api_key || null;
+      const preferredApi = userSettings?.preferred_search_api || (serperApiKey ? 'serper' : serpApiKey ? 'serpapi' : 'duckduckgo');
+      
+      // Normalize niche and location for community DB matching
+      const nicheNormalized = niche.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const locationNormalized = location.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      
+      // STEP 1: Check community database first
+      let communityLeads: any[] = [];
+      try {
+        const { data: cached } = await supabase
+          .from("community_leads")
+          .select("*")
+          .eq("niche_normalized", nicheNormalized)
+          .eq("location_normalized", locationNormalized);
+        
+        if (cached && cached.length > 0) {
+          communityLeads = cached.map((cl: any) => ({
+            business_name: cl.business_name,
+            phone: cl.phone,
+            address: cl.address,
+            rating: cl.rating ? Number(cl.rating) : null,
+            reviews_count: cl.reviews_count,
+            website: cl.website,
+            google_maps_url: cl.google_maps_url,
+            place_id: null,
+            type: null,
+            subtype: cl.niche,
+            source: 'community_db',
+          }));
+          console.log(`📦 Found ${communityLeads.length} leads in community database for ${niche} in ${location}`);
+        }
+      } catch (err) {
+        console.error("Community DB check error:", err);
+      }
 
       // MAPEAMENTO COMPLETO DE BAIRROS - TODAS AS CAPITAIS E PRINCIPAIS CIDADES DO BRASIL
       const CITY_REGIONS: Record<string, string[]> = {
