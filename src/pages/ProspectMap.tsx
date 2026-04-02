@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
+// MarkerClusterGroup removed - incompatible with React 18
 import L from 'leaflet';
 import { Search, MapPin, Phone, Globe, Mail, Save, Loader2, X, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { geocodeLocation, reverseGeocode } from '@/lib/nominatim';
@@ -292,7 +292,7 @@ export default function ProspectMapPage() {
                 <FlyToLocation lat={mapCenter.lat} lng={mapCenter.lng} zoom={mapCenter.zoom} />
                 <ReverseGeocodeClick onResult={handleReverseGeocode} />
 
-                <MarkerClusterGroup chunkedLoading>
+                <>
                   {results.map((r, i) => (
                     <Marker key={i} position={[r.lat, r.lng]}>
                       <Popup maxWidth={280}>
@@ -314,7 +314,7 @@ export default function ProspectMapPage() {
                       </Popup>
                     </Marker>
                   ))}
-                </MarkerClusterGroup>
+                </>
 
                 {clickPopup && (
                   <Popup position={[clickPopup.lat, clickPopup.lng]} eventHandlers={{ remove: () => setClickPopup(null) }}>
