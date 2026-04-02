@@ -93,6 +93,8 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
   
   const [editMode, setEditMode] = useState(false);
   const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [enrichmentData, setEnrichmentData] = useState<Record<string, any> | null>(null);
   const [proposalText, setProposalText] = useState('');
   const [proposalOpen, setProposalOpen] = useState(false);
   const [formData, setFormData] = useState({
