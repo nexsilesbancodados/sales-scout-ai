@@ -233,20 +233,12 @@ Deno.serve(async (req) => {
       });
     }
     
-    // Get user settings to retrieve their API keys
-    const { data: userSettings } = await supabase
-      .from("user_settings")
-      .select("deepseek_api_key, serpapi_api_key, serper_api_key, preferred_search_api")
-      .eq("user_id", effectiveUserId)
-      .single();
-
-    const USER_DEEPSEEK_KEY = userSettings?.deepseek_api_key;
+    // Use global API keys only (no per-user keys)
+    const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // Helper function to call AI via DeepSeek (primary), falls back to Lovable AI
     async function callAI(systemPrompt: string, userPrompt: string) {
-      const DEEPSEEK_API_KEY = USER_DEEPSEEK_KEY || Deno.env.get("DEEPSEEK_API_KEY");
-      
       if (DEEPSEEK_API_KEY) {
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
           method: "POST",
@@ -751,15 +743,14 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // Determine which API to use based on user preference
-      const preferredApi = userSettings?.preferred_search_api || 'serper';
-      const serperApiKey = userSettings?.serper_api_key;
-      const serpApiKey = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
+      // Use global API keys
+      const serperApiKey = Deno.env.get("SERPER_API_KEY");
+      const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
       
       // Check if at least one API is configured
       if (!serperApiKey && !serpApiKey) {
         return new Response(JSON.stringify({ 
-          error: "Nenhuma API de busca configurada. Configure Serper.dev ou SerpAPI em Configurações > APIs.", 
+          error: "Nenhuma API de busca configurada no servidor.", 
           leads: [] 
         }), {
           status: 400,

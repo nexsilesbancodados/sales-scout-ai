@@ -39,19 +39,13 @@ Deno.serve(async (req: Request) => {
 
     const { queries, limit = 30, search_type = "hashtag", niche, location, quantity, contactOnly } = await req.json();
 
-    // Get user's Apify token from settings
-    const { data: settings } = await supabase
-      .from("user_settings")
-      .select("apify_token")
-      .eq("user_id", user.id)
-      .single();
-
-    const apifyToken = (settings as any)?.apify_token;
+    // Use global Apify token
+    const apifyToken = Deno.env.get("APIFY_TOKEN");
     if (!apifyToken) {
       return new Response(
-        JSON.stringify({ error: "Apify token não configurado. Adicione em Configurações > APIs." }),
+        JSON.stringify({ error: "Apify token não configurado no servidor." }),
         {
-          status: 400,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
