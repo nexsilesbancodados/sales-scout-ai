@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -114,6 +115,32 @@ function SidebarContent({ navigate, initials, email, stats }: {
   );
 }
 
+function CRMBreadcrumb() {
+  const location = useLocation();
+  const current = crmNav.find(n => location.pathname.startsWith(n.to));
+  const isDetail = location.pathname.match(/\/crm\/contacts\/.+/);
+
+  return (
+    <div className="hidden md:flex items-center gap-1.5 px-6 py-2.5 border-b border-border/30 text-xs text-muted-foreground">
+      <NavLink to="/dashboard" className="hover:text-foreground transition-colors">App</NavLink>
+      <ChevronRight className="h-3 w-3" />
+      <NavLink to="/crm/pipeline" className="hover:text-foreground transition-colors">CRM</NavLink>
+      {current && (
+        <>
+          <ChevronRight className="h-3 w-3" />
+          <span className={cn("font-medium", !isDetail && "text-foreground")}>{current.label}</span>
+        </>
+      )}
+      {isDetail && (
+        <>
+          <ChevronRight className="h-3 w-3" />
+          <span className="font-medium text-foreground">Detalhes</span>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function CRMLayout() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -163,6 +190,8 @@ export default function CRMLayout() {
       </div>
 
       <main className="flex-1 overflow-y-auto md:pt-0 pt-14">
+        {/* Breadcrumb */}
+        <CRMBreadcrumb />
         <Outlet />
       </main>
     </div>

@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/lib/auth';
 import { useAdminRole } from '@/hooks/use-admin';
+import { useTheme } from 'next-themes';
 import {
   Sidebar,
   SidebarContent,
@@ -54,6 +55,8 @@ import {
   Search,
   Crown,
   Map,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -115,6 +118,7 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminRole();
   const { state } = useSidebar();
+  const { theme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
 
   const handleSignOut = async () => {
@@ -266,6 +270,39 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border/30 space-y-1">
+        {/* Theme toggle */}
+        <SidebarMenu className="space-y-0.5">
+          <SidebarMenuItem>
+            {collapsed ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SidebarMenuButton
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="rounded-xl h-9 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  >
+                    <div className="flex items-center justify-center px-3">
+                      <Sun className="h-[17px] w-[17px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-[17px] w-[17px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    </div>
+                  </SidebarMenuButton>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="font-medium">Alternar tema</TooltipContent>
+              </Tooltip>
+            ) : (
+              <SidebarMenuButton
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="rounded-xl h-9 text-muted-foreground hover:text-foreground hover:bg-accent"
+              >
+                <div className="flex items-center gap-3 px-3">
+                  <Sun className="h-[17px] w-[17px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[17px] w-[17px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 ml-[0px]" />
+                  <span className="text-[13px] font-medium">{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>
+                </div>
+              </SidebarMenuButton>
+            )}
+          </SidebarMenuItem>
+        </SidebarMenu>
+
         <SidebarMenu className="space-y-0.5">
           {[
             { title: 'Configurações', icon: Settings, path: '/settings' },
