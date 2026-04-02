@@ -87,41 +87,55 @@ async function processSearchLeadsInBackground(
           });
 
           if (!serpResponse.ok) {
-            console.error(`[Job ${jobId}] SerpAPI error:`, await serpResponse.text());
+            console.error(`[Job ${jobId}] DDG error:`, serpResponse.status);
             continue;
           }
 
-          const serpData = await serpResponse.json();
-          const localResults = serpData.local_results || [];
+          const html = await serpResponse.text();
+          const blocks = html.split('class="result__body"');
           
-          if (localResults.length === 0) break;
+          if (blocks.length <= 1) break;
 
-          console.log(`[Job ${jobId}] Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
+          console.log(`[Job ${jobId}] Found ${blocks.length - 1} results for "${searchTerm}"`);
 
-          for (const result of localResults) {
-            if (!result.phone) continue;
+          for (let bi = 1; bi < blocks.length; bi++) {
+            const block = blocks[bi];
+            const titleMatch = block.match(/class="result__a"[^>]*>([^<]+)</);
+            const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').trim() : '';
             
-            const normalizedPhone = result.phone.replace(/\D/g, "");
+            const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+            const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+            
+            const linkMatch = block.match(/href="([^"]+)"[^>]*class="result__a"/);
+            let link = linkMatch ? linkMatch[1] : '';
+            if (link.includes('uddg=')) {
+              link = decodeURIComponent(link.split('uddg=')[1]?.split('&')[0] || '');
+            }
+
+            const combinedText = `${title} ${snippet}`;
+            const phoneMatch = combinedText.match(/\(?\d{2}\)?\s*\d{4,5}[-.\s]?\d{4}/);
+            if (!phoneMatch) continue;
+            
+            const phone = phoneMatch[0];
+            const normalizedPhone = phone.replace(/\D/g, "");
             if (seenPhones.has(normalizedPhone)) continue;
             
-            const normalizedName = (result.title || "").toLowerCase().trim();
-            if (seenNames.has(normalizedName)) continue;
+            const normalizedName = title.toLowerCase().trim();
+            if (normalizedName && seenNames.has(normalizedName)) continue;
 
             seenPhones.add(normalizedPhone);
-            seenNames.add(normalizedName);
+            if (normalizedName) seenNames.add(normalizedName);
 
             allLeads.push({
-              business_name: result.title || "Empresa",
-              phone: result.phone,
-              address: result.address || null,
-              rating: result.rating || null,
-              reviews_count: result.reviews || null,
-              website: result.website || null,
-              google_maps_url: result.place_id 
-                ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                : null,
-              place_id: result.place_id || null,
-              type: result.type || null,
+              business_name: title || "Empresa",
+              phone: phone,
+              address: snippet.substring(0, 100) || null,
+              rating: null,
+              reviews_count: null,
+              website: link || null,
+              google_maps_url: null,
+              place_id: null,
+              type: null,
               subtype: searchTerm,
             });
           }
