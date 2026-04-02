@@ -178,7 +178,7 @@ function ChatPanel({ leadId, lead, onBack }: {
                   msg.sender_type === 'lead' ? 'text-muted-foreground' : 'opacity-70'
                 }`}>
                   <span className="text-[10px]">{format(new Date(msg.sent_at), 'HH:mm')}</span>
-                  {msg.status === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
+                  {(msg.status as string) === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
                 </div>
               </div>
             </div>

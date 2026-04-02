@@ -159,8 +159,10 @@ const App = () => (
                     <Route path="pipeline" element={<CRMPipelinePage />} />
                     <Route path="contacts" element={<CRMContactsPage />} />
                     <Route path="contacts/:id" element={<CRMContactDetailPage />} />
+                    <Route path="inbox" element={<CRMInboxPage />} />
                     <Route path="activities" element={<CRMActivitiesPage />} />
                     <Route path="analytics" element={<CRMAnalyticsPage />} />
+                    <Route path="automations" element={<CRMAutomationsPage />} />
                     <Route path="meta-ads" element={<CRMMetaAdsPage />} />
                   </Route>
 
