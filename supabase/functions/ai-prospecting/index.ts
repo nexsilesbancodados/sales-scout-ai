@@ -1892,17 +1892,15 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       
       // If niche not in predefined list, use it as main term and try to find related terms
       if (searchTerms.length === 0) {
-        // Check if any subniches contain this term
-        const nicheNormalized = niche.toLowerCase().trim();
+        const nicheNorm = niche.toLowerCase().trim();
         for (const [category, terms] of Object.entries(SUBNICHES)) {
-          if (category.toLowerCase().includes(nicheNormalized) || 
-              terms.some(t => t.includes(nicheNormalized))) {
+          if (category.toLowerCase().includes(nicheNorm) || 
+              terms.some(t => t.includes(nicheNorm))) {
             searchTerms = [...searchTerms, ...terms];
           }
         }
-        // If still empty, just use the input niche in multiple forms
         if (searchTerms.length === 0) {
-          searchTerms = [nicheNormalized, `${nicheNormalized}s`, `loja de ${nicheNormalized}`, `empresa de ${nicheNormalized}`];
+          searchTerms = [nicheNorm, `${nicheNorm}s`, `loja de ${nicheNorm}`, `empresa de ${nicheNorm}`];
         }
       }
       
