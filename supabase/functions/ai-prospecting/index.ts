@@ -1628,42 +1628,61 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         "Ladário": ["Centro", "Centro", "Centro"]
       };
 
-      // Helper function to search with Serper.dev
-      async function searchWithSerper(searchQuery: string): Promise<any[]> {
-        const response = await fetch('https://google.serper.dev/places', {
-          method: 'POST',
+      // Helper function to search with DuckDuckGo (FREE - no API key needed)
+      async function searchWithDDG(searchQuery: string): Promise<any[]> {
+        const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery + ' telefone contato')}&kl=br-pt`;
+        const response = await fetch(ddgUrl, {
           headers: {
-            'X-API-KEY': serperApiKey!,
-            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html',
+            'Accept-Language': 'pt-BR,pt;q=0.9',
           },
-          body: JSON.stringify({
-            q: searchQuery,
-            gl: 'br',
-            hl: 'pt-br',
-            num: 100, // Request max results
-          }),
         });
 
         if (!response.ok) {
-          throw new Error(`Serper API error: ${response.status}`);
+          throw new Error(`DuckDuckGo error: ${response.status}`);
         }
 
-        const data = await response.json();
-        return data.places || [];
-      }
+        const html = await response.text();
+        const results: any[] = [];
+        const blocks = html.split('class="result__body"');
+        
+        for (let i = 1; i < blocks.length; i++) {
+          const block = blocks[i];
+          const titleMatch = block.match(/class="result__a"[^>]*>([^<]+)</);
+          const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').trim() : '';
+          
+          const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+          const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+          
+          const linkMatch = block.match(/href="([^"]+)"[^>]*class="result__a"/);
+          let link = linkMatch ? linkMatch[1] : '';
+          if (link.includes('uddg=')) {
+            link = decodeURIComponent(link.split('uddg=')[1]?.split('&')[0] || '');
+          }
 
-      // Helper function to search with SerpAPI
-      async function searchWithSerpApi(searchQuery: string, start: number): Promise<any[]> {
-        const response = await fetch(
-          `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`SerpAPI error: ${response.status}`);
+          const combinedText = `${title} ${snippet}`;
+          const phoneMatch = combinedText.match(/\(?\d{2}\)?\s*\d{4,5}[-.\s]?\d{4}/);
+          
+          if (phoneMatch) {
+            results.push({
+              title,
+              phone: phoneMatch[0],
+              phoneNumber: phoneMatch[0],
+              address: snippet.substring(0, 100),
+              website: link,
+              link: link,
+              rating: null,
+              reviews: null,
+              ratingCount: null,
+              category: null,
+              placeId: null,
+              type: null,
+            });
+          }
         }
 
-        const data = await response.json();
-        return data.local_results || [];
+        return results;
       }
 
       const allLeads: any[] = [];
