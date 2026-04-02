@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAdminRole } from '@/hooks/use-admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
@@ -11,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function SettingsConnections() {
   const { settings, isLoading } = useUserSettings();
   const { toast } = useToast();
+  const { isAdmin } = useAdminRole();
 
   if (isLoading) {
     return (
@@ -84,7 +86,7 @@ export default function SettingsConnections() {
       {/* Multi-Chip */}
       <MultiChipSettings />
 
-      {/* Cakto Webhook Configuration */}
+      {isAdmin && (
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -132,6 +134,7 @@ export default function SettingsConnections() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
