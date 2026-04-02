@@ -1814,7 +1814,7 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       console.log(`- ${searchLocations.length} variações de localização`);
       console.log(`- Meta: ${maxResults} leads`);
 
-      // Process each search term with location variations
+      // Process each search term with location variations using DuckDuckGo (FREE)
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
@@ -1823,96 +1823,42 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
 
           const searchQuery = `${searchTerm} em ${searchLocation}`;
           
-          if (useSerper) {
-            try {
-              const results = await searchWithSerper(searchQuery);
-              console.log(`[Serper] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
-              
-              for (const result of results) {
-                if (allLeads.length >= maxResults) break;
-                if (!result.phoneNumber) continue;
-                
-                const normalizedPhone = result.phoneNumber.replace(/\D/g, "");
-                if (seenPhones.has(normalizedPhone)) continue;
-                
-                const normalizedName = (result.title || "").toLowerCase().trim();
-                if (seenNames.has(normalizedName)) continue;
-
-                seenPhones.add(normalizedPhone);
-                seenNames.add(normalizedName);
-
-                allLeads.push({
-                  business_name: result.title || "Empresa",
-                  phone: result.phoneNumber,
-                  address: result.address || null,
-                  rating: result.rating || null,
-                  reviews_count: result.ratingCount || null,
-                  website: result.website || null,
-                  google_maps_url: result.link || null,
-                  place_id: result.placeId || null,
-                  type: result.category || null,
-                  subtype: searchTerm,
-                });
-              }
-              
-              await new Promise(r => setTimeout(r, 50));
-            } catch (error) {
-              console.error(`Serper error for ${searchTerm}:`, error);
-              // Try fallback to SerpAPI
-              if (serpApiKey) {
-                console.log('Falling back to SerpAPI...');
-                useSerper = false;
-                useSerpApi = true;
-                apiUsed = 'serpapi (fallback)';
-              }
-            }
-          }
-          
-          if (useSerpApi) {
-            // Search up to 10 pages (200 results per term) for MAXIMUM coverage
-            for (let start = 0; start < 200; start += 20) {
+          try {
+            const results = await searchWithDDG(searchQuery);
+            console.log(`[DDG] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
+            
+            for (const result of results) {
               if (allLeads.length >= maxResults) break;
+              const phone = result.phone || result.phoneNumber;
+              if (!phone) continue;
+              
+              const normalizedPhone = phone.replace(/\D/g, "");
+              if (seenPhones.has(normalizedPhone)) continue;
+              
+              const normalizedName = (result.title || "").toLowerCase().trim();
+              if (seenNames.has(normalizedName)) continue;
 
-              try {
-                const results = await searchWithSerpApi(searchQuery, start);
-                console.log(`[SerpAPI] "${searchTerm}" in "${searchLocation}" @${start}: ${results.length} results`);
-                
-                if (results.length === 0) break;
+              seenPhones.add(normalizedPhone);
+              seenNames.add(normalizedName);
 
-                for (const result of results) {
-                  if (!result.phone) continue;
-                  
-                  const normalizedPhone = result.phone.replace(/\D/g, "");
-                  if (seenPhones.has(normalizedPhone)) continue;
-                  
-                  const normalizedName = (result.title || "").toLowerCase().trim();
-                  if (seenNames.has(normalizedName)) continue;
-
-                  seenPhones.add(normalizedPhone);
-                  seenNames.add(normalizedName);
-
-                  allLeads.push({
-                    business_name: result.title || "Empresa",
-                    phone: result.phone,
-                    address: result.address || null,
-                    rating: result.rating || null,
-                    reviews_count: result.reviews || null,
-                    website: result.website || null,
-                    google_maps_url: result.place_id 
-                      ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                      : null,
-                    place_id: result.place_id || null,
-                    type: result.type || null,
-                    subtype: searchTerm,
-                  });
-                }
-
-                // Small delay to respect rate limits
-                await new Promise(r => setTimeout(r, 50));
-              } catch (error) {
-                console.error(`SerpAPI error for ${searchTerm}:`, error);
-              }
+              allLeads.push({
+                business_name: result.title || "Empresa",
+                phone: phone,
+                address: result.address || null,
+                rating: result.rating || null,
+                reviews_count: result.reviews || result.ratingCount || null,
+                website: result.website || null,
+                google_maps_url: result.link || null,
+                place_id: result.placeId || null,
+                type: result.category || result.type || null,
+                subtype: searchTerm,
+              });
             }
+            
+            // Respectful delay for DuckDuckGo
+            await new Promise(r => setTimeout(r, 300));
+          } catch (error) {
+            console.error(`DDG error for ${searchTerm}:`, error);
           }
         }
       }
