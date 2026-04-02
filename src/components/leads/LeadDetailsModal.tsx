@@ -458,7 +458,56 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                       ? <><Loader2 className="h-4 w-4 animate-spin" />Gerando proposta...</>
                       : <><FileText className="h-4 w-4" />Gerar Proposta com IA</>
                     }
-                  </Button>
+                   </Button>
+                   <Button
+                     variant="outline"
+                     onClick={handleEnrichLead}
+                     disabled={isEnriching}
+                     className="w-full gap-2"
+                   >
+                     {isEnriching
+                       ? <><Loader2 className="h-4 w-4 animate-spin" />Enriquecendo...</>
+                       : <><Search className="h-4 w-4" />Enriquecer Lead (CEP, WHOIS, DDD)</>
+                     }
+                   </Button>
+
+                   {enrichmentData && (
+                     <div className="space-y-3 mt-4 p-4 rounded-lg border bg-card">
+                       <p className="text-sm font-medium flex items-center gap-2">
+                         <Shield className="h-4 w-4 text-primary" />
+                         Dados Enriquecidos
+                       </p>
+                       {enrichmentData.ddd_info && !enrichmentData.ddd_info.error && (
+                         <div className="text-sm">
+                           <span className="text-muted-foreground">DDD {enrichmentData.ddd_info.state}: </span>
+                           <span>{(enrichmentData.ddd_info.cities || []).slice(0, 5).join(', ')}</span>
+                         </div>
+                       )}
+                       {enrichmentData.whois && !enrichmentData.whois.error && (
+                         <div className="text-sm space-y-1">
+                           <p><span className="text-muted-foreground">Domínio: </span>{enrichmentData.whois.domain}</p>
+                           {enrichmentData.whois.registered_at && (
+                             <p><span className="text-muted-foreground">Registrado em: </span>{new Date(enrichmentData.whois.registered_at).toLocaleDateString('pt-BR')}</p>
+                           )}
+                           {enrichmentData.whois.expires_at && (
+                             <p><span className="text-muted-foreground">Expira em: </span>{new Date(enrichmentData.whois.expires_at).toLocaleDateString('pt-BR')}</p>
+                           )}
+                           {enrichmentData.whois.registrant_name && (
+                             <p><span className="text-muted-foreground">Proprietário: </span>{enrichmentData.whois.registrant_name}</p>
+                           )}
+                           {enrichmentData.whois.registrant_email && (
+                             <p><span className="text-muted-foreground">Email registrante: </span>{enrichmentData.whois.registrant_email}</p>
+                           )}
+                         </div>
+                       )}
+                       {enrichmentData.logo && (
+                         <div className="flex items-center gap-2 text-sm">
+                           <span className="text-muted-foreground">Logo: </span>
+                           <img src={enrichmentData.logo.logo_url} alt="Logo" className="h-6 w-6 rounded" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                         </div>
+                       )}
+                     </div>
+                   )}
                 </div>
               )}
             </div>
