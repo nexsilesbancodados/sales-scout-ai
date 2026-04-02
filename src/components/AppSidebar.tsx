@@ -89,13 +89,11 @@ const crmItems = [
 // ─── INTELIGÊNCIA ───────────────────────────────────────
 const insightItems = [
   { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Funil', icon: TrendingUp, path: '/funnel' },
   { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
 ];
 
 // ─── FERRAMENTAS ────────────────────────────────────────
 const toolItems = [
-  { title: 'Automações', icon: Zap, path: '/automations' },
   { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA' },
   { title: 'Email Finder', icon: Mail, path: '/email-finder' },
   { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
