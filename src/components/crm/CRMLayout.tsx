@@ -8,14 +8,16 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { useLeads } from '@/hooks/use-leads';
 import {
-  Kanban, Users, CheckSquare, BarChart3, Megaphone,
-  ArrowLeft, Menu, TrendingUp, DollarSign,
+  Kanban, Users, CheckSquare, BarChart3, Megaphone, MessageSquareText,
+  ArrowLeft, Menu, TrendingUp, DollarSign, Zap,
 } from 'lucide-react';
 
 const crmNav = [
   { to: '/crm/pipeline', icon: Kanban, label: 'Pipeline', desc: 'Quadro Kanban' },
+  { to: '/crm/inbox', icon: MessageSquareText, label: 'Inbox', desc: 'Conversas WhatsApp' },
   { to: '/crm/contacts', icon: Users, label: 'Contatos', desc: 'Todos os leads' },
   { to: '/crm/activities', icon: CheckSquare, label: 'Atividades', desc: 'Reuniões & tarefas' },
+  { to: '/crm/automations', icon: Zap, label: 'Automações', desc: 'Regras automáticas' },
   { to: '/crm/analytics', icon: BarChart3, label: 'Analytics', desc: 'Métricas & insights' },
   { to: '/crm/meta-ads', icon: Megaphone, label: 'Meta Ads', desc: 'Facebook & Instagram' },
 ];

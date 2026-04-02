@@ -65,6 +65,8 @@ const CRMContactDetailPage = lazy(() => import("./pages/crm/CRMContactDetail"));
 const CRMActivitiesPage = lazy(() => import("./pages/crm/CRMActivities"));
 const CRMAnalyticsPage = lazy(() => import("./pages/crm/CRMAnalytics"));
 const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
+const CRMInboxPage = lazy(() => import("./pages/crm/CRMInbox"));
+const CRMAutomationsPage = lazy(() => import("./pages/crm/CRMAutomations"));
 const AdminPage = lazy(() => import("./pages/Admin"));
 const AutomationsPage = lazy(() => import("./pages/Automations"));
 
@@ -157,8 +159,10 @@ const App = () => (
                     <Route path="pipeline" element={<CRMPipelinePage />} />
                     <Route path="contacts" element={<CRMContactsPage />} />
                     <Route path="contacts/:id" element={<CRMContactDetailPage />} />
+                    <Route path="inbox" element={<CRMInboxPage />} />
                     <Route path="activities" element={<CRMActivitiesPage />} />
                     <Route path="analytics" element={<CRMAnalyticsPage />} />
+                    <Route path="automations" element={<CRMAutomationsPage />} />
                     <Route path="meta-ads" element={<CRMMetaAdsPage />} />
                   </Route>
 

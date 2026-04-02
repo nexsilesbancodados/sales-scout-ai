@@ -23,8 +23,10 @@ import {
   Loader2, ArrowLeft, Flame, ThermometerSun, Snowflake, Phone, Mail, Globe,
   Instagram, Facebook, Linkedin, Twitter, MapPin, Star, Send, Plus, Trash2,
   MessageCircle, Calendar, FileText, CheckSquare, Target, Clock, ExternalLink,
-  Building2, Users, CalendarDays,
+  Building2, Users, CalendarDays, Bot,
 } from 'lucide-react';
+import { QuickReplies } from '@/components/chat/QuickReplies';
+import { AIReplyButton } from '@/components/chat/AIReplyButton';
 
 function hashColor(name: string) {
   let h = 0;
@@ -296,8 +298,16 @@ export default function CRMContactDetailPage() {
                         <div className={`max-w-[75%] p-3 rounded-2xl text-sm ${
                           msg.sender_type === 'lead'
                             ? 'bg-muted rounded-bl-sm'
+                            : msg.sender_type === 'agent'
+                            ? 'bg-purple-500 text-white rounded-br-sm'
                             : 'bg-green-500 text-white rounded-br-sm'
                         }`}>
+                          {msg.sender_type === 'agent' && (
+                            <div className="flex items-center gap-1 mb-1 opacity-70">
+                              <Bot className="h-3 w-3" />
+                              <span className="text-[10px]">IA</span>
+                            </div>
+                          )}
                           {msg.content}
                           <p className={`text-[10px] mt-1 ${msg.sender_type === 'lead' ? 'text-muted-foreground' : 'text-white/70'}`}>
                             {format(new Date(msg.sent_at), 'HH:mm')}
@@ -306,8 +316,17 @@ export default function CRMContactDetailPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2">
-                    <Input placeholder="Digite uma mensagem..." value={msgInput} onChange={e => setMsgInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMsg()} />
+                  <QuickReplies
+                    onSelectReply={(msg) => setMsgInput(msg)}
+                    leadName={lead.business_name}
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <AIReplyButton
+                      leadId={lead.id}
+                      lastMessage={[...messages].reverse().find(m => m.sender_type === 'lead')?.content}
+                      onUseReply={(msg) => setMsgInput(msg)}
+                    />
+                    <Input placeholder="Digite uma mensagem..." value={msgInput} onChange={e => setMsgInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMsg()} className="flex-1" />
                     <Button onClick={handleSendMsg} disabled={isSending || !msgInput.trim()}><Send className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
