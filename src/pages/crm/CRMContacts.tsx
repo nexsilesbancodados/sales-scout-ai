@@ -8,14 +8,19 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
 import { useLeads } from '@/hooks/use-leads';
 import { Lead, LeadStage, LeadTemperature } from '@/types/database';
 import { allStages, allTemperatures, stageColors } from '@/constants/lead-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 import {
-  Search, Loader2, LayoutGrid, TableIcon, Download, Upload,
+  Search, Loader2, LayoutGrid, TableIcon, Download,
   MessageCircle, Eye, Flame, ThermometerSun, Snowflake, Trash2,
+  Tag, MoreHorizontal, Move, Thermometer, Plus, X,
+  ChevronDown, Users, DollarSign, TrendingUp, Filter,
 } from 'lucide-react';
 
 function hashColor(name: string) {
@@ -35,14 +40,26 @@ const tempIcons: Record<LeadTemperature, React.ReactNode> = {
   frio: <Snowflake className="h-3 w-3 text-blue-500" />,
 };
 
+const commonTags = ['VIP', 'Urgente', 'Retorno', 'Sem Site', 'Interessado', 'Indicação', 'Recontato', 'Alto Valor'];
+
 export default function CRMContactsPage() {
-  const { leads, isLoading, deleteLeads } = useLeads();
+  const { leads, isLoading, deleteLeads, updateLead } = useLeads();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [tempFilter, setTempFilter] = useState<string>('all');
+  const [tagFilter, setTagFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [newTagInput, setNewTagInput] = useState('');
+
+  // Get all unique tags
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    leads.forEach(l => l.tags?.forEach(t => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [leads]);
 
   const filtered = useMemo(() => {
     let result = leads;
@@ -52,8 +69,9 @@ export default function CRMContactsPage() {
     }
     if (stageFilter !== 'all') result = result.filter(l => l.stage === stageFilter);
     if (tempFilter !== 'all') result = result.filter(l => l.temperature === tempFilter);
+    if (tagFilter !== 'all') result = result.filter(l => l.tags?.includes(tagFilter));
     return result;
-  }, [leads, search, stageFilter, tempFilter]);
+  }, [leads, search, stageFilter, tempFilter, tagFilter]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
@@ -72,51 +90,219 @@ export default function CRMContactsPage() {
     }
   };
 
+  const handleBulkStageChange = (stage: LeadStage) => {
+    selected.forEach(id => updateLead({ id, stage }));
+    toast({ title: `${selected.size} leads movidos para ${stage}` });
+    setSelected(new Set());
+  };
+
+  const handleBulkTempChange = (temperature: LeadTemperature) => {
+    selected.forEach(id => updateLead({ id, temperature }));
+    toast({ title: `Temperatura atualizada para ${selected.size} leads` });
+    setSelected(new Set());
+  };
+
+  const handleBulkAddTag = (tag: string) => {
+    selected.forEach(id => {
+      const lead = leads.find(l => l.id === id);
+      if (lead) {
+        const currentTags = lead.tags || [];
+        if (!currentTags.includes(tag)) {
+          updateLead({ id, tags: [...currentTags, tag] });
+        }
+      }
+    });
+    toast({ title: `Tag "${tag}" adicionada a ${selected.size} leads` });
+    setSelected(new Set());
+  };
+
+  const handleBulkRemoveTag = (tag: string) => {
+    selected.forEach(id => {
+      const lead = leads.find(l => l.id === id);
+      if (lead && lead.tags?.includes(tag)) {
+        updateLead({ id, tags: lead.tags.filter(t => t !== tag) });
+      }
+    });
+    toast({ title: `Tag "${tag}" removida de ${selected.size} leads` });
+    setSelected(new Set());
+  };
+
+  const handleAddTagToLead = (leadId: string, tag: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (lead) {
+      const currentTags = lead.tags || [];
+      if (!currentTags.includes(tag)) {
+        updateLead({ id: leadId, tags: [...currentTags, tag] });
+      }
+    }
+  };
+
+  const handleRemoveTagFromLead = (leadId: string, tag: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (lead) {
+      updateLead({ id: leadId, tags: (lead.tags || []).filter(t => t !== tag) });
+    }
+  };
+
   const exportCSV = () => {
-    const headers = ['Nome', 'Telefone', 'Email', 'Nicho', 'Estágio', 'Temperatura', 'Score'];
-    const rows = filtered.map(l => [l.business_name, l.phone, l.email || '', l.niche || '', l.stage, l.temperature, l.lead_score]);
+    const headers = ['Nome', 'Telefone', 'Email', 'Nicho', 'Estágio', 'Temperatura', 'Score', 'Tags'];
+    const rows = filtered.map(l => [l.business_name, l.phone, l.email || '', l.niche || '', l.stage, l.temperature, l.lead_score, (l.tags || []).join(';')]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'contatos.csv'; a.click();
   };
 
+  // Stats
+  const totalValue = leads.reduce((s, l) => s + (l.deal_value || 0), 0);
+  const hotCount = leads.filter(l => l.temperature === 'quente').length;
+
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/30 border border-border/30">
+          <Users className="h-4 w-4 text-primary" />
+          <div>
+            <p className="text-sm font-bold">{leads.length}</p>
+            <p className="text-[10px] text-muted-foreground">Total</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/30 border border-border/30">
+          <Flame className="h-4 w-4 text-red-500" />
+          <div>
+            <p className="text-sm font-bold">{hotCount}</p>
+            <p className="text-[10px] text-muted-foreground">Quentes</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/30 border border-border/30">
+          <DollarSign className="h-4 w-4 text-emerald-500" />
+          <div>
+            <p className="text-sm font-bold">{new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' }).format(totalValue)}</p>
+            <p className="text-[10px] text-muted-foreground">Pipeline</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/30 border border-border/30">
+          <Tag className="h-4 w-4 text-purple-500" />
+          <div>
+            <p className="text-sm font-bold">{allTags.length}</p>
+            <p className="text-[10px] text-muted-foreground">Tags</p>
+          </div>
+        </div>
+      </div>
+
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar nome, telefone..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+          <Input placeholder="Buscar nome, telefone, nicho..." className="pl-9 rounded-xl h-9 text-sm" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={stageFilter} onValueChange={setStageFilter}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Estágio" /></SelectTrigger>
+          <SelectTrigger className="w-[130px] h-9 text-xs rounded-xl"><SelectValue placeholder="Estágio" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             {allStages.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={tempFilter} onValueChange={setTempFilter}>
-          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Temperatura" /></SelectTrigger>
+          <SelectTrigger className="w-[120px] h-9 text-xs rounded-xl"><SelectValue placeholder="Temp." /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
             {allTemperatures.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
           </SelectContent>
         </Select>
-        <div className="flex items-center gap-1 border rounded-md p-0.5">
-          <Button variant={viewMode === 'table' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('table')}><TableIcon className="h-4 w-4" /></Button>
-          <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('grid')}><LayoutGrid className="h-4 w-4" /></Button>
-        </div>
-        <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />Exportar</Button>
-        {selected.size > 0 && (
-          <Button variant="destructive" size="sm" onClick={handleBulkDelete}><Trash2 className="h-4 w-4 mr-1" />{selected.size} selecionados</Button>
+        {allTags.length > 0 && (
+          <Select value={tagFilter} onValueChange={setTagFilter}>
+            <SelectTrigger className="w-[120px] h-9 text-xs rounded-xl"><SelectValue placeholder="Tag" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {allTags.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
         )}
+        <div className="flex items-center gap-1 border rounded-xl p-0.5">
+          <Button variant={viewMode === 'table' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 rounded-lg" onClick={() => setViewMode('table')}><TableIcon className="h-3.5 w-3.5" /></Button>
+          <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 rounded-lg" onClick={() => setViewMode('grid')}><LayoutGrid className="h-3.5 w-3.5" /></Button>
+        </div>
+        <Button variant="outline" size="sm" className="h-9 rounded-xl text-xs" onClick={exportCSV}><Download className="h-3.5 w-3.5 mr-1" />Exportar</Button>
       </div>
+
+      {/* Bulk actions bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20 animate-scale-in">
+          <Badge className="bg-primary text-primary-foreground">{selected.size} selecionados</Badge>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 text-xs gap-1 rounded-lg">
+                <Move className="h-3 w-3" />Mover
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {allStages.map(s => (
+                <DropdownMenuItem key={s} onClick={() => handleBulkStageChange(s)}>{s}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 text-xs gap-1 rounded-lg">
+                <Thermometer className="h-3 w-3" />Temperatura
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleBulkTempChange('quente')}>🔥 Quente</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleBulkTempChange('morno')}>🌡️ Morno</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleBulkTempChange('frio')}>❄️ Frio</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 text-xs gap-1 rounded-lg">
+                <Tag className="h-3 w-3" />Tags
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger><Plus className="h-3 w-3 mr-2" />Adicionar tag</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {commonTags.map(t => (
+                    <DropdownMenuItem key={t} onClick={() => handleBulkAddTag(t)}>{t}</DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              {allTags.length > 0 && (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger><X className="h-3 w-3 mr-2" />Remover tag</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {allTags.map(t => (
+                      <DropdownMenuItem key={t} onClick={() => handleBulkRemoveTag(t)}>{t}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div className="flex-1" />
+          <Button variant="destructive" size="sm" className="h-7 text-xs rounded-lg" onClick={handleBulkDelete}>
+            <Trash2 className="h-3 w-3 mr-1" />Excluir
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg" onClick={() => setSelected(new Set())}>
+            Cancelar
+          </Button>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : viewMode === 'table' ? (
-        <Card>
+        <Card className="border-border/50">
           <CardContent className="p-0">
             <Table>
               <TableHeader>
@@ -127,6 +313,7 @@ export default function CRMContactsPage() {
                   <TableHead>Estágio</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Temp.</TableHead>
+                  <TableHead>Tags</TableHead>
                   <TableHead>Último contato</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
@@ -150,6 +337,53 @@ export default function CRMContactsPage() {
                     <TableCell><Badge className={`${stageColors[lead.stage]} text-white text-xs`}>{lead.stage}</Badge></TableCell>
                     <TableCell><ScoreBadge score={lead.lead_score} /></TableCell>
                     <TableCell><div className="flex items-center gap-1">{tempIcons[lead.temperature]}<span className="text-xs capitalize">{lead.temperature}</span></div></TableCell>
+                    <TableCell onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center gap-1 flex-wrap max-w-[200px]">
+                        {(lead.tags || []).slice(0, 3).map(tag => (
+                          <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 h-4 cursor-pointer hover:bg-destructive/10" onClick={() => handleRemoveTagFromLead(lead.id, tag)}>
+                            {tag} <X className="h-2 w-2 ml-0.5" />
+                          </Badge>
+                        ))}
+                        {(lead.tags || []).length > 3 && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 h-4">+{(lead.tags || []).length - 3}</Badge>
+                        )}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-5 w-5 rounded-sm"><Plus className="h-2.5 w-2.5" /></Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-48 p-2" align="start">
+                            <div className="space-y-1">
+                              <div className="flex gap-1">
+                                <Input
+                                  placeholder="Nova tag..."
+                                  value={newTagInput}
+                                  onChange={e => setNewTagInput(e.target.value)}
+                                  className="h-7 text-xs"
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter' && newTagInput.trim()) {
+                                      handleAddTagToLead(lead.id, newTagInput.trim());
+                                      setNewTagInput('');
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-wrap gap-1 pt-1">
+                                {commonTags.filter(t => !(lead.tags || []).includes(t)).slice(0, 6).map(t => (
+                                  <Badge
+                                    key={t}
+                                    variant="outline"
+                                    className="text-[9px] px-1.5 py-0 h-4 cursor-pointer hover:bg-primary/10"
+                                    onClick={() => handleAddTagToLead(lead.id, t)}
+                                  >
+                                    + {t}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {lead.last_contact_at ? formatDistanceToNow(new Date(lead.last_contact_at), { addSuffix: true, locale: ptBR }) : '—'}
                     </TableCell>
@@ -170,7 +404,7 @@ export default function CRMContactsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(lead => (
-            <Card key={lead.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/crm/contacts/${lead.id}`)}>
+            <Card key={lead.id} className="cursor-pointer hover:shadow-md transition-shadow border-border/50" onClick={() => navigate(`/crm/contacts/${lead.id}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: hashColor(lead.business_name) }}>
@@ -182,9 +416,12 @@ export default function CRMContactsPage() {
                   </div>
                   <ScoreBadge score={lead.lead_score} />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge className={`${stageColors[lead.stage]} text-white text-xs`}>{lead.stage}</Badge>
                   <div className="flex items-center gap-1">{tempIcons[lead.temperature]}</div>
+                  {(lead.tags || []).slice(0, 2).map(tag => (
+                    <Badge key={tag} variant="outline" className="text-[9px] px-1 py-0 h-4">{tag}</Badge>
+                  ))}
                 </div>
               </CardContent>
             </Card>
