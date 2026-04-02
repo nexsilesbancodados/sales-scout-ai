@@ -13,6 +13,7 @@ import { PageLoadingFallback } from "@/components/ui/page-loading";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { CommandPalette } from "@/components/CommandPalette";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 
 // Lazy load pages
 const LandingPage = lazy(() => import("./pages/Landing"));
@@ -160,6 +161,7 @@ const App = () => (
               </Suspense>
               </SubscriptionLayout>
               <CommandPalette />
+              <KeyboardShortcuts />
             </BrowserRouter>
             <PWAInstallBanner />
           </TooltipProvider>
