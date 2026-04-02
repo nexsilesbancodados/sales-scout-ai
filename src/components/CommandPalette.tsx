@@ -12,8 +12,8 @@ import {
 import {
   LayoutDashboard, Target, Send, Users, MessageSquare, BarChart3,
   Shield, Settings, Bot, Calendar, Zap, FileText, Globe, Upload,
-  Instagram, Facebook, Mail, Clock, FlaskConical, Columns3,
-  Bell, CreditCard, Code, Search,
+  Mail, Clock, FlaskConical, Columns3,
+  Bell, CreditCard, Code, Search, Kanban, Map,
 } from 'lucide-react';
 
 interface CommandRoute {
@@ -26,27 +26,26 @@ interface CommandRoute {
 
 const routes: CommandRoute[] = [
   { label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, path: '/dashboard', group: 'Principal', keywords: 'inicio home' },
-  { label: 'Prospecção', icon: <Target className="h-4 w-4" />, path: '/prospecting', group: 'Captura', keywords: 'buscar leads capturar' },
-  { label: 'Google Maps', icon: <Globe className="h-4 w-4" />, path: '/google-maps', group: 'Captura', keywords: 'mapa empresas' },
-  { label: 'Pesquisa Web', icon: <Search className="h-4 w-4" />, path: '/web-search', group: 'Captura' },
-  { label: 'Instagram Extractor', icon: <Instagram className="h-4 w-4" />, path: '/instagram-extractor', group: 'Captura' },
-  { label: 'Facebook Extractor', icon: <Facebook className="h-4 w-4" />, path: '/facebook-extractor', group: 'Captura' },
+  { label: 'Prospecção', icon: <Target className="h-4 w-4" />, path: '/prospecting', group: 'Captura', keywords: 'buscar leads capturar google maps web' },
+  { label: 'Mapa', icon: <Map className="h-4 w-4" />, path: '/prospect-map', group: 'Captura', keywords: 'mapa empresas' },
   { label: 'CNPJ Radar', icon: <FileText className="h-4 w-4" />, path: '/cnpj-radar', group: 'Captura' },
   { label: 'Email Finder', icon: <Mail className="h-4 w-4" />, path: '/email-finder', group: 'Captura' },
-  { label: 'Importar Leads', icon: <Upload className="h-4 w-4" />, path: '/import-leads', group: 'Captura' },
-  { label: 'Disparo em Massa', icon: <Send className="h-4 w-4" />, path: '/mass-send', group: 'Disparo', keywords: 'enviar mensagem' },
-  { label: 'Campanhas', icon: <Zap className="h-4 w-4" />, path: '/campaigns', group: 'Disparo' },
-  { label: 'Templates', icon: <FileText className="h-4 w-4" />, path: '/templates', group: 'Disparo' },
-  { label: 'A/B Testing', icon: <FlaskConical className="h-4 w-4" />, path: '/ab-testing', group: 'Disparo' },
-  { label: 'Leads', icon: <Users className="h-4 w-4" />, path: '/leads', group: 'CRM', keywords: 'contatos clientes' },
-  { label: 'Pipeline', icon: <Columns3 className="h-4 w-4" />, path: '/crm/pipeline', group: 'CRM', keywords: 'funil kanban' },
-  { label: 'Conversas', icon: <MessageSquare className="h-4 w-4" />, path: '/conversations', group: 'CRM', keywords: 'chat whatsapp' },
-  { label: 'Reuniões', icon: <Calendar className="h-4 w-4" />, path: '/meetings', group: 'CRM' },
-  { label: 'Follow-up', icon: <Clock className="h-4 w-4" />, path: '/follow-up', group: 'Automação' },
-  { label: 'Automações', icon: <Zap className="h-4 w-4" />, path: '/automations', group: 'Automação' },
-  { label: 'Agente SDR', icon: <Bot className="h-4 w-4" />, path: '/sdr-agent', group: 'Automação' },
+  { label: 'Extrator Social', icon: <Globe className="h-4 w-4" />, path: '/social-extractor', group: 'Captura', keywords: 'instagram facebook' },
+  { label: 'Disparo em Massa', icon: <Send className="h-4 w-4" />, path: '/mass-send', group: 'Engajamento', keywords: 'enviar mensagem' },
+  { label: 'Campanhas', icon: <Zap className="h-4 w-4" />, path: '/campaigns', group: 'Engajamento' },
+  { label: 'Templates', icon: <FileText className="h-4 w-4" />, path: '/templates', group: 'Engajamento' },
+  { label: 'A/B Testing', icon: <FlaskConical className="h-4 w-4" />, path: '/ab-testing', group: 'Engajamento' },
+  { label: 'Follow-up', icon: <Clock className="h-4 w-4" />, path: '/follow-up', group: 'Engajamento' },
+  { label: 'Anti-Ban', icon: <Shield className="h-4 w-4" />, path: '/antiban', group: 'Engajamento' },
+  { label: 'Pipeline', icon: <Kanban className="h-4 w-4" />, path: '/crm/pipeline', group: 'CRM', keywords: 'funil kanban' },
+  { label: 'Inbox', icon: <MessageSquare className="h-4 w-4" />, path: '/crm/inbox', group: 'CRM', keywords: 'chat whatsapp conversas' },
+  { label: 'Contatos', icon: <Users className="h-4 w-4" />, path: '/crm/contacts', group: 'CRM', keywords: 'leads clientes' },
+  { label: 'Atividades', icon: <Calendar className="h-4 w-4" />, path: '/crm/activities', group: 'CRM', keywords: 'reuniões tarefas' },
+  { label: 'Automações', icon: <Zap className="h-4 w-4" />, path: '/crm/automations', group: 'CRM' },
+  { label: 'CRM Analytics', icon: <BarChart3 className="h-4 w-4" />, path: '/crm/analytics', group: 'CRM' },
+  { label: 'Agente SDR', icon: <Bot className="h-4 w-4" />, path: '/sdr-agent', group: 'Ferramentas' },
+  { label: 'Reuniões', icon: <Calendar className="h-4 w-4" />, path: '/meetings', group: 'Ferramentas' },
   { label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, path: '/analytics', group: 'Ferramentas' },
-  { label: 'Anti-Ban', icon: <Shield className="h-4 w-4" />, path: '/antiban', group: 'Ferramentas' },
   { label: 'Configurações', icon: <Settings className="h-4 w-4" />, path: '/settings', group: 'Sistema', keywords: 'config preferencias' },
   { label: 'Notificações', icon: <Bell className="h-4 w-4" />, path: '/settings/notifications', group: 'Sistema' },
   { label: 'Billing', icon: <CreditCard className="h-4 w-4" />, path: '/billing', group: 'Sistema', keywords: 'plano assinatura pagamento' },
@@ -101,4 +100,10 @@ export function CommandPalette() {
       </CommandList>
     </CommandDialog>
   );
+}
+
+// Export setter for external trigger
+export function useCommandPalette() {
+  const [open, setOpen] = useState(false);
+  return { open, setOpen };
 }
