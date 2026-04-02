@@ -64,17 +64,32 @@ export default function CRMContactsPage() {
     return Array.from(tagSet).sort();
   }, [leads]);
 
+  // Unique sources
+  const allSources = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.source && s.add(l.source));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter].filter(f => f !== 'all').length;
+
   const filtered = useMemo(() => {
     let result = leads;
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s));
+      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s));
     }
     if (stageFilter !== 'all') result = result.filter(l => l.stage === stageFilter);
     if (tempFilter !== 'all') result = result.filter(l => l.temperature === tempFilter);
     if (tagFilter !== 'all') result = result.filter(l => l.tags?.includes(tagFilter));
+    if (scoreFilter !== 'all') {
+      if (scoreFilter === 'high') result = result.filter(l => l.lead_score >= 60);
+      else if (scoreFilter === 'medium') result = result.filter(l => l.lead_score >= 30 && l.lead_score < 60);
+      else if (scoreFilter === 'low') result = result.filter(l => l.lead_score < 30);
+    }
+    if (sourceFilter !== 'all') result = result.filter(l => l.source === sourceFilter);
     return result;
-  }, [leads, search, stageFilter, tempFilter, tagFilter]);
+  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
