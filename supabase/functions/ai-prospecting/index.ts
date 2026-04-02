@@ -743,15 +743,14 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // Determine which API to use based on user preference
-      const preferredApi = userSettings?.preferred_search_api || 'serper';
-      const serperApiKey = userSettings?.serper_api_key;
-      const serpApiKey = userSettings?.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
+      // Use global API keys
+      const serperApiKey = Deno.env.get("SERPER_API_KEY");
+      const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
       
       // Check if at least one API is configured
       if (!serperApiKey && !serpApiKey) {
         return new Response(JSON.stringify({ 
-          error: "Nenhuma API de busca configurada. Configure Serper.dev ou SerpAPI em Configurações > APIs.", 
+          error: "Nenhuma API de busca configurada no servidor.", 
           leads: [] 
         }), {
           status: 400,
