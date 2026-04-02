@@ -59,21 +59,17 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { data: settings } = await supabase
-      .from("user_settings")
-      .select("apify_token, serper_api_key, serpapi_api_key, preferred_search_api")
-      .eq("user_id", user.id)
-      .single();
+    // Use global API keys
+    const serperKey = Deno.env.get("SERPER_API_KEY") || Deno.env.get("SERPAPI_API_KEY");
 
     const { action, niche, location, page_urls, limit = 20 } = await req.json();
 
     // MODE 1: Search by niche+city via Google → Facebook URLs
     if (action === "search_by_niche") {
-      const serperKey = (settings as any)?.serper_api_key || (settings as any)?.serpapi_api_key;
       if (!serperKey) {
         return new Response(
-          JSON.stringify({ error: "Configure Serper API Key em Configurações > APIs" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "API de busca não configurada no servidor." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
