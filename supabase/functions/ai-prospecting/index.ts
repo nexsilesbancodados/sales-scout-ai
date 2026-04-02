@@ -14,9 +14,9 @@ async function processSearchLeadsInBackground(
   niche: string,
   location: string,
   maxResults: number,
-  serpApiKey: string,
-  serperApiKey: string | null,
-  preferredApi: string
+  _serpApiKey: string,
+  _serperApiKey: string | null,
+  _preferredApi: string
 ) {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
