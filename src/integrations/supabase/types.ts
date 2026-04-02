@@ -524,6 +524,66 @@ export type Database = {
         }
         Relationships: []
       }
+      community_leads: {
+        Row: {
+          address: string | null
+          business_name: string
+          contributed_by: string | null
+          created_at: string | null
+          email: string | null
+          google_maps_url: string | null
+          id: string
+          location: string
+          location_normalized: string
+          niche: string
+          niche_normalized: string
+          phone: string
+          rating: number | null
+          reviews_count: number | null
+          source: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          contributed_by?: string | null
+          created_at?: string | null
+          email?: string | null
+          google_maps_url?: string | null
+          id?: string
+          location: string
+          location_normalized: string
+          niche: string
+          niche_normalized: string
+          phone: string
+          rating?: number | null
+          reviews_count?: number | null
+          source?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          contributed_by?: string | null
+          created_at?: string | null
+          email?: string | null
+          google_maps_url?: string | null
+          id?: string
+          location?: string
+          location_normalized?: string
+          niche?: string
+          niche_normalized?: string
+          phone?: string
+          rating?: number | null
+          reviews_count?: number | null
+          source?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       favorite_leads: {
         Row: {
           created_at: string

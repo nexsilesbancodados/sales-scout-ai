@@ -759,10 +759,49 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // DuckDuckGo is FREE - no API keys needed
-      const serperApiKey = null; // Removed - using free DuckDuckGo
-      const serpApiKey = null; // Removed - using free DuckDuckGo
-      const preferredApi = 'duckduckgo';
+      // Get user's own API keys from settings
+      const { data: userSettings } = await supabase
+        .from("user_settings")
+        .select("serpapi_api_key, serper_api_key, preferred_search_api")
+        .eq("user_id", effectiveUserId)
+        .single();
+      
+      const serpApiKey = userSettings?.serpapi_api_key || null;
+      const serperApiKey = userSettings?.serper_api_key || null;
+      const preferredApi = userSettings?.preferred_search_api || (serperApiKey ? 'serper' : serpApiKey ? 'serpapi' : 'duckduckgo');
+      
+      // Normalize niche and location for community DB matching
+      const nicheNormalized = niche.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const locationNormalized = location.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      
+      // STEP 1: Check community database first
+      let communityLeads: any[] = [];
+      try {
+        const { data: cached } = await supabase
+          .from("community_leads")
+          .select("*")
+          .eq("niche_normalized", nicheNormalized)
+          .eq("location_normalized", locationNormalized);
+        
+        if (cached && cached.length > 0) {
+          communityLeads = cached.map((cl: any) => ({
+            business_name: cl.business_name,
+            phone: cl.phone,
+            address: cl.address,
+            rating: cl.rating ? Number(cl.rating) : null,
+            reviews_count: cl.reviews_count,
+            website: cl.website,
+            google_maps_url: cl.google_maps_url,
+            place_id: null,
+            type: null,
+            subtype: cl.niche,
+            source: 'community_db',
+          }));
+          console.log(`📦 Found ${communityLeads.length} leads in community database for ${niche} in ${location}`);
+        }
+      } catch (err) {
+        console.error("Community DB check error:", err);
+      }
 
       // MAPEAMENTO COMPLETO DE BAIRROS - TODAS AS CAPITAIS E PRINCIPAIS CIDADES DO BRASIL
       const CITY_REGIONS: Record<string, string[]> = {
@@ -1691,9 +1730,74 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         return results;
       }
 
+      // Helper: Search with Serper.dev (user's key)
+      async function searchWithSerper(query: string, apiKey: string): Promise<any[]> {
+        const response = await fetch('https://google.serper.dev/maps', {
+          method: 'POST',
+          headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: query, gl: 'br', hl: 'pt-br', num: 20 }),
+        });
+        if (!response.ok) throw new Error(`Serper error: ${response.status}`);
+        const data = await response.json();
+        return (data.places || []).map((p: any) => ({
+          title: p.title || '',
+          phone: p.phoneNumber || '',
+          phoneNumber: p.phoneNumber || '',
+          address: p.address || '',
+          website: p.website || '',
+          link: p.link || '',
+          rating: p.rating || null,
+          reviews: p.ratingCount || null,
+          ratingCount: p.ratingCount || null,
+          category: p.category || null,
+          placeId: p.placeId || null,
+          type: p.type || null,
+        }));
+      }
+
+      // Helper: Search with SerpAPI (user's key)
+      async function searchWithSerpApi(query: string, apiKey: string, start = 0): Promise<any[]> {
+        const params = new URLSearchParams({
+          engine: 'google_maps',
+          q: query,
+          hl: 'pt-br',
+          gl: 'br',
+          type: 'search',
+          start: String(start),
+          api_key: apiKey,
+        });
+        const response = await fetch(`https://serpapi.com/search.json?${params}`);
+        if (!response.ok) throw new Error(`SerpAPI error: ${response.status}`);
+        const data = await response.json();
+        return (data.local_results || []).map((r: any) => ({
+          title: r.title || '',
+          phone: r.phone || '',
+          phoneNumber: r.phone || '',
+          address: r.address || '',
+          website: r.website || '',
+          link: r.link || '',
+          rating: r.rating || null,
+          reviews: r.reviews || null,
+          ratingCount: r.reviews || null,
+          category: r.type || null,
+          placeId: r.place_id || null,
+          type: r.type || null,
+        }));
+      }
+
       const allLeads: any[] = [];
       const seenPhones = new Set<string>();
       const seenNames = new Set<string>();
+      
+      // Seed with community leads
+      for (const cl of communityLeads) {
+        const normalizedPhone = cl.phone.replace(/\D/g, "");
+        if (!seenPhones.has(normalizedPhone)) {
+          seenPhones.add(normalizedPhone);
+          seenNames.add((cl.business_name || "").toLowerCase().trim());
+          allLeads.push(cl);
+        }
+      }
 
       // EXTENSIVE subniches for MAXIMUM coverage - all variations and subcategories
       const SUBNICHES: Record<string, string[]> = {
@@ -1788,17 +1892,15 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       
       // If niche not in predefined list, use it as main term and try to find related terms
       if (searchTerms.length === 0) {
-        // Check if any subniches contain this term
-        const nicheNormalized = niche.toLowerCase().trim();
+        const nicheNorm = niche.toLowerCase().trim();
         for (const [category, terms] of Object.entries(SUBNICHES)) {
-          if (category.toLowerCase().includes(nicheNormalized) || 
-              terms.some(t => t.includes(nicheNormalized))) {
+          if (category.toLowerCase().includes(nicheNorm) || 
+              terms.some(t => t.includes(nicheNorm))) {
             searchTerms = [...searchTerms, ...terms];
           }
         }
-        // If still empty, just use the input niche in multiple forms
         if (searchTerms.length === 0) {
-          searchTerms = [nicheNormalized, `${nicheNormalized}s`, `loja de ${nicheNormalized}`, `empresa de ${nicheNormalized}`];
+          searchTerms = [nicheNorm, `${nicheNorm}s`, `loja de ${nicheNorm}`, `empresa de ${nicheNorm}`];
         }
       }
       
@@ -1807,8 +1909,15 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       // Use TODOS os termos disponíveis (até 50 para garantir cobertura total)
       const limitedSearchTerms = uniqueTerms.slice(0, 50);
 
-      // Use DuckDuckGo (FREE - no API keys needed)
-      const apiUsed = 'duckduckgo_free';
+      // Determine which API to use based on user's keys
+      const hasSerpApi = !!serpApiKey;
+      const hasSerper = !!serperApiKey;
+      let apiUsed = 'duckduckgo_free';
+      
+      if (preferredApi === 'serper' && hasSerper) apiUsed = 'serper';
+      else if (preferredApi === 'serpapi' && hasSerpApi) apiUsed = 'serpapi';
+      else if (hasSerper) apiUsed = 'serper';
+      else if (hasSerpApi) apiUsed = 'serpapi';
 
       // Get city regions if available
       const cityName = Object.keys(CITY_REGIONS).find(city => 
@@ -1816,32 +1925,36 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       );
       const regions = cityName ? CITY_REGIONS[cityName] : [];
 
-      // Build search locations: original location + top regions
       const searchLocations: string[] = [location];
       if (regions.length > 0) {
-        // Limit to top 10 regions for DuckDuckGo rate limits
-        for (const region of regions.slice(0, 10)) {
+        const regionLimit = apiUsed === 'duckduckgo_free' ? 10 : 20;
+        for (const region of regions.slice(0, regionLimit)) {
           searchLocations.push(`${region}, ${cityName}`);
         }
       }
 
-      console.log(`🚀 BUSCA GRATUITA via DuckDuckGo para ${niche} em ${location}`);
-      console.log(`- ${limitedSearchTerms.length} termos de busca`);
-      console.log(`- ${searchLocations.length} variações de localização`);
-      console.log(`- Meta: ${maxResults} leads`);
+      console.log(`🚀 BUSCA via ${apiUsed.toUpperCase()} para ${niche} em ${location}`);
+      console.log(`- ${limitedSearchTerms.length} termos | ${searchLocations.length} localizações`);
+      console.log(`- ${communityLeads.length} leads do banco comunitário | Meta: ${maxResults}`);
 
-      // Process each search term with location variations using DuckDuckGo (FREE)
+      const newLeadsForCommunity: any[] = [];
+
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
         for (const searchLocation of searchLocations) {
           if (allLeads.length >= maxResults) break;
 
-          const searchQuery = `${searchTerm} em ${searchLocation}`;
-          
           try {
-            const results = await searchWithDDG(searchQuery);
-            console.log(`[DDG] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
+            let results: any[] = [];
+            
+            if (apiUsed === 'serper') {
+              results = await searchWithSerper(`${searchTerm} ${searchLocation}`, serperApiKey!);
+            } else if (apiUsed === 'serpapi') {
+              results = await searchWithSerpApi(`${searchTerm} ${searchLocation}`, serpApiKey!);
+            } else {
+              results = await searchWithDDG(`${searchTerm} em ${searchLocation}`);
+            }
             
             for (const result of results) {
               if (allLeads.length >= maxResults) break;
@@ -1857,10 +1970,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
               seenPhones.add(normalizedPhone);
               seenNames.add(normalizedName);
 
-              allLeads.push({
+              const lead = {
                 business_name: result.title || "Empresa",
-                phone: phone,
-                address: result.address || null,
+                phone, address: result.address || null,
                 rating: result.rating || null,
                 reviews_count: result.reviews || result.ratingCount || null,
                 website: result.website || null,
@@ -1868,24 +1980,58 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
                 place_id: result.placeId || null,
                 type: result.category || result.type || null,
                 subtype: searchTerm,
-              });
+              };
+              allLeads.push(lead);
+              newLeadsForCommunity.push(lead);
             }
             
-            // Respectful delay for DuckDuckGo
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, apiUsed === 'duckduckgo_free' ? 300 : 100));
           } catch (error) {
-            console.error(`DDG error for ${searchTerm}:`, error);
+            console.error(`${apiUsed} error:`, error);
+            if (apiUsed !== 'duckduckgo_free') {
+              try {
+                const fallback = await searchWithDDG(`${searchTerm} em ${searchLocation}`);
+                for (const r of fallback) {
+                  if (allLeads.length >= maxResults) break;
+                  const phone = r.phone || r.phoneNumber;
+                  if (!phone) continue;
+                  const np = phone.replace(/\D/g, "");
+                  if (seenPhones.has(np)) continue;
+                  seenPhones.add(np);
+                  const lead = { business_name: r.title || "Empresa", phone, address: r.address || null, rating: null, reviews_count: null, website: r.website || null, google_maps_url: r.link || null, place_id: null, type: null, subtype: searchTerm };
+                  allLeads.push(lead);
+                  newLeadsForCommunity.push(lead);
+                }
+              } catch {}
+            }
           }
         }
       }
 
-      console.log(`Total unique leads found: ${allLeads.length} using ${apiUsed}`);
+      // Save to community database
+      if (newLeadsForCommunity.length > 0) {
+        try {
+          const inserts = newLeadsForCommunity.filter(l => l.phone && l.business_name).map(l => ({
+            business_name: l.business_name, phone: l.phone, address: l.address,
+            rating: l.rating, reviews_count: l.reviews_count, website: l.website,
+            google_maps_url: l.google_maps_url, niche, location,
+            niche_normalized: nicheNormalized, location_normalized: locationNormalized,
+            source: apiUsed, contributed_by: effectiveUserId,
+          }));
+          for (let i = 0; i < inserts.length; i += 50) {
+            await supabase.from("community_leads").upsert(inserts.slice(i, i + 50), { onConflict: 'phone,niche_normalized,location_normalized', ignoreDuplicates: true });
+          }
+          console.log(`💾 ${inserts.length} leads salvos no banco comunitário`);
+        } catch (err) { console.error("Community DB save error:", err); }
+      }
+
+      console.log(`Total: ${allLeads.length} leads (${communityLeads.length} comunitário + ${newLeadsForCommunity.length} novos via ${apiUsed})`);
 
       return new Response(JSON.stringify({ 
-        leads: allLeads,
-        total: allLeads.length,
-        searchTermsUsed: limitedSearchTerms,
-        apiUsed,
+        leads: allLeads, total: allLeads.length,
+        searchTermsUsed: limitedSearchTerms, apiUsed,
+        communityLeadsCount: communityLeads.length,
+        freshLeadsCount: newLeadsForCommunity.length,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
