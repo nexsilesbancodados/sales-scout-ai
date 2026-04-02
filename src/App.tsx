@@ -20,19 +20,12 @@ const AuthPage = lazy(() => import("./pages/Auth"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
-const GoogleMapsPage = lazy(() => import("./pages/GoogleMaps"));
 const ProspectMapPage = lazy(() => import("./pages/ProspectMap"));
-const WebSearchPage = lazy(() => import("./pages/WebSearch"));
-const WhatsAppGroupsPage = lazy(() => import("./pages/WhatsAppGroups"));
-const ImportLeadsPage = lazy(() => import("./pages/ImportLeads"));
 const MassSendPage = lazy(() => import("./pages/MassSend"));
 const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
 const ABTestingPage = lazy(() => import("./pages/ABTesting"));
-const LeadsPage = lazy(() => import("./pages/Leads"));
-const FunnelPage = lazy(() => import("./pages/Funnel"));
-const ConversationsPage = lazy(() => import("./pages/Conversations"));
 const MeetingsPage = lazy(() => import("./pages/Meetings"));
 const FollowUpPage = lazy(() => import("./pages/FollowUp"));
 const TemplatesPage = lazy(() => import("./pages/Templates"));
@@ -68,7 +61,6 @@ const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
 const CRMInboxPage = lazy(() => import("./pages/crm/CRMInbox"));
 const CRMAutomationsPage = lazy(() => import("./pages/crm/CRMAutomations"));
 const AdminPage = lazy(() => import("./pages/Admin"));
-const AutomationsPage = lazy(() => import("./pages/Automations"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
