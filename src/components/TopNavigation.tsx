@@ -39,12 +39,12 @@ import {
   Globe,
   Bot,
   Search,
-  TrendingUp,
   Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { BackgroundJobsMonitor } from '@/components/jobs/BackgroundJobsMonitor';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
 
