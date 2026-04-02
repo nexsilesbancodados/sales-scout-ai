@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   Zap, Bot, ArrowLeft, Settings, Menu,
   Users, Bell, Download, Webhook, Shield,
-  Calendar, Key,
+  Calendar,
 } from 'lucide-react';
 
 const settingsGroups = [
