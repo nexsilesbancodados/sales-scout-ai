@@ -86,7 +86,7 @@ export default function SettingsConnections() {
       {/* Multi-Chip */}
       <MultiChipSettings />
 
-      {/* Cakto Webhook Configuration */}
+      {isAdmin && (
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -134,6 +134,7 @@ export default function SettingsConnections() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
