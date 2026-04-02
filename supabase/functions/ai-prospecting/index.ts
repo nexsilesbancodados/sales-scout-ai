@@ -14,9 +14,9 @@ async function processSearchLeadsInBackground(
   niche: string,
   location: string,
   maxResults: number,
-  serpApiKey: string,
-  serperApiKey: string | null,
-  preferredApi: string
+  _serpApiKey: string,
+  _serperApiKey: string | null,
+  _preferredApi: string
 ) {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -70,54 +70,70 @@ async function processSearchLeadsInBackground(
       // Stop if we have enough leads
       if (allLeads.length >= maxResults) break;
 
-      // Search with expanded pagination (5 pages per term = 100 results per term)
-      for (let start = 0; start < 100; start += 20) {
-        if (allLeads.length >= maxResults) break;
-
-        const searchQuery = `${searchTerm} em ${location}`;
-        console.log(`[Job ${jobId}] Searching: "${searchQuery}" (start: ${start})`);
+      // Single search per term (DuckDuckGo doesn't paginate like SerpAPI)
+      {
+        const searchQuery = `${searchTerm} em ${location} telefone contato`;
+        console.log(`[Job ${jobId}] Searching DDG: "${searchQuery}"`);
         
         try {
-          const serpResponse = await fetch(
-            `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
-          );
+          const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}&kl=br-pt`;
+          const serpResponse = await fetch(ddgUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html',
+            },
+          });
 
           if (!serpResponse.ok) {
-            console.error(`[Job ${jobId}] SerpAPI error:`, await serpResponse.text());
+            console.error(`[Job ${jobId}] DDG error:`, serpResponse.status);
             continue;
           }
 
-          const serpData = await serpResponse.json();
-          const localResults = serpData.local_results || [];
+          const html = await serpResponse.text();
+          const blocks = html.split('class="result__body"');
           
-          if (localResults.length === 0) break;
+          if (blocks.length <= 1) break;
 
-          console.log(`[Job ${jobId}] Found ${localResults.length} results for "${searchTerm}" at position ${start}`);
+          console.log(`[Job ${jobId}] Found ${blocks.length - 1} results for "${searchTerm}"`);
 
-          for (const result of localResults) {
-            if (!result.phone) continue;
+          for (let bi = 1; bi < blocks.length; bi++) {
+            const block = blocks[bi];
+            const titleMatch = block.match(/class="result__a"[^>]*>([^<]+)</);
+            const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').trim() : '';
             
-            const normalizedPhone = result.phone.replace(/\D/g, "");
+            const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+            const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+            
+            const linkMatch = block.match(/href="([^"]+)"[^>]*class="result__a"/);
+            let link = linkMatch ? linkMatch[1] : '';
+            if (link.includes('uddg=')) {
+              link = decodeURIComponent(link.split('uddg=')[1]?.split('&')[0] || '');
+            }
+
+            const combinedText = `${title} ${snippet}`;
+            const phoneMatch = combinedText.match(/\(?\d{2}\)?\s*\d{4,5}[-.\s]?\d{4}/);
+            if (!phoneMatch) continue;
+            
+            const phone = phoneMatch[0];
+            const normalizedPhone = phone.replace(/\D/g, "");
             if (seenPhones.has(normalizedPhone)) continue;
             
-            const normalizedName = (result.title || "").toLowerCase().trim();
-            if (seenNames.has(normalizedName)) continue;
+            const normalizedName = title.toLowerCase().trim();
+            if (normalizedName && seenNames.has(normalizedName)) continue;
 
             seenPhones.add(normalizedPhone);
-            seenNames.add(normalizedName);
+            if (normalizedName) seenNames.add(normalizedName);
 
             allLeads.push({
-              business_name: result.title || "Empresa",
-              phone: result.phone,
-              address: result.address || null,
-              rating: result.rating || null,
-              reviews_count: result.reviews || null,
-              website: result.website || null,
-              google_maps_url: result.place_id 
-                ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                : null,
-              place_id: result.place_id || null,
-              type: result.type || null,
+              business_name: title || "Empresa",
+              phone: phone,
+              address: snippet.substring(0, 100) || null,
+              rating: null,
+              reviews_count: null,
+              website: link || null,
+              google_maps_url: null,
+              place_id: null,
+              type: null,
               subtype: searchTerm,
             });
           }
@@ -743,20 +759,10 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
     if (action === "search_leads") {
       const { niche, location, maxResults = 1000 } = data;
       
-      // Use global API keys
-      const serperApiKey = Deno.env.get("SERPER_API_KEY");
-      const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
-      
-      // Check if at least one API is configured
-      if (!serperApiKey && !serpApiKey) {
-        return new Response(JSON.stringify({ 
-          error: "Nenhuma API de busca configurada no servidor.", 
-          leads: [] 
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // DuckDuckGo is FREE - no API keys needed
+      const serperApiKey = null; // Removed - using free DuckDuckGo
+      const serpApiKey = null; // Removed - using free DuckDuckGo
+      const preferredApi = 'duckduckgo';
 
       // MAPEAMENTO COMPLETO DE BAIRROS - TODAS AS CAPITAIS E PRINCIPAIS CIDADES DO BRASIL
       const CITY_REGIONS: Record<string, string[]> = {
@@ -1628,42 +1634,61 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         "Ladário": ["Centro", "Centro", "Centro"]
       };
 
-      // Helper function to search with Serper.dev
-      async function searchWithSerper(searchQuery: string): Promise<any[]> {
-        const response = await fetch('https://google.serper.dev/places', {
-          method: 'POST',
+      // Helper function to search with DuckDuckGo (FREE - no API key needed)
+      async function searchWithDDG(searchQuery: string): Promise<any[]> {
+        const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery + ' telefone contato')}&kl=br-pt`;
+        const response = await fetch(ddgUrl, {
           headers: {
-            'X-API-KEY': serperApiKey!,
-            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html',
+            'Accept-Language': 'pt-BR,pt;q=0.9',
           },
-          body: JSON.stringify({
-            q: searchQuery,
-            gl: 'br',
-            hl: 'pt-br',
-            num: 100, // Request max results
-          }),
         });
 
         if (!response.ok) {
-          throw new Error(`Serper API error: ${response.status}`);
+          throw new Error(`DuckDuckGo error: ${response.status}`);
         }
 
-        const data = await response.json();
-        return data.places || [];
-      }
+        const html = await response.text();
+        const results: any[] = [];
+        const blocks = html.split('class="result__body"');
+        
+        for (let i = 1; i < blocks.length; i++) {
+          const block = blocks[i];
+          const titleMatch = block.match(/class="result__a"[^>]*>([^<]+)</);
+          const title = titleMatch ? titleMatch[1].replace(/&amp;/g, '&').trim() : '';
+          
+          const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+          const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+          
+          const linkMatch = block.match(/href="([^"]+)"[^>]*class="result__a"/);
+          let link = linkMatch ? linkMatch[1] : '';
+          if (link.includes('uddg=')) {
+            link = decodeURIComponent(link.split('uddg=')[1]?.split('&')[0] || '');
+          }
 
-      // Helper function to search with SerpAPI
-      async function searchWithSerpApi(searchQuery: string, start: number): Promise<any[]> {
-        const response = await fetch(
-          `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&hl=pt-br&start=${start}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`SerpAPI error: ${response.status}`);
+          const combinedText = `${title} ${snippet}`;
+          const phoneMatch = combinedText.match(/\(?\d{2}\)?\s*\d{4,5}[-.\s]?\d{4}/);
+          
+          if (phoneMatch) {
+            results.push({
+              title,
+              phone: phoneMatch[0],
+              phoneNumber: phoneMatch[0],
+              address: snippet.substring(0, 100),
+              website: link,
+              link: link,
+              rating: null,
+              reviews: null,
+              ratingCount: null,
+              category: null,
+              placeId: null,
+              type: null,
+            });
+          }
         }
 
-        const data = await response.json();
-        return data.local_results || [];
+        return results;
       }
 
       const allLeads: any[] = [];
@@ -1782,10 +1807,8 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       // Use TODOS os termos disponíveis (até 50 para garantir cobertura total)
       const limitedSearchTerms = uniqueTerms.slice(0, 50);
 
-      // Determine which API to use (with fallback logic)
-      let useSerper = preferredApi === 'serper' && serperApiKey;
-      let useSerpApi = !useSerper && serpApiKey;
-      let apiUsed = useSerper ? 'serper' : 'serpapi';
+      // Use DuckDuckGo (FREE - no API keys needed)
+      const apiUsed = 'duckduckgo_free';
 
       // Get city regions if available
       const cityName = Object.keys(CITY_REGIONS).find(city => 
@@ -1793,23 +1816,21 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       );
       const regions = cityName ? CITY_REGIONS[cityName] : [];
 
-      // Build search locations: original location + TODOS os bairros para cobertura MÁXIMA
+      // Build search locations: original location + top regions
       const searchLocations: string[] = [location];
       if (regions.length > 0) {
-        // Adicionar TODOS os bairros disponíveis (sem limite)
-        for (const region of regions) {
+        // Limit to top 10 regions for DuckDuckGo rate limits
+        for (const region of regions.slice(0, 10)) {
           searchLocations.push(`${region}, ${cityName}`);
         }
       }
 
-      console.log(`🚀 BUSCA MÁXIMA SEM LIMITES para ${niche} em ${location}`);
+      console.log(`🚀 BUSCA GRATUITA via DuckDuckGo para ${niche} em ${location}`);
       console.log(`- ${limitedSearchTerms.length} termos de busca`);
       console.log(`- ${searchLocations.length} variações de localização`);
-      console.log(`- Total de combinações: ${limitedSearchTerms.length * searchLocations.length}`);
       console.log(`- Meta: ${maxResults} leads`);
-      console.log(`- API: ${apiUsed}`);
 
-      // Process each search term with location variations
+      // Process each search term with location variations using DuckDuckGo (FREE)
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
@@ -1818,96 +1839,42 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
 
           const searchQuery = `${searchTerm} em ${searchLocation}`;
           
-          if (useSerper) {
-            try {
-              const results = await searchWithSerper(searchQuery);
-              console.log(`[Serper] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
-              
-              for (const result of results) {
-                if (allLeads.length >= maxResults) break;
-                if (!result.phoneNumber) continue;
-                
-                const normalizedPhone = result.phoneNumber.replace(/\D/g, "");
-                if (seenPhones.has(normalizedPhone)) continue;
-                
-                const normalizedName = (result.title || "").toLowerCase().trim();
-                if (seenNames.has(normalizedName)) continue;
-
-                seenPhones.add(normalizedPhone);
-                seenNames.add(normalizedName);
-
-                allLeads.push({
-                  business_name: result.title || "Empresa",
-                  phone: result.phoneNumber,
-                  address: result.address || null,
-                  rating: result.rating || null,
-                  reviews_count: result.ratingCount || null,
-                  website: result.website || null,
-                  google_maps_url: result.link || null,
-                  place_id: result.placeId || null,
-                  type: result.category || null,
-                  subtype: searchTerm,
-                });
-              }
-              
-              await new Promise(r => setTimeout(r, 50));
-            } catch (error) {
-              console.error(`Serper error for ${searchTerm}:`, error);
-              // Try fallback to SerpAPI
-              if (serpApiKey) {
-                console.log('Falling back to SerpAPI...');
-                useSerper = false;
-                useSerpApi = true;
-                apiUsed = 'serpapi (fallback)';
-              }
-            }
-          }
-          
-          if (useSerpApi) {
-            // Search up to 10 pages (200 results per term) for MAXIMUM coverage
-            for (let start = 0; start < 200; start += 20) {
+          try {
+            const results = await searchWithDDG(searchQuery);
+            console.log(`[DDG] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
+            
+            for (const result of results) {
               if (allLeads.length >= maxResults) break;
+              const phone = result.phone || result.phoneNumber;
+              if (!phone) continue;
+              
+              const normalizedPhone = phone.replace(/\D/g, "");
+              if (seenPhones.has(normalizedPhone)) continue;
+              
+              const normalizedName = (result.title || "").toLowerCase().trim();
+              if (seenNames.has(normalizedName)) continue;
 
-              try {
-                const results = await searchWithSerpApi(searchQuery, start);
-                console.log(`[SerpAPI] "${searchTerm}" in "${searchLocation}" @${start}: ${results.length} results`);
-                
-                if (results.length === 0) break;
+              seenPhones.add(normalizedPhone);
+              seenNames.add(normalizedName);
 
-                for (const result of results) {
-                  if (!result.phone) continue;
-                  
-                  const normalizedPhone = result.phone.replace(/\D/g, "");
-                  if (seenPhones.has(normalizedPhone)) continue;
-                  
-                  const normalizedName = (result.title || "").toLowerCase().trim();
-                  if (seenNames.has(normalizedName)) continue;
-
-                  seenPhones.add(normalizedPhone);
-                  seenNames.add(normalizedName);
-
-                  allLeads.push({
-                    business_name: result.title || "Empresa",
-                    phone: result.phone,
-                    address: result.address || null,
-                    rating: result.rating || null,
-                    reviews_count: result.reviews || null,
-                    website: result.website || null,
-                    google_maps_url: result.place_id 
-                      ? `https://www.google.com/maps/place/?q=place_id:${result.place_id}`
-                      : null,
-                    place_id: result.place_id || null,
-                    type: result.type || null,
-                    subtype: searchTerm,
-                  });
-                }
-
-                // Small delay to respect rate limits
-                await new Promise(r => setTimeout(r, 50));
-              } catch (error) {
-                console.error(`SerpAPI error for ${searchTerm}:`, error);
-              }
+              allLeads.push({
+                business_name: result.title || "Empresa",
+                phone: phone,
+                address: result.address || null,
+                rating: result.rating || null,
+                reviews_count: result.reviews || result.ratingCount || null,
+                website: result.website || null,
+                google_maps_url: result.link || null,
+                place_id: result.placeId || null,
+                type: result.category || result.type || null,
+                subtype: searchTerm,
+              });
             }
+            
+            // Respectful delay for DuckDuckGo
+            await new Promise(r => setTimeout(r, 300));
+          } catch (error) {
+            console.error(`DDG error for ${searchTerm}:`, error);
           }
         }
       }
