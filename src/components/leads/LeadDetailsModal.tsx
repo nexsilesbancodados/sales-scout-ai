@@ -26,8 +26,9 @@ import { useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { temperatureIcons, stageColors, allStages, allTemperatures } from '@/constants/lead-icons';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { useToast } from '@/hooks/use-toast';
 import {
   Building2,
