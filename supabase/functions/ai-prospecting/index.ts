@@ -70,10 +70,8 @@ async function processSearchLeadsInBackground(
       // Stop if we have enough leads
       if (allLeads.length >= maxResults) break;
 
-      // Search with expanded pagination (5 pages per term = 100 results per term)
-      for (let start = 0; start < 100; start += 20) {
-        if (allLeads.length >= maxResults) break;
-
+      // Single search per term (DuckDuckGo doesn't paginate like SerpAPI)
+      {
         const searchQuery = `${searchTerm} em ${location} telefone contato`;
         console.log(`[Job ${jobId}] Searching DDG: "${searchQuery}"`);
         
