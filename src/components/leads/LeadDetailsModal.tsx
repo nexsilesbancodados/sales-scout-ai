@@ -222,7 +222,27 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
     }
   };
 
-  const priorityColors: Record<string, string> = {
+  const handleEnrichLead = async () => {
+    if (!lead) return;
+    setIsEnriching(true);
+    try {
+      const data = await enrichmentApi.enrichLead({
+        phone: lead.phone,
+        website: lead.website || undefined,
+        address: lead.address || undefined,
+      });
+      setEnrichmentData(data);
+      toast({ title: 'Enriquecimento concluído', description: 'Dados adicionais carregados com sucesso' });
+    } catch (err) {
+      toast({ title: 'Erro no enriquecimento', description: String(err), variant: 'destructive' });
+    } finally {
+      setIsEnriching(false);
+    }
+  };
+
+  const logoUrl = lead?.website ? enrichmentApi.getLogoUrl(lead.website) : null;
+
+
     alta: 'bg-destructive/10 text-destructive border-destructive/20',
     media: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
     baixa: 'bg-muted text-muted-foreground border-muted',
