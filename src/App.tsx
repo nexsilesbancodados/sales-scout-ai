@@ -20,19 +20,12 @@ const AuthPage = lazy(() => import("./pages/Auth"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
-const GoogleMapsPage = lazy(() => import("./pages/GoogleMaps"));
 const ProspectMapPage = lazy(() => import("./pages/ProspectMap"));
-const WebSearchPage = lazy(() => import("./pages/WebSearch"));
-const WhatsAppGroupsPage = lazy(() => import("./pages/WhatsAppGroups"));
-const ImportLeadsPage = lazy(() => import("./pages/ImportLeads"));
 const MassSendPage = lazy(() => import("./pages/MassSend"));
 const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
 const ABTestingPage = lazy(() => import("./pages/ABTesting"));
-const LeadsPage = lazy(() => import("./pages/Leads"));
-const FunnelPage = lazy(() => import("./pages/Funnel"));
-const ConversationsPage = lazy(() => import("./pages/Conversations"));
 const MeetingsPage = lazy(() => import("./pages/Meetings"));
 const FollowUpPage = lazy(() => import("./pages/FollowUp"));
 const TemplatesPage = lazy(() => import("./pages/Templates"));
@@ -68,7 +61,6 @@ const CRMMetaAdsPage = lazy(() => import("./pages/crm/CRMMetaAds"));
 const CRMInboxPage = lazy(() => import("./pages/crm/CRMInbox"));
 const CRMAutomationsPage = lazy(() => import("./pages/crm/CRMAutomations"));
 const AdminPage = lazy(() => import("./pages/Admin"));
-const AutomationsPage = lazy(() => import("./pages/Automations"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,11 +94,7 @@ const App = () => (
                   
                   {/* Prospecção */}
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
-                  <Route path="/google-maps" element={<ProtectedRoute><GoogleMapsPage /></ProtectedRoute>} />
                   <Route path="/prospect-map" element={<ProtectedRoute><ProspectMapPage /></ProtectedRoute>} />
-                  <Route path="/web-search" element={<ProtectedRoute><WebSearchPage /></ProtectedRoute>} />
-                  <Route path="/whatsapp-groups" element={<ProtectedRoute><WhatsAppGroupsPage /></ProtectedRoute>} />
-                  <Route path="/import-leads" element={<ProtectedRoute><ImportLeadsPage /></ProtectedRoute>} />
                   <Route path="/mass-send" element={<ProtectedRoute><MassSendPage /></ProtectedRoute>} />
                   <Route path="/scheduled-prospecting" element={<ProtectedRoute><ScheduledProspectingPage /></ProtectedRoute>} />
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
@@ -114,16 +102,19 @@ const App = () => (
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
                   <Route path="/ab-testing" element={<ProtectedRoute><ABTestingPage /></ProtectedRoute>} />
 
-                  {/* CRM */}
-                  <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
-                  <Route path="/funnel" element={<ProtectedRoute><FunnelPage /></ProtectedRoute>} />
-                  <Route path="/conversations" element={<ProtectedRoute><ConversationsPage /></ProtectedRoute>} />
+                  {/* Redirects de rotas duplicadas → CRM */}
+                  <Route path="/leads" element={<Navigate to="/crm/contacts" replace />} />
+                  <Route path="/funnel" element={<Navigate to="/crm/pipeline" replace />} />
+                  <Route path="/conversations" element={<Navigate to="/crm/inbox" replace />} />
+                  <Route path="/automations" element={<Navigate to="/crm/automations" replace />} />
+                  {/* Redirects de rotas duplicadas → Prospecting tabs */}
+                  <Route path="/google-maps" element={<Navigate to="/prospecting?tab=maps" replace />} />
+                  <Route path="/web-search" element={<Navigate to="/prospecting?tab=web-search" replace />} />
+                  <Route path="/whatsapp-groups" element={<Navigate to="/prospecting?tab=whatsapp-groups" replace />} />
+                  <Route path="/import-leads" element={<Navigate to="/prospecting?tab=import" replace />} />
+
+                  {/* Engajamento */}
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
-
-                  {/* Automações */}
-                  <Route path="/automations" element={<ProtectedRoute><AutomationsPage /></ProtectedRoute>} />
-
-                  {/* Automação */}
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
 
