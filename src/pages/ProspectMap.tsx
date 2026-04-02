@@ -269,8 +269,8 @@ export default function ProspectMapPage() {
           )}
 
           {/* Map */}
-          <Card className="flex-1 overflow-hidden border-border/50 min-h-0">
-            <div className="h-full w-full relative">
+          <Card className="flex-1 overflow-hidden border-border/50 min-h-[400px]">
+            <div className="h-full w-full relative" style={{ minHeight: '400px' }}>
               {loading && (
                 <div className="absolute inset-0 z-[1000] bg-background/50 backdrop-blur-sm flex items-center justify-center">
                   <div className="flex flex-col items-center gap-3">
