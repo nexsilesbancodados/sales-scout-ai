@@ -130,15 +130,15 @@ Deno.serve(async (req) => {
     const leadsWithPhone = foundLeads.filter((lead: any) => lead.phone);
     console.log(`${leadsWithPhone.length} leads have phone numbers`);
 
-    // Generate first message using AI (user's DeepSeek key or fallback to Lovable)
-    const DEEPSEEK_API_KEY = settings.deepseek_api_key || Deno.env.get("DEEPSEEK_API_KEY");
+    // Use global API keys
+    const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!DEEPSEEK_API_KEY && !LOVABLE_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "Nenhuma API de IA configurada. Configure sua chave DeepSeek em Configurações > APIs." }),
+        JSON.stringify({ error: "Nenhuma API de IA configurada no servidor." }),
         {
-          status: 400,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
