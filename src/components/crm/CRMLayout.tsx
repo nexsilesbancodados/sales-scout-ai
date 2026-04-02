@@ -163,6 +163,8 @@ export default function CRMLayout() {
       </div>
 
       <main className="flex-1 overflow-y-auto md:pt-0 pt-14">
+        {/* Breadcrumb */}
+        <CRMBreadcrumb />
         <Outlet />
       </main>
     </div>
