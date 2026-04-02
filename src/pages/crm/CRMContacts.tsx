@@ -50,9 +50,12 @@ export default function CRMContactsPage() {
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [tempFilter, setTempFilter] = useState<string>('all');
   const [tagFilter, setTagFilter] = useState<string>('all');
+  const [scoreFilter, setScoreFilter] = useState<string>('all');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [newTagInput, setNewTagInput] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Get all unique tags
   const allTags = useMemo(() => {
