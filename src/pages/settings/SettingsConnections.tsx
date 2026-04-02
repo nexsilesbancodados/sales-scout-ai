@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function SettingsConnections() {
   const { settings, isLoading } = useUserSettings();
   const { toast } = useToast();
+  const { isAdmin } = useAdminRole();
 
   if (isLoading) {
     return (
