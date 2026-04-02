@@ -161,7 +161,7 @@ const App = () => (
               </Suspense>
               </SubscriptionLayout>
               <CommandPalette />
-            </BrowserRouter>
+              <KeyboardShortcuts />
             <PWAInstallBanner />
           </TooltipProvider>
         </RealtimeNotificationsProvider>
