@@ -52,6 +52,8 @@ import {
   DollarSign,
   FileText,
   Copy,
+  Search,
+  Shield,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
