@@ -51,9 +51,7 @@ import {
   CreditCard,
   Code2,
   ShieldCheck,
-  Zap,
   Search,
-  TrendingUp,
   Crown,
   Map,
 } from 'lucide-react';
