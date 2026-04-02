@@ -23,8 +23,10 @@ import {
   Loader2, ArrowLeft, Flame, ThermometerSun, Snowflake, Phone, Mail, Globe,
   Instagram, Facebook, Linkedin, Twitter, MapPin, Star, Send, Plus, Trash2,
   MessageCircle, Calendar, FileText, CheckSquare, Target, Clock, ExternalLink,
-  Building2, Users, CalendarDays,
+  Building2, Users, CalendarDays, Bot,
 } from 'lucide-react';
+import { QuickReplies } from '@/components/chat/QuickReplies';
+import { AIReplyButton } from '@/components/chat/AIReplyButton';
 
 function hashColor(name: string) {
   let h = 0;
