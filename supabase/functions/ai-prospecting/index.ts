@@ -1730,9 +1730,74 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
         return results;
       }
 
+      // Helper: Search with Serper.dev (user's key)
+      async function searchWithSerper(query: string, apiKey: string): Promise<any[]> {
+        const response = await fetch('https://google.serper.dev/maps', {
+          method: 'POST',
+          headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: query, gl: 'br', hl: 'pt-br', num: 20 }),
+        });
+        if (!response.ok) throw new Error(`Serper error: ${response.status}`);
+        const data = await response.json();
+        return (data.places || []).map((p: any) => ({
+          title: p.title || '',
+          phone: p.phoneNumber || '',
+          phoneNumber: p.phoneNumber || '',
+          address: p.address || '',
+          website: p.website || '',
+          link: p.link || '',
+          rating: p.rating || null,
+          reviews: p.ratingCount || null,
+          ratingCount: p.ratingCount || null,
+          category: p.category || null,
+          placeId: p.placeId || null,
+          type: p.type || null,
+        }));
+      }
+
+      // Helper: Search with SerpAPI (user's key)
+      async function searchWithSerpApi(query: string, apiKey: string, start = 0): Promise<any[]> {
+        const params = new URLSearchParams({
+          engine: 'google_maps',
+          q: query,
+          hl: 'pt-br',
+          gl: 'br',
+          type: 'search',
+          start: String(start),
+          api_key: apiKey,
+        });
+        const response = await fetch(`https://serpapi.com/search.json?${params}`);
+        if (!response.ok) throw new Error(`SerpAPI error: ${response.status}`);
+        const data = await response.json();
+        return (data.local_results || []).map((r: any) => ({
+          title: r.title || '',
+          phone: r.phone || '',
+          phoneNumber: r.phone || '',
+          address: r.address || '',
+          website: r.website || '',
+          link: r.link || '',
+          rating: r.rating || null,
+          reviews: r.reviews || null,
+          ratingCount: r.reviews || null,
+          category: r.type || null,
+          placeId: r.place_id || null,
+          type: r.type || null,
+        }));
+      }
+
       const allLeads: any[] = [];
       const seenPhones = new Set<string>();
       const seenNames = new Set<string>();
+      
+      // Seed with community leads
+      for (const cl of communityLeads) {
+        const normalizedPhone = cl.phone.replace(/\D/g, "");
+        if (!seenPhones.has(normalizedPhone)) {
+          seenPhones.add(normalizedPhone);
+          seenNames.add((cl.business_name || "").toLowerCase().trim());
+          allLeads.push(cl);
+        }
+      }
 
       // EXTENSIVE subniches for MAXIMUM coverage - all variations and subcategories
       const SUBNICHES: Record<string, string[]> = {
