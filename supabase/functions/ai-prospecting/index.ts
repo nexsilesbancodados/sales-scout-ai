@@ -1791,10 +1791,8 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       // Use TODOS os termos disponíveis (até 50 para garantir cobertura total)
       const limitedSearchTerms = uniqueTerms.slice(0, 50);
 
-      // Determine which API to use (with fallback logic)
-      let useSerper = preferredApi === 'serper' && serperApiKey;
-      let useSerpApi = !useSerper && serpApiKey;
-      let apiUsed = useSerper ? 'serper' : 'serpapi';
+      // Use DuckDuckGo (FREE - no API keys needed)
+      const apiUsed = 'duckduckgo_free';
 
       // Get city regions if available
       const cityName = Object.keys(CITY_REGIONS).find(city => 
@@ -1802,21 +1800,19 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       );
       const regions = cityName ? CITY_REGIONS[cityName] : [];
 
-      // Build search locations: original location + TODOS os bairros para cobertura MÁXIMA
+      // Build search locations: original location + top regions
       const searchLocations: string[] = [location];
       if (regions.length > 0) {
-        // Adicionar TODOS os bairros disponíveis (sem limite)
-        for (const region of regions) {
+        // Limit to top 10 regions for DuckDuckGo rate limits
+        for (const region of regions.slice(0, 10)) {
           searchLocations.push(`${region}, ${cityName}`);
         }
       }
 
-      console.log(`🚀 BUSCA MÁXIMA SEM LIMITES para ${niche} em ${location}`);
+      console.log(`🚀 BUSCA GRATUITA via DuckDuckGo para ${niche} em ${location}`);
       console.log(`- ${limitedSearchTerms.length} termos de busca`);
       console.log(`- ${searchLocations.length} variações de localização`);
-      console.log(`- Total de combinações: ${limitedSearchTerms.length * searchLocations.length}`);
       console.log(`- Meta: ${maxResults} leads`);
-      console.log(`- API: ${apiUsed}`);
 
       // Process each search term with location variations
       for (const searchTerm of limitedSearchTerms) {
