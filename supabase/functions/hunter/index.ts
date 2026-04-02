@@ -79,14 +79,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Search for businesses using SerpAPI (Google Maps search)
-    // Use user's own API key if available, otherwise fall back to global
-    const SERPAPI_API_KEY = settings.serpapi_api_key || Deno.env.get("SERPAPI_API_KEY");
+    // Use global API key
+    const SERPAPI_API_KEY = Deno.env.get("SERPAPI_API_KEY");
     if (!SERPAPI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "SerpAPI não configurada. Configure sua chave em Configurações > APIs." }),
+        JSON.stringify({ error: "SerpAPI não configurada no servidor." }),
         {
-          status: 400,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
