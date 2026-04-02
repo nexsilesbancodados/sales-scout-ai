@@ -243,7 +243,59 @@ export default function CRMContactsPage() {
           <Button variant={viewMode === 'grid' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7 rounded-lg" onClick={() => setViewMode('grid')}><LayoutGrid className="h-3.5 w-3.5" /></Button>
         </div>
         <Button variant="outline" size="sm" className="h-9 rounded-xl text-xs" onClick={exportCSV}><Download className="h-3.5 w-3.5 mr-1" />Exportar</Button>
+        <Button
+          variant={showAdvancedFilters ? 'secondary' : 'outline'}
+          size="sm"
+          className="h-9 rounded-xl text-xs gap-1"
+          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+        >
+          <Filter className="h-3.5 w-3.5" />
+          Filtros
+          {activeFilterCount > 0 && (
+            <Badge className="h-4 w-4 p-0 text-[9px] flex items-center justify-center rounded-full bg-primary text-primary-foreground">{activeFilterCount}</Badge>
+          )}
+        </Button>
       </div>
+
+      {/* Advanced filters */}
+      {showAdvancedFilters && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl bg-muted/20 border border-border/30 animate-fade-in">
+          <Select value={scoreFilter} onValueChange={setScoreFilter}>
+            <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue placeholder="Score" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos scores</SelectItem>
+              <SelectItem value="high">🟢 Alto (60+)</SelectItem>
+              <SelectItem value="medium">🟡 Médio (30-59)</SelectItem>
+              <SelectItem value="low">🔴 Baixo (&lt;30)</SelectItem>
+            </SelectContent>
+          </Select>
+          {allSources.length > 0 && (
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder="Fonte" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas fontes</SelectItem>
+                {allSources.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+          {activeFilterCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs gap-1 text-muted-foreground"
+              onClick={() => {
+                setStageFilter('all');
+                setTempFilter('all');
+                setTagFilter('all');
+                setScoreFilter('all');
+                setSourceFilter('all');
+              }}
+            >
+              <X className="h-3 w-3" /> Limpar filtros
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Bulk actions bar */}
       {selected.size > 0 && (
