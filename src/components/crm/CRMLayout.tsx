@@ -8,8 +8,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { useLeads } from '@/hooks/use-leads';
 import {
-  Kanban, Users, CheckSquare, BarChart3, Megaphone,
-  ArrowLeft, Menu, TrendingUp, DollarSign,
+  Kanban, Users, CheckSquare, BarChart3, Megaphone, MessageSquareText,
+  ArrowLeft, Menu, TrendingUp, DollarSign, Zap,
 } from 'lucide-react';
 
 const crmNav = [
