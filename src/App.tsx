@@ -21,6 +21,7 @@ const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
 const GoogleMapsPage = lazy(() => import("./pages/GoogleMaps"));
+const ProspectMapPage = lazy(() => import("./pages/ProspectMap"));
 const WebSearchPage = lazy(() => import("./pages/WebSearch"));
 const WhatsAppGroupsPage = lazy(() => import("./pages/WhatsAppGroups"));
 const ImportLeadsPage = lazy(() => import("./pages/ImportLeads"));
