@@ -258,6 +258,7 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
+                {logoUrl && <AvatarImage src={logoUrl} alt={lead.business_name} />}
                 <AvatarFallback className="bg-primary/10 text-primary text-lg">
                   {lead.business_name[0]}
                 </AvatarFallback>
