@@ -1909,8 +1909,15 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       // Use TODOS os termos disponíveis (até 50 para garantir cobertura total)
       const limitedSearchTerms = uniqueTerms.slice(0, 50);
 
-      // Use DuckDuckGo (FREE - no API keys needed)
-      const apiUsed = 'duckduckgo_free';
+      // Determine which API to use based on user's keys
+      const hasSerpApi = !!serpApiKey;
+      const hasSerper = !!serperApiKey;
+      let apiUsed = 'duckduckgo_free';
+      
+      if (preferredApi === 'serper' && hasSerper) apiUsed = 'serper';
+      else if (preferredApi === 'serpapi' && hasSerpApi) apiUsed = 'serpapi';
+      else if (hasSerper) apiUsed = 'serper';
+      else if (hasSerpApi) apiUsed = 'serpapi';
 
       // Get city regions if available
       const cityName = Object.keys(CITY_REGIONS).find(city => 
@@ -1918,32 +1925,36 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
       );
       const regions = cityName ? CITY_REGIONS[cityName] : [];
 
-      // Build search locations: original location + top regions
       const searchLocations: string[] = [location];
       if (regions.length > 0) {
-        // Limit to top 10 regions for DuckDuckGo rate limits
-        for (const region of regions.slice(0, 10)) {
+        const regionLimit = apiUsed === 'duckduckgo_free' ? 10 : 20;
+        for (const region of regions.slice(0, regionLimit)) {
           searchLocations.push(`${region}, ${cityName}`);
         }
       }
 
-      console.log(`🚀 BUSCA GRATUITA via DuckDuckGo para ${niche} em ${location}`);
-      console.log(`- ${limitedSearchTerms.length} termos de busca`);
-      console.log(`- ${searchLocations.length} variações de localização`);
-      console.log(`- Meta: ${maxResults} leads`);
+      console.log(`🚀 BUSCA via ${apiUsed.toUpperCase()} para ${niche} em ${location}`);
+      console.log(`- ${limitedSearchTerms.length} termos | ${searchLocations.length} localizações`);
+      console.log(`- ${communityLeads.length} leads do banco comunitário | Meta: ${maxResults}`);
 
-      // Process each search term with location variations using DuckDuckGo (FREE)
+      const newLeadsForCommunity: any[] = [];
+
       for (const searchTerm of limitedSearchTerms) {
         if (allLeads.length >= maxResults) break;
 
         for (const searchLocation of searchLocations) {
           if (allLeads.length >= maxResults) break;
 
-          const searchQuery = `${searchTerm} em ${searchLocation}`;
-          
           try {
-            const results = await searchWithDDG(searchQuery);
-            console.log(`[DDG] "${searchTerm}" in "${searchLocation}": ${results.length} results`);
+            let results: any[] = [];
+            
+            if (apiUsed === 'serper') {
+              results = await searchWithSerper(`${searchTerm} ${searchLocation}`, serperApiKey!);
+            } else if (apiUsed === 'serpapi') {
+              results = await searchWithSerpApi(`${searchTerm} ${searchLocation}`, serpApiKey!);
+            } else {
+              results = await searchWithDDG(`${searchTerm} em ${searchLocation}`);
+            }
             
             for (const result of results) {
               if (allLeads.length >= maxResults) break;
@@ -1959,10 +1970,9 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
               seenPhones.add(normalizedPhone);
               seenNames.add(normalizedName);
 
-              allLeads.push({
+              const lead = {
                 business_name: result.title || "Empresa",
-                phone: phone,
-                address: result.address || null,
+                phone, address: result.address || null,
                 rating: result.rating || null,
                 reviews_count: result.reviews || result.ratingCount || null,
                 website: result.website || null,
@@ -1970,24 +1980,58 @@ Personalize esta mensagem para este lead específico. Mantenha curta e direta. R
                 place_id: result.placeId || null,
                 type: result.category || result.type || null,
                 subtype: searchTerm,
-              });
+              };
+              allLeads.push(lead);
+              newLeadsForCommunity.push(lead);
             }
             
-            // Respectful delay for DuckDuckGo
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, apiUsed === 'duckduckgo_free' ? 300 : 100));
           } catch (error) {
-            console.error(`DDG error for ${searchTerm}:`, error);
+            console.error(`${apiUsed} error:`, error);
+            if (apiUsed !== 'duckduckgo_free') {
+              try {
+                const fallback = await searchWithDDG(`${searchTerm} em ${searchLocation}`);
+                for (const r of fallback) {
+                  if (allLeads.length >= maxResults) break;
+                  const phone = r.phone || r.phoneNumber;
+                  if (!phone) continue;
+                  const np = phone.replace(/\D/g, "");
+                  if (seenPhones.has(np)) continue;
+                  seenPhones.add(np);
+                  const lead = { business_name: r.title || "Empresa", phone, address: r.address || null, rating: null, reviews_count: null, website: r.website || null, google_maps_url: r.link || null, place_id: null, type: null, subtype: searchTerm };
+                  allLeads.push(lead);
+                  newLeadsForCommunity.push(lead);
+                }
+              } catch {}
+            }
           }
         }
       }
 
-      console.log(`Total unique leads found: ${allLeads.length} using ${apiUsed}`);
+      // Save to community database
+      if (newLeadsForCommunity.length > 0) {
+        try {
+          const inserts = newLeadsForCommunity.filter(l => l.phone && l.business_name).map(l => ({
+            business_name: l.business_name, phone: l.phone, address: l.address,
+            rating: l.rating, reviews_count: l.reviews_count, website: l.website,
+            google_maps_url: l.google_maps_url, niche, location,
+            niche_normalized: nicheNormalized, location_normalized: locationNormalized,
+            source: apiUsed, contributed_by: effectiveUserId,
+          }));
+          for (let i = 0; i < inserts.length; i += 50) {
+            await supabase.from("community_leads").upsert(inserts.slice(i, i + 50), { onConflict: 'phone,niche_normalized,location_normalized', ignoreDuplicates: true });
+          }
+          console.log(`💾 ${inserts.length} leads salvos no banco comunitário`);
+        } catch (err) { console.error("Community DB save error:", err); }
+      }
+
+      console.log(`Total: ${allLeads.length} leads (${communityLeads.length} comunitário + ${newLeadsForCommunity.length} novos via ${apiUsed})`);
 
       return new Response(JSON.stringify({ 
-        leads: allLeads,
-        total: allLeads.length,
-        searchTermsUsed: limitedSearchTerms,
-        apiUsed,
+        leads: allLeads, total: allLeads.length,
+        searchTermsUsed: limitedSearchTerms, apiUsed,
+        communityLeadsCount: communityLeads.length,
+        freshLeadsCount: newLeadsForCommunity.length,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
