@@ -14,8 +14,10 @@ import {
 
 const crmNav = [
   { to: '/crm/pipeline', icon: Kanban, label: 'Pipeline', desc: 'Quadro Kanban' },
+  { to: '/crm/inbox', icon: MessageSquareText, label: 'Inbox', desc: 'Conversas WhatsApp' },
   { to: '/crm/contacts', icon: Users, label: 'Contatos', desc: 'Todos os leads' },
   { to: '/crm/activities', icon: CheckSquare, label: 'Atividades', desc: 'Reuniões & tarefas' },
+  { to: '/crm/automations', icon: Zap, label: 'Automações', desc: 'Regras automáticas' },
   { to: '/crm/analytics', icon: BarChart3, label: 'Analytics', desc: 'Métricas & insights' },
   { to: '/crm/meta-ads', icon: Megaphone, label: 'Meta Ads', desc: 'Facebook & Instagram' },
 ];
