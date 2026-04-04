@@ -13,7 +13,7 @@ import {
   LayoutDashboard, Target, Send, Users, MessageSquare, BarChart3,
   Shield, Settings, Bot, Calendar, Zap, FileText, Globe, Upload,
   Mail, Clock, FlaskConical, Columns3,
-  Bell, CreditCard, Code, Search, Kanban, Map,
+  Bell, CreditCard, Code, Search, Kanban,
 } from 'lucide-react';
 
 interface CommandRoute {

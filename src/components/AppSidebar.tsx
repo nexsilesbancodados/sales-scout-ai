@@ -54,7 +54,6 @@ import {
   ShieldCheck,
   Search,
   Crown,
-  Map,
   Moon,
   Sun,
 } from 'lucide-react';
