@@ -27,7 +27,7 @@ interface CommandRoute {
 const routes: CommandRoute[] = [
   { label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, path: '/dashboard', group: 'Principal', keywords: 'inicio home' },
   { label: 'Prospecção', icon: <Target className="h-4 w-4" />, path: '/prospecting', group: 'Captura', keywords: 'buscar leads capturar google maps web' },
-  { label: 'Mapa', icon: <Map className="h-4 w-4" />, path: '/prospect-map', group: 'Captura', keywords: 'mapa empresas' },
+  
   { label: 'CNPJ Radar', icon: <FileText className="h-4 w-4" />, path: '/cnpj-radar', group: 'Captura' },
   { label: 'Email Finder', icon: <Mail className="h-4 w-4" />, path: '/email-finder', group: 'Captura' },
   { label: 'Extrator Social', icon: <Globe className="h-4 w-4" />, path: '/social-extractor', group: 'Captura', keywords: 'instagram facebook' },

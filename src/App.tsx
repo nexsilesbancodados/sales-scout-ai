@@ -93,7 +93,7 @@ const App = () => (
                   
                   {/* Prospecção */}
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
-                  <Route path="/prospect-map" element={<ProtectedRoute><ProspectMapPage /></ProtectedRoute>} />
+                  
                   <Route path="/mass-send" element={<ProtectedRoute><MassSendPage /></ProtectedRoute>} />
                   <Route path="/scheduled-prospecting" element={<ProtectedRoute><ScheduledProspectingPage /></ProtectedRoute>} />
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
