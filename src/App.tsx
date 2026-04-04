@@ -21,7 +21,7 @@ const AuthPage = lazy(() => import("./pages/Auth"));
 const DashboardPage = lazy(() => import("./pages/Dashboard"));
 const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
-const ProspectMapPage = lazy(() => import("./pages/ProspectMap"));
+
 const MassSendPage = lazy(() => import("./pages/MassSend"));
 const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
