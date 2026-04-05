@@ -1,24 +1,23 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConversations, ConversationSummary } from '@/hooks/use-conversations';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { QuickReplies } from '@/components/chat/QuickReplies';
 import { AIReplyButton } from '@/components/chat/AIReplyButton';
-import { formatDistanceToNow, format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import {
   Search, Loader2, MessageCircle, Send, Bot, Flame, ThermometerSun,
   Snowflake, Phone, ExternalLink, User, ArrowLeft, Zap, Sparkles,
-  Filter, Tag, Inbox,
+  Filter, Tag, Inbox, Check, CheckCheck, AlertCircle,
 } from 'lucide-react';
 
 function hashColor(name: string): string {
@@ -106,6 +105,16 @@ function ChatPanel({ leadId, lead, onBack }: {
 
   const lastLeadMessage = [...messages].reverse().find(m => m.sender_type === 'lead');
 
+  const groupedMessages = useMemo(() => {
+    return messages.reduce((groups, msg, i) => {
+      const msgDate = format(new Date(msg.sent_at), 'yyyy-MM-dd');
+      const prevDate = i > 0 ? format(new Date(messages[i - 1].sent_at), 'yyyy-MM-dd') : null;
+      if (msgDate !== prevDate) groups.push({ type: 'separator' as const, date: msg.sent_at, data: undefined });
+      groups.push({ type: 'message' as const, date: undefined, data: msg });
+      return groups;
+    }, [] as Array<{ type: 'separator' | 'message'; date?: string; data?: typeof messages[0] }>);
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Chat header */}
@@ -147,7 +156,7 @@ function ChatPanel({ leadId, lead, onBack }: {
 
       {/* Messages */}
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-1">
           {isLoading && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -160,49 +169,72 @@ function ChatPanel({ leadId, lead, onBack }: {
               <p className="text-xs">Envie a primeira mensagem para iniciar a conversa</p>
             </div>
           )}
-          {messages.map(msg => (
-            <div key={msg.id} className={`flex ${msg.sender_type === 'lead' ? 'justify-start' : 'justify-end'}`}>
-              <div className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${
-                msg.sender_type === 'lead'
-                  ? 'bg-card border border-border/50 rounded-bl-md'
-                  : msg.sender_type === 'agent'
-                  ? 'bg-purple-500 text-white rounded-br-md'
-                  : 'bg-emerald-500 text-white rounded-br-md'
-              }`}>
-                {msg.sender_type === 'agent' && (
-                  <div className="flex items-center gap-1 mb-1 opacity-70">
-                    <Bot className="h-3 w-3" />
-                    <span className="text-[10px]">Agente IA</span>
+          {groupedMessages.map((item, idx) => {
+            if (item.type === 'separator') {
+              const d = new Date(item.date!);
+              return (
+                <div key={`sep-${idx}`} className="flex items-center gap-3 py-3">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-[10px] text-muted-foreground font-medium px-3 py-1 rounded-full bg-muted/40 border border-border/30">
+                    {isToday(d) ? 'Hoje' : isYesterday(d) ? 'Ontem' : format(d, "d 'de' MMMM", { locale: ptBR })}
+                  </span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+              );
+            }
+            const msg = item.data!;
+            const isLead = msg.sender_type === 'lead';
+            const isAgent = msg.sender_type === 'agent';
+            return (
+              <div key={msg.id} className={`flex ${isLead ? 'justify-start' : 'justify-end'} mb-1`}>
+                <div className="max-w-[72%] group">
+                  <div className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${
+                    isLead
+                      ? 'bg-card border border-border/40 rounded-tl-md'
+                      : isAgent
+                      ? 'bg-violet-600 text-white rounded-tr-md'
+                      : 'bg-primary text-primary-foreground rounded-tr-md'
+                  }`}>
+                    {isAgent && (
+                      <div className="flex items-center gap-1 mb-1 opacity-70">
+                        <Bot className="h-3 w-3" />
+                        <span className="text-[10px]">Agente IA</span>
+                      </div>
+                    )}
+                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                   </div>
-                )}
-                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                <div className={`flex items-center justify-end gap-1 mt-1 ${
-                  msg.sender_type === 'lead' ? 'text-muted-foreground' : 'opacity-70'
-                }`}>
-                  <span className="text-[10px]">{format(new Date(msg.sent_at), 'HH:mm')}</span>
-                  {(msg.status as string) === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
+                  <div className={`flex items-center ${isLead ? 'justify-start' : 'justify-end'} gap-1 mt-0.5 px-1`}>
+                    <span className="text-[10px] text-muted-foreground">{format(new Date(msg.sent_at), 'HH:mm')}</span>
+                    {!isLead && (
+                      <>
+                        {msg.status === 'read' && <CheckCheck className="h-3 w-3 text-primary" />}
+                        {msg.status === 'delivered' && <CheckCheck className="h-3 w-3 text-muted-foreground" />}
+                        {msg.status === 'sent' && <Check className="h-3 w-3 text-muted-foreground" />}
+                        {msg.status === 'failed' && <AlertCircle className="h-3 w-3 text-destructive" />}
+                        {(msg.status as string) === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground" />}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
-      {/* Quick replies */}
-      {showQuickReplies && (
-        <QuickReplies
-          onSelectReply={(msg) => { setMsgInput(msg); setShowQuickReplies(false); }}
-          leadName={lead.business_name}
-        />
-      )}
-
-      {/* Input */}
-      <div className="shrink-0 p-3 border-t border-border/50 bg-card">
-        <div className="flex items-center gap-2">
+      {/* Input — premium */}
+      <div className="shrink-0 border-t border-border/50 bg-card/95 backdrop-blur p-3">
+        {showQuickReplies && (
+          <QuickReplies
+            onSelectReply={(msg) => { setMsgInput(msg); setShowQuickReplies(false); }}
+            leadName={lead.business_name}
+          />
+        )}
+        <div className="flex items-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => setShowQuickReplies(!showQuickReplies)}>
+              <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 mb-0.5" onClick={() => setShowQuickReplies(!showQuickReplies)} aria-label="Respostas rápidas">
                 <Zap className={`h-4 w-4 ${showQuickReplies ? 'text-primary' : ''}`} />
               </Button>
             </TooltipTrigger>
@@ -213,16 +245,34 @@ function ChatPanel({ leadId, lead, onBack }: {
             lastMessage={lastLeadMessage?.content}
             onUseReply={(msg) => setMsgInput(msg)}
           />
-          <Input
-            placeholder="Digite uma mensagem..."
-            value={msgInput}
-            onChange={e => setMsgInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            className="flex-1 rounded-xl"
-          />
-          <Button size="icon" className="h-9 w-9 rounded-xl shrink-0" onClick={handleSend} disabled={isSending || !msgInput.trim()}>
-            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+          <div className="flex-1 relative">
+            <textarea
+              value={msgInput}
+              onChange={e => setMsgInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              placeholder="Digite uma mensagem... (Enter enviar, Shift+Enter nova linha)"
+              className="w-full min-h-[40px] max-h-[120px] resize-none rounded-xl border border-border/60 bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/50"
+              rows={1}
+              onInput={e => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
+              aria-label="Mensagem"
+            />
+            {msgInput.length > 900 && (
+              <span className={`absolute bottom-2 right-2 text-[10px] font-medium ${msgInput.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {msgInput.length}/1000
+              </span>
+            )}
+          </div>
+          <motion.div whileTap={{ scale: 0.93 }}>
+            <Button
+              size="icon"
+              className={`h-9 w-9 rounded-xl shrink-0 mb-0.5 transition-all ${msgInput.trim() ? 'gradient-primary shadow-md shadow-primary/25' : 'bg-muted'}`}
+              onClick={handleSend}
+              disabled={isSending || !msgInput.trim()}
+              aria-label="Enviar mensagem"
+            >
+              {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </motion.div>
         </div>
       </div>
     </div>

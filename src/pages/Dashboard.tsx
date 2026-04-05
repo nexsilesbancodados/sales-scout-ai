@@ -4,6 +4,7 @@ import { format, subDays } from 'date-fns';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Wifi, ArrowRight as ArrowRightIcon, X as XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
@@ -47,6 +48,9 @@ export default function DashboardPage() {
   const { settings } = useUserSettings();
   const { leads } = useLeads();
   const [period, setPeriod] = useState('30d');
+  const [bannerDismissed, setBannerDismissed] = useState(() =>
+    localStorage.getItem('nexaprospect-banner-dismissed-v1') === 'true'
+  );
 
   const funnelStages = useMemo(() => {
     return Object.entries(metrics?.leadsByStage || {});
@@ -65,6 +69,20 @@ export default function DashboardPage() {
       .map(([date, leads]) => ({ date: format(new Date(date + 'T12:00:00'), 'dd/MM'), leads }));
   }, [period, metrics]);
 
+  const nextStep = useMemo(() => {
+    if (!settings?.whatsapp_connected) return { icon: Wifi, title: 'Conecte seu WhatsApp', desc: 'Ative envios automáticos e o Agente SDR', path: '/settings/connections' };
+    if ((metrics?.totalLeads || 0) === 0) return { icon: Target, title: 'Capture seus primeiros leads', desc: 'Busque no Google Maps, Instagram ou Facebook', path: '/prospecting' };
+    if ((metrics?.hotLeads || 0) > 0) return { icon: Flame, title: `Você tem ${metrics?.hotLeads} leads quentes esperando`, desc: 'Responda agora para aumentar conversões', path: '/crm/inbox' };
+    return null;
+  }, [settings?.whatsapp_connected, metrics?.totalLeads, metrics?.hotLeads]);
+
+  const showNextStep = nextStep && !bannerDismissed;
+
+  const handleDismissBanner = () => {
+    setBannerDismissed(true);
+    localStorage.setItem('nexaprospect-banner-dismissed-v1', 'true');
+  };
+
   if (metricsLoading && !metrics) {
     return (
       <DashboardLayout title="Dashboard">
@@ -72,7 +90,16 @@ export default function DashboardPage() {
           <Skeleton className="h-40 rounded-xl" />
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="border-border/40"><CardContent className="p-5"><Skeleton className="mb-4 h-8 w-8 rounded-lg" /><Skeleton className="mb-2 h-7 w-16" /><Skeleton className="h-3 w-20" /></CardContent></Card>
+              <Card key={i} className="border-border/40">
+                <CardContent className="p-5">
+                  <div className="flex justify-between mb-4">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-6 w-12 rounded-lg" />
+                  </div>
+                  <Skeleton className="mb-2 h-8 w-20" />
+                  <Skeleton className="h-3 w-28 opacity-60" />
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -89,6 +116,29 @@ export default function DashboardPage() {
         totalLeads={metrics?.totalLeads || 0}
         whatsappConnected={!!settings?.whatsapp_connected}
       />
+
+      {/* Next Step Banner */}
+      {showNextStep && (
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-4"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <nextStep.icon className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">{nextStep.title}</p>
+            <p className="text-xs text-muted-foreground">{nextStep.desc}</p>
+          </div>
+          <Button size="sm" asChild className="gradient-primary shrink-0">
+            <Link to={nextStep.path}>Fazer agora <ArrowRightIcon className="h-3 w-3 ml-1" /></Link>
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleDismissBanner} aria-label="Fechar banner">
+            <XIcon className="h-3.5 w-3.5" />
+          </Button>
+        </motion.div>
+      )}
 
       {/* Period filter */}
       <motion.div
