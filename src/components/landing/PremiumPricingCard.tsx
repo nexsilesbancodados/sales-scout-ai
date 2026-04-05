@@ -61,7 +61,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
       onClick={() => setFlipped(!flipped)}
     >
       {plan.highlight && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
           Mais popular
         </span>
       )}
@@ -118,8 +118,8 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
               <span className="text-base">{emojis[index]}</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-white">{plan.name}</h3>
-              <p className={cn('text-[10px] uppercase tracking-wider font-bold', s.label)}>
+              <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
+              <p className={cn('text-xs uppercase tracking-wider font-bold', s.label)}>
                 {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
@@ -127,16 +127,16 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
 
           <div className="mb-4">
             <div className="flex items-baseline gap-1">
-              <span className="text-xs font-medium text-blue-200/60 mr-1">R$</span>
-              <span className="text-3xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
-              <span className="text-sm text-blue-200/60 ml-1">/mês</span>
+              <span className="text-sm font-medium text-blue-200/60 mr-1">R$</span>
+              <span className="text-4xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
+              <span className="text-base text-blue-200/60 ml-1">/mês</span>
             </div>
             {annual && (
               <p className="text-xs text-green-400/70 mt-1">Economia de R${(plan.price - plan.annual) * 12}/ano</p>
             )}
           </div>
 
-          <ul className="space-y-2.5 text-sm text-blue-50/90 mb-6">
+          <ul className="space-y-2.5 text-base text-blue-50/90 mb-6">
             {plan.features.map(f => (
               <li key={f} className="flex items-start gap-3">
                 <div className={cn('w-4 h-4 rounded-full flex items-center justify-center mt-0.5 shrink-0', s.check)}>
@@ -179,7 +179,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           </button>
 
           {/* Flip hint */}
-          <p className="text-[10px] text-white/20 text-center mt-3">Clique para ver detalhes →</p>
+          <p className="text-xs text-white/20 text-center mt-3">Clique para ver detalhes →</p>
         </div>
 
         {/* ═══ BACK ═══ */}
@@ -201,7 +201,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
               <span className="text-2xl">{emojis[index]}</span>
               <h3 className="text-xl font-bold text-white">{plan.name}</h3>
             </div>
-            <p className="text-[13px] text-white/55 mb-6">
+            <p className="text-sm text-white/55 mb-6">
               Por que escolher este plano?
             </p>
 
@@ -212,7 +212,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
                     style={{ background: `${s.border}20`, border: `1px solid ${s.border}30` }}>
                     <Sparkles className="h-3 w-3" style={{ color: s.border }} />
                   </div>
-                  <span className="text-[14px] text-white/80">{perk}</span>
+                  <span className="text-base text-white/80">{perk}</span>
                 </li>
               ))}
             </ul>
@@ -221,19 +221,19 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           <div className="mt-6 space-y-3">
             <div className="flex items-center justify-center gap-1 text-white/50">
               {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-current text-[#F7941D]" />)}
-              <span className="text-[11px] ml-1.5">4.9/5 avaliações</span>
+              <span className="text-xs ml-1.5">4.9/5 avaliações</span>
             </div>
 
             <button
               onClick={handleCheckout}
-              className="w-full h-[52px] rounded-xl font-semibold text-white text-[14px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
+              className="w-full h-[52px] rounded-xl font-semibold text-white text-base flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
               style={{ background: `linear-gradient(135deg, ${s.border}, ${s.border}CC)` }}
             >
               Começar agora
               <ArrowRight className="h-4 w-4" />
             </button>
 
-            <p className="text-[10px] text-white/20 text-center">← Clique para voltar</p>
+            <p className="text-xs text-white/20 text-center">← Clique para voltar</p>
           </div>
         </div>
       </div>

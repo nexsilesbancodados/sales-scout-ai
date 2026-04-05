@@ -75,7 +75,7 @@ export function StoriesTestimonials() {
             <div className={`w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-gradient-to-br ${t.gradient} p-[2.5px] transition-transform group-hover:scale-110`}>
               <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" width={72} height={72} />
             </div>
-            <span className="text-[10px] text-white/50 max-w-[72px] truncate">{t.name}</span>
+            <span className="text-xs text-white/50 max-w-[72px] truncate">{t.name}</span>
           </button>
         ))}
       </div>
@@ -123,8 +123,8 @@ export function StoriesTestimonials() {
                       <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={36} height={36} />
                     </div>
                     <div className="text-left">
-                      <p className="text-[13px] font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
-                      <p className="text-[10px] text-white/50">{TESTIMONIALS[activeStory].role}</p>
+                      <p className="text-sm font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
+                      <p className="text-xs text-white/50">{TESTIMONIALS[activeStory].role}</p>
                     </div>
                   </div>
 
@@ -134,7 +134,7 @@ export function StoriesTestimonials() {
                   </div>
 
                   {/* Quote */}
-                  <p className="text-white/90 text-[15px] leading-relaxed font-medium max-w-[280px]">
+                  <p className="text-white/90 text-base leading-relaxed font-medium max-w-[300px]">
                     "{TESTIMONIALS[activeStory].text}"
                   </p>
 

@@ -146,7 +146,7 @@ export default function Landing() {
         >
           <a href="#" className="flex items-center gap-2 mr-4 shrink-0">
             <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
-            <span className="text-[14px] font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
+            <span className="text-base font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
           </a>
           <div className="hidden lg:flex items-center">
             {NAV_LINKS.map((l, idx) => {
@@ -155,7 +155,7 @@ export default function Landing() {
                 <a key={l.label} href={l.href} onMouseEnter={() => setHoveredNav(idx)} onMouseLeave={() => setHoveredNav(null)} className="nav-optn relative group">
                   <div className="nav-optn-inner">
                     <span className="nav-optn-icon"><Icon className="h-4 w-4 text-white" /></span>
-                    <span className={`text-[13px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
+                    <span className={`text-sm font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
                     {hoveredNav === idx && (
                       <motion.span layoutId="navGlow" initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }} className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]" />
                     )}
@@ -175,11 +175,11 @@ export default function Landing() {
         <div className={`lg:hidden pointer-events-auto fixed top-[70px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-6 py-4 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="flex items-center gap-3 text-[13px] text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
+              <a key={l.label} href={l.href} className="flex items-center gap-3 text-sm text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
                 <l.icon className="h-4 w-4" />{l.label}
               </a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-[13px] font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-sm font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
         </div>
       </nav>
@@ -303,7 +303,7 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-white mb-1.5">{item.title}</h3>
                       <p className="text-sm text-white/55 leading-relaxed">{item.desc}</p>
                     </div>
-                    <span className="absolute bottom-3 right-4 text-[10px] text-white/30 z-10">Clique para ver mais →</span>
+                    <span className="absolute bottom-3 right-4 text-xs text-white/30 z-10">Clique para ver mais →</span>
                     {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent z-20" />}
                   </div>
 
@@ -332,7 +332,7 @@ export default function Landing() {
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
               <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
                  Tudo em um <span className="landing-gradient-text">único painel</span>
                </h2>
