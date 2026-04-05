@@ -50,7 +50,7 @@ export function ScrollCurveLine() {
         // Globe
         const globeCX = 500, globeCY = 4600, globeR = 1200;
         const dist = Math.hypot(tipSVG.x - globeCX, tipSVG.y - globeCY);
-        const reached = dist <= globeR && pct > 0.4;
+        const reached = dist <= globeR && pct > 0.3;
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
