@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AntiBanDashboard } from '@/components/antiban';
 
@@ -7,9 +8,13 @@ export default function AntiBanPage() {
       title="Anti-Ban"
       description="Monitore a saúde do chip e configure proteções"
     >
-      <div className="animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
         <AntiBanDashboard />
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }
