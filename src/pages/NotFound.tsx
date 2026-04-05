@@ -9,7 +9,9 @@ const NotFound = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    if (import.meta.env.DEV) {
+      console.warn("404: Non-existent route:", location.pathname);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
