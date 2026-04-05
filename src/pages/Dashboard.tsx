@@ -48,6 +48,9 @@ export default function DashboardPage() {
   const { settings } = useUserSettings();
   const { leads } = useLeads();
   const [period, setPeriod] = useState('30d');
+  const [bannerDismissed, setBannerDismissed] = useState(() =>
+    localStorage.getItem('nexaprospect-banner-dismissed-v1') === 'true'
+  );
 
   const funnelStages = useMemo(() => {
     return Object.entries(metrics?.leadsByStage || {});
@@ -66,25 +69,6 @@ export default function DashboardPage() {
       .map(([date, leads]) => ({ date: format(new Date(date + 'T12:00:00'), 'dd/MM'), leads }));
   }, [period, metrics]);
 
-  if (metricsLoading && !metrics) {
-    return (
-      <DashboardLayout title="Dashboard">
-        <div className="space-y-6">
-          <Skeleton className="h-40 rounded-xl" />
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="border-border/40"><CardContent className="p-5"><Skeleton className="mb-4 h-8 w-8 rounded-lg" /><Skeleton className="mb-2 h-7 w-16" /><Skeleton className="h-3 w-20" /></CardContent></Card>
-            ))}
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const [bannerDismissed, setBannerDismissed] = useState(() =>
-    localStorage.getItem('nexaprospect-banner-dismissed-v1') === 'true'
-  );
-
   const nextStep = useMemo(() => {
     if (!settings?.whatsapp_connected) return { icon: Wifi, title: 'Conecte seu WhatsApp', desc: 'Ative envios automáticos e o Agente SDR', path: '/settings/connections' };
     if ((metrics?.totalLeads || 0) === 0) return { icon: Target, title: 'Capture seus primeiros leads', desc: 'Busque no Google Maps, Instagram ou Facebook', path: '/prospecting' };
@@ -98,6 +82,30 @@ export default function DashboardPage() {
     setBannerDismissed(true);
     localStorage.setItem('nexaprospect-banner-dismissed-v1', 'true');
   };
+
+  if (metricsLoading && !metrics) {
+    return (
+      <DashboardLayout title="Dashboard">
+        <div className="space-y-6">
+          <Skeleton className="h-40 rounded-xl" />
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="border-border/40">
+                <CardContent className="p-5">
+                  <div className="flex justify-between mb-4">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-6 w-12 rounded-lg" />
+                  </div>
+                  <Skeleton className="mb-2 h-8 w-20" />
+                  <Skeleton className="h-3 w-28 opacity-60" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Dashboard">
