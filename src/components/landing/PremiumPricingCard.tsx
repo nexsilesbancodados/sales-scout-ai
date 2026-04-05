@@ -221,7 +221,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           <div className="mt-6 space-y-3">
             <div className="flex items-center justify-center gap-1 text-white/50">
               {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-current text-[#F7941D]" />)}
-              <span className="text-[11px] ml-1.5">4.9/5 avaliações</span>
+              <span className="text-xs ml-1.5">4.9/5 avaliações</span>
             </div>
 
             <button
