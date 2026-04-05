@@ -364,8 +364,27 @@ export default function CRMContactsPage() {
           </DropdownMenu>
 
           <div className="flex-1" />
-          <Button variant="destructive" size="sm" className="h-7 text-xs rounded-lg" onClick={handleBulkDelete}>
-            <Trash2 className="h-3 w-3 mr-1" />Excluir
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="h-7 text-xs rounded-lg" disabled={selected.size === 0}>
+                <Trash2 className="h-3 w-3 mr-1" />Excluir ({selected.size})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir {selected.size} lead(s)?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. Os leads serão removidos permanentemente da sua base.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
+                  Sim, excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           </Button>
           <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg" onClick={() => setSelected(new Set())}>
             Cancelar
