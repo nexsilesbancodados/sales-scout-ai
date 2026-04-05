@@ -6,7 +6,7 @@ import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { RocketTransition } from '@/components/auth/RocketTransition';
 
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Loader2, ArrowRight, Mail, User, Eye, EyeOff, Shield, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
