@@ -137,7 +137,17 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
             {description && (
               <p className="text-muted-foreground/60 mb-6 text-sm">{description}</p>
             )}
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={useLocation().pathname}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </SidebarInset>
       </SidebarProvider>
