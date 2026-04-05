@@ -735,8 +735,8 @@ div[style*="Edit with Lovable"],
 }
 
 .nav-shimmer-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(to bottom, #F7941D, #E8850A);
   border-radius: 50px;
   display: flex;
