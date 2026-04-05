@@ -66,8 +66,14 @@ export async function sendWhatsAppMessage(
   message: string, 
   instanceId: string
 ): Promise<{ success: boolean; message_id?: string }> {
+  // Validate phone number
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) {
+    throw new Error('Número de telefone inválido: deve ter pelo menos 10 dígitos');
+  }
+
   const { data, error } = await supabase.functions.invoke('whatsapp-send', {
-    body: { phone, message, instance_id: instanceId },
+    body: { phone: digits, message, instance_id: instanceId },
   });
 
   if (error) throw new Error(error.message);

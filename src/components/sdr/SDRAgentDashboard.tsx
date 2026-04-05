@@ -85,15 +85,11 @@ export function SDRAgentDashboard() {
     setSaving(true);
     updateSettings({
       sdr_agent_enabled: agentEnabled,
-      sdr_objective: objective,
       communication_style: tone as any,
-      sdr_script: sdrScript,
-      calendly_link: calendlyLink,
       google_meet_link: calendlyLink,
-      sdr_transfer_objection: transferOnObjection,
-      sdr_auto_schedule: autoSchedule,
       auto_start_hour: parseInt(startHour),
       auto_end_hour: parseInt(endHour),
+      work_days_only: !workDays.includes(0) || !workDays.includes(6),
     } as any);
     setSaving(false);
   };

@@ -35,8 +35,8 @@ export function AntiBanDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const currentLimit = calculateCurrentLimit();
-  const dailyProgress = config ? (config.messages_sent_today / currentLimit) * 100 : 0;
-  const hourlyProgress = config ? (config.messages_sent_hour / config.hourly_limit) * 100 : 0;
+  const dailyProgress = config && currentLimit > 0 ? Math.min((config.messages_sent_today / currentLimit) * 100, 100) : 0;
+  const hourlyProgress = config && config.hourly_limit > 0 ? Math.min((config.messages_sent_hour / config.hourly_limit) * 100, 100) : 0;
 
   const getHealthStyles = (health: string) => {
     switch (health) {
@@ -283,7 +283,7 @@ function RiskFactorItem({
   thresholds: { safe: number; warning: number };
   inverted?: boolean;
 }) {
-  const ratio = current / limit;
+  const ratio = limit > 0 ? current / limit : 0;
   const effectiveRatio = inverted ? (1 - ratio) : ratio;
   
   let status: 'safe' | 'warning' | 'danger' = 'safe';

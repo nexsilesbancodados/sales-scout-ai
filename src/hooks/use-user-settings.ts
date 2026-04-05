@@ -84,19 +84,24 @@ export function useUserSettings() {
       if (error) throw error;
       return fromDbFormat(data as unknown as Record<string, unknown>);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-settings', user?.id] });
-      toast({
-        title: 'Configurações salvas',
-        description: 'Suas configurações foram atualizadas com sucesso.',
-      });
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: ['user-settings', user?.id] });
+      const previous = queryClient.getQueryData(['user-settings', user?.id]);
+      queryClient.setQueryData(['user-settings', user?.id], (old: any) => old ? { ...old, ...updates } : old);
+      return { previous };
     },
-    onError: (error) => {
+    onError: (error, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['user-settings', user?.id], context.previous);
+      }
       toast({
         title: 'Erro ao salvar',
         description: error.message,
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-settings', user?.id] });
     },
   });
 

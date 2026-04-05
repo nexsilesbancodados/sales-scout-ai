@@ -34,13 +34,18 @@ function hashColor(name: string) {
   return `hsl(${Math.abs(h) % 360}, 55%, 50%)`;
 }
 
-function parseNotes(notes: string | null): LeadNote[] {
+function parseNotes(notes: string | null | object): LeadNote[] {
   if (!notes) return [];
+  // If it's already an array (parsed JSON from DB)
+  if (Array.isArray(notes)) return notes as LeadNote[];
+  // If it's an object but not array
+  if (typeof notes === 'object') return [{ text: JSON.stringify(notes), created_at: new Date().toISOString() }];
+  // String case
   try {
     const parsed = JSON.parse(notes);
-    return Array.isArray(parsed) ? parsed : [{ text: notes, created_at: new Date().toISOString() }];
+    return Array.isArray(parsed) ? parsed : [{ text: String(notes), created_at: new Date().toISOString() }];
   } catch {
-    return notes ? [{ text: notes, created_at: new Date().toISOString() }] : [];
+    return notes ? [{ text: String(notes), created_at: new Date().toISOString() }] : [];
   }
 }
 
