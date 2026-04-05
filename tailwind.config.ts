@@ -15,6 +15,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Gratav', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Gratav', 'Plus Jakarta Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

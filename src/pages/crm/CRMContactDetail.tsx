@@ -18,6 +18,7 @@ import { useMeetings } from '@/hooks/use-meetings';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { Lead, LeadTask, LeadNote } from '@/types/database';
 import { stageColors } from '@/constants/lead-icons';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -78,6 +79,19 @@ export default function CRMContactDetailPage() {
       setBant(lead.analyzed_needs.bant);
     }
   }, [lead?.analyzed_needs]);
+
+  // Auto-enrich location from DDD
+  useEffect(() => {
+    if (!lead || lead.location || !lead.phone) return;
+    const digits = lead.phone.replace(/\D/g, '');
+    const ddd = digits.startsWith('55') ? digits.slice(2, 4) : digits.slice(0, 2);
+    if (ddd.length < 2) return;
+    enrichmentApi.lookupDdd(ddd).then((res: any) => {
+      if (res?.state) {
+        updateLead({ id: lead.id, location: res.state });
+      }
+    }).catch(() => {});
+  }, [lead?.id]);
 
   const leadMeetings = useMemo(() => meetings.filter(m => m.lead_id === id), [meetings, id]);
   const leadActivities = useMemo(() => activities.filter(a => a.lead_id === id), [activities, id]);
@@ -149,8 +163,16 @@ export default function CRMContactDetailPage() {
         <div className="w-full lg:w-[280px] shrink-0 space-y-4">
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="mx-auto h-20 w-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3" style={{ backgroundColor: hashColor(lead.business_name) }}>
+              <div className="mx-auto h-20 w-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3 relative" style={{ backgroundColor: hashColor(lead.business_name) }}>
                 {lead.business_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                {lead.website && (
+                  <img
+                    src={enrichmentApi.getLogoUrl(lead.website)}
+                    alt=""
+                    className="absolute -bottom-1 -right-1 h-7 w-7 rounded-md object-contain bg-background p-0.5 border border-border/30 shadow-sm"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
               </div>
               <h2 className="font-bold text-lg">{lead.business_name}</h2>
               <p className="text-sm text-muted-foreground">{lead.niche || 'Sem nicho'}</p>

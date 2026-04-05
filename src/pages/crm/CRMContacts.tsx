@@ -10,9 +10,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLeads } from '@/hooks/use-leads';
 import { LeadStage, LeadTemperature } from '@/types/database';
 import { allStages, allTemperatures, stageColors } from '@/constants/lead-icons';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +23,7 @@ import {
   MessageCircle, Eye, Flame, ThermometerSun, Snowflake, Trash2,
   Tag, MoreHorizontal, Move, Thermometer, Plus, X,
   ChevronDown, Users, DollarSign, TrendingUp, Filter,
+  Globe, Mail, Building2, Zap,
 } from 'lucide-react';
 
 function hashColor(name: string) {
@@ -104,6 +107,7 @@ export default function CRMContactsPage() {
   const handleBulkDelete = () => {
     if (selected.size > 0) {
       deleteLeads(Array.from(selected));
+      toast({ title: `${selected.size} lead(s) excluídos com sucesso` });
       setSelected(new Set());
     }
   };
@@ -360,9 +364,27 @@ export default function CRMContactsPage() {
           </DropdownMenu>
 
           <div className="flex-1" />
-          <Button variant="destructive" size="sm" className="h-7 text-xs rounded-lg" onClick={handleBulkDelete}>
-            <Trash2 className="h-3 w-3 mr-1" />Excluir
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="h-7 text-xs rounded-lg" disabled={selected.size === 0}>
+                <Trash2 className="h-3 w-3 mr-1" />Excluir ({selected.size})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir {selected.size} lead(s)?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. Os leads serão removidos permanentemente da sua base.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
+                  Sim, excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg" onClick={() => setSelected(new Set())}>
             Cancelar
           </Button>
@@ -370,7 +392,19 @@ export default function CRMContactsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        <div className="space-y-3">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4 p-3 rounded-xl border border-border/30" style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 bg-muted animate-pulse rounded-md w-40" />
+                <div className="h-3 bg-muted animate-pulse rounded-md w-24 opacity-60" />
+              </div>
+              <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+              <div className="h-6 w-12 bg-muted animate-pulse rounded-full" />
+            </div>
+          ))}
+        </div>
       ) : viewMode === 'table' ? (
         <Card className="border-border/50">
           <CardContent className="p-0">
@@ -382,6 +416,7 @@ export default function CRMContactsPage() {
                   <TableHead>Telefone</TableHead>
                   <TableHead>Estágio</TableHead>
                   <TableHead>Score</TableHead>
+                  <TableHead>Info</TableHead>
                   <TableHead>Temp.</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead>Último contato</TableHead>
@@ -406,6 +441,20 @@ export default function CRMContactsPage() {
                     <TableCell className="text-sm">{lead.phone}</TableCell>
                     <TableCell><Badge className={`${stageColors[lead.stage]} text-white text-xs`}>{lead.stage}</Badge></TableCell>
                     <TableCell><ScoreBadge score={lead.lead_score} /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {lead.website && (
+                          <img
+                            src={enrichmentApi.getLogoUrl(lead.website)}
+                            alt=""
+                            className="h-4 w-4 rounded-sm object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
+                        {lead.website && <Globe className="h-3 w-3 text-emerald-500" />}
+                        {lead.email && <Mail className="h-3 w-3 text-emerald-500" />}
+                      </div>
+                    </TableCell>
                     <TableCell><div className="flex items-center gap-1">{tempIcons[lead.temperature]}<span className="text-xs capitalize">{lead.temperature}</span></div></TableCell>
                     <TableCell onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1 flex-wrap max-w-[200px]">

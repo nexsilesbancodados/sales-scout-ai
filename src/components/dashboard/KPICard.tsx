@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface KPICardProps {
   icon: React.ReactNode;
@@ -54,9 +55,16 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
   const gradient = gradientMap[iconBg] || 'from-primary/10 via-primary/5 to-transparent dark:from-primary/10 dark:via-primary/5 dark:to-transparent';
 
   return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: delay / 1000 }}
+      whileHover={{ y: -6, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative overflow-hidden"
+    >
     <Card
-      className="group relative overflow-hidden border-border/20 hover:border-primary/20 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1.5 animate-slide-up"
-      style={{ animationDelay: `${delay}ms` }}
+      className="border-border/20 hover:border-primary/20 transition-colors duration-300 h-full"
     >
       {/* Colored gradient background */}
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-100 pointer-events-none", gradient)} />
@@ -91,5 +99,6 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
         )}
       </CardContent>
     </Card>
+    </motion.div>
   );
 }

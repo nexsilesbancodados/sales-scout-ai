@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useState, useEffect } from 'react';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavigation } from '@/components/TopNavigation';
@@ -32,6 +33,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, title, description, actions }: DashboardLayoutProps) {
   const { theme, setTheme } = useTheme();
+  const location = useLocation();
   const [navigationMode, setNavigationMode] = useState<NavigationMode>(() => {
     const saved = localStorage.getItem('navigation-mode');
     return (saved as NavigationMode) || 'sidebar';
@@ -136,7 +138,17 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
             {description && (
               <p className="text-muted-foreground/60 mb-6 text-sm">{description}</p>
             )}
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </SidebarInset>
       </SidebarProvider>
