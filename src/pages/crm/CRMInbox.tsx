@@ -291,23 +291,46 @@ export default function CRMInboxPage() {
         {/* List */}
         <ScrollArea className="flex-1 min-h-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="space-y-0">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 border-b border-border/30">
+                  <Skeleton className="h-11 w-11 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-3/5" />
+                    <Skeleton className="h-3 w-4/5" />
+                  </div>
+                  <Skeleton className="h-3 w-8 shrink-0" />
+                </div>
+              ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground px-4">
-              <MessageCircle className="h-10 w-10 mb-3 opacity-20" />
-              <p className="text-sm text-center">Nenhuma conversa encontrada</p>
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground px-6">
+              <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                <Inbox className="h-8 w-8 opacity-30" />
+              </div>
+              <p className="text-sm font-medium mb-1">Nenhuma conversa encontrada</p>
+              <p className="text-xs text-muted-foreground/60 text-center">
+                {search ? 'Tente buscar com outros termos' : 'Suas conversas com leads aparecerão aqui'}
+              </p>
             </div>
           ) : (
-            filtered.map(conv => (
-              <ConversationItem
-                key={conv.lead.id}
-                conv={conv}
-                isActive={selectedLeadId === conv.lead.id}
-                onClick={() => setSelectedLeadId(conv.lead.id)}
-              />
-            ))
+            <AnimatePresence mode="popLayout">
+              {filtered.map((conv, i) => (
+                <motion.div
+                  key={conv.lead.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  transition={{ delay: i * 0.03, duration: 0.2 }}
+                >
+                  <ConversationItem
+                    conv={conv}
+                    isActive={selectedLeadId === conv.lead.id}
+                    onClick={() => setSelectedLeadId(conv.lead.id)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </ScrollArea>
       </div>
@@ -321,12 +344,19 @@ export default function CRMInboxPage() {
             onBack={() => setSelectedLeadId(null)}
           />
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
-            <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-              <MessageCircle className="h-10 w-10 text-primary/50" />
-            </div>
-            <p className="text-lg font-semibold mb-1">Inbox do CRM</p>
-            <p className="text-sm">Selecione uma conversa para responder</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground bg-muted/10">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="text-center"
+            >
+              <div className="h-24 w-24 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-5 mx-auto ring-1 ring-primary/10">
+                <MessageCircle className="h-11 w-11 text-primary/40" />
+              </div>
+              <p className="text-lg font-semibold mb-1 text-foreground/80">Inbox do CRM</p>
+              <p className="text-sm text-muted-foreground/60">Selecione uma conversa para responder</p>
+            </motion.div>
           </div>
         )}
       </div>
