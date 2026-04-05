@@ -146,7 +146,7 @@ function ChatPanel({ leadId, lead, onBack }: {
 
       {/* Messages */}
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-1">
           {isLoading && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -159,31 +159,56 @@ function ChatPanel({ leadId, lead, onBack }: {
               <p className="text-xs">Envie a primeira mensagem para iniciar a conversa</p>
             </div>
           )}
-          {messages.map(msg => (
-            <div key={msg.id} className={`flex ${msg.sender_type === 'lead' ? 'justify-start' : 'justify-end'}`}>
-              <div className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${
-                msg.sender_type === 'lead'
-                  ? 'bg-card border border-border/50 rounded-bl-md'
-                  : msg.sender_type === 'agent'
-                  ? 'bg-purple-500 text-white rounded-br-md'
-                  : 'bg-emerald-500 text-white rounded-br-md'
-              }`}>
-                {msg.sender_type === 'agent' && (
-                  <div className="flex items-center gap-1 mb-1 opacity-70">
-                    <Bot className="h-3 w-3" />
-                    <span className="text-[10px]">Agente IA</span>
+          {groupedMessages.map((item, idx) => {
+            if (item.type === 'separator') {
+              const d = new Date(item.date!);
+              return (
+                <div key={`sep-${idx}`} className="flex items-center gap-3 py-3">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-[10px] text-muted-foreground font-medium px-3 py-1 rounded-full bg-muted/40 border border-border/30">
+                    {isToday(d) ? 'Hoje' : isYesterday(d) ? 'Ontem' : format(d, "d 'de' MMMM", { locale: ptBR })}
+                  </span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+              );
+            }
+            const msg = item.data!;
+            const isLead = msg.sender_type === 'lead';
+            const isAgent = msg.sender_type === 'agent';
+            return (
+              <div key={msg.id} className={`flex ${isLead ? 'justify-start' : 'justify-end'} mb-1`}>
+                <div className="max-w-[72%] group">
+                  <div className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${
+                    isLead
+                      ? 'bg-card border border-border/40 rounded-tl-md'
+                      : isAgent
+                      ? 'bg-violet-600 text-white rounded-tr-md'
+                      : 'bg-primary text-primary-foreground rounded-tr-md'
+                  }`}>
+                    {isAgent && (
+                      <div className="flex items-center gap-1 mb-1 opacity-70">
+                        <Bot className="h-3 w-3" />
+                        <span className="text-[10px]">Agente IA</span>
+                      </div>
+                    )}
+                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                   </div>
-                )}
-                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                <div className={`flex items-center justify-end gap-1 mt-1 ${
-                  msg.sender_type === 'lead' ? 'text-muted-foreground' : 'opacity-70'
-                }`}>
-                  <span className="text-[10px]">{format(new Date(msg.sent_at), 'HH:mm')}</span>
-                  {(msg.status as string) === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
+                  <div className={`flex items-center ${isLead ? 'justify-start' : 'justify-end'} gap-1 mt-0.5 px-1`}>
+                    <span className="text-[10px] text-muted-foreground">{format(new Date(msg.sent_at), 'HH:mm')}</span>
+                    {!isLead && (
+                      <>
+                        {msg.status === 'read' && <CheckCheck className="h-3 w-3 text-primary" />}
+                        {msg.status === 'delivered' && <CheckCheck className="h-3 w-3 text-muted-foreground" />}
+                        {msg.status === 'sent' && <Check className="h-3 w-3 text-muted-foreground" />}
+                        {msg.status === 'failed' && <AlertCircle className="h-3 w-3 text-destructive" />}
+                        {(msg.status as string) === 'sending' && <Loader2 className="h-2.5 w-2.5 animate-spin text-muted-foreground" />}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
