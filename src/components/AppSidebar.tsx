@@ -59,56 +59,65 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Icon color map per section
+const sectionIconColors: Record<string, string> = {
+  main: 'text-chart-1',
+  prospect: 'text-chart-2',
+  engage: 'text-chart-3',
+  crm: 'text-chart-4',
+  insight: 'text-chart-5',
+  tools: 'text-chart-1',
+};
+
 // ─── PRINCIPAL ──────────────────────────────────────────
 const mainItems = [
-  { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', section: 'main' },
 ];
 
 // ─── PROSPECÇÃO ─────────────────────────────────────────
 const prospectItems = [
-  { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA' },
-  
-  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
-  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
-  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting' },
+  { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA', section: 'prospect' },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns', section: 'prospect' },
+  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar', section: 'prospect' },
+  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting', section: 'prospect' },
 ];
 
 // ─── ENGAJAMENTO ────────────────────────────────────────
 const engageItems = [
-  { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
-  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
-  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
-  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'Disparo em Massa', icon: Send, path: '/mass-send', section: 'engage' },
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up', section: 'engage' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates', section: 'engage' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban', section: 'engage' },
 ];
 
 // ─── CRM ────────────────────────────────────────────────
 const crmItems = [
-  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', badge: 'PRO' },
+  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', badge: 'PRO', section: 'crm' },
 ];
 
 // ─── INTELIGÊNCIA ───────────────────────────────────────
 const insightItems = [
-  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
+  { title: 'Analytics', icon: BarChart3, path: '/analytics', section: 'insight' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing', section: 'insight' },
 ];
 
 // ─── FERRAMENTAS ────────────────────────────────────────
 const toolItems = [
-  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA' },
-  { title: 'Email Finder', icon: Mail, path: '/email-finder' },
-  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
-  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA', section: 'tools' },
+  { title: 'Email Finder', icon: Mail, path: '/email-finder', section: 'tools' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor', section: 'tools' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings', section: 'tools' },
 ];
 
-type NavItem = { title: string; icon: React.ComponentType<{ className?: string }>; path: string; badge?: string };
+type NavItem = { title: string; icon: React.ComponentType<{ className?: string }>; path: string; badge?: string; section?: string };
 
-const sections: { label: string | null; items: NavItem[] }[] = [
-  { label: null, items: mainItems },
-  { label: 'Prospecção', items: prospectItems },
-  { label: 'Engajamento', items: engageItems },
-  { label: 'CRM', items: crmItems },
-  { label: 'Inteligência', items: insightItems },
-  { label: 'Ferramentas', items: toolItems },
+const sections: { label: string | null; items: NavItem[]; sectionKey: string }[] = [
+  { label: null, items: mainItems, sectionKey: 'main' },
+  { label: 'Prospecção', items: prospectItems, sectionKey: 'prospect' },
+  { label: 'Engajamento', items: engageItems, sectionKey: 'engage' },
+  { label: 'CRM', items: crmItems, sectionKey: 'crm' },
+  { label: 'Inteligência', items: insightItems, sectionKey: 'insight' },
+  { label: 'Ferramentas', items: toolItems, sectionKey: 'tools' },
 ];
 
 export function AppSidebar() {
