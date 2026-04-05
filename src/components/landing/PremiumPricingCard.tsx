@@ -179,7 +179,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           </button>
 
           {/* Flip hint */}
-          <p className="text-[10px] text-white/20 text-center mt-3">Clique para ver detalhes →</p>
+          <p className="text-xs text-white/20 text-center mt-3">Clique para ver detalhes →</p>
         </div>
 
         {/* ═══ BACK ═══ */}
