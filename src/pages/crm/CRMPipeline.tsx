@@ -384,6 +384,6 @@ export default function CRMPipelinePage() {
           })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
