@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Target, Send, Users, Bot, ArrowRight, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,12 +17,27 @@ const quickActions = [
   { label: 'Agente IA', icon: Bot, path: '/sdr-agent', color: 'text-warning', bg: 'bg-warning/8 group-hover:bg-warning/12' },
 ];
 
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+};
+
 export function WelcomeCard({ userName, totalLeads, whatsappConnected }: WelcomeCardProps) {
   const greeting = getGreeting();
   const displayName = userName?.split(' ')[0] || 'Usuário';
 
   return (
-    <div className="mb-8 animate-fade-in">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className="mb-8"
+    >
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
         <div>
           <p className="text-xs font-medium text-muted-foreground/60 uppercase tracking-widest mb-1">{greeting}</p>
@@ -56,26 +72,31 @@ export function WelcomeCard({ userName, totalLeads, whatsappConnected }: Welcome
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {quickActions.map((action, i) => (
-          <Link
-            key={action.path}
-            to={action.path}
-            className={cn(
-              "group flex items-center gap-3 p-3.5 rounded-xl border border-border/40",
-              "hover:border-border/60 hover:shadow-sm transition-all duration-200",
-              "active:scale-[0.98]",
-              `animate-slide-up stagger-${i + 1}`
-            )}
-          >
-            <div className={cn("p-2 rounded-lg transition-colors duration-200", action.bg, action.color)}>
-              <action.icon className="h-4 w-4" />
-            </div>
-            <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{action.label}</span>
-          </Link>
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-2.5"
+      >
+        {quickActions.map((action) => (
+          <motion.div key={action.path} variants={item}>
+            <Link
+              to={action.path}
+              className={cn(
+                "group flex items-center gap-3 p-3.5 rounded-xl border border-border/40",
+                "hover:border-border/60 hover:shadow-sm transition-all duration-200",
+                "active:scale-[0.98]"
+              )}
+            >
+              <div className={cn("p-2 rounded-lg transition-colors duration-200", action.bg, action.color)}>
+                <action.icon className="h-4 w-4" />
+              </div>
+              <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{action.label}</span>
+            </Link>
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

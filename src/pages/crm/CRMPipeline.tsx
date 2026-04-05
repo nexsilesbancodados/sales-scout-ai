@@ -249,7 +249,12 @@ export default function CRMPipelinePage() {
   const wonCount = leads.filter(l => l.stage === 'Ganho').length;
 
   return (
-    <div className="p-4 sm:p-6 flex flex-col h-[calc(100vh-56px)] md:h-screen overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="p-4 sm:p-6 flex flex-col h-[calc(100vh-56px)] md:h-screen overflow-hidden"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3 shrink-0">
         <div>
@@ -301,8 +306,11 @@ export default function CRMPipelinePage() {
             const config = stageConfig[stage];
 
             return (
-              <div
+              <motion.div
                 key={stage}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: allStages.indexOf(stage) * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col min-w-[270px] max-w-[310px] flex-1 snap-start"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
@@ -374,11 +382,11 @@ export default function CRMPipelinePage() {
                     </div>
                   </ScrollArea>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

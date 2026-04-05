@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format, subDays } from 'date-fns';
+import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,16 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function DashboardPage() {
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
@@ -80,10 +91,15 @@ export default function DashboardPage() {
       />
 
       {/* Period filter */}
-      <div className="flex items-center justify-between mb-5">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-between mb-5"
+      >
         <h2 className="text-sm font-semibold text-muted-foreground">Visão Geral</h2>
         <PeriodFilter value={period} onChange={setPeriod} />
-      </div>
+      </motion.div>
 
       {/* KPIs */}
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -121,75 +137,68 @@ export default function DashboardPage() {
       </div>
 
       {/* ROI Quick Metrics */}
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-success/8">
-                <TrendingUp className="h-3.5 w-3.5 text-success" />
-              </div>
-              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">ROI</span>
-            </div>
-            <p className="text-lg font-bold tabular-nums">
-              {metrics?.totalLeads && metrics?.leadsByStage?.['Ganho']
-                ? `${((metrics.leadsByStage['Ganho'] / metrics.totalLeads) * 100).toFixed(1)}%`
-                : '0%'}
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Taxa de conversão geral</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-primary/8">
-                <Target className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Custo/Lead</span>
-            </div>
-            <p className="text-lg font-bold tabular-nums">R$ 0,00</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Prospecção gratuita</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-warning/8">
-                <Flame className="h-3.5 w-3.5 text-warning" />
-              </div>
-              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Pipeline</span>
-            </div>
-            <p className="text-lg font-bold tabular-nums">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(
-                (metrics?.leadsByStage?.['Proposta'] || 0) * 500 + (metrics?.leadsByStage?.['Negociação'] || 0) * 1000
-              )}
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Valor estimado</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-info/8">
-                <MessageSquare className="h-3.5 w-3.5 text-info" />
-              </div>
-              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">Engajamento</span>
-            </div>
-            <p className="text-lg font-bold tabular-nums">
-              {metrics?.hotLeads || 0}
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Leads quentes ativos</p>
-          </CardContent>
-        </Card>
-      </div>
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4"
+      >
+        <ROIMetricCard
+          icon={TrendingUp}
+          iconColor="text-success"
+          iconBg="bg-success/8"
+          label="ROI"
+          value={metrics?.totalLeads && metrics?.leadsByStage?.['Ganho']
+            ? `${((metrics.leadsByStage['Ganho'] / metrics.totalLeads) * 100).toFixed(1)}%`
+            : '0%'}
+          sub="Taxa de conversão geral"
+        />
+        <ROIMetricCard
+          icon={Target}
+          iconColor="text-primary"
+          iconBg="bg-primary/8"
+          label="Custo/Lead"
+          value="R$ 0,00"
+          sub="Prospecção gratuita"
+        />
+        <ROIMetricCard
+          icon={Flame}
+          iconColor="text-warning"
+          iconBg="bg-warning/8"
+          label="Pipeline"
+          value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(
+            (metrics?.leadsByStage?.['Proposta'] || 0) * 500 + (metrics?.leadsByStage?.['Negociação'] || 0) * 1000
+          )}
+          sub="Valor estimado"
+        />
+        <ROIMetricCard
+          icon={MessageSquare}
+          iconColor="text-info"
+          iconBg="bg-info/8"
+          label="Engajamento"
+          value={String(metrics?.hotLeads || 0)}
+          sub="Leads quentes ativos"
+        />
+      </motion.div>
 
       {/* Charts */}
-      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.5 }}
+        className="mb-6 grid gap-4 lg:grid-cols-2"
+      >
         <ProspectionChart data={chartData} />
         <ConversionFunnelChart stages={funnelStages} totalLeads={totalFunnelLeads} />
-      </div>
+      </motion.div>
 
       {/* Bottom section */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45, duration: 0.5 }}
+        className="grid gap-4 lg:grid-cols-3"
+      >
         <div className="lg:col-span-2 space-y-4">
           <OpportunityRadar leads={leads} />
           <RecentActivity activities={activities} isLoading={activitiesLoading} />
@@ -221,8 +230,32 @@ export default function DashboardPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </DashboardLayout>
+  );
+}
+
+/* ── Sub-components ── */
+
+function ROIMetricCard({ icon: Icon, iconColor, iconBg, label, value, sub }: {
+  icon: LucideIcon; iconColor: string; iconBg: string; label: string; value: string; sub: string;
+}) {
+  return (
+    <motion.div variants={fadeUp}>
+      <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300 overflow-hidden relative">
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent pointer-events-none" />
+        <CardContent className="p-4 relative">
+          <div className="flex items-center gap-2 mb-2">
+            <div className={cn("p-1.5 rounded-lg", iconBg)}>
+              <Icon className={cn("h-3.5 w-3.5", iconColor)} />
+            </div>
+            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">{label}</span>
+          </div>
+          <p className="text-lg font-bold tabular-nums">{value}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -239,8 +272,13 @@ function TempBar({ icon: Icon, label, count, total, color, textColor }: { icon: 
           <span className="text-[10px] text-muted-foreground/40 tabular-nums">{pct.toFixed(0)}%</span>
         </div>
       </div>
-      <div className="h-1 rounded-full bg-muted/40 overflow-hidden">
-        <div className={cn('h-full rounded-full transition-all duration-700', color)} style={{ width: `${pct}%` }} />
+      <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+        <motion.div
+          className={cn('h-full rounded-full', color)}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+        />
       </div>
     </div>
   );
