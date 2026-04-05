@@ -332,7 +332,7 @@ export default function Landing() {
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0B0D15] to-transparent pointer-events-none z-10" />
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
               <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
                  Tudo em um <span className="landing-gradient-text">único painel</span>
                </h2>

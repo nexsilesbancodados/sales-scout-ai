@@ -134,7 +134,7 @@ export function StoriesTestimonials() {
                   </div>
 
                   {/* Quote */}
-                  <p className="text-white/90 text-[15px] leading-relaxed font-medium max-w-[280px]">
+                  <p className="text-white/90 text-base leading-relaxed font-medium max-w-[300px]">
                     "{TESTIMONIALS[activeStory].text}"
                   </p>
 

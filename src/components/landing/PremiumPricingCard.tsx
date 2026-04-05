@@ -233,7 +233,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
               <ArrowRight className="h-4 w-4" />
             </button>
 
-            <p className="text-[10px] text-white/20 text-center">← Clique para voltar</p>
+            <p className="text-xs text-white/20 text-center">← Clique para voltar</p>
           </div>
         </div>
       </div>
