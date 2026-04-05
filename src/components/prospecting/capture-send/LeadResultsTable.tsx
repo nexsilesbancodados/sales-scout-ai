@@ -339,6 +339,19 @@ export function LeadResultsTable({
           {showDuplicates ? 'Ocultar duplicados' : 'Mostrar duplicados'}
         </Button>
 
+        {/* Min Score Slider */}
+        <div className="flex items-center gap-2 min-w-[180px]">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Score ≥ {minScore}</span>
+          <Slider
+            value={[minScore]}
+            onValueChange={([v]) => handleFilterChange(setMinScore, v)}
+            min={0}
+            max={100}
+            step={10}
+            className="w-24"
+          />
+        </div>
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -348,6 +361,7 @@ export function LeadResultsTable({
               setSearchTerm('');
               setGroupFilter('all');
               setShowDuplicates(true);
+              setMinScore(0);
               setCurrentPage(1);
             }}
           >
