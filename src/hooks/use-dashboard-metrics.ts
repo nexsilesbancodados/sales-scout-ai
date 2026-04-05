@@ -2,16 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { DashboardMetrics, LeadStage } from '@/types/database';
+import { format, subDays } from 'date-fns';
 
 export function useDashboardMetrics() {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['dashboard-metrics', user?.id],
-    queryFn: async (): Promise<DashboardMetrics> => {
+    queryFn: async (): Promise<DashboardMetrics & { leadsByDate: Record<string, number> }> => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      // Get all leads
       const { data: leads, error: leadsError } = await supabase
         .from('leads')
         .select('id, stage, temperature, created_at')
@@ -19,7 +19,6 @@ export function useDashboardMetrics() {
 
       if (leadsError) throw leadsError;
 
-      // Get meetings
       const { data: meetings, error: meetingsError } = await supabase
         .from('meetings')
         .select('id, scheduled_at, status')
@@ -32,10 +31,9 @@ export function useDashboardMetrics() {
       const startOfWeek = new Date(now);
       startOfWeek.setDate(now.getDate() - now.getDay());
 
-      // Calculate metrics
       const totalLeads = leads?.length || 0;
       const leadsThisMonth = leads?.filter(l => new Date(l.created_at) >= startOfMonth).length || 0;
-      
+
       const scheduledMeetings = meetings?.filter(m => m.status === 'scheduled') || [];
       const meetingsScheduled = scheduledMeetings.length;
       const meetingsThisWeek = scheduledMeetings.filter(m => new Date(m.scheduled_at) >= startOfWeek).length;
@@ -53,6 +51,19 @@ export function useDashboardMetrics() {
         return acc;
       }, {} as Record<LeadStage, number>);
 
+      // Build leads by date (last 90 days)
+      const leadsByDate: Record<string, number> = {};
+      for (let i = 89; i >= 0; i--) {
+        const dateKey = format(subDays(now, i), 'yyyy-MM-dd');
+        leadsByDate[dateKey] = 0;
+      }
+      leads?.forEach(l => {
+        const dateKey = format(new Date(l.created_at), 'yyyy-MM-dd');
+        if (dateKey in leadsByDate) {
+          leadsByDate[dateKey]++;
+        }
+      });
+
       return {
         totalLeads,
         leadsThisMonth,
@@ -63,9 +74,10 @@ export function useDashboardMetrics() {
         warmLeads,
         coldLeads,
         leadsByStage,
+        leadsByDate,
       };
     },
     enabled: !!user?.id,
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 60000,
   });
 }
