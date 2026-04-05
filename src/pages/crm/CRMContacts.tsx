@@ -418,6 +418,7 @@ export default function CRMContactsPage() {
                   <TableHead>Score</TableHead>
                   <TableHead>Info</TableHead>
                   <TableHead>Temp.</TableHead>
+                  <TableHead>Tags</TableHead>
                   <TableHead>Último contato</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
