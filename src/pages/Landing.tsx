@@ -155,7 +155,7 @@ export default function Landing() {
                 <a key={l.label} href={l.href} onMouseEnter={() => setHoveredNav(idx)} onMouseLeave={() => setHoveredNav(null)} className="nav-optn relative group">
                   <div className="nav-optn-inner">
                     <span className="nav-optn-icon"><Icon className="h-4 w-4 text-white" /></span>
-                    <span className={`text-[13px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
+                    <span className={`text-sm font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
                     {hoveredNav === idx && (
                       <motion.span layoutId="navGlow" initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }} className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]" />
                     )}
