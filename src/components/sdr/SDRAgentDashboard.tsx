@@ -383,6 +383,6 @@ export function SDRAgentDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }
