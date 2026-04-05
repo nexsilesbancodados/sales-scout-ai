@@ -230,7 +230,7 @@ export default function Landing() {
                     <img key={i} src={src} alt="" className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg object-cover" loading="lazy" width={28} height={28} />
                   ))}
                 </div>
-                <span className="text-[11px] sm:text-[12px] text-white/55 font-medium">+2.400 ativos</span>
+                <span className="text-xs sm:text-sm text-white/55 font-medium">+2.400 ativos</span>
               </div>
               <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-1">
