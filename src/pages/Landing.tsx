@@ -445,7 +445,7 @@ export default function Landing() {
               <h2 className="text-4xl md:text-6xl font-black tracking-[-0.03em] text-white">
                 Pare de prospectar manualmente. <span className="landing-gradient-text">Deixe a IA fechar por você.</span>
               </h2>
-              <p className="text-white/55 text-sm mt-4 max-w-md mx-auto">
+              <p className="text-white/55 text-base mt-4 max-w-lg mx-auto leading-relaxed">
                 Enquanto você lê isso, +2.400 empresas já estão capturando leads, enviando mensagens e agendando reuniões no automático. Sua vez.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
