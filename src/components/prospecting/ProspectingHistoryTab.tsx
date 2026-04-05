@@ -599,6 +599,18 @@ export function ProspectingHistoryTab({ onReprospect }: ProspectingHistoryTabPro
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-1.5 text-xs h-8"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/crm/contacts?source=prospecting&session=${session.id}`);
+                                    }}
+                                  >
+                                    <Users className="h-3.5 w-3.5" />
+                                    Ver Leads
+                                  </Button>
+                                  <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={(e) => {
