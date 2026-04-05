@@ -226,7 +226,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
 
             <button
               onClick={handleCheckout}
-              className="w-full h-[52px] rounded-xl font-semibold text-white text-[14px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
+              className="w-full h-[52px] rounded-xl font-semibold text-white text-base flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
               style={{ background: `linear-gradient(135deg, ${s.border}, ${s.border}CC)` }}
             >
               Começar agora
