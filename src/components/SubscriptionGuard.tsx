@@ -53,7 +53,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
   const isActive = subscription?.status === 'active';
 
-  if (isActive) {
+  if (isActive || isAccessibleRoute) {
     return <>{children}</>;
   }
 
