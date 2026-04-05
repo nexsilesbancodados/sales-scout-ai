@@ -205,16 +205,21 @@ export default function BillingPage() {
               const isCurrentPlan = currentPlanId === plan.id || (isActive && plan.id === 'pro');
               const PlanIcon = plan.icon;
               return (
-                <Card
+                <motion.div
                   key={plan.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1, type: 'spring', stiffness: 300, damping: 25 }}
+                  whileHover={{ y: -4 }}
+                >
+                <Card
                   className={cn(
-                    "relative overflow-hidden transition-all duration-300 border-0 animate-slide-up",
+                    "relative overflow-hidden transition-all duration-300 border-0",
                     plan.popular
                       ? "ring-2 ring-primary/40 shadow-xl shadow-primary/10 bg-gradient-to-b from-primary/10 via-primary/3 to-transparent"
                       : "bg-gradient-to-b from-muted/30 to-transparent ring-1 ring-border/50",
                     isCurrentPlan && 'ring-2 ring-primary/50'
                   )}
-                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   {plan.popular && (
                     <div className="absolute -top-px left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-primary to-transparent" />
