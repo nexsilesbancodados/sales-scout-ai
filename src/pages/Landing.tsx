@@ -187,7 +187,7 @@ export default function Landing() {
       {/* ═══ 2. HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" />
+          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" preload="metadata" />
           <div className="absolute inset-0 hero-energy-overlay" />
         </div>
         {/* Bottom gradient fade — replaces hard edge */}
@@ -292,7 +292,7 @@ export default function Landing() {
                     <div className="flex justify-center mb-4 relative z-10">
                       <div className="relative">
                         <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
-                        <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
+                        <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" decoding="async" width={96} height={96} />
                       </div>
                     </div>
 
@@ -312,7 +312,7 @@ export default function Landing() {
                     className="absolute inset-0 rounded-2xl overflow-hidden border border-white/[0.1]"
                     style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                   >
-                    <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                    <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${item.color}CC 0%, ${item.color}44 40%, transparent 100%)` }} />
                     <div className="relative z-10 h-full flex flex-col justify-end p-6">
                       <h3 className="text-[16px] font-black text-white mb-2 drop-shadow-lg">{item.backTitle}</h3>
@@ -344,7 +344,7 @@ export default function Landing() {
             <div className="relative mt-16 flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <div className="absolute inset-0 -m-16 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(123,47,242,0.18) 0%, rgba(123,47,242,0.04) 50%, transparent 75%)' }} />
               <div className="animate-[floating_6s_ease-in-out_infinite]">
-                <img src={heroPhonesImg} alt="NexaProspect no celular" className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]" loading="lazy" width={620} height={620} />
+                <img src={heroPhonesImg} alt="NexaProspect no celular" className="relative z-10 w-full max-w-[620px] h-auto drop-shadow-[0_30px_60px_rgba(123,47,242,0.2)]" loading="lazy" decoding="async" width={620} height={620} />
               </div>
               {FLOATING_ICONS.map((item, i) => (
                 <div key={i} className={`absolute ${item.x} ${item.y} z-30`} style={{ animation: `floating ${item.float} ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}>
@@ -473,7 +473,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
+              <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" loading="lazy" width={28} height={28} />
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
             <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px]">
