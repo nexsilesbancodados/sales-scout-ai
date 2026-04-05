@@ -58,11 +58,18 @@ function LeadCard({ lead, onDragStart, isDragging, onClick }: {
   const temp = tempConfig[lead.temperature];
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ y: -2, boxShadow: '0 8px 25px -8px rgba(0,0,0,0.12)' }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       draggable
-      onDragStart={onDragStart}
+      onDragStart={onDragStart as any}
       onClick={onClick}
-      className={`p-3.5 rounded-xl border border-border/60 bg-card shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/30 hover:shadow-md transition-all duration-200 group animate-scale-in ${isDragging ? 'opacity-40 scale-95 rotate-2' : ''}`}
+      className={`p-3.5 rounded-xl border border-border/60 bg-card shadow-sm cursor-grab active:cursor-grabbing hover:border-primary/30 transition-colors duration-200 group ${isDragging ? 'opacity-40 scale-95 rotate-2' : ''}`}
     >
       <div className="flex items-start gap-3">
         <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ring-2 ring-background shadow-sm" style={{ backgroundColor: bg }}>
