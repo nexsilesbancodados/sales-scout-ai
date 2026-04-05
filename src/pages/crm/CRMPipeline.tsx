@@ -382,7 +382,7 @@ export default function CRMPipelinePage() {
                     </div>
                   </ScrollArea>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
