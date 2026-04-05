@@ -359,15 +359,17 @@ export default function CRMPipelinePage() {
                           <p className="text-xs">Arraste leads aqui</p>
                         </div>
                       ) : (
-                        stageLeads.map(lead => (
-                          <LeadCard
-                            key={lead.id}
-                            lead={lead}
-                            onDragStart={e => handleDragStart(e, lead)}
-                            isDragging={draggedLead?.id === lead.id}
-                            onClick={() => navigate(`/crm/contacts/${lead.id}`)}
-                          />
-                        ))
+                        <AnimatePresence mode="popLayout">
+                          {stageLeads.map(lead => (
+                            <LeadCard
+                              key={lead.id}
+                              lead={lead}
+                              onDragStart={e => handleDragStart(e, lead)}
+                              isDragging={draggedLead?.id === lead.id}
+                              onClick={() => navigate(`/crm/contacts/${lead.id}`)}
+                            />
+                          ))}
+                        </AnimatePresence>
                       )}
                     </div>
                   </ScrollArea>
