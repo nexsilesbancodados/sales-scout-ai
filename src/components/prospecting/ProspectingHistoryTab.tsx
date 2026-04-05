@@ -80,6 +80,7 @@ import {
   Play,
   CheckSquare,
   Square,
+  Users,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
