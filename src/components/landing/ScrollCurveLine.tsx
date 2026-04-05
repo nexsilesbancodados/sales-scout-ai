@@ -39,7 +39,8 @@ export function ScrollCurveLine() {
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
         const tipSVG = path.getPointAtLength(pathLen * pct);
-        const tipViewportY = rect.top + (tipSVG.y / 4600) * rect.height;
+        const svgHeight = 8200;
+        const tipViewportY = rect.top + (tipSVG.y / svgHeight) * rect.height;
 
         document.documentElement.style.setProperty('--line-progress', `${pct}`);
         window.dispatchEvent(new CustomEvent('line-progress', { 
@@ -49,7 +50,7 @@ export function ScrollCurveLine() {
         // Globe
         const globeCX = 500, globeCY = 4600, globeR = 1200;
         const dist = Math.hypot(tipSVG.x - globeCX, tipSVG.y - globeCY);
-        const reached = dist <= globeR && pct > 0.4;
+        const reached = dist <= globeR && pct > 0.3;
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
@@ -67,12 +68,16 @@ export function ScrollCurveLine() {
      C 900 400, 900 700, 500 1266 
      C 100 1766, 100 2166, 500 2633 
      C 900 3133, 900 3500, 500 4000
-     C 300 4300, 400 4500, 500 4600`;
+     C 300 4300, 400 4500, 500 4600
+     C 600 4700, 900 4900, 500 5400
+     C 100 5900, 100 6200, 500 6600
+     C 900 7000, 700 7400, 500 7800
+     C 400 7950, 450 8100, 500 8200`;
 
   return (
     <div ref={containerRef} className="absolute inset-0 pointer-events-none z-20 overflow-visible">
       <svg
-        viewBox="0 0 1000 4600"
+        viewBox="0 0 1000 8200"
         className="absolute top-0 left-0 w-full h-full"
         preserveAspectRatio="none"
         style={{ overflow: 'visible' }}
@@ -80,8 +85,10 @@ export function ScrollCurveLine() {
         <defs>
           <linearGradient id="curve-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#7B2FF2" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#F7941D" stopOpacity="0.7" />
-            <stop offset="85%" stopColor="#7B2FF2" stopOpacity="0.9" />
+            <stop offset="30%" stopColor="#F7941D" stopOpacity="0.7" />
+            <stop offset="55%" stopColor="#7B2FF2" stopOpacity="0.9" />
+            <stop offset="75%" stopColor="#00B4D8" stopOpacity="0.7" />
+            <stop offset="90%" stopColor="#F7941D" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#7B2FF2" stopOpacity="1" />
           </linearGradient>
         </defs>

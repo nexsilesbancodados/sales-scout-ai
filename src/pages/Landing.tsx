@@ -397,8 +397,6 @@ export default function Landing() {
         <GlobeSection />
         </ScrollLightUpSection>
 
-      </div>{/* end scroll curve wrapper */}
-
         <ScrollLightUpSection>
         <section id="precos" className="relative py-16 px-4 md:px-8 scroll-mt-24">
           <SectionHeader tag="Investimento" title={<>Um plano. <span className="landing-gradient-text">Acesso total.</span></>} subtitle="Sem surpresas. Todas as funcionalidades desbloqueadas desde o primeiro dia. Cancele quando quiser, sem burocracia." />
@@ -467,6 +465,8 @@ export default function Landing() {
           </div>
         </section>
         </ScrollLightUpSection>
+
+      </div>{/* end scroll curve wrapper */}
 
       {/* ═══ 11. FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-12 px-4 md:px-8">
