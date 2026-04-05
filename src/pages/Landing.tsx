@@ -372,7 +372,7 @@ export default function Landing() {
                     <motion.span initial={{ scale: 0.5 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: stat.delay + 0.3, type: 'spring', stiffness: 200 }} className="block text-2xl md:text-3xl font-black tracking-[-0.03em]" style={{ color: stat.color }}>
                       {stat.value}
                     </motion.span>
-                    <span className="text-[11px] text-white/50 mt-1 block">{stat.label}</span>
+                    <span className="text-xs text-white/50 mt-1 block">{stat.label}</span>
                   </div>
                 </div>
               </motion.div>
