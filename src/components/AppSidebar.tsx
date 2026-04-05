@@ -335,7 +335,10 @@ export function AppSidebar() {
                 )}
               >
                 <Link to={item.path} className="flex items-center gap-3 px-3">
-                  <item.icon className="h-[17px] w-[17px]" />
+                  <item.icon className={cn(
+                    "h-[17px] w-[17px]",
+                    active ? "text-primary-foreground" : item.path === '/settings' ? "text-chart-5" : "text-chart-3"
+                  )} />
                   {!collapsed && <span className="text-[13px] font-medium">{item.title}</span>}
                   {item.path === '/billing' && !collapsed && !active && (
                     <Crown className="h-3 w-3 text-chart-3 ml-auto" />
@@ -402,25 +405,25 @@ export function AppSidebar() {
             )}
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4 text-chart-5" />
                 Configurações
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/tutorial" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-4 w-4 text-chart-2" />
                 Tutorial
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/api-reference" className="flex items-center gap-2">
-                <Code2 className="h-4 w-4" />
+                <Code2 className="h-4 w-4 text-chart-4" />
                 API
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive rounded-lg">
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4 mr-2 text-destructive" />
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
