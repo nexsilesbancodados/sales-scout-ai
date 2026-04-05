@@ -80,6 +80,19 @@ export default function CRMContactDetailPage() {
     }
   }, [lead?.analyzed_needs]);
 
+  // Auto-enrich location from DDD
+  useEffect(() => {
+    if (!lead || lead.location || !lead.phone) return;
+    const digits = lead.phone.replace(/\D/g, '');
+    const ddd = digits.startsWith('55') ? digits.slice(2, 4) : digits.slice(0, 2);
+    if (ddd.length < 2) return;
+    enrichmentApi.lookupDdd(ddd).then((res: any) => {
+      if (res?.state) {
+        updateLead({ id: lead.id, location: res.state });
+      }
+    }).catch(() => {});
+  }, [lead?.id]);
+
   const leadMeetings = useMemo(() => meetings.filter(m => m.lead_id === id), [meetings, id]);
   const leadActivities = useMemo(() => activities.filter(a => a.lead_id === id), [activities, id]);
 
