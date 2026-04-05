@@ -201,7 +201,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
               <span className="text-2xl">{emojis[index]}</span>
               <h3 className="text-xl font-bold text-white">{plan.name}</h3>
             </div>
-            <p className="text-[13px] text-white/55 mb-6">
+            <p className="text-sm text-white/55 mb-6">
               Por que escolher este plano?
             </p>
 
