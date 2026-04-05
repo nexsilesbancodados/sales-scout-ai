@@ -51,12 +51,12 @@
     --temp-cold: 217 91% 48%;
 
     /* Funnel stages */
-    --stage-new: 217 91% 60%;
-    --stage-contact: 38 92% 50%;
-    --stage-negotiation: 25 95% 53%;
+    --stage-new: 217 91% 48%;
+    --stage-contact: 38 92% 33%;
+    --stage-negotiation: 25 95% 37%;
     --stage-proposal: 271 81% 56%;
-    --stage-won: 160 84% 39%;
-    --stage-lost: 0 72% 51%;
+    --stage-won: 160 84% 28%;
+    --stage-lost: 0 72% 45%;
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
