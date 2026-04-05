@@ -145,8 +145,8 @@ export default function Landing() {
           className="pointer-events-auto flex items-center rounded-full pr-3 pl-4 py-2.5 glass-nav-container"
         >
           <a href="#" className="flex items-center gap-2 mr-4 shrink-0">
-            <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
-            <span className="text-base font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
+            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" width={32} height={32} />
+            <span className="text-lg font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
           </a>
           <div className="hidden lg:flex items-center">
             {NAV_LINKS.map((l, idx) => {
