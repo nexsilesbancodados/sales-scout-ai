@@ -196,7 +196,7 @@ export default function Landing() {
           <div className="max-w-[620px] pt-28 sm:pt-24">
             <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-[11px] sm:text-[12px] text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
+              <span className="text-xs sm:text-sm text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
             <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Sua máquina de </span>
