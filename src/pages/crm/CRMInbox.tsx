@@ -223,20 +223,18 @@ function ChatPanel({ leadId, lead, onBack }: {
         </div>
       </ScrollArea>
 
-      {/* Quick replies */}
-      {showQuickReplies && (
-        <QuickReplies
-          onSelectReply={(msg) => { setMsgInput(msg); setShowQuickReplies(false); }}
-          leadName={lead.business_name}
-        />
-      )}
-
-      {/* Input */}
-      <div className="shrink-0 p-3 border-t border-border/50 bg-card">
-        <div className="flex items-center gap-2">
+      {/* Input — premium */}
+      <div className="shrink-0 border-t border-border/50 bg-card/95 backdrop-blur p-3">
+        {showQuickReplies && (
+          <QuickReplies
+            onSelectReply={(msg) => { setMsgInput(msg); setShowQuickReplies(false); }}
+            leadName={lead.business_name}
+          />
+        )}
+        <div className="flex items-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => setShowQuickReplies(!showQuickReplies)}>
+              <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 mb-0.5" onClick={() => setShowQuickReplies(!showQuickReplies)} aria-label="Respostas rápidas">
                 <Zap className={`h-4 w-4 ${showQuickReplies ? 'text-primary' : ''}`} />
               </Button>
             </TooltipTrigger>
@@ -247,16 +245,34 @@ function ChatPanel({ leadId, lead, onBack }: {
             lastMessage={lastLeadMessage?.content}
             onUseReply={(msg) => setMsgInput(msg)}
           />
-          <Input
-            placeholder="Digite uma mensagem..."
-            value={msgInput}
-            onChange={e => setMsgInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            className="flex-1 rounded-xl"
-          />
-          <Button size="icon" className="h-9 w-9 rounded-xl shrink-0" onClick={handleSend} disabled={isSending || !msgInput.trim()}>
-            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+          <div className="flex-1 relative">
+            <textarea
+              value={msgInput}
+              onChange={e => setMsgInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              placeholder="Digite uma mensagem... (Enter enviar, Shift+Enter nova linha)"
+              className="w-full min-h-[40px] max-h-[120px] resize-none rounded-xl border border-border/60 bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/50"
+              rows={1}
+              onInput={e => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
+              aria-label="Mensagem"
+            />
+            {msgInput.length > 900 && (
+              <span className={`absolute bottom-2 right-2 text-[10px] font-medium ${msgInput.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {msgInput.length}/1000
+              </span>
+            )}
+          </div>
+          <motion.div whileTap={{ scale: 0.93 }}>
+            <Button
+              size="icon"
+              className={`h-9 w-9 rounded-xl shrink-0 mb-0.5 transition-all ${msgInput.trim() ? 'gradient-primary shadow-md shadow-primary/25' : 'bg-muted'}`}
+              onClick={handleSend}
+              disabled={isSending || !msgInput.trim()}
+              aria-label="Enviar mensagem"
+            >
+              {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </motion.div>
         </div>
       </div>
     </div>
