@@ -33,6 +33,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, title, description, actions }: DashboardLayoutProps) {
   const { theme, setTheme } = useTheme();
+  const location = useLocation();
   const [navigationMode, setNavigationMode] = useState<NavigationMode>(() => {
     const saved = localStorage.getItem('navigation-mode');
     return (saved as NavigationMode) || 'sidebar';
