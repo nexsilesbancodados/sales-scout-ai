@@ -1,24 +1,23 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConversations, ConversationSummary } from '@/hooks/use-conversations';
 import { useChatMessages } from '@/hooks/use-chat-messages';
 import { QuickReplies } from '@/components/chat/QuickReplies';
 import { AIReplyButton } from '@/components/chat/AIReplyButton';
-import { formatDistanceToNow, format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import {
   Search, Loader2, MessageCircle, Send, Bot, Flame, ThermometerSun,
   Snowflake, Phone, ExternalLink, User, ArrowLeft, Zap, Sparkles,
-  Filter, Tag, Inbox,
+  Filter, Tag, Inbox, Check, CheckCheck, AlertCircle,
 } from 'lucide-react';
 
 function hashColor(name: string): string {
