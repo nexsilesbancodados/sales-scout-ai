@@ -312,7 +312,7 @@ export default function Landing() {
                     className="absolute inset-0 rounded-2xl overflow-hidden border border-white/[0.1]"
                     style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                   >
-                    <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                    <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${item.color}CC 0%, ${item.color}44 40%, transparent 100%)` }} />
                     <div className="relative z-10 h-full flex flex-col justify-end p-6">
                       <h3 className="text-[16px] font-black text-white mb-2 drop-shadow-lg">{item.backTitle}</h3>
