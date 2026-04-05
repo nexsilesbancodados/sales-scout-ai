@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { activities, isLoading: activitiesLoading } = useActivityLog(10);
   const { settings } = useUserSettings();
+  const { leads } = useLeads();
   const [period, setPeriod] = useState('30d');
 
   const funnelStages = useMemo(() => {
