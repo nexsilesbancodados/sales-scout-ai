@@ -163,8 +163,16 @@ export default function CRMContactDetailPage() {
         <div className="w-full lg:w-[280px] shrink-0 space-y-4">
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="mx-auto h-20 w-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3" style={{ backgroundColor: hashColor(lead.business_name) }}>
+              <div className="mx-auto h-20 w-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3 relative" style={{ backgroundColor: hashColor(lead.business_name) }}>
                 {lead.business_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+                {lead.website && (
+                  <img
+                    src={enrichmentApi.getLogoUrl(lead.website)}
+                    alt=""
+                    className="absolute -bottom-1 -right-1 h-7 w-7 rounded-md object-contain bg-background p-0.5 border border-border/30 shadow-sm"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
               </div>
               <h2 className="font-bold text-lg">{lead.business_name}</h2>
               <p className="text-sm text-muted-foreground">{lead.niche || 'Sem nicho'}</p>
