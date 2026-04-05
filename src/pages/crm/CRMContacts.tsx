@@ -10,9 +10,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLeads } from '@/hooks/use-leads';
 import { LeadStage, LeadTemperature } from '@/types/database';
 import { allStages, allTemperatures, stageColors } from '@/constants/lead-icons';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +23,7 @@ import {
   MessageCircle, Eye, Flame, ThermometerSun, Snowflake, Trash2,
   Tag, MoreHorizontal, Move, Thermometer, Plus, X,
   ChevronDown, Users, DollarSign, TrendingUp, Filter,
+  Globe, Mail, Building2, Zap,
 } from 'lucide-react';
 
 function hashColor(name: string) {
