@@ -75,7 +75,7 @@ export function StoriesTestimonials() {
             <div className={`w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-gradient-to-br ${t.gradient} p-[2.5px] transition-transform group-hover:scale-110`}>
               <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" width={72} height={72} />
             </div>
-            <span className="text-[10px] text-white/50 max-w-[72px] truncate">{t.name}</span>
+            <span className="text-xs text-white/50 max-w-[72px] truncate">{t.name}</span>
           </button>
         ))}
       </div>
