@@ -121,7 +121,7 @@ export function useRealtimeNotifications() {
 
     // Subscribe to lead updates
     const leadsChannel = supabase
-      .channel('leads-realtime')
+      .channel(`leads-notifications-${user.id}`)
       .on(
         'postgres_changes',
         {

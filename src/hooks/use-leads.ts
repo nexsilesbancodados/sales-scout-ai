@@ -51,7 +51,7 @@ export function useLeads(filters?: {
     if (!user?.id) return;
 
     const channel = supabase
-      .channel('leads-realtime')
+      .channel(`leads-realtime-${user.id}`)
       .on(
         'postgres_changes',
         {
