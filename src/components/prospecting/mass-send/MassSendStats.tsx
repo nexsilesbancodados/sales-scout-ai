@@ -18,25 +18,25 @@ export function MassSendStats({ totalLeads, pendingLeads, sentLeads, selectedCou
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="flex items-center gap-4 flex-wrap">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="relative overflow-hidden rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm p-4 transition-all hover:border-border"
+          className="flex items-center gap-2.5 min-w-0"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className={`flex items-center justify-center h-9 w-9 rounded-lg bg-muted/60 ${stat.colorClass}`}>
-              <stat.icon className="h-4.5 w-4.5" />
-            </div>
-            {stat.label === 'Selecionados' && hasActiveJob && (
-              <Badge className="animate-pulse bg-primary text-primary-foreground text-[10px] px-1.5 py-0">
-                <Zap className="h-3 w-3 mr-0.5" />
-                Ativo
-              </Badge>
-            )}
+          <div className={`flex items-center justify-center h-8 w-8 rounded-lg bg-muted/60 ${stat.colorClass} shrink-0`}>
+            <stat.icon className="h-4 w-4" />
           </div>
-          <p className={`text-2xl font-bold tracking-tight ${stat.colorClass}`}>{stat.value}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+          <div className="min-w-0">
+            <p className={`text-lg font-bold tracking-tight leading-none ${stat.colorClass}`}>{stat.value}</p>
+            <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+          </div>
+          {stat.label === 'Selecionados' && hasActiveJob && (
+            <Badge className="animate-pulse bg-primary text-primary-foreground text-[10px] px-1.5 py-0 shrink-0">
+              <Zap className="h-3 w-3 mr-0.5" />
+              Ativo
+            </Badge>
+          )}
         </div>
       ))}
     </div>
