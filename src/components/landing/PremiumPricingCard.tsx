@@ -136,7 +136,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
             )}
           </div>
 
-          <ul className="space-y-2.5 text-sm text-blue-50/90 mb-6">
+          <ul className="space-y-2.5 text-base text-blue-50/90 mb-6">
             {plan.features.map(f => (
               <li key={f} className="flex items-start gap-3">
                 <div className={cn('w-4 h-4 rounded-full flex items-center justify-center mt-0.5 shrink-0', s.check)}>
