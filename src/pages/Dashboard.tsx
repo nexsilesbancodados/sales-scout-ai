@@ -81,6 +81,24 @@ export default function DashboardPage() {
     );
   }
 
+  const [bannerDismissed, setBannerDismissed] = useState(() =>
+    localStorage.getItem('nexaprospect-banner-dismissed-v1') === 'true'
+  );
+
+  const nextStep = useMemo(() => {
+    if (!settings?.whatsapp_connected) return { icon: Wifi, title: 'Conecte seu WhatsApp', desc: 'Ative envios automáticos e o Agente SDR', path: '/settings/connections' };
+    if ((metrics?.totalLeads || 0) === 0) return { icon: Target, title: 'Capture seus primeiros leads', desc: 'Busque no Google Maps, Instagram ou Facebook', path: '/prospecting' };
+    if ((metrics?.hotLeads || 0) > 0) return { icon: Flame, title: `Você tem ${metrics?.hotLeads} leads quentes esperando`, desc: 'Responda agora para aumentar conversões', path: '/crm/inbox' };
+    return null;
+  }, [settings?.whatsapp_connected, metrics?.totalLeads, metrics?.hotLeads]);
+
+  const showNextStep = nextStep && !bannerDismissed;
+
+  const handleDismissBanner = () => {
+    setBannerDismissed(true);
+    localStorage.setItem('nexaprospect-banner-dismissed-v1', 'true');
+  };
+
   return (
     <DashboardLayout title="Dashboard">
       <OnboardingWizard />
@@ -90,6 +108,29 @@ export default function DashboardPage() {
         totalLeads={metrics?.totalLeads || 0}
         whatsappConnected={!!settings?.whatsapp_connected}
       />
+
+      {/* Next Step Banner */}
+      {showNextStep && (
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-4"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <nextStep.icon className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">{nextStep.title}</p>
+            <p className="text-xs text-muted-foreground">{nextStep.desc}</p>
+          </div>
+          <Button size="sm" asChild className="gradient-primary shrink-0">
+            <Link to={nextStep.path}>Fazer agora <ArrowRightIcon className="h-3 w-3 ml-1" /></Link>
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleDismissBanner} aria-label="Fechar banner">
+            <XIcon className="h-3.5 w-3.5" />
+          </Button>
+        </motion.div>
+      )}
 
       {/* Period filter */}
       <motion.div
