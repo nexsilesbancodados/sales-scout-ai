@@ -166,7 +166,11 @@ export function AppSidebar() {
           )}>
             <item.icon className={cn(
               "h-[17px] w-[17px] transition-all duration-200",
-              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-foreground'
+              active
+                ? 'text-primary-foreground'
+                : item.section
+                  ? sectionIconColors[item.section]
+                  : 'text-muted-foreground group-hover/item:text-foreground'
             )} />
           </div>
           {!collapsed && (
