@@ -64,12 +64,18 @@ interface LeadDetailsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function parseNotes(notes: string | null): LeadNote[] {
+function parseNotes(notes: string | null | object): LeadNote[] {
   if (!notes) return [];
+  // Already an array from DB JSON
+  if (Array.isArray(notes)) return notes as LeadNote[];
+  // Object but not array
+  if (typeof notes === 'object') {
+    return [{ text: JSON.stringify(notes), created_at: new Date().toISOString() }];
+  }
   try {
     const parsed = JSON.parse(notes);
     if (Array.isArray(parsed)) return parsed;
-    return [{ text: notes, created_at: new Date().toISOString() }];
+    return [{ text: String(notes), created_at: new Date().toISOString() }];
   } catch {
     if (notes.trim()) return [{ text: notes, created_at: new Date().toISOString() }];
     return [];
