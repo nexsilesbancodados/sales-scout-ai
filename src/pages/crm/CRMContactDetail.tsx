@@ -18,6 +18,7 @@ import { useMeetings } from '@/hooks/use-meetings';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { Lead, LeadTask, LeadNote } from '@/types/database';
 import { stageColors } from '@/constants/lead-icons';
+import { enrichmentApi } from '@/lib/api/enrichment';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
