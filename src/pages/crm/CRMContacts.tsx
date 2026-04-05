@@ -385,7 +385,6 @@ export default function CRMContactsPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          </Button>
           <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg" onClick={() => setSelected(new Set())}>
             Cancelar
           </Button>
