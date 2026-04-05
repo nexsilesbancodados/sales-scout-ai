@@ -202,7 +202,7 @@ export default function Landing() {
               <span className="text-white">Sua máquina de </span>
               <span className="landing-gradient-text">vendas com IA.</span>
             </h1>
-            <p className="text-[14px] sm:text-[16px] text-white/50 max-w-[480px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+            <p className="text-base sm:text-lg text-white/50 max-w-[520px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
               Captura leads do Google Maps, Instagram e Facebook. Envia mensagens personalizadas no WhatsApp. Faz follow-up automático. Agenda reuniões no seu calendário — <strong className="text-white/70">24 horas por dia, sem parar.</strong>
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
