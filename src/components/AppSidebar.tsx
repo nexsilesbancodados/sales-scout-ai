@@ -59,56 +59,65 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Icon color map per section
+const sectionIconColors: Record<string, string> = {
+  main: 'text-chart-1',
+  prospect: 'text-chart-2',
+  engage: 'text-chart-3',
+  crm: 'text-chart-4',
+  insight: 'text-chart-5',
+  tools: 'text-chart-1',
+};
+
 // ─── PRINCIPAL ──────────────────────────────────────────
 const mainItems = [
-  { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', section: 'main' },
 ];
 
 // ─── PROSPECÇÃO ─────────────────────────────────────────
 const prospectItems = [
-  { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA' },
-  
-  { title: 'Campanhas', icon: Rocket, path: '/campaigns' },
-  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar' },
-  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting' },
+  { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA', section: 'prospect' },
+  { title: 'Campanhas', icon: Rocket, path: '/campaigns', section: 'prospect' },
+  { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar', section: 'prospect' },
+  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting', section: 'prospect' },
 ];
 
 // ─── ENGAJAMENTO ────────────────────────────────────────
 const engageItems = [
-  { title: 'Disparo em Massa', icon: Send, path: '/mass-send' },
-  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up' },
-  { title: 'Templates', icon: MessageSquareText, path: '/templates' },
-  { title: 'Anti-Ban', icon: Shield, path: '/antiban' },
+  { title: 'Disparo em Massa', icon: Send, path: '/mass-send', section: 'engage' },
+  { title: 'Follow-up', icon: RefreshCw, path: '/follow-up', section: 'engage' },
+  { title: 'Templates', icon: MessageSquareText, path: '/templates', section: 'engage' },
+  { title: 'Anti-Ban', icon: Shield, path: '/antiban', section: 'engage' },
 ];
 
 // ─── CRM ────────────────────────────────────────────────
 const crmItems = [
-  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', badge: 'PRO' },
+  { title: 'CRM', icon: Kanban, path: '/crm/pipeline', badge: 'PRO', section: 'crm' },
 ];
 
 // ─── INTELIGÊNCIA ───────────────────────────────────────
 const insightItems = [
-  { title: 'Analytics', icon: BarChart3, path: '/analytics' },
-  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing' },
+  { title: 'Analytics', icon: BarChart3, path: '/analytics', section: 'insight' },
+  { title: 'Testes A/B', icon: FlaskConical, path: '/ab-testing', section: 'insight' },
 ];
 
 // ─── FERRAMENTAS ────────────────────────────────────────
 const toolItems = [
-  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA' },
-  { title: 'Email Finder', icon: Mail, path: '/email-finder' },
-  { title: 'Extrator Social', icon: Globe, path: '/social-extractor' },
-  { title: 'Reuniões', icon: Calendar, path: '/meetings' },
+  { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA', section: 'tools' },
+  { title: 'Email Finder', icon: Mail, path: '/email-finder', section: 'tools' },
+  { title: 'Extrator Social', icon: Globe, path: '/social-extractor', section: 'tools' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings', section: 'tools' },
 ];
 
-type NavItem = { title: string; icon: React.ComponentType<{ className?: string }>; path: string; badge?: string };
+type NavItem = { title: string; icon: React.ComponentType<{ className?: string }>; path: string; badge?: string; section?: string };
 
-const sections: { label: string | null; items: NavItem[] }[] = [
-  { label: null, items: mainItems },
-  { label: 'Prospecção', items: prospectItems },
-  { label: 'Engajamento', items: engageItems },
-  { label: 'CRM', items: crmItems },
-  { label: 'Inteligência', items: insightItems },
-  { label: 'Ferramentas', items: toolItems },
+const sections: { label: string | null; items: NavItem[]; sectionKey: string }[] = [
+  { label: null, items: mainItems, sectionKey: 'main' },
+  { label: 'Prospecção', items: prospectItems, sectionKey: 'prospect' },
+  { label: 'Engajamento', items: engageItems, sectionKey: 'engage' },
+  { label: 'CRM', items: crmItems, sectionKey: 'crm' },
+  { label: 'Inteligência', items: insightItems, sectionKey: 'insight' },
+  { label: 'Ferramentas', items: toolItems, sectionKey: 'tools' },
 ];
 
 export function AppSidebar() {
@@ -157,7 +166,11 @@ export function AppSidebar() {
           )}>
             <item.icon className={cn(
               "h-[17px] w-[17px] transition-all duration-200",
-              active ? 'text-primary-foreground' : 'text-muted-foreground group-hover/item:text-foreground'
+              active
+                ? 'text-primary-foreground'
+                : item.section
+                  ? sectionIconColors[item.section]
+                  : 'text-muted-foreground group-hover/item:text-foreground'
             )} />
           </div>
           {!collapsed && (
@@ -211,11 +224,13 @@ export function AppSidebar() {
     return <SidebarMenuItem>{content}</SidebarMenuItem>;
   };
 
-  const SectionLabel = ({ children }: { children: React.ReactNode }) => {
+  const SectionLabel = ({ children, sectionKey }: { children: React.ReactNode; sectionKey?: string }) => {
     if (collapsed) return null;
+    const dotColor = sectionKey ? sectionIconColors[sectionKey] : 'text-muted-foreground/40';
     return (
       <div className="px-4 pt-5 pb-1.5 flex items-center gap-2">
-        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.16em]">
+        <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColor, "bg-current")} />
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.16em]">
           {children}
         </p>
         <div className="flex-1 h-px bg-border/30" />
@@ -249,7 +264,7 @@ export function AppSidebar() {
       <SidebarContent className="px-3 overflow-y-auto scrollbar-thin">
         {sections.map((section, i) => (
           <div key={i}>
-            {section.label && <SectionLabel>{section.label}</SectionLabel>}
+            {section.label && <SectionLabel sectionKey={section.sectionKey}>{section.label}</SectionLabel>}
             <SidebarMenu className="space-y-0.5">
               {section.items.map((item) => (
                 <MenuItem key={item.path} item={item} />
@@ -260,7 +275,7 @@ export function AppSidebar() {
 
         {isAdmin && (
           <>
-            <SectionLabel>Admin</SectionLabel>
+            <SectionLabel sectionKey="main">Admin</SectionLabel>
             <SidebarMenu className="space-y-0.5">
               <MenuItem item={{ title: 'Painel Admin', icon: ShieldCheck, path: '/admin', badge: 'ADM' }} />
             </SidebarMenu>
