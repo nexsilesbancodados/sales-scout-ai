@@ -61,6 +61,7 @@ export default function CRMContactDetailPage() {
   const { data: lead, isLoading } = useLead(id || null);
   const { updateLead } = useLeads();
   const { messages, sendMessage, isSending } = useChatMessages(id || null);
+  const { settings } = useUserSettings();
   const { meetings } = useMeetings();
   const { activities } = useActivityLog(50);
 
