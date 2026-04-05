@@ -105,6 +105,16 @@ function ChatPanel({ leadId, lead, onBack }: {
 
   const lastLeadMessage = [...messages].reverse().find(m => m.sender_type === 'lead');
 
+  const groupedMessages = useMemo(() => {
+    return messages.reduce((groups, msg, i) => {
+      const msgDate = format(new Date(msg.sent_at), 'yyyy-MM-dd');
+      const prevDate = i > 0 ? format(new Date(messages[i - 1].sent_at), 'yyyy-MM-dd') : null;
+      if (msgDate !== prevDate) groups.push({ type: 'separator' as const, date: msg.sent_at, data: undefined });
+      groups.push({ type: 'message' as const, date: undefined, data: msg });
+      return groups;
+    }, [] as Array<{ type: 'separator' | 'message'; date?: string; data?: typeof messages[0] }>);
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Chat header */}
