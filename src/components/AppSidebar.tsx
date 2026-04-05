@@ -335,7 +335,10 @@ export function AppSidebar() {
                 )}
               >
                 <Link to={item.path} className="flex items-center gap-3 px-3">
-                  <item.icon className="h-[17px] w-[17px]" />
+                  <item.icon className={cn(
+                    "h-[17px] w-[17px]",
+                    active ? "text-primary-foreground" : item.path === '/settings' ? "text-chart-5" : "text-chart-3"
+                  )} />
                   {!collapsed && <span className="text-[13px] font-medium">{item.title}</span>}
                   {item.path === '/billing' && !collapsed && !active && (
                     <Crown className="h-3 w-3 text-chart-3 ml-auto" />
