@@ -427,10 +427,16 @@ export function LeadResultsTable({
                   )}
 
                   <div className="absolute top-1.5 right-1.5 flex gap-1">
-                    {lead.qualityScore && (
+                    {lead.qualityScore != null && (
                       <Badge
-                        variant={lead.qualityScore >= 70 ? 'default' : 'secondary'}
-                        className="text-[10px] px-1.5 py-0 h-5 shadow-sm"
+                        className={cn(
+                          "text-[10px] px-1.5 py-0 h-5 shadow-sm border",
+                          lead.qualityScore >= 71
+                            ? 'bg-emerald-500/90 text-white border-emerald-600'
+                            : lead.qualityScore >= 41
+                            ? 'bg-amber-500/90 text-white border-amber-600'
+                            : 'bg-red-500/90 text-white border-red-600'
+                        )}
                       >
                         {lead.qualityScore}%
                       </Badge>
