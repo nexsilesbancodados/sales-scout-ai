@@ -234,7 +234,8 @@ export default function CRMInboxPage() {
   const { conversations, isLoading } = useConversations(search);
 
   const filtered = useMemo(() => {
-    let result = conversations;
+    // Only show conversations that have at least one message
+    let result = conversations.filter(c => c.hasMessages);
     if (filterType === 'unread') result = result.filter(c => c.unreadCount > 0);
     if (filterType === 'hot') result = result.filter(c => c.lead.temperature === 'quente');
     return result;

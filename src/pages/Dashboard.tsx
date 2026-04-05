@@ -97,14 +97,14 @@ export default function DashboardPage() {
         <KPICard
           icon={<Send className="h-4 w-4 text-info" />}
           label="Mensagens Enviadas"
-          value={metrics?.totalLeads ? Math.floor(metrics.totalLeads * 1.5) : 0}
+          value={metrics?.totalLeads ? metrics.leadsByStage?.['Contato'] || 0 : 0}
           iconBg="bg-info/8"
           delay={50}
         />
         <KPICard
           icon={<MessageSquare className="h-4 w-4 text-success" />}
           label="Taxa de Resposta"
-          value={`${(metrics?.conversionRate ? metrics.conversionRate * 2.5 : 0).toFixed(1)}%`}
+          value={`${metrics?.conversionRate?.toFixed(1) || '0.0'}%`}
           iconBg="bg-success/8"
           delay={100}
         />
