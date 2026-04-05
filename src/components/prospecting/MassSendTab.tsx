@@ -241,8 +241,8 @@ export function MassSendTab() {
   const canSend = sendMode === 'direct' ? leadsToSendCount > 0 : leadsToSendCount > 0 && !!massMessage.trim();
 
   return (
-    <div className="space-y-5">
-      {/* Alerts */}
+    <div className="space-y-4">
+      {/* Inline Alerts */}
       {isRemarketing && (
         <Alert className="border-info/50 bg-info/5">
           <RefreshCw className="h-4 w-4 text-info" />
@@ -267,12 +267,12 @@ export function MassSendTab() {
         <Alert className="border-primary/50 bg-primary/5">
           <Activity className="h-4 w-4 animate-pulse text-primary" />
           <AlertDescription className="text-sm">
-            Envio em massa em andamento. Acompanhe no botão "Tarefas" no topo. O envio continua em segundo plano.
+            Envio em massa em andamento. Acompanhe no botão "Tarefas" no topo.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Stats */}
+      {/* Inline Stats */}
       <MassSendStats
         totalLeads={allLeads.length}
         pendingLeads={pendingLeads.length}
@@ -281,8 +281,8 @@ export function MassSendTab() {
         hasActiveJob={hasActiveMassSend}
       />
 
-      {/* Main content */}
-      <div className="grid gap-5 lg:grid-cols-2">
+      {/* Unified two-column layout */}
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
         <LeadSelector
           pendingLeads={pendingLeads}
           sentLeads={sentLeads}

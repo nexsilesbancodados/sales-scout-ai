@@ -95,21 +95,23 @@ export function MessageConfigurator({
   messageIntervalSeconds,
 }: MessageConfiguratorProps) {
   return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
-        <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
-              <Filter className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Filtros Inteligentes</h3>
-              <p className="text-sm text-muted-foreground">Segmente leads e defina o serviço</p>
-            </div>
+    <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden h-fit">
+      {/* Unified Header */}
+      <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
+            <Filter className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Filtros Inteligentes</h3>
+            <p className="text-sm text-muted-foreground">Segmente leads e defina o serviço</p>
           </div>
         </div>
-        <CardContent className="p-5 space-y-4">
+      </div>
+
+      <CardContent className="p-5 space-y-0">
+        {/* Filters Section */}
+        <div className="space-y-4 pb-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -167,12 +169,13 @@ export function MessageConfigurator({
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Message Config */}
-      <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
-        <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
+        {/* Divider */}
+        <div className="border-t border-border/40 -mx-5" />
+
+        {/* Message Config Section */}
+        <div className="pt-5 space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary">
               <Sparkles className="h-5 w-5" />
@@ -182,8 +185,7 @@ export function MessageConfigurator({
               <p className="text-sm text-muted-foreground">Escolha como as mensagens serão geradas</p>
             </div>
           </div>
-        </div>
-        <CardContent className="p-5 space-y-4">
+
           <Tabs value={sendMode} onValueChange={(v) => setSendMode(v as 'template' | 'direct')}>
             <TabsList className="grid w-full grid-cols-2 h-10 bg-muted/50">
               <TabsTrigger value="template" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
@@ -319,8 +321,8 @@ export function MessageConfigurator({
               <strong>O envio continua mesmo se você fechar a página.</strong>
             </p>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
