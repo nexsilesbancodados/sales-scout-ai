@@ -127,9 +127,9 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
 
           <div className="mb-4">
             <div className="flex items-baseline gap-1">
-              <span className="text-xs font-medium text-blue-200/60 mr-1">R$</span>
-              <span className="text-3xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
-              <span className="text-sm text-blue-200/60 ml-1">/mês</span>
+              <span className="text-sm font-medium text-blue-200/60 mr-1">R$</span>
+              <span className="text-4xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
+              <span className="text-base text-blue-200/60 ml-1">/mês</span>
             </div>
             {annual && (
               <p className="text-xs text-green-400/70 mt-1">Economia de R${(plan.price - plan.annual) * 12}/ano</p>
