@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 30% 10%;
 
-    --primary: 239 84% 67%;
+    --primary: 239 84% 61%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 93%;
@@ -38,25 +38,25 @@
     --radius: 0.75rem;
 
     /* Status */
-    --success: 160 84% 39%;
+    --success: 160 84% 28%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
-    --info: 217 91% 60%;
+    --info: 217 91% 48%;
     --info-foreground: 0 0% 100%;
 
     /* Temperature */
-    --temp-hot: 0 84% 60%;
-    --temp-warm: 38 92% 50%;
-    --temp-cold: 217 91% 60%;
+    --temp-hot: 0 84% 45%;
+    --temp-warm: 38 92% 33%;
+    --temp-cold: 217 91% 48%;
 
     /* Funnel stages */
-    --stage-new: 217 91% 60%;
-    --stage-contact: 38 92% 50%;
-    --stage-negotiation: 25 95% 53%;
+    --stage-new: 217 91% 48%;
+    --stage-contact: 38 92% 33%;
+    --stage-negotiation: 25 95% 37%;
     --stage-proposal: 271 81% 56%;
-    --stage-won: 160 84% 39%;
-    --stage-lost: 0 72% 51%;
+    --stage-won: 160 84% 28%;
+    --stage-lost: 0 72% 45%;
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
@@ -109,6 +109,22 @@
     --border: 217 33% 14%;
     --input: 217 33% 14%;
     --ring: 239 84% 67%;
+
+    /* Status - Dark */
+    --success: 160 84% 30%;
+    --info: 217 91% 48%;
+
+    /* Temperature - Dark (brighter for dark bg contrast) */
+    --temp-hot: 0 84% 60%;
+    --temp-warm: 38 92% 50%;
+    --temp-cold: 217 91% 60%;
+
+    /* Stages - Dark */
+    --stage-new: 217 91% 60%;
+    --stage-contact: 38 92% 50%;
+    --stage-negotiation: 25 95% 53%;
+    --stage-won: 160 84% 39%;
+    --stage-lost: 0 72% 51%;
 
     /* Sidebar - Dark */
     --sidebar-background: 225 50% 5%;
@@ -212,11 +228,11 @@
 @layer utilities {
   /* Gradients */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(271 81% 56%) 100%);
+    background: linear-gradient(135deg, hsl(239 84% 61%) 0%, hsl(271 81% 50%) 100%);
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(271 81% 56%) 100%);
+    background: linear-gradient(135deg, hsl(239 84% 61%) 0%, hsl(271 81% 50%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
