@@ -125,10 +125,10 @@ export default function Landing() {
   }, []);
 
   const SectionHeader = ({ tag, title, subtitle, id }: { tag: string; title: React.ReactNode; subtitle?: string; id?: string }) => (
-    <div id={id} className="text-center mb-8 scroll-mt-24">
-      <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">{tag}</span>
-      <h2 className="text-2xl md:text-4xl font-black tracking-[-0.03em] mt-2 text-white">{title}</h2>
-      {subtitle && <p className="text-white/50 text-sm mt-2 max-w-lg mx-auto">{subtitle}</p>}
+    <div id={id} className="text-center mb-10 scroll-mt-24">
+      <span className="text-xs uppercase tracking-[0.3em] text-[#F7941D] font-semibold">{tag}</span>
+      <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] mt-3 text-white">{title}</h2>
+      {subtitle && <p className="text-white/50 text-base mt-3 max-w-xl mx-auto leading-relaxed">{subtitle}</p>}
     </div>
   );
 
