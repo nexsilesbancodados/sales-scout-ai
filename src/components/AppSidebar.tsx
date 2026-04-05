@@ -405,19 +405,19 @@ export function AppSidebar() {
             )}
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4 text-chart-5" />
                 Configurações
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/tutorial" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-4 w-4 text-chart-2" />
                 Tutorial
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-lg">
               <Link to="/api-reference" className="flex items-center gap-2">
-                <Code2 className="h-4 w-4" />
+                <Code2 className="h-4 w-4 text-chart-4" />
                 API
               </Link>
             </DropdownMenuItem>
