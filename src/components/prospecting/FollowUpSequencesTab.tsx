@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFollowUpSequences, FollowUpSequence } from '@/hooks/use-follow-up-sequences';
+import { useFollowUpSequences } from '@/hooks/use-follow-up-sequences';
 import {
   RefreshCw,
   Plus,

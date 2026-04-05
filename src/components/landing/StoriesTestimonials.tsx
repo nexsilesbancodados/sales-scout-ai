@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import avatar1 from '@/assets/avatars/avatar-1.jpg';

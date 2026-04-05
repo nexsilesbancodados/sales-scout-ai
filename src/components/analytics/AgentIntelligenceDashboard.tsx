@@ -27,7 +27,7 @@ import {
   useResolveEscalation,
   useAnalyzePatterns,
 } from "@/hooks/use-agent-intelligence";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Dialog,
