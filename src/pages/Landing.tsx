@@ -442,7 +442,7 @@ export default function Landing() {
         <section className="relative py-20 px-4 md:px-8">
           <div className="max-w-2xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-              <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] text-white">
+              <h2 className="text-4xl md:text-6xl font-black tracking-[-0.03em] text-white">
                 Pare de prospectar manualmente. <span className="landing-gradient-text">Deixe a IA fechar por você.</span>
               </h2>
               <p className="text-white/55 text-sm mt-4 max-w-md mx-auto">
