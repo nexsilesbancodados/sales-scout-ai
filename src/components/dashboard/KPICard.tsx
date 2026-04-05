@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
 
 interface KPICardProps {
   icon: React.ReactNode;
