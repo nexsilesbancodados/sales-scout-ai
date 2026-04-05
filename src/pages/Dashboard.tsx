@@ -41,10 +41,14 @@ export default function DashboardPage() {
   const totalFunnelLeads = funnelStages.reduce((acc, [, count]) => acc + count, 0);
 
   const chartData = useMemo(() => {
-    if (!metrics) return [];
-    // Build real chart data from prospecting_stats or leads created_at bucketed by day
-    // For now use leads count from metrics grouped into period buckets
-    return [];
+    if (!metrics?.leadsByDate) return [];
+    const days = period === 'today' ? 1 : period === '7d' ? 7 : period === '90d' ? 90 : 30;
+    const now = new Date();
+    const entries = Object.entries(metrics.leadsByDate);
+    const cutoff = format(subDays(now, days), 'yyyy-MM-dd');
+    return entries
+      .filter(([date]) => date >= cutoff)
+      .map(([date, leads]) => ({ date: format(new Date(date + 'T12:00:00'), 'dd/MM'), leads }));
   }, [period, metrics]);
 
   if (metricsLoading && !metrics) {
