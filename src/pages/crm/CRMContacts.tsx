@@ -392,7 +392,19 @@ export default function CRMContactsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        <div className="space-y-3">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4 p-3 rounded-xl border border-border/30" style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 bg-muted animate-pulse rounded-md w-40" />
+                <div className="h-3 bg-muted animate-pulse rounded-md w-24 opacity-60" />
+              </div>
+              <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+              <div className="h-6 w-12 bg-muted animate-pulse rounded-full" />
+            </div>
+          ))}
+        </div>
       ) : viewMode === 'table' ? (
         <Card className="border-border/50">
           <CardContent className="p-0">
