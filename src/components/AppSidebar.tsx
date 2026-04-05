@@ -423,7 +423,7 @@ export function AppSidebar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive rounded-lg">
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4 mr-2 text-destructive" />
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
