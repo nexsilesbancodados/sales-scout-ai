@@ -333,10 +333,10 @@ export default function Landing() {
           <div className="relative z-10 max-w-[900px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
               <span className="text-[10px] uppercase tracking-[0.3em] text-[#F7941D] font-semibold">Plataforma completa</span>
-              <h2 className="text-3xl md:text-4xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
-                Tudo em um <span className="landing-gradient-text">único painel</span>
-              </h2>
-              <p className="text-[14px] text-white/55 mt-4 max-w-[480px] mx-auto">
+              <h2 className="text-3xl md:text-5xl font-black tracking-[-0.03em] mt-3 text-white leading-[1.1]">
+                 Tudo em um <span className="landing-gradient-text">único painel</span>
+               </h2>
+               <p className="text-base text-white/55 mt-4 max-w-[520px] mx-auto leading-relaxed">
                 CRM, prospecção, envio em massa, follow-up, agente SDR e analytics — sem precisar de 5 ferramentas diferentes. Acesse do celular ou desktop.
               </p>
             </motion.div>
