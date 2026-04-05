@@ -179,7 +179,7 @@ export default function Landing() {
                 <l.icon className="h-4 w-4" />{l.label}
               </a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-sm font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-base font-semibold px-5 py-3 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
         </div>
       </nav>
