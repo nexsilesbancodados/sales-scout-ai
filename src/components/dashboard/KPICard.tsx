@@ -100,5 +100,6 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
         )}
       </CardContent>
     </Card>
+    </motion.div>
   );
 }
