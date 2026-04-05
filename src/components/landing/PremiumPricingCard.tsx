@@ -118,8 +118,8 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
               <span className="text-base">{emojis[index]}</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-white">{plan.name}</h3>
-              <p className={cn('text-[10px] uppercase tracking-wider font-bold', s.label)}>
+              <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
+              <p className={cn('text-xs uppercase tracking-wider font-bold', s.label)}>
                 {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
