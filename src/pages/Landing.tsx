@@ -466,6 +466,8 @@ export default function Landing() {
         </section>
         </ScrollLightUpSection>
 
+      </div>{/* end scroll curve wrapper */}
+
       {/* ═══ 11. FOOTER ═══ */}
       <footer className="relative border-t border-white/[0.05] py-12 px-4 md:px-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
