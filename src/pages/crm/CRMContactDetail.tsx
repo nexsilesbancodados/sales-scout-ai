@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useLead, useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
+import { useUserSettings } from '@/hooks/use-user-settings';
 import { useMeetings } from '@/hooks/use-meetings';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { Lead, LeadTask, LeadNote } from '@/types/database';
