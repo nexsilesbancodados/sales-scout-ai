@@ -140,7 +140,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
             )}
             <AnimatePresence mode="wait">
               <motion.div
-                key={useLocation().pathname}
+                key={location.pathname}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
