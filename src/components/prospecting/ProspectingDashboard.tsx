@@ -2,12 +2,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useCampaigns } from '@/hooks/use-campaigns';
 import { useLeads } from '@/hooks/use-leads';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import {
   Search,
   Send,
   MessageSquare,
   TrendingUp,
 } from 'lucide-react';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
 
 export function ProspectingDashboard() {
   const { campaigns } = useCampaigns();
@@ -60,35 +71,42 @@ export function ProspectingDashboard() {
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat, index) => (
-        <Card 
-          key={stat.label} 
-          className={cn(
-            "relative overflow-hidden group cursor-default border transition-all duration-300 hover:scale-[1.02]",
-            stat.borderColor,
-            `hover:shadow-lg ${stat.glowColor}`
-          )}
-          style={{ animationDelay: `${index * 80}ms` }}
-        >
-          <CardContent className="p-4 sm:p-5 relative">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className={cn(
-                "p-2.5 sm:p-3 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
-                stat.bgColor
-              )}>
-                <stat.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", stat.color)} />
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="show"
+      className="grid gap-4 grid-cols-2 lg:grid-cols-4"
+    >
+      {stats.map((stat) => (
+        <motion.div key={stat.label} variants={fadeUp}>
+          <Card 
+            className={cn(
+              "relative overflow-hidden group cursor-default border transition-all duration-300 hover:scale-[1.02]",
+              stat.borderColor,
+              `hover:shadow-lg ${stat.glowColor}`
+            )}
+          >
+            {/* Shimmer */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent pointer-events-none" />
+            <CardContent className="p-4 sm:p-5 relative">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={cn(
+                  "p-2.5 sm:p-3 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
+                  stat.bgColor
+                )}>
+                  <stat.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", stat.color)} />
+                </div>
+                <div className="min-w-0">
+                  <p className={cn("text-xl sm:text-2xl font-bold tracking-tight", stat.color)}>
+                    {stat.value}
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{stat.label}</p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className={cn("text-xl sm:text-2xl font-bold tracking-tight", stat.color)}>
-                  {stat.value}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">{stat.label}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
