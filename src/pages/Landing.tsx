@@ -422,7 +422,7 @@ export default function Landing() {
             {FAQ_DATA.map((item, i) => (
               <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
-                  <span className="text-[13px] font-semibold text-white/80">{item.q}</span>
+                  <span className="text-sm font-semibold text-white/80">{item.q}</span>
                   <ChevronDown className={`h-4 w-4 text-white/50 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
