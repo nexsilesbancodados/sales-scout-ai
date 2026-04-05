@@ -15,6 +15,8 @@ import { PeriodFilter } from '@/components/dashboard/PeriodFilter';
 import { ProspectionChart } from '@/components/dashboard/ProspectionChart';
 import { ConversionFunnelChart } from '@/components/dashboard/ConversionFunnelChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { OpportunityRadar } from '@/components/dashboard/OpportunityRadar';
+import { useLeads } from '@/hooks/use-leads';
 import {
   Users,
   TrendingUp,
