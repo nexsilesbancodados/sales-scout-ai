@@ -235,7 +235,7 @@ export default function Landing() {
               <div className="h-4 w-px bg-white/10" />
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-[#F7941D] fill-[#F7941D]" />)}
-                <span className="text-[11px] sm:text-[12px] text-white/50 ml-1 font-medium">4.9/5</span>
+                <span className="text-xs sm:text-sm text-white/50 ml-1 font-medium">4.9/5</span>
               </div>
             </div>
           </div>
