@@ -39,7 +39,8 @@ export function ScrollCurveLine() {
         path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
         const tipSVG = path.getPointAtLength(pathLen * pct);
-        const tipViewportY = rect.top + (tipSVG.y / 4600) * rect.height;
+        const svgHeight = 8200;
+        const tipViewportY = rect.top + (tipSVG.y / svgHeight) * rect.height;
 
         document.documentElement.style.setProperty('--line-progress', `${pct}`);
         window.dispatchEvent(new CustomEvent('line-progress', { 
