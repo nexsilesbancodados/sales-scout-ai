@@ -239,10 +239,6 @@
     transform: translateY(-2px);
   }
 
-  /* Temperature badges */
-  .bg-temp-hot { background-color: hsl(var(--temp-hot) / 0.1); }
-  .bg-temp-warm { background-color: hsl(var(--temp-warm) / 0.1); }
-  .bg-temp-cold { background-color: hsl(var(--temp-cold) / 0.1); }
 
   /* Animations */
   .animate-fade-in { animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
