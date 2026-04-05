@@ -503,7 +503,7 @@ export function LeadDetailsModal({ lead, open, onOpenChange }: LeadDetailsModalP
                        {enrichmentData.logo && (
                          <div className="flex items-center gap-2 text-sm">
                            <span className="text-muted-foreground">Logo: </span>
-                           <img src={enrichmentData.logo.logo_url} alt="Logo" className="h-6 w-6 rounded" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                           <img src={enrichmentData.logo.logo_url} alt="Logo" className="h-6 w-6 rounded" loading="lazy" width={24} height={24} onError={(e) => (e.currentTarget.style.display = 'none')} />
                          </div>
                        )}
                      </div>
