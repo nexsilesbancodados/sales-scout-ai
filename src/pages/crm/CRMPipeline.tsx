@@ -207,6 +207,7 @@ function QuickAddDrawer({ stage, onClose }: { stage: LeadStage; onClose: () => v
 export default function CRMPipelinePage() {
   const { leads, isLoading, updateLead } = useLeads();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
   const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null);
   const [addStage, setAddStage] = useState<LeadStage | null>(null);
