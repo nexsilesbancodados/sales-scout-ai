@@ -164,17 +164,17 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Remove loading screen when app is ready -->
-    <script defer>
-      window.addEventListener('load', function() {
-        setTimeout(function() {
+    <script>
+      requestAnimationFrame(function check() {
+        if (document.getElementById('root')?.children.length) {
           var loading = document.getElementById('app-loading');
           if (loading) {
             loading.classList.add('hidden');
-            setTimeout(function() {
-              loading.remove();
-            }, 300);
+            setTimeout(function() { loading.remove(); }, 300);
           }
-        }, 100);
+        } else {
+          requestAnimationFrame(check);
+        }
       });
     </script>
   </body>
