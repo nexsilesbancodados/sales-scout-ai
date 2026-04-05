@@ -12,10 +12,25 @@ export default {
         "2xl": "1400px",
       },
     },
+    fontSize: {
+      xs: ["0.875rem", { lineHeight: "1.35rem" }],
+      sm: ["1rem", { lineHeight: "1.5rem" }],
+      base: ["1.125rem", { lineHeight: "1.7rem" }],
+      lg: ["1.25rem", { lineHeight: "1.8rem" }],
+      xl: ["1.5rem", { lineHeight: "2rem" }],
+      "2xl": ["1.875rem", { lineHeight: "2.25rem" }],
+      "3xl": ["2.25rem", { lineHeight: "2.6rem" }],
+      "4xl": ["2.75rem", { lineHeight: "1.1" }],
+      "5xl": ["3.35rem", { lineHeight: "1.05" }],
+      "6xl": ["4.25rem", { lineHeight: "1" }],
+      "7xl": ["5rem", { lineHeight: "1" }],
+      "8xl": ["6rem", { lineHeight: "1" }],
+      "9xl": ["7rem", { lineHeight: "1" }],
+    },
     extend: {
       fontFamily: {
-        sans: ['Gratav', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Gratav', 'Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Syne', 'Plus Jakarta Sans', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       colors: {

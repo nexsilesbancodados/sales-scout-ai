@@ -169,10 +169,15 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    font-size: clamp(18px, 0.35vw + 17px, 20px);
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
     overflow-x: hidden;
     min-height: 100vh;
@@ -181,6 +186,25 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', 'Plus Jakarta Sans', system-ui, sans-serif;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p, li, label, input, textarea, select, button {
+    font-size: 1rem;
+  }
+
+  input, textarea, select, button {
+    font: inherit;
+  }
+
+  small {
+    font-size: 0.95rem;
   }
 
   /* Better focus ring with animation */
@@ -223,13 +247,11 @@
       width: 3px;
       height: 3px;
     }
-    /* Larger touch targets */
     button, a, [role="button"] {
-      min-height: 36px;
+      min-height: 40px;
     }
   }
 
-  /* Smooth transitions for interactive elements */
   input, textarea, select {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
