@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useState, useEffect } from 'react';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { TopNavigation } from '@/components/TopNavigation';
