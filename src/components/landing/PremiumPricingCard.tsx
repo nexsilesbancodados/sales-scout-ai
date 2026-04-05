@@ -61,7 +61,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
       onClick={() => setFlipped(!flipped)}
     >
       {plan.highlight && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
           Mais popular
         </span>
       )}
