@@ -163,9 +163,59 @@ export function LeadResultsTable({
     URL.revokeObjectURL(url);
   };
 
-  if (capturedLeads.length === 0) return null;
+  // Empty state: skeleton during capturing, friendly message when idle
+  if (capturedLeads.length === 0 && processStatus === 'capturing') {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="p-4 rounded-xl bg-muted/50 border flex items-center gap-3">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Buscando leads...</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="p-0">
+                <Skeleton className="h-20 w-full" />
+                <div className="p-3 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-3 w-2/3" />
+                  <div className="flex gap-1 mt-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const hasActiveFilters = searchTerm || groupFilter !== 'all' || !showDuplicates;
+  if (capturedLeads.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 animate-fade-in">
+        <div className="p-4 rounded-full bg-muted">
+          <Search className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Nenhum lead encontrado</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Busque leads pelo nicho e localização acima para começar
+          </p>
+        </div>
+        {onScrollToForm && (
+          <Button variant="outline" onClick={onScrollToForm} className="gap-2">
+            <Search className="h-4 w-4" />
+            Começar Busca
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  const hasActiveFilters = searchTerm || groupFilter !== 'all' || !showDuplicates || minScore > 0;
 
   return (
     <div className="space-y-4 animate-fade-in">
