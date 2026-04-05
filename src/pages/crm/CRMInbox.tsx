@@ -1,10 +1,12 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useConversations, ConversationSummary } from '@/hooks/use-conversations';
@@ -16,7 +18,7 @@ import { ptBR } from 'date-fns/locale';
 import {
   Search, Loader2, MessageCircle, Send, Bot, Flame, ThermometerSun,
   Snowflake, Phone, ExternalLink, User, ArrowLeft, Zap, Sparkles,
-  Filter, Tag,
+  Filter, Tag, Inbox,
 } from 'lucide-react';
 
 function hashColor(name: string): string {
