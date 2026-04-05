@@ -384,7 +384,7 @@ export default function Landing() {
               { icon: Rocket, text: 'Setup em 5 min' },
               { icon: Star, text: '4.9/5 de avaliação' },
             ].map((badge, i) => (
-              <span key={i} className="flex items-center gap-2 text-[11px] text-white/50">
+              <span key={i} className="flex items-center gap-2 text-xs text-white/50">
                 <badge.icon className="h-3.5 w-3.5 text-[#F7941D]/50" />
                 {badge.text}
               </span>
