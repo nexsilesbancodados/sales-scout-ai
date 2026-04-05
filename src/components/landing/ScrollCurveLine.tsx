@@ -85,8 +85,10 @@ export function ScrollCurveLine() {
         <defs>
           <linearGradient id="curve-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#7B2FF2" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#F7941D" stopOpacity="0.7" />
-            <stop offset="85%" stopColor="#7B2FF2" stopOpacity="0.9" />
+            <stop offset="30%" stopColor="#F7941D" stopOpacity="0.7" />
+            <stop offset="55%" stopColor="#7B2FF2" stopOpacity="0.9" />
+            <stop offset="75%" stopColor="#00B4D8" stopOpacity="0.7" />
+            <stop offset="90%" stopColor="#F7941D" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#7B2FF2" stopOpacity="1" />
           </linearGradient>
         </defs>
