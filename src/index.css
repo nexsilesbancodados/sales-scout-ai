@@ -210,16 +210,6 @@
 }
 
 @layer utilities {
-  /* Glass effects */
-  .glass {
-    @apply bg-background/70 backdrop-blur-xl border border-border/40;
-  }
-
-  .glass-card {
-    @apply bg-card/80 backdrop-blur-lg border border-border/50;
-    box-shadow: 0 1px 3px 0 hsl(var(--primary) / 0.04);
-  }
-
   /* Gradients */
   .gradient-primary {
     background: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(271 81% 56%) 100%);
@@ -238,12 +228,6 @@
 
   /* Safe area */
   .safe-top { padding-top: env(safe-area-inset-top); }
-  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
-  .tap-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
 
   /* Card interactions */
   .card-hover {
@@ -255,10 +239,6 @@
     transform: translateY(-2px);
   }
 
-  /* Temperature badges */
-  .bg-temp-hot { background-color: hsl(var(--temp-hot) / 0.1); }
-  .bg-temp-warm { background-color: hsl(var(--temp-warm) / 0.1); }
-  .bg-temp-cold { background-color: hsl(var(--temp-cold) / 0.1); }
 
   /* Animations */
   .animate-fade-in { animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
@@ -305,15 +285,6 @@
   }
   .animate-count-up { animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
 
-  /* Stagger */
-  .stagger-1 { animation-delay: 60ms; }
-  .stagger-2 { animation-delay: 120ms; }
-  .stagger-3 { animation-delay: 180ms; }
-  .stagger-4 { animation-delay: 240ms; }
-  .stagger-5 { animation-delay: 300ms; }
-  .stagger-6 { animation-delay: 360ms; }
-  .stagger-7 { animation-delay: 420ms; }
-  .stagger-8 { animation-delay: 480ms; }
 }
 
 /* Hero energy overlay effect */
@@ -394,146 +365,7 @@
   50% { transform: translateY(8px); opacity: 0.3; }
 }
 
-/* Landing pulse glow */
-.landing-pulse-glow {
-  animation: landing-pulse-glow-anim 2s ease-in-out infinite;
-}
-@keyframes landing-pulse-glow-anim {
-  0%, 100% { box-shadow: 0 0 20px rgba(123,47,242,0.2); }
-  50% { box-shadow: 0 0 40px rgba(123,47,242,0.5), 0 0 80px rgba(123,47,242,0.2); }
-}
 
-/* ROI Slider */
-.roi-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-}
-.roi-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7B2FF2, #E91E8C);
-  cursor: pointer;
-  border: 3px solid #0B0D15;
-  box-shadow: 0 0 12px rgba(123,47,242,0.4);
-  transition: transform 0.2s;
-}
-.roi-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-.roi-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7B2FF2, #E91E8C);
-  cursor: pointer;
-  border: 3px solid #0B0D15;
-  box-shadow: 0 0 12px rgba(123,47,242,0.4);
-}
-
-/* ═══ Liquid Button Effect ═══ */
-.liquid-btn {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 23px 0 hsl(var(--primary) / 0.15), 0 14px 54px 0 hsl(var(--primary) / 0.25);
-}
-
-.liquid-btn .liquid-btn-text {
-  position: relative;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.liquid-btn .liquid-fill {
-  position: absolute;
-  top: -10px;
-  left: 0;
-  width: 100%;
-  height: 200px;
-  background: hsl(var(--primary));
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
-  z-index: 0;
-  transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-.liquid-btn .liquid-fill::after,
-.liquid-btn .liquid-fill::before {
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -75%);
-  content: "";
-}
-
-.liquid-btn .liquid-fill::after {
-  content: "⚡";
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 45px;
-  border-radius: 45%;
-  background: hsl(var(--primary) / 0.4);
-  box-shadow: 0 0 15px 5px hsl(var(--primary) / 0.3), inset 0 0 10px hsl(var(--primary) / 0.3);
-  animation: liquid-rotate 6s linear infinite;
-  opacity: 0.8;
-}
-
-.liquid-btn .liquid-fill::before {
-  content: "🚀";
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 35px;
-  border-radius: 40%;
-  background: hsl(var(--primary) / 0.3);
-  box-shadow: 0 0 10px hsl(var(--primary) / 0.2);
-  animation: liquid-rotate 9s linear infinite;
-}
-
-@keyframes liquid-rotate {
-  0% { transform: translate(-50%, -75%) rotate(0deg); }
-  100% { transform: translate(-50%, -75%) rotate(360deg); }
-}
-
-.liquid-btn:hover .liquid-fill {
-  top: -130px;
-}
-
-.liquid-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 30px hsl(var(--primary) / 0.35), 0 6px 23px hsl(var(--primary) / 0.2);
-  filter: brightness(1.05);
-}
-
-/* Glint shine effect */
-.liquid-btn::before {
-  content: "";
-  height: 100%;
-  width: 80px;
-  position: absolute;
-  top: 0;
-  left: -100px;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
-  transform: skewX(-25deg);
-  z-index: 3;
-  pointer-events: none;
-  transition: 0s;
-}
-
-.liquid-btn:hover::before {
-  left: 150%;
-  transition: 0.7s;
-}
 
 /* ═══ Premium Pricing Card Effects ═══ */
 @keyframes premium-border-rotate {
@@ -853,25 +685,3 @@ div[style*="Edit with Lovable"],
   transform: translateX(30px);
 }
 
-/* Leaflet map fix - ensure proper rendering */
-.leaflet-container {
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 0;
-}
-
-.leaflet-tile-pane {
-  z-index: 1;
-}
-
-.leaflet-overlay-pane {
-  z-index: 2;
-}
-
-.leaflet-marker-pane {
-  z-index: 3;
-}
-
-.leaflet-popup-pane {
-  z-index: 4;
-}
