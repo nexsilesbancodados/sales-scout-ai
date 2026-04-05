@@ -61,7 +61,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
       onClick={() => setFlipped(!flipped)}
     >
       {plan.highlight && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-1 rounded-full z-20 shadow-lg shadow-cyan-500/25">
+        <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-5 py-2 rounded-full z-20 shadow-lg shadow-cyan-500/25">
           Mais popular
         </span>
       )}
@@ -75,7 +75,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
       >
         {/* ═══ FRONT ═══ */}
         <div
-          className="premium-price-card relative rounded-2xl p-6 h-full"
+          className="premium-price-card relative rounded-2xl p-8 h-full"
           style={{
             backgroundColor: 'hsla(210, 30%, 8%, 1)',
             backgroundImage: cardBg,
@@ -96,67 +96,66 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
             />
           </div>
 
-          {/* Image illustration */}
-          <div className="flex justify-center mb-4 -mt-1">
+          <div className="flex justify-center mb-6 -mt-1">
             <img
               src={CARD_IMAGES[index]}
               alt={plan.name}
-              className="h-28 w-28 object-contain drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]"
+              className="h-36 w-36 object-contain drop-shadow-[0_0_20px_rgba(123,47,242,0.3)]"
               loading="lazy"
-              width={112}
-              height={112}
+              width={144}
+              height={144}
             />
           </div>
 
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-4 mb-6">
             <div className={cn(
-              'h-9 w-9 rounded-xl border flex items-center justify-center',
+              'h-12 w-12 rounded-xl border flex items-center justify-center',
               plan.highlight
                 ? 'border-cyan-400/20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20'
                 : 'border-purple-400/20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20'
             )}>
-              <span className="text-base">{emojis[index]}</span>
+              <span className="text-2xl leading-none">{emojis[index]}</span>
             </div>
             <div>
-              <h3 className="text-xl font-semibold tracking-tight text-white">{plan.name}</h3>
-              <p className={cn('text-xs uppercase tracking-wider font-bold', s.label)}>
+              <h3 className="text-3xl font-semibold tracking-tight text-white">{plan.name}</h3>
+              <p className={cn('text-sm uppercase tracking-wider font-bold', s.label)}>
                 {index === 0 ? 'Ideal para validar' : index === 1 ? 'Máxima performance' : 'Escala sem limites'}
               </p>
             </div>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-6">
             <div className="flex items-baseline gap-1">
-              <span className="text-sm font-medium text-blue-200/60 mr-1">R$</span>
-              <span className="text-4xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
-              <span className="text-base text-blue-200/60 ml-1">/mês</span>
+              <span className="text-xl font-medium text-blue-200/60 mr-1">R$</span>
+              <span className="text-6xl font-bold tracking-tight text-white">{annual ? plan.annual : plan.price}</span>
+              <span className="text-xl text-blue-200/60 ml-1">/mês</span>
             </div>
             {annual && (
-              <p className="text-xs text-green-400/70 mt-1">Economia de R${(plan.price - plan.annual) * 12}/ano</p>
+              <p className="text-base text-green-400/70 mt-2">Economia de R${(plan.price - plan.annual) * 12}/ano</p>
             )}
           </div>
 
-          <ul className="space-y-2.5 text-base text-blue-50/90 mb-6">
+          <ul className="space-y-3 text-xl text-blue-50/90 mb-8">
             {plan.features.map(f => (
               <li key={f} className="flex items-start gap-3">
-                <div className={cn('w-4 h-4 rounded-full flex items-center justify-center mt-0.5 shrink-0', s.check)}>
-                  <Check className="h-2.5 w-2.5 text-[#050a10]" strokeWidth={4} />
+                <div className={cn('w-6 h-6 rounded-full flex items-center justify-center mt-1 shrink-0', s.check)}>
+                  <Check className="h-3.5 w-3.5 text-[#050a10]" strokeWidth={4} />
                 </div>
-                {f}
+                <span className="leading-snug">{f}</span>
               </li>
             ))}
           </ul>
 
           <button
             onClick={handleCheckout}
-            className="aura-btn group/btn isolate inline-flex items-center w-full h-[50px] cursor-pointer overflow-hidden rounded-[18px] relative"
-            style={{ backgroundColor: plan.highlight ? '#A9DDF7' : 'hsl(260, 60%, 75%)', clipPath: 'inset(0 round 18px)' }}
+            className="aura-btn group/btn isolate inline-flex items-center w-full h-[68px] cursor-pointer overflow-hidden rounded-[22px] relative"
+            style={{ backgroundColor: plan.highlight ? '#A9DDF7' : 'hsl(260, 60%, 75%)', clipPath: 'inset(0 round 22px)' }}
           >
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-60">
               <div className="aura-shimmer-container"><div className="aura-shimmer-gradient" /></div>
             </div>
             <div className="aura-shimmer-onda" />
-            <div className="absolute inset-[1.5px] rounded-[16px]" style={{
+            <div className="absolute inset-[1.5px] rounded-[20px]" style={{
               background: plan.highlight
                 ? 'linear-gradient(to bottom, #BEE9FF, #A9DDF7, #9CD4F0)'
                 : 'linear-gradient(to bottom, hsl(260,70%,82%), hsl(260,60%,75%), hsl(260,55%,70%))',
@@ -169,22 +168,21 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
                 ? 'linear-gradient(135deg, #1e40af, #1e3a8a)'
                 : 'linear-gradient(135deg, hsl(260,60%,40%), hsl(260,50%,30%))',
             }}>
-              <div className="w-1.5 h-1.5 bg-white rounded-full group-hover/btn:hidden" />
-              <ChevronRight className="hidden group-hover/btn:block w-4 h-4 text-white" strokeWidth={3} />
+              <div className="w-2 h-2 bg-white rounded-full group-hover/btn:hidden" />
+              <ChevronRight className="hidden group-hover/btn:block w-5 h-5 text-white" strokeWidth={3} />
             </div>
-            <div className="relative z-10 w-full h-full flex items-center justify-center px-6">
+            <div className="relative z-10 w-full h-full flex items-center justify-center px-8">
               <span className="aura-texto-principal whitespace-nowrap tracking-wide">{plan.cta}</span>
               <span className="aura-texto-hover whitespace-nowrap">Vamos começar?</span>
             </div>
           </button>
 
-          {/* Flip hint */}
-          <p className="text-xs text-white/20 text-center mt-3">Clique para ver detalhes →</p>
+          <p className="text-sm text-white/20 text-center mt-4">Clique para ver detalhes →</p>
         </div>
 
         {/* ═══ BACK ═══ */}
         <div
-          className="absolute inset-0 rounded-2xl p-6 flex flex-col justify-between border border-white/[0.08]"
+          className="absolute inset-0 rounded-2xl p-8 flex flex-col justify-between border border-white/[0.08]"
           style={{
             backgroundColor: 'hsla(210, 30%, 8%, 1)',
             backgroundImage: cardBg,
@@ -197,43 +195,43 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
           }}
         >
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{emojis[index]}</span>
-              <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-4xl leading-none">{emojis[index]}</span>
+              <h3 className="text-3xl font-bold text-white">{plan.name}</h3>
             </div>
-            <p className="text-sm text-white/55 mb-6">
+            <p className="text-xl text-white/55 mb-8">
               Por que escolher este plano?
             </p>
 
-            <ul className="space-y-4">
+            <ul className="space-y-5">
               {backPerks.map((perk, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-lg flex items-center justify-center shrink-0"
+                  <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{ background: `${s.border}20`, border: `1px solid ${s.border}30` }}>
-                    <Sparkles className="h-3 w-3" style={{ color: s.border }} />
+                    <Sparkles className="h-4 w-4" style={{ color: s.border }} />
                   </div>
-                  <span className="text-base text-white/80">{perk}</span>
+                  <span className="text-xl text-white/80">{perk}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-center gap-1 text-white/50">
-              {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-current text-[#F7941D]" />)}
-              <span className="text-xs ml-1.5">4.9/5 avaliações</span>
+          <div className="mt-8 space-y-4">
+            <div className="flex items-center justify-center gap-1.5 text-white/50">
+              {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-4 w-4 fill-current text-[#F7941D]" />)}
+              <span className="text-base ml-2">4.9/5 avaliações</span>
             </div>
 
             <button
               onClick={handleCheckout}
-              className="w-full h-[52px] rounded-xl font-semibold text-white text-base flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
+              className="w-full h-[64px] rounded-xl font-semibold text-white text-xl flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.98] hover:shadow-lg"
               style={{ background: `linear-gradient(135deg, ${s.border}, ${s.border}CC)` }}
             >
               Começar agora
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-5 w-5" />
             </button>
 
-            <p className="text-xs text-white/20 text-center">← Clique para voltar</p>
+            <p className="text-sm text-white/20 text-center">← Clique para voltar</p>
           </div>
         </div>
       </div>

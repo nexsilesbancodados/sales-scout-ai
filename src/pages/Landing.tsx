@@ -144,9 +144,9 @@ export default function Landing() {
           transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.3 }}
           className="pointer-events-auto flex items-center rounded-full pr-3 pl-4 py-2.5 glass-nav-container"
         >
-          <a href="#" className="flex items-center gap-2 mr-4 shrink-0">
-            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" width={32} height={32} />
-            <span className="text-lg font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
+          <a href="#" className="flex items-center gap-3 mr-4 shrink-0">
+            <img src={logoImg} alt="NexaProspect" className="h-10 w-10 rounded-xl object-contain" width={40} height={40} />
+            <span className="text-2xl font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
           </a>
           <div className="hidden lg:flex items-center">
             {NAV_LINKS.map((l, idx) => {
@@ -154,8 +154,8 @@ export default function Landing() {
               return (
                 <a key={l.label} href={l.href} onMouseEnter={() => setHoveredNav(idx)} onMouseLeave={() => setHoveredNav(null)} className="nav-optn relative group">
                   <div className="nav-optn-inner">
-                    <span className="nav-optn-icon"><Icon className="h-5 w-5 text-white" /></span>
-                    <span className={`text-[15px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
+                    <span className="nav-optn-icon"><Icon className="h-6 w-6 text-white" /></span>
+                    <span className={`text-xl font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
                     {hoveredNav === idx && (
                       <motion.span layoutId="navGlow" initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }} className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]" />
                     )}
@@ -164,22 +164,22 @@ export default function Landing() {
               );
             })}
           </div>
-          <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group ml-3">
-            <span className="nav-shimmer-icon"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
+          <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group ml-4">
+            <span className="nav-shimmer-icon"><ArrowRight className="h-5 w-5 text-white nav-shimmer-arrow" /></span>
             <span className="nav-shimmer-text">Entrar</span>
           </button>
-          <button className="lg:hidden text-white/60 ml-2" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
-            {mobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <button className="lg:hidden text-white/60 ml-3" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
+            {mobileMenu ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
           </button>
         </motion.div>
-        <div className={`lg:hidden pointer-events-auto fixed top-[70px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
-          <div className="px-6 py-4 space-y-1">
+        <div className={`lg:hidden pointer-events-auto fixed top-[82px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-[520px] opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="px-7 py-6 space-y-2">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="flex items-center gap-3 text-base text-white/50 hover:text-white py-3 transition-colors" onClick={() => setMobileMenu(false)}>
-                <l.icon className="h-4 w-4" />{l.label}
+              <a key={l.label} href={l.href} className="flex items-center gap-4 text-xl text-white/50 hover:text-white py-4 transition-colors" onClick={() => setMobileMenu(false)}>
+                <l.icon className="h-6 w-6" />{l.label}
               </a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-base font-semibold px-5 py-3 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-xl font-semibold px-6 py-4 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
         </div>
       </nav>
@@ -193,49 +193,49 @@ export default function Landing() {
         {/* Bottom gradient fade — replaces hard edge */}
         <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-[5]" style={{ background: 'linear-gradient(to bottom, transparent 0%, #0B0D15 100%)' }} />
         <div className="relative z-10 max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-[620px] pt-28 sm:pt-24">
-            <div className="inline-flex items-center gap-2.5 bg-white/[0.06] border border-white/[0.08] rounded-full px-4 py-2 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-              <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
-              <span className="text-xs sm:text-sm text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
+          <div className="max-w-[720px] pt-28 sm:pt-24">
+            <div className="inline-flex items-center gap-3 bg-white/[0.06] border border-white/[0.08] rounded-full px-5 py-3 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+              <Sparkles className="h-5 w-5 text-[#F7941D]" />
+              <span className="text-base sm:text-lg text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
-            <h1 className="text-[42px] sm:text-[58px] lg:text-[76px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+            <h1 className="text-[48px] sm:text-[68px] lg:text-[88px] font-extrabold leading-[1.02] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Sua máquina de </span>
               <span className="landing-gradient-text">vendas com IA.</span>
             </h1>
-            <p className="text-base sm:text-lg text-white/50 max-w-[520px] mt-5 sm:mt-7 leading-[1.7] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+            <p className="text-xl sm:text-2xl text-white/50 max-w-[680px] mt-6 sm:mt-8 leading-[1.65] animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
               Captura leads do Google Maps, Instagram e Facebook. Envia mensagens personalizadas no WhatsApp. Faz follow-up automático. Agenda reuniões no seu calendário — <strong className="text-white/70">24 horas por dia, sem parar.</strong>
             </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
-              <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-12 !min-w-[200px]">
-                <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
-                <span className="nav-shimmer-text !text-[14px]">Testar grátis agora</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 mt-10 sm:mt-12 animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
+              <button onClick={() => navigate('/auth')} className="nav-shimmer-btn group !h-16 !min-w-[320px]">
+                <span className="nav-shimmer-icon !w-14 !h-14"><ArrowRight className="h-5 w-5 text-white nav-shimmer-arrow" /></span>
+                <span className="nav-shimmer-text !text-xl">Testar grátis agora</span>
               </button>
-              <a href="#como-funciona" className="text-sm sm:text-base text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
-                Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+              <a href="#como-funciona" className="text-lg sm:text-xl text-white/50 hover:text-white/80 transition-colors flex items-center gap-3 group">
+                Ver como funciona <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
+            <div className="flex flex-wrap items-center gap-4 sm:gap-5 mt-5 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
               {['Leads ilimitados', 'Setup em 5 min', 'Anti-ban inteligente', 'Cancele com 1 clique'].map(t => (
-                <span key={t} className="flex items-center gap-1.5 text-xs sm:text-sm text-white/50">
-                  <Check className="h-3 w-3 text-emerald-500/60" /> {t}
+                <span key={t} className="flex items-center gap-2 text-base sm:text-lg text-white/50">
+                  <Check className="h-4 w-4 text-emerald-500/60" /> {t}
                 </span>
               ))}
             </div>
 
             {/* Social proof row */}
-            <div className="flex items-center gap-5 sm:gap-6 mt-7 sm:mt-8 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
-              <div className="flex items-center gap-2.5">
-                <div className="flex -space-x-2.5">
+            <div className="flex items-center gap-6 sm:gap-8 mt-8 sm:mt-10 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
                   {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
-                    <img key={i} src={src} alt="" className="h-7 w-7 rounded-full border-2 border-[#0B0D15] shadow-lg object-cover" loading="lazy" width={28} height={28} />
+                    <img key={i} src={src} alt="" className="h-10 w-10 rounded-full border-2 border-[#0B0D15] shadow-lg object-cover" loading="lazy" width={40} height={40} />
                   ))}
                 </div>
-                <span className="text-xs sm:text-sm text-white/55 font-medium">+2.400 ativos</span>
+                <span className="text-base sm:text-lg text-white/55 font-medium">+2.400 ativos</span>
               </div>
-              <div className="h-4 w-px bg-white/10" />
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-3 w-3 text-[#F7941D] fill-[#F7941D]" />)}
-                <span className="text-xs sm:text-sm text-white/50 ml-1 font-medium">4.9/5</span>
+              <div className="h-6 w-px bg-white/10" />
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-4 w-4 text-[#F7941D] fill-[#F7941D]" />)}
+                <span className="text-base sm:text-lg text-white/50 ml-1 font-medium">4.9/5</span>
               </div>
             </div>
           </div>

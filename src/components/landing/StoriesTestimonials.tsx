@@ -64,23 +64,21 @@ export function StoriesTestimonials() {
 
   return (
     <>
-      {/* Stories row */}
-      <div ref={scrollRef} className="flex gap-4 md:gap-5 overflow-x-auto pb-4 px-2 max-w-4xl mx-auto scrollbar-hide justify-start md:justify-center">
+      <div ref={scrollRef} className="flex gap-6 md:gap-7 overflow-x-auto pb-5 px-3 max-w-5xl mx-auto scrollbar-hide justify-start md:justify-center">
         {TESTIMONIALS.map((t, i) => (
           <button
             key={i}
             onClick={() => setActiveStory(i)}
-            className="flex flex-col items-center gap-1.5 shrink-0 group"
+            className="flex flex-col items-center gap-2.5 shrink-0 group"
           >
-            <div className={`w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-gradient-to-br ${t.gradient} p-[2.5px] transition-transform group-hover:scale-110`}>
-              <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" width={72} height={72} />
+            <div className={`w-24 h-24 md:w-[110px] md:h-[110px] rounded-full bg-gradient-to-br ${t.gradient} p-[3px] transition-transform group-hover:scale-110`}>
+              <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" loading="lazy" width={110} height={110} />
             </div>
-            <span className="text-xs text-white/50 max-w-[72px] truncate">{t.name}</span>
+            <span className="text-lg text-white/60 max-w-[130px] truncate">{t.name}</span>
           </button>
         ))}
       </div>
 
-      {/* Fullscreen story overlay */}
       <AnimatePresence>
         {activeStory !== null && (
           <motion.div
@@ -97,12 +95,11 @@ export function StoriesTestimonials() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="relative w-[340px] md:w-[380px] max-h-[680px] rounded-3xl overflow-hidden"
+              className="relative w-[420px] md:w-[520px] max-h-[780px] rounded-3xl overflow-hidden"
             >
-              {/* Progress bars */}
-              <div className="absolute top-3 left-3 right-3 flex gap-1 z-10">
+              <div className="absolute top-4 left-4 right-4 flex gap-1.5 z-10">
                 {TESTIMONIALS.map((_, i) => (
-                  <div key={i} className="flex-1 h-[3px] rounded-full bg-white/20 overflow-hidden">
+                  <div key={i} className="flex-1 h-[4px] rounded-full bg-white/20 overflow-hidden">
                     <div
                       className="h-full bg-white rounded-full transition-all"
                       style={{
@@ -114,46 +111,40 @@ export function StoriesTestimonials() {
                 ))}
               </div>
 
-              {/* Story content */}
-              <div className={`bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[1px] rounded-3xl`}>
-                <div className="bg-[#0c0c1a] rounded-3xl px-8 py-12 min-h-[500px] flex flex-col items-center justify-center text-center gap-6">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 absolute top-10 left-6">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[1.5px]`}>
-                      <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={36} height={36} />
+              <div className={`bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[1.5px] rounded-3xl`}>
+                <div className="bg-[#0c0c1a] rounded-3xl px-10 py-16 min-h-[640px] flex flex-col items-center justify-center text-center gap-8">
+                  <div className="flex items-center gap-4 absolute top-12 left-8">
+                    <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[2px]`}>
+                      <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={56} height={56} />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
-                      <p className="text-xs text-white/50">{TESTIMONIALS[activeStory].role}</p>
+                      <p className="text-xl font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
+                      <p className="text-base text-white/60">{TESTIMONIALS[activeStory].role}</p>
                     </div>
                   </div>
 
-                  {/* Avatar large */}
-                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[2px] shadow-2xl`}>
-                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={80} height={80} />
+                  <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${TESTIMONIALS[activeStory].gradient} p-[2.5px] shadow-2xl`}>
+                    <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={128} height={128} />
                   </div>
 
-                  {/* Quote */}
-                  <p className="text-white/90 text-base leading-relaxed font-medium max-w-[300px]">
+                  <p className="text-white/95 text-2xl leading-relaxed font-medium max-w-[400px]">
                     "{TESTIMONIALS[activeStory].text}"
                   </p>
 
-                  <div className="flex gap-0.5 mt-2">
+                  <div className="flex gap-1 mt-2">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-sm">★</span>
+                      <span key={i} className="text-yellow-400 text-2xl">★</span>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Close */}
-              <button onClick={() => setActiveStory(null)} className="absolute top-10 right-5 z-10 text-white/60 hover:text-white">
-                <X className="h-5 w-5" />
+              <button onClick={() => setActiveStory(null)} className="absolute top-11 right-6 z-10 text-white/60 hover:text-white">
+                <X className="h-8 w-8" />
               </button>
 
-              {/* Nav areas */}
-              <button onClick={goPrev} className="absolute left-0 top-20 bottom-0 w-1/3 z-10" />
-              <button onClick={goNext} className="absolute right-0 top-20 bottom-0 w-1/3 z-10" />
+              <button onClick={goPrev} className="absolute left-0 top-24 bottom-0 w-1/3 z-10" />
+              <button onClick={goNext} className="absolute right-0 top-24 bottom-0 w-1/3 z-10" />
             </motion.div>
           </motion.div>
         )}
