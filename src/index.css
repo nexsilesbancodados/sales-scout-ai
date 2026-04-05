@@ -111,8 +111,8 @@
     --ring: 239 84% 67%;
 
     /* Status - Dark */
-    --success: 160 84% 39%;
-    --info: 217 91% 55%;
+    --success: 160 84% 30%;
+    --info: 217 91% 48%;
 
     /* Temperature - Dark (brighter for dark bg contrast) */
     --temp-hot: 0 84% 60%;
