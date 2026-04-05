@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,11 @@ interface SubscriptionGuardProps {
 export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   const { subscription, isLoading } = useSubscription();
   const { user } = useAuth();
+  const location = useLocation();
+
+  // These routes are always accessible without subscription
+  const ALWAYS_ACCESSIBLE = ['/dashboard', '/tutorial', '/billing', '/settings'];
+  const isAccessibleRoute = ALWAYS_ACCESSIBLE.some(route => location.pathname.startsWith(route));
 
   if (isLoading) {
     return (
@@ -47,7 +53,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
   const isActive = subscription?.status === 'active';
 
-  if (isActive) {
+  if (isActive || isAccessibleRoute) {
     return <>{children}</>;
   }
 

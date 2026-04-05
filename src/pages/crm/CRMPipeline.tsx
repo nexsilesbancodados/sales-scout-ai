@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 
 import { Badge } from '@/components/ui/badge';
@@ -206,6 +207,7 @@ function QuickAddDrawer({ stage, onClose }: { stage: LeadStage; onClose: () => v
 export default function CRMPipelinePage() {
   const { leads, isLoading, updateLead } = useLeads();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
   const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null);
   const [addStage, setAddStage] = useState<LeadStage | null>(null);
@@ -227,7 +229,10 @@ export default function CRMPipelinePage() {
   };
   const handleDrop = (e: React.DragEvent, stage: LeadStage) => {
     e.preventDefault();
-    if (draggedLead && draggedLead.stage !== stage) updateLead({ id: draggedLead.id, stage });
+    if (draggedLead && draggedLead.stage !== stage) {
+      updateLead({ id: draggedLead.id, stage });
+      toast({ title: `Lead movido para ${stage} ✅` });
+    }
     setDraggedLead(null);
     setDragOverStage(null);
   };

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -79,6 +80,7 @@ import {
   Play,
   CheckSquare,
   Square,
+  Users,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -89,6 +91,7 @@ interface ProspectingHistoryTabProps {
 
 export function ProspectingHistoryTab({ onReprospect }: ProspectingHistoryTabProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const {
     history,
     isLoading,
@@ -596,6 +599,18 @@ export function ProspectingHistoryTab({ onReprospect }: ProspectingHistoryTabPro
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-1.5 text-xs h-8"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/crm/contacts?source=prospecting&session=${session.id}`);
+                                    }}
+                                  >
+                                    <Users className="h-3.5 w-3.5" />
+                                    Ver Leads
+                                  </Button>
                                   <Button
                                     variant="ghost"
                                     size="icon"

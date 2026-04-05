@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useLead, useLeads } from '@/hooks/use-leads';
 import { useChatMessages } from '@/hooks/use-chat-messages';
+import { useUserSettings } from '@/hooks/use-user-settings';
 import { useMeetings } from '@/hooks/use-meetings';
 import { useActivityLog } from '@/hooks/use-activity-log';
 import { Lead, LeadTask, LeadNote } from '@/types/database';
@@ -60,6 +61,7 @@ export default function CRMContactDetailPage() {
   const { data: lead, isLoading } = useLead(id || null);
   const { updateLead } = useLeads();
   const { messages, sendMessage, isSending } = useChatMessages(id || null);
+  const { settings } = useUserSettings();
   const { meetings } = useMeetings();
   const { activities } = useActivityLog(50);
 

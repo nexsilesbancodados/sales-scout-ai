@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
   MapPin,
@@ -43,6 +45,8 @@ interface LeadResultsTableProps {
   activeJobPayload?: any;
   activeJobCurrentIndex?: number;
   activeJobStatus?: string;
+  processStatus?: 'idle' | 'capturing' | 'completed' | 'stopped';
+  onScrollToForm?: () => void;
 }
 
 const ITEMS_PER_PAGE = 24;
@@ -62,12 +66,15 @@ export function LeadResultsTable({
   activeJobPayload,
   activeJobCurrentIndex,
   activeJobStatus,
+  processStatus = 'idle',
+  onScrollToForm,
 }: LeadResultsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'quality' | 'name' | 'rating'>('quality');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDuplicates, setShowDuplicates] = useState(true);
+  const [minScore, setMinScore] = useState(0);
 
   // Get unique groups for filter
   const availableGroups = useMemo(() => {
@@ -101,6 +108,11 @@ export function LeadResultsTable({
       leads = leads.filter(l => !l.isDuplicate);
     }
 
+    // Min score filter
+    if (minScore > 0) {
+      leads = leads.filter(l => (l.qualityScore || 0) >= minScore);
+    }
+
     // Sort
     leads.sort((a, b) => {
       if (sortBy === 'quality') return (b.qualityScore || 0) - (a.qualityScore || 0);
@@ -110,7 +122,7 @@ export function LeadResultsTable({
     });
 
     return leads;
-  }, [capturedLeads, searchTerm, groupFilter, sortBy, showDuplicates]);
+  }, [capturedLeads, searchTerm, groupFilter, sortBy, showDuplicates, minScore]);
 
   // Pagination
   const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
@@ -151,9 +163,59 @@ export function LeadResultsTable({
     URL.revokeObjectURL(url);
   };
 
-  if (capturedLeads.length === 0) return null;
+  // Empty state: skeleton during capturing, friendly message when idle
+  if (capturedLeads.length === 0 && processStatus === 'capturing') {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="p-4 rounded-xl bg-muted/50 border flex items-center gap-3">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Buscando leads...</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="p-0">
+                <Skeleton className="h-20 w-full" />
+                <div className="p-3 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-3 w-2/3" />
+                  <div className="flex gap-1 mt-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const hasActiveFilters = searchTerm || groupFilter !== 'all' || !showDuplicates;
+  if (capturedLeads.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 animate-fade-in">
+        <div className="p-4 rounded-full bg-muted">
+          <Search className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Nenhum lead encontrado</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Busque leads pelo nicho e localização acima para começar
+          </p>
+        </div>
+        {onScrollToForm && (
+          <Button variant="outline" onClick={onScrollToForm} className="gap-2">
+            <Search className="h-4 w-4" />
+            Começar Busca
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  const hasActiveFilters = searchTerm || groupFilter !== 'all' || !showDuplicates || minScore > 0;
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -277,6 +339,19 @@ export function LeadResultsTable({
           {showDuplicates ? 'Ocultar duplicados' : 'Mostrar duplicados'}
         </Button>
 
+        {/* Min Score Slider */}
+        <div className="flex items-center gap-2 min-w-[180px]">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Score ≥ {minScore}</span>
+          <Slider
+            value={[minScore]}
+            onValueChange={([v]) => handleFilterChange(setMinScore, v)}
+            min={0}
+            max={100}
+            step={10}
+            className="w-24"
+          />
+        </div>
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -286,6 +361,7 @@ export function LeadResultsTable({
               setSearchTerm('');
               setGroupFilter('all');
               setShowDuplicates(true);
+              setMinScore(0);
               setCurrentPage(1);
             }}
           >
@@ -351,10 +427,16 @@ export function LeadResultsTable({
                   )}
 
                   <div className="absolute top-1.5 right-1.5 flex gap-1">
-                    {lead.qualityScore && (
+                    {lead.qualityScore != null && (
                       <Badge
-                        variant={lead.qualityScore >= 70 ? 'default' : 'secondary'}
-                        className="text-[10px] px-1.5 py-0 h-5 shadow-sm"
+                        className={cn(
+                          "text-[10px] px-1.5 py-0 h-5 shadow-sm border",
+                          lead.qualityScore >= 71
+                            ? 'bg-emerald-500/90 text-white border-emerald-600'
+                            : lead.qualityScore >= 41
+                            ? 'bg-amber-500/90 text-white border-amber-600'
+                            : 'bg-red-500/90 text-white border-red-600'
+                        )}
                       >
                         {lead.qualityScore}%
                       </Badge>

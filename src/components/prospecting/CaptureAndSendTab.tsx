@@ -349,12 +349,26 @@ export function CaptureAndSendTab() {
     await saveLeadsToDatabase(newLeads);
     toast({ title: '✅ Leads salvos!', description: `${newLeads.length} leads salvos no banco de dados.` });
   };
-
   const isSearching = processStatus === 'capturing';
+
+  const formatElapsed = (seconds: number): string => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`;
+  };
 
   return (
     <div className="space-y-6">
       <LeadSendProgress />
+
+      {/* Sending banner */}
+      {processStatus === 'capturing' && foundCount > 0 && (
+        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20 text-sm animate-fade-in">
+          <span className="font-medium">✅ {foundCount} leads encontrados</span>
+          <span className="text-muted-foreground">⏱️ {formatElapsed(elapsedTime)}</span>
+          <span className="text-muted-foreground">🔄 Buscando mais...</span>
+        </div>
+      )}
 
       <LeadCaptureForm
         selectedNiches={selectedNiches}
@@ -392,6 +406,7 @@ export function CaptureAndSendTab() {
         activeJobPayload={activeJob?.payload}
         activeJobCurrentIndex={activeJob?.current_index}
         activeJobStatus={activeJob?.status}
+        processStatus={processStatus}
       />
 
       <LeadSendQueue processStatus={processStatus} hasLeads={capturedLeads.length > 0} />
