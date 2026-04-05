@@ -306,8 +306,11 @@ export default function CRMPipelinePage() {
             const config = stageConfig[stage];
 
             return (
-              <div
+              <motion.div
                 key={stage}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: allStages.indexOf(stage) * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col min-w-[270px] max-w-[310px] flex-1 snap-start"
                 onDragOver={e => handleDragOver(e, stage)}
                 onDragLeave={() => setDragOverStage(null)}
