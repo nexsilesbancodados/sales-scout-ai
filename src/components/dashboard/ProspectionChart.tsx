@@ -1,48 +1,32 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
+import {
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+} from 'recharts';
 
 interface ProspectionChartProps {
   data: { date: string; leads: number }[];
 }
 
-const VIEWBOX_WIDTH = 520;
-const VIEWBOX_HEIGHT = 180;
-const PADDING_X = 8;
-const PADDING_TOP = 10;
-const BASELINE_Y = 160;
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-border/60 bg-popover px-3 py-2 shadow-lg text-xs">
+      <p className="text-muted-foreground mb-0.5">{label}</p>
+      <p className="font-semibold text-foreground">{payload[0].value} leads</p>
+    </div>
+  );
+}
 
 export function ProspectionChart({ data }: ProspectionChartProps) {
-  const points = useMemo(() => {
-    const safeData = data.length > 0 ? data : [{ date: '1', leads: 0 }];
-    const maxValue = Math.max(...safeData.map((item) => item.leads), 1);
-    const stepX = safeData.length > 1 ? (VIEWBOX_WIDTH - PADDING_X * 2) / (safeData.length - 1) : 0;
-    return safeData.map((item, index) => ({
-      ...item,
-      x: PADDING_X + stepX * index,
-      y: BASELINE_Y - (item.leads / maxValue) * (BASELINE_Y - PADDING_TOP),
-    }));
+  const totalLeads = useMemo(() => data.reduce((sum, d) => sum + d.leads, 0), [data]);
+
+  const ticks = useMemo(() => {
+    if (data.length <= 7) return data.map(d => d.date);
+    const step = Math.ceil(data.length / 6);
+    return data.filter((_, i) => i % step === 0).map(d => d.date);
   }, [data]);
-
-  const linePath = useMemo(() => {
-    if (points.length < 2) return `M ${points[0]?.x || 0} ${points[0]?.y || 0}`;
-    let path = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const current = points[i];
-      const next = points[i + 1];
-      const cpx = (current.x + next.x) / 2;
-      path += ` C ${cpx} ${current.y}, ${cpx} ${next.y}, ${next.x} ${next.y}`;
-    }
-    return path;
-  }, [points]);
-
-  const areaPath = useMemo(() => {
-    const firstPoint = points[0];
-    const lastPoint = points[points.length - 1];
-    return `${linePath} L ${lastPoint.x} ${BASELINE_Y} L ${firstPoint.x} ${BASELINE_Y} Z`;
-  }, [linePath, points]);
-
-  const totalLeads = data.reduce((sum, d) => sum + d.leads, 0);
 
   return (
     <Card className="border-border/40">
@@ -56,25 +40,41 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-2">
-        <div className="h-[180px] rounded-lg overflow-hidden">
-          <svg viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="h-full w-full" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chart-area-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d={areaPath} fill="url(#chart-area-gradient)" />
-            <path d={linePath} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />
-            {points.length > 0 && (
-              <circle
-                cx={points[points.length - 1].x}
-                cy={points[points.length - 1].y}
-                r="3.5"
-                fill="hsl(var(--primary))"
+        <div className="h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="leadsFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tickLine={false}
+                axisLine={false}
+                ticks={ticks}
               />
-            )}
-          </svg>
+              <YAxis
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="leads"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                fill="url(#leadsFill)"
+                dot={false}
+                activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'hsl(var(--background))' }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>
