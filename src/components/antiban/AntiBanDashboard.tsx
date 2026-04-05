@@ -35,8 +35,10 @@ export function AntiBanDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const currentLimit = calculateCurrentLimit();
-  const dailyProgress = config && currentLimit > 0 ? Math.min((config.messages_sent_today / currentLimit) * 100, 100) : 0;
-  const hourlyProgress = config && config.hourly_limit > 0 ? Math.min((config.messages_sent_hour / config.hourly_limit) * 100, 100) : 0;
+  const safeCurrentLimit = currentLimit > 0 ? currentLimit : 1;
+  const safeHourlyLimit = config?.hourly_limit && config.hourly_limit > 0 ? config.hourly_limit : 1;
+  const dailyProgress = config ? Math.min(((config.messages_sent_today || 0) / safeCurrentLimit) * 100, 100) : 0;
+  const hourlyProgress = config ? Math.min(((config.messages_sent_hour || 0) / safeHourlyLimit) * 100, 100) : 0;
 
   const getHealthStyles = (health: string) => {
     switch (health) {

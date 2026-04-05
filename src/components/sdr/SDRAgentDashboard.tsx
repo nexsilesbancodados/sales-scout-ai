@@ -81,17 +81,22 @@ export function SDRAgentDashboard() {
     toast({ title: enabled ? '🟢 Agente SDR ativado' : '⏸️ Agente SDR pausado' });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
-    updateSettings({
-      sdr_agent_enabled: agentEnabled,
-      communication_style: tone as any,
-      google_meet_link: calendlyLink,
-      auto_start_hour: parseInt(startHour),
-      auto_end_hour: parseInt(endHour),
-      work_days_only: !workDays.includes(0) || !workDays.includes(6),
-    } as any);
-    setSaving(false);
+    try {
+      updateSettings({
+        sdr_agent_enabled: agentEnabled,
+        communication_style: tone as any,
+        google_meet_link: calendlyLink,
+        auto_start_hour: parseInt(startHour),
+        auto_end_hour: parseInt(endHour),
+        work_days_only: !workDays.includes(0) && !workDays.includes(6),
+        operate_all_day: startHour === '00:00' && endHour === '23:59',
+      } as any);
+      toast({ title: '✅ Configurações salvas', description: `Dias: ${workDays.map(d => DIAS_SEMANA.find(ds => ds.value === d)?.label).join(', ')} · ${startHour}–${endHour}` });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleDay = (day: number) => {
