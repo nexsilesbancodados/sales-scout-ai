@@ -212,7 +212,7 @@ export function PremiumPricingCard({ plan, annual, index, checkoutUrl }: Premium
                     style={{ background: `${s.border}20`, border: `1px solid ${s.border}30` }}>
                     <Sparkles className="h-3 w-3" style={{ color: s.border }} />
                   </div>
-                  <span className="text-[14px] text-white/80">{perk}</span>
+                  <span className="text-base text-white/80">{perk}</span>
                 </li>
               ))}
             </ul>
