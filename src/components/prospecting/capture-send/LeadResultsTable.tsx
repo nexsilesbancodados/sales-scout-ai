@@ -108,6 +108,11 @@ export function LeadResultsTable({
       leads = leads.filter(l => !l.isDuplicate);
     }
 
+    // Min score filter
+    if (minScore > 0) {
+      leads = leads.filter(l => (l.qualityScore || 0) >= minScore);
+    }
+
     // Sort
     leads.sort((a, b) => {
       if (sortBy === 'quality') return (b.qualityScore || 0) - (a.qualityScore || 0);
