@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -178,7 +179,26 @@ export function TemplatesTab() {
 
       {/* Templates list */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="border-border/40">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-3/5" />
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-7 w-20" />
+                </div>
+                <Skeleton className="h-12 w-full" />
+                <div className="flex items-center justify-between pt-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : filteredTemplates.length === 0 ? (
         <EmptyState
           icon={MessageSquareText}
