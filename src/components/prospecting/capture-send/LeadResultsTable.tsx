@@ -66,12 +66,15 @@ export function LeadResultsTable({
   activeJobPayload,
   activeJobCurrentIndex,
   activeJobStatus,
+  processStatus = 'idle',
+  onScrollToForm,
 }: LeadResultsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'quality' | 'name' | 'rating'>('quality');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDuplicates, setShowDuplicates] = useState(true);
+  const [minScore, setMinScore] = useState(0);
 
   // Get unique groups for filter
   const availableGroups = useMemo(() => {
