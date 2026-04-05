@@ -46,9 +46,9 @@
     --info-foreground: 0 0% 100%;
 
     /* Temperature */
-    --temp-hot: 0 84% 60%;
-    --temp-warm: 38 92% 50%;
-    --temp-cold: 217 91% 60%;
+    --temp-hot: 0 84% 45%;
+    --temp-warm: 38 92% 33%;
+    --temp-cold: 217 91% 48%;
 
     /* Funnel stages */
     --stage-new: 217 91% 60%;
