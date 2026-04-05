@@ -175,7 +175,7 @@ export default function Landing() {
         <div className={`lg:hidden pointer-events-auto fixed top-[70px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-6 py-4 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="flex items-center gap-3 text-sm text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
+              <a key={l.label} href={l.href} className="flex items-center gap-3 text-base text-white/50 hover:text-white py-3 transition-colors" onClick={() => setMobileMenu(false)}>
                 <l.icon className="h-4 w-4" />{l.label}
               </a>
             ))}
