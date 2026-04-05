@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
