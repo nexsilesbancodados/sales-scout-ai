@@ -315,9 +315,9 @@ export default function Landing() {
                     <img src={item.backImg} alt={item.backTitle} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${item.color}CC 0%, ${item.color}44 40%, transparent 100%)` }} />
                     <div className="relative z-10 h-full flex flex-col justify-end p-6">
-                      <h3 className="text-[16px] font-black text-white mb-2 drop-shadow-lg">{item.backTitle}</h3>
-                      <p className="text-[12px] text-white/90 leading-relaxed drop-shadow-md">{item.backDesc}</p>
-                      <span className="mt-3 text-[10px] text-white/50">← Clique para voltar</span>
+                      <h3 className="text-lg font-black text-white mb-2 drop-shadow-lg">{item.backTitle}</h3>
+                      <p className="text-sm text-white/90 leading-relaxed drop-shadow-md">{item.backDesc}</p>
+                      <span className="mt-3 text-xs text-white/50">← Clique para voltar</span>
                     </div>
                   </div>
                 </div>
