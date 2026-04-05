@@ -90,6 +90,7 @@ interface ProspectingHistoryTabProps {
 
 export function ProspectingHistoryTab({ onReprospect }: ProspectingHistoryTabProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const {
     history,
     isLoading,
