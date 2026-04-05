@@ -303,7 +303,7 @@ export default function Landing() {
                       <h3 className="text-base font-bold text-white mb-1.5">{item.title}</h3>
                       <p className="text-sm text-white/55 leading-relaxed">{item.desc}</p>
                     </div>
-                    <span className="absolute bottom-3 right-4 text-[10px] text-white/30 z-10">Clique para ver mais →</span>
+                    <span className="absolute bottom-3 right-4 text-xs text-white/30 z-10">Clique para ver mais →</span>
                     {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent z-20" />}
                   </div>
 
