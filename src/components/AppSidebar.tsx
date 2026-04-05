@@ -264,7 +264,7 @@ export function AppSidebar() {
       <SidebarContent className="px-3 overflow-y-auto scrollbar-thin">
         {sections.map((section, i) => (
           <div key={i}>
-            {section.label && <SectionLabel>{section.label}</SectionLabel>}
+            {section.label && <SectionLabel sectionKey={section.sectionKey}>{section.label}</SectionLabel>}
             <SidebarMenu className="space-y-0.5">
               {section.items.map((item) => (
                 <MenuItem key={item.path} item={item} />
@@ -275,7 +275,7 @@ export function AppSidebar() {
 
         {isAdmin && (
           <>
-            <SectionLabel>Admin</SectionLabel>
+            <SectionLabel sectionKey="main">Admin</SectionLabel>
             <SidebarMenu className="space-y-0.5">
               <MenuItem item={{ title: 'Painel Admin', icon: ShieldCheck, path: '/admin', badge: 'ADM' }} />
             </SidebarMenu>
