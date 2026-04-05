@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useUserSettings } from '@/hooks/use-user-settings';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,8 +29,30 @@ export function CaptureAndSendTab() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('auto');
   const [captureFilter, setCaptureFilter] = useState<string>('all');
+  const [leadQuantity, setLeadQuantity] = useState(500);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [foundCount, setFoundCount] = useState(0);
 
   const isStoppedRef = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Timer for elapsed time
+  useEffect(() => {
+    if (processStatus === 'capturing') {
+      setElapsedTime(0);
+      timerRef.current = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [processStatus]);
 
   // Stats
   const totalResults = capturedLeads.length;
@@ -152,6 +174,11 @@ export function CaptureAndSendTab() {
     await supabase.from('leads').insert(leadsToSave);
   };
 
+  const handleStop = useCallback(() => {
+    isStoppedRef.current = true;
+    toast({ title: '⏹️ Busca interrompida', description: 'Os leads já capturados foram mantidos.' });
+  }, [toast]);
+
   const handleSearch = async () => {
     if (selectedNiches.length === 0 || selectedLocations.length === 0) {
       toast({ title: '⚠️ Preencha os campos', description: 'Selecione pelo menos um nicho e uma localização.', variant: 'destructive' });
@@ -161,6 +188,7 @@ export function CaptureAndSendTab() {
     isStoppedRef.current = false;
     setCapturedLeads([]);
     setSelectedLeadIds([]);
+    setFoundCount(0);
 
     try {
       setProgress({ current: 0, total: selectedNiches.length * selectedLocations.length, phase: 'Buscando...' });
@@ -181,7 +209,7 @@ export function CaptureAndSendTab() {
             body: {
               query: currentNiche,
               location: currentLocation,
-              num_results: 0,
+              num_results: leadQuantity,
               search_type: 'places',
               expand_search: true,
             },
@@ -213,8 +241,10 @@ export function CaptureAndSendTab() {
                 }),
               }));
             allLeads.push(...leads);
+            setFoundCount(allLeads.length);
           }
         }
+        if (isStoppedRef.current) break;
       }
 
       const uniqueLeads = allLeads.filter((lead, index, self) => {
@@ -340,6 +370,11 @@ export function CaptureAndSendTab() {
         isSearching={isSearching}
         progress={progress}
         onSearch={handleSearch}
+        onStop={handleStop}
+        leadQuantity={leadQuantity}
+        setLeadQuantity={setLeadQuantity}
+        elapsedTime={elapsedTime}
+        foundCount={foundCount}
       />
 
       <LeadResultsTable
