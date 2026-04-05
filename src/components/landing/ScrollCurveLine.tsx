@@ -68,12 +68,16 @@ export function ScrollCurveLine() {
      C 900 400, 900 700, 500 1266 
      C 100 1766, 100 2166, 500 2633 
      C 900 3133, 900 3500, 500 4000
-     C 300 4300, 400 4500, 500 4600`;
+     C 300 4300, 400 4500, 500 4600
+     C 600 4700, 900 4900, 500 5400
+     C 100 5900, 100 6200, 500 6600
+     C 900 7000, 700 7400, 500 7800
+     C 400 7950, 450 8100, 500 8200`;
 
   return (
     <div ref={containerRef} className="absolute inset-0 pointer-events-none z-20 overflow-visible">
       <svg
-        viewBox="0 0 1000 4600"
+        viewBox="0 0 1000 8200"
         className="absolute top-0 left-0 w-full h-full"
         preserveAspectRatio="none"
         style={{ overflow: 'visible' }}
