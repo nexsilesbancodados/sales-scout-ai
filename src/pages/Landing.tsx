@@ -481,7 +481,7 @@ export default function Landing() {
             </p>
           </div>
           <div className="flex flex-col gap-2.5">
-            <span className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-1">Contato</span>
+            <span className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Contato</span>
             <a href="mailto:devcriador1@gmail.com" className="text-[12px] text-white/55 hover:text-white/80 transition-colors flex items-center gap-2">
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               devcriador1@gmail.com
