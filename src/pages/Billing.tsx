@@ -283,6 +283,7 @@ export default function BillingPage() {
                     </Button>
                   </CardContent>
                 </Card>
+                </motion.div>
               );
             })}
           </div>
