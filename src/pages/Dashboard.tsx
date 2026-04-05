@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { format, subDays } from 'date-fns';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,16 +41,14 @@ export default function DashboardPage() {
   const totalFunnelLeads = funnelStages.reduce((acc, [, count]) => acc + count, 0);
 
   const chartData = useMemo(() => {
-    // Use real prospecting/lead data grouped by day
-    if (!metrics) return [];
+    if (!metrics?.leadsByDate) return [];
     const days = period === 'today' ? 1 : period === '7d' ? 7 : period === '90d' ? 90 : 30;
-    // Generate labels for the period - actual data comes from leadsByStage
-    const totalLeads = metrics.totalLeads || 0;
-    const avgPerDay = days > 0 ? Math.max(1, Math.round(totalLeads / days)) : 0;
-    return Array.from({ length: Math.min(days, 30) }, (_, index) => ({
-      date: `${index + 1}`,
-      leads: Math.max(0, Math.round(avgPerDay * (0.8 + Math.random() * 0.4))),
-    }));
+    const now = new Date();
+    const entries = Object.entries(metrics.leadsByDate);
+    const cutoff = format(subDays(now, days), 'yyyy-MM-dd');
+    return entries
+      .filter(([date]) => date >= cutoff)
+      .map(([date, leads]) => ({ date: format(new Date(date + 'T12:00:00'), 'dd/MM'), leads }));
   }, [period, metrics]);
 
   if (metricsLoading && !metrics) {
