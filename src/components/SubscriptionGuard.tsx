@@ -33,6 +33,11 @@ interface SubscriptionGuardProps {
 export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   const { subscription, isLoading } = useSubscription();
   const { user } = useAuth();
+  const location = useLocation();
+
+  // These routes are always accessible without subscription
+  const ALWAYS_ACCESSIBLE = ['/dashboard', '/tutorial', '/billing', '/settings'];
+  const isAccessibleRoute = ALWAYS_ACCESSIBLE.some(route => location.pathname.startsWith(route));
 
   if (isLoading) {
     return (
