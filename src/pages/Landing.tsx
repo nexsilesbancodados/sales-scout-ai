@@ -300,8 +300,8 @@ export default function Landing() {
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-white/[0.08]" style={{ background: `${item.color}12` }}>
                         <item.icon className="h-4 w-4" style={{ color: item.color }} />
                       </div>
-                      <h3 className="text-[15px] font-bold text-white mb-1.5">{item.title}</h3>
-                      <p className="text-[12px] text-white/55 leading-relaxed">{item.desc}</p>
+                      <h3 className="text-base font-bold text-white mb-1.5">{item.title}</h3>
+                      <p className="text-sm text-white/55 leading-relaxed">{item.desc}</p>
                     </div>
                     <span className="absolute bottom-3 right-4 text-[10px] text-white/30 z-10">Clique para ver mais →</span>
                     {i < 2 && <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-[2px] bg-gradient-to-r from-white/10 to-transparent z-20" />}
