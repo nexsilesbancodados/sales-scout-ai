@@ -440,6 +440,20 @@ export default function CRMContactsPage() {
                     <TableCell className="text-sm">{lead.phone}</TableCell>
                     <TableCell><Badge className={`${stageColors[lead.stage]} text-white text-xs`}>{lead.stage}</Badge></TableCell>
                     <TableCell><ScoreBadge score={lead.lead_score} /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {lead.website && (
+                          <img
+                            src={enrichmentApi.getLogoUrl(lead.website)}
+                            alt=""
+                            className="h-4 w-4 rounded-sm object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
+                        {lead.website && <Globe className="h-3 w-3 text-emerald-500" />}
+                        {lead.email && <Mail className="h-3 w-3 text-emerald-500" />}
+                      </div>
+                    </TableCell>
                     <TableCell><div className="flex items-center gap-1">{tempIcons[lead.temperature]}<span className="text-xs capitalize">{lead.temperature}</span></div></TableCell>
                     <TableCell onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1 flex-wrap max-w-[200px]">
