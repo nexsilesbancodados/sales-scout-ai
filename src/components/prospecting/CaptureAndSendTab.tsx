@@ -349,6 +349,7 @@ export function CaptureAndSendTab() {
     await saveLeadsToDatabase(newLeads);
     toast({ title: '✅ Leads salvos!', description: `${newLeads.length} leads salvos no banco de dados.` });
   };
+  const isSearching = processStatus === 'capturing';
 
   const formatElapsed = (seconds: number): string => {
     const m = Math.floor(seconds / 60);
