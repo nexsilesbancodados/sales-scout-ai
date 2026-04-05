@@ -210,7 +210,7 @@ export default function Landing() {
                 <span className="nav-shimmer-icon !w-10 !h-10"><ArrowRight className="h-4 w-4 text-white nav-shimmer-arrow" /></span>
                 <span className="nav-shimmer-text !text-[14px]">Testar grátis agora</span>
               </button>
-              <a href="#como-funciona" className="text-[13px] sm:text-[14px] text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
+              <a href="#como-funciona" className="text-sm sm:text-base text-white/50 hover:text-white/80 transition-colors flex items-center gap-2 group">
                 Ver como funciona <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
