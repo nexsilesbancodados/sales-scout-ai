@@ -224,11 +224,13 @@ export function AppSidebar() {
     return <SidebarMenuItem>{content}</SidebarMenuItem>;
   };
 
-  const SectionLabel = ({ children }: { children: React.ReactNode }) => {
+  const SectionLabel = ({ children, sectionKey }: { children: React.ReactNode; sectionKey?: string }) => {
     if (collapsed) return null;
+    const dotColor = sectionKey ? sectionIconColors[sectionKey] : 'text-muted-foreground/40';
     return (
       <div className="px-4 pt-5 pb-1.5 flex items-center gap-2">
-        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.16em]">
+        <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColor, "bg-current")} />
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.16em]">
           {children}
         </p>
         <div className="flex-1 h-px bg-border/30" />
