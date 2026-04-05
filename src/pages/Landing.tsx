@@ -476,7 +476,7 @@ export default function Landing() {
               <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" loading="lazy" width={28} height={28} />
               <span className="text-[14px] font-bold text-white/70">NexaProspect</span>
             </div>
-            <p className="text-[11px] text-white/50 leading-relaxed max-w-[260px]">
+            <p className="text-xs text-white/50 leading-relaxed max-w-[280px]">
               Plataforma de prospecção com IA que captura leads, envia mensagens no WhatsApp e agenda reuniões — tudo no piloto automático.
             </p>
           </div>
