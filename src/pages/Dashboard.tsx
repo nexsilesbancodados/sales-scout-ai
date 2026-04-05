@@ -4,6 +4,7 @@ import { format, subDays } from 'date-fns';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Wifi, ArrowRight as ArrowRightIcon, X as XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardMetrics } from '@/hooks/use-dashboard-metrics';
