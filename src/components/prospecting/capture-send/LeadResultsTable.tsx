@@ -122,7 +122,7 @@ export function LeadResultsTable({
     });
 
     return leads;
-  }, [capturedLeads, searchTerm, groupFilter, sortBy, showDuplicates]);
+  }, [capturedLeads, searchTerm, groupFilter, sortBy, showDuplicates, minScore]);
 
   // Pagination
   const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
