@@ -45,6 +45,8 @@ interface LeadResultsTableProps {
   activeJobPayload?: any;
   activeJobCurrentIndex?: number;
   activeJobStatus?: string;
+  processStatus?: 'idle' | 'capturing' | 'completed' | 'stopped';
+  onScrollToForm?: () => void;
 }
 
 const ITEMS_PER_PAGE = 24;
