@@ -123,8 +123,8 @@ export function StoriesTestimonials() {
                       <img src={TESTIMONIALS[activeStory].avatar} alt={TESTIMONIALS[activeStory].name} className="w-full h-full rounded-full object-cover" width={36} height={36} />
                     </div>
                     <div className="text-left">
-                      <p className="text-[13px] font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
-                      <p className="text-[10px] text-white/50">{TESTIMONIALS[activeStory].role}</p>
+                      <p className="text-sm font-semibold text-white">{TESTIMONIALS[activeStory].name}</p>
+                      <p className="text-xs text-white/50">{TESTIMONIALS[activeStory].role}</p>
                     </div>
                   </div>
 
