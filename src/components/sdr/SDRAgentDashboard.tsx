@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -132,7 +133,12 @@ export function SDRAgentDashboard() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+    >
       {/* Left Column - Controls */}
       <div className="space-y-6">
         {/* Status Card */}
@@ -377,6 +383,6 @@ export function SDRAgentDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }

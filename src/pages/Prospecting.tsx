@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProspectingDashboard } from '@/components/prospecting/ProspectingDashboard';
 import { LeadFinderInterface } from '@/components/prospecting/LeadFinderInterface';
@@ -65,7 +66,12 @@ export default function ProspectingPage() {
       <ProspectingDashboard />
 
       {/* Main Content */}
-      <div className="mt-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-6"
+      >
         <Card className="overflow-hidden border-border/50">
           {/* Tab Navigation */}
           <div className="border-b border-border/50 bg-muted/20 px-4 py-3">
@@ -80,7 +86,7 @@ export default function ProspectingPage() {
                     size="sm"
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "h-9 px-4 text-xs gap-2 rounded-lg transition-all duration-200 shrink-0",
+                      "h-9 px-4 text-xs gap-2 rounded-lg transition-all duration-200 shrink-0 relative",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 hover:text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -96,12 +102,20 @@ export default function ProspectingPage() {
 
           {/* Content */}
           <CardContent className="p-5 sm:p-6">
-            <div key={activeTab} className="animate-fade-in">
-              {renderTabContent()}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {renderTabContent()}
+              </motion.div>
+            </AnimatePresence>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }
