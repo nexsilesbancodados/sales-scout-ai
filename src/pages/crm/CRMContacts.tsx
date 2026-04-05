@@ -107,6 +107,7 @@ export default function CRMContactsPage() {
   const handleBulkDelete = () => {
     if (selected.size > 0) {
       deleteLeads(Array.from(selected));
+      toast({ title: `${selected.size} lead(s) excluídos com sucesso` });
       setSelected(new Set());
     }
   };
