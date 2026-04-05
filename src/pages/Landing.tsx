@@ -198,7 +198,7 @@ export default function Landing() {
               <Sparkles className="h-3.5 w-3.5 text-[#F7941D]" />
               <span className="text-xs sm:text-sm text-white/60 font-medium">+2.400 empresas faturam mais no automático</span>
             </div>
-            <h1 className="text-[36px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
+            <h1 className="text-[42px] sm:text-[58px] lg:text-[76px] font-extrabold leading-[1.05] tracking-[-0.04em] animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <span className="text-white">Sua máquina de </span>
               <span className="landing-gradient-text">vendas com IA.</span>
             </h1>
