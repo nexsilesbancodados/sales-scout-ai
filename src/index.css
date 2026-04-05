@@ -110,6 +110,22 @@
     --input: 217 33% 14%;
     --ring: 239 84% 67%;
 
+    /* Status - Dark */
+    --success: 160 84% 39%;
+    --info: 217 91% 55%;
+
+    /* Temperature - Dark (brighter for dark bg contrast) */
+    --temp-hot: 0 84% 60%;
+    --temp-warm: 38 92% 50%;
+    --temp-cold: 217 91% 60%;
+
+    /* Stages - Dark */
+    --stage-new: 217 91% 60%;
+    --stage-contact: 38 92% 50%;
+    --stage-negotiation: 25 95% 53%;
+    --stage-won: 160 84% 39%;
+    --stage-lost: 0 72% 51%;
+
     /* Sidebar - Dark */
     --sidebar-background: 225 50% 5%;
     --sidebar-foreground: 213 31% 96%;
