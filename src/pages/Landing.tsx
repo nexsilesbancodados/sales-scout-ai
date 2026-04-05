@@ -145,8 +145,8 @@ export default function Landing() {
           className="pointer-events-auto flex items-center rounded-full pr-3 pl-4 py-2.5 glass-nav-container"
         >
           <a href="#" className="flex items-center gap-2 mr-4 shrink-0">
-            <img src={logoImg} alt="NexaProspect" className="h-7 w-7 rounded-lg object-contain" width={28} height={28} />
-            <span className="text-base font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
+            <img src={logoImg} alt="NexaProspect" className="h-8 w-8 rounded-lg object-contain" width={32} height={32} />
+            <span className="text-lg font-bold tracking-[-0.02em] text-white hidden sm:block">Nexa</span>
           </a>
           <div className="hidden lg:flex items-center">
             {NAV_LINKS.map((l, idx) => {
@@ -154,8 +154,8 @@ export default function Landing() {
               return (
                 <a key={l.label} href={l.href} onMouseEnter={() => setHoveredNav(idx)} onMouseLeave={() => setHoveredNav(null)} className="nav-optn relative group">
                   <div className="nav-optn-inner">
-                    <span className="nav-optn-icon"><Icon className="h-4 w-4 text-white" /></span>
-                    <span className={`text-sm font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
+                    <span className="nav-optn-icon"><Icon className="h-5 w-5 text-white" /></span>
+                    <span className={`text-[15px] font-semibold tracking-wide transition-colors duration-300 ${activeNav === l.href.replace('#', '') ? 'text-white' : 'text-white/55 group-hover:text-white'}`}>{l.label}</span>
                     {hoveredNav === idx && (
                       <motion.span layoutId="navGlow" initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }} className="absolute bottom-[-2px] left-2 right-2 h-[2px] bg-gradient-to-r from-transparent via-[#F7941D] to-transparent origin-center shadow-[0_0_10px_rgba(247,148,29,0.6)]" />
                     )}
@@ -175,11 +175,11 @@ export default function Landing() {
         <div className={`lg:hidden pointer-events-auto fixed top-[70px] left-4 right-4 rounded-2xl overflow-hidden transition-all duration-300 ease-out glass-nav-container ${mobileMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="px-6 py-4 space-y-1">
             {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} className="flex items-center gap-3 text-sm text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileMenu(false)}>
+              <a key={l.label} href={l.href} className="flex items-center gap-3 text-base text-white/50 hover:text-white py-3 transition-colors" onClick={() => setMobileMenu(false)}>
                 <l.icon className="h-4 w-4" />{l.label}
               </a>
             ))}
-            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-sm font-semibold px-5 py-2.5 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
+            <Link to="/auth" className="block text-center bg-white text-[#0B0D15] text-base font-semibold px-5 py-3 rounded-full mt-4" onClick={() => setMobileMenu(false)}>Começar grátis</Link>
           </div>
         </div>
       </nav>

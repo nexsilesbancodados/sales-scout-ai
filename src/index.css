@@ -686,8 +686,8 @@ div[style*="Edit with Lovable"],
 /* Shimmer CTA button */
 .nav-shimmer-btn {
   width: auto;
-  min-width: 120px;
-  height: 42px;
+  min-width: 140px;
+  height: 46px;
   border-radius: 50px;
   border: 1px solid rgba(247, 148, 29, 0.4);
   background-color: rgba(15, 15, 15, 0.8);
@@ -735,8 +735,8 @@ div[style*="Edit with Lovable"],
 }
 
 .nav-shimmer-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(to bottom, #F7941D, #E8850A);
   border-radius: 50px;
   display: flex;
@@ -771,10 +771,10 @@ div[style*="Edit with Lovable"],
   color: white;
   z-index: 1;
   transition: 0.3s;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
-  margin-left: 10px;
-  margin-right: 14px;
+  margin-left: 12px;
+  margin-right: 16px;
   white-space: nowrap;
 }
 
