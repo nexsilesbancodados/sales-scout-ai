@@ -229,7 +229,10 @@ export default function CRMPipelinePage() {
   };
   const handleDrop = (e: React.DragEvent, stage: LeadStage) => {
     e.preventDefault();
-    if (draggedLead && draggedLead.stage !== stage) updateLead({ id: draggedLead.id, stage });
+    if (draggedLead && draggedLead.stage !== stage) {
+      updateLead({ id: draggedLead.id, stage });
+      toast({ title: `Lead movido para ${stage} ✅` });
+    }
     setDraggedLead(null);
     setDragOverStage(null);
   };
