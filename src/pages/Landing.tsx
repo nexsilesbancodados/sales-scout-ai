@@ -216,7 +216,7 @@ export default function Landing() {
             </div>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
               {['Leads ilimitados', 'Setup em 5 min', 'Anti-ban inteligente', 'Cancele com 1 clique'].map(t => (
-                <span key={t} className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/50">
+                <span key={t} className="flex items-center gap-1.5 text-xs sm:text-sm text-white/50">
                   <Check className="h-3 w-3 text-emerald-500/60" /> {t}
                 </span>
               ))}
