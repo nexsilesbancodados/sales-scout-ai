@@ -292,7 +292,7 @@ export default function Landing() {
                     <div className="flex justify-center mb-4 relative z-10">
                       <div className="relative">
                         <div className="absolute inset-0 -m-4 pointer-events-none" style={{ background: `radial-gradient(circle, ${item.color}15, transparent 70%)` }} />
-                        <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" width={96} height={96} />
+                        <img src={item.img} alt={item.title} className="h-24 w-24 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(123,47,242,0.2)]" loading="lazy" decoding="async" width={96} height={96} />
                       </div>
                     </div>
 
