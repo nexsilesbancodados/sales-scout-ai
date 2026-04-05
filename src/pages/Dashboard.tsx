@@ -15,6 +15,8 @@ import { PeriodFilter } from '@/components/dashboard/PeriodFilter';
 import { ProspectionChart } from '@/components/dashboard/ProspectionChart';
 import { ConversionFunnelChart } from '@/components/dashboard/ConversionFunnelChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { OpportunityRadar } from '@/components/dashboard/OpportunityRadar';
+import { useLeads } from '@/hooks/use-leads';
 import {
   Users,
   TrendingUp,
@@ -32,6 +34,7 @@ export default function DashboardPage() {
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { activities, isLoading: activitiesLoading } = useActivityLog(10);
   const { settings } = useUserSettings();
+  const { leads } = useLeads();
   const [period, setPeriod] = useState('30d');
 
   const funnelStages = useMemo(() => {
@@ -187,7 +190,8 @@ export default function DashboardPage() {
 
       {/* Bottom section */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4">
+          <OpportunityRadar leads={leads} />
           <RecentActivity activities={activities} isLoading={activitiesLoading} />
         </div>
 
