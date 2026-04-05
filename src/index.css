@@ -365,47 +365,6 @@
   50% { transform: translateY(8px); opacity: 0.3; }
 }
 
-/* Landing pulse glow */
-.landing-pulse-glow {
-  animation: landing-pulse-glow-anim 2s ease-in-out infinite;
-}
-@keyframes landing-pulse-glow-anim {
-  0%, 100% { box-shadow: 0 0 20px rgba(123,47,242,0.2); }
-  50% { box-shadow: 0 0 40px rgba(123,47,242,0.5), 0 0 80px rgba(123,47,242,0.2); }
-}
-
-/* ROI Slider */
-.roi-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-}
-.roi-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7B2FF2, #E91E8C);
-  cursor: pointer;
-  border: 3px solid #0B0D15;
-  box-shadow: 0 0 12px rgba(123,47,242,0.4);
-  transition: transform 0.2s;
-}
-.roi-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-.roi-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7B2FF2, #E91E8C);
-  cursor: pointer;
-  border: 3px solid #0B0D15;
-  box-shadow: 0 0 12px rgba(123,47,242,0.4);
-}
 
 /* ═══ Liquid Button Effect ═══ */
 .liquid-btn {
