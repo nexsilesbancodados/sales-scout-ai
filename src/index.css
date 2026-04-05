@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Gratav';
+  src: url('/fonts/Gratav.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* NexaProspect — Premium Dark SaaS Design System */
 
 @layer base {
