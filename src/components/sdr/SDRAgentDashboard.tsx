@@ -137,7 +137,7 @@ export function SDRAgentDashboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      className="space-y-6"
     >
       {/* Left Column - Controls */}
       <div className="space-y-6">

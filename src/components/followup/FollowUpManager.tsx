@@ -258,7 +258,7 @@ export function FollowUpManager() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="space-y-5">
         {/* Sequence Editor */}
         <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
           <div className="border-b border-border/40 bg-muted/30 px-6 py-4">
