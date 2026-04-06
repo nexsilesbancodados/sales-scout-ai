@@ -56,6 +56,7 @@ import {
   Crown,
   Moon,
   Sun,
+  Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -318,7 +319,7 @@ export function AppSidebar() {
 
         <SidebarMenu className="space-y-0.5">
           {[
-            { title: 'Suporte', icon: Settings, path: '/support' },
+            { title: 'Suporte', icon: Headphones, path: '/support' },
             { title: 'Configurações', icon: Settings, path: '/settings' },
             { title: 'Planos', icon: CreditCard, path: '/billing' },
           ].map((item) => {
