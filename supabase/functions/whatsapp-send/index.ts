@@ -1,3 +1,5 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -9,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, message, instance_id } = await req.json();
+    const { phone, message, instance_id, ab_test_id, ab_variant } = await req.json();
 
     if (!phone || !message || !instance_id) {
       return new Response(
@@ -91,6 +93,30 @@ Deno.serve(async (req) => {
 
     const sendData = await sendResponse.json();
     console.log("Message sent successfully:", sendData);
+
+    // Track A/B test variant sent
+    if (ab_test_id && ab_variant) {
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
+        const col = ab_variant === 'a' ? 'variant_a_sent' : 'variant_b_sent';
+        const { data: test } = await supabase
+          .from("ab_tests")
+          .select(col)
+          .eq("id", ab_test_id)
+          .single();
+        if (test) {
+          await supabase
+            .from("ab_tests")
+            .update({ [col]: (test as any)[col] + 1, updated_at: new Date().toISOString() })
+            .eq("id", ab_test_id);
+        }
+      } catch (e) {
+        console.error("AB test tracking error:", e);
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
