@@ -32,6 +32,7 @@ import {
 export function ABTestingTab() {
   const { templates } = useTemplates();
   const { tests, isLoading, createTest, updateTest, deleteTest, isCreating } = useABTests();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
 
