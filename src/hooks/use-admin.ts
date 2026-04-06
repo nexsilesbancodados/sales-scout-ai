@@ -69,7 +69,7 @@ export function useAdminUsers() {
     queryKey: ['admin-users'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        method: 'GET',
+        body: { action: 'list' },
       });
       if (error) throw error;
       return (data?.users || []) as AdminUser[];
@@ -80,8 +80,7 @@ export function useAdminUsers() {
     queryKey: ['admin-stats'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        method: 'GET',
-        headers: { 'x-action': 'stats' },
+        body: { action: 'stats' },
       });
       if (error) throw error;
       return data as AdminStats;
@@ -91,8 +90,7 @@ export function useAdminUsers() {
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { user_id: userId },
-        headers: { 'x-action': 'delete' },
+        body: { action: 'delete', user_id: userId },
       });
       if (error) throw error;
       return data;
@@ -106,8 +104,7 @@ export function useAdminUsers() {
   const blockUserMutation = useMutation({
     mutationFn: async ({ userId, reason }: { userId: string; reason?: string }) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { user_id: userId, reason },
-        headers: { 'x-action': 'block' },
+        body: { action: 'block', user_id: userId, reason },
       });
       if (error) throw error;
       return data;
@@ -120,8 +117,7 @@ export function useAdminUsers() {
   const unblockUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { user_id: userId },
-        headers: { 'x-action': 'unblock' },
+        body: { action: 'unblock', user_id: userId },
       });
       if (error) throw error;
       return data;
@@ -134,8 +130,7 @@ export function useAdminUsers() {
   const sendNotificationMutation = useMutation({
     mutationFn: async ({ userId, title, message }: { userId: string; title: string; message: string }) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { user_id: userId, title, message },
-        headers: { 'x-action': 'send-notification' },
+        body: { action: 'send-notification', user_id: userId, title, message },
       });
       if (error) throw error;
       return data;
@@ -165,8 +160,7 @@ export function useAdminSupport() {
     queryKey: ['admin-support-tickets'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        method: 'GET',
-        headers: { 'x-action': 'support-tickets' },
+        body: { action: 'support-tickets' },
       });
       if (error) throw error;
       return (data?.tickets || []) as SupportTicket[];
@@ -176,8 +170,7 @@ export function useAdminSupport() {
   const replyMutation = useMutation({
     mutationFn: async ({ ticketId, content }: { ticketId: string; content: string }) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { ticket_id: ticketId, content },
-        headers: { 'x-action': 'reply-ticket' },
+        body: { action: 'reply-ticket', ticket_id: ticketId, content },
       });
       if (error) throw error;
       return data;
@@ -190,8 +183,7 @@ export function useAdminSupport() {
   const closeTicketMutation = useMutation({
     mutationFn: async (ticketId: string) => {
       const { data, error } = await supabase.functions.invoke('admin-users', {
-        body: { ticket_id: ticketId },
-        headers: { 'x-action': 'close-ticket' },
+        body: { action: 'close-ticket', ticket_id: ticketId },
       });
       if (error) throw error;
       return data;
