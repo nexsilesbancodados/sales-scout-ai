@@ -266,19 +266,13 @@ export function InstagramExtractorTab() {
 
           <Button
             onClick={handleSearch}
-            disabled={loading || !niche.trim() || !hasToken}
+            disabled={loading || !niche.trim()}
             className="w-full gap-2 h-11"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Extrair perfis do Instagram
           </Button>
 
-          {!hasToken && (
-            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-              <Info className="h-3.5 w-3.5 shrink-0" />
-              <span>Configure seu token Apify acima para começar</span>
-            </div>
-          )}
         </CardContent>
       </Card>
 
