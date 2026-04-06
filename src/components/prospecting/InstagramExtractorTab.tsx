@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { useLeads } from '@/hooks/use-leads';
-import { useUserSettings } from '@/hooks/use-user-settings';
+import { useToast } from '@/hooks/use-toast';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -18,8 +18,6 @@ import {
   Search,
   Loader2,
   Plus,
-  Key,
-  Info,
   ExternalLink,
   Phone,
   Mail,
