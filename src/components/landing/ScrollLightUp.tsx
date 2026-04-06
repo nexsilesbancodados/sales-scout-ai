@@ -16,53 +16,57 @@ export function ScrollLightUpSection({
   const initializedRef = useRef(false);
 
   useEffect(() => {
+    let rafPending = false;
     const handler = (e: Event) => {
       const el = ref.current;
-      if (!el) return;
-      if (litRef.current) return;
+      if (!el || litRef.current) return;
 
-      const { tipViewportY, pct } = (e as CustomEvent).detail;
-      const rect = el.getBoundingClientRect();
+      if (rafPending) return;
+      rafPending = true;
 
-      // When the tip's viewport Y reaches the top of this section (with a 150px lead), start lighting
-      const startLight = rect.top - 150;
-      const endLight = rect.top + Math.min(rect.height * 0.35, 250);
+      requestAnimationFrame(() => {
+        rafPending = false;
+        if (!el || litRef.current) return;
 
-      if (tipViewportY < startLight) {
-        // Not reached yet — stay dark
-        if (!initializedRef.current) {
-          initializedRef.current = true;
-          el.style.opacity = '0.08';
-          el.style.filter = 'brightness(0.2)';
+        const { tipViewportY, pct } = (e as CustomEvent).detail;
+        // Single DOM read
+        const rect = el.getBoundingClientRect();
+        const rectTop = rect.top;
+        const rectHeight = rect.height;
+
+        const startLight = rectTop - 150;
+        const endLight = rectTop + Math.min(rectHeight * 0.35, 250);
+
+        if (tipViewportY < startLight) {
+          if (!initializedRef.current) {
+            initializedRef.current = true;
+            el.style.opacity = '0.08';
+            el.style.filter = 'brightness(0.2)';
+          }
+          return;
         }
-        return;
-      }
 
-      if (tipViewportY >= endLight || pct >= 0.99) {
-        // Fully lit
-        litRef.current = true;
-        el.style.opacity = '1';
-        el.style.filter = 'brightness(1)';
-        el.style.setProperty('--glow-opacity', '0');
-        return;
-      }
+        if (tipViewportY >= endLight || pct >= 0.99) {
+          litRef.current = true;
+          el.style.opacity = '1';
+          el.style.filter = 'brightness(1)';
+          el.style.setProperty('--glow-opacity', '0');
+          return;
+        }
 
-      // Interpolate
-      const range = endLight - startLight;
-      const progress = (tipViewportY - startLight) / range;
-      const clamped = Math.max(0, Math.min(1, progress));
+        const range = endLight - startLight;
+        const progress = (tipViewportY - startLight) / range;
+        const clamped = Math.max(0, Math.min(1, progress));
+        const eased = 1 - Math.pow(1 - clamped, 2.5);
 
-      // Ease-out curve for smoother feel
-      const eased = 1 - Math.pow(1 - clamped, 2.5);
+        el.style.opacity = `${0.08 + 0.92 * eased}`;
+        el.style.filter = `brightness(${0.2 + 0.8 * eased})`;
 
-      el.style.opacity = `${0.08 + 0.92 * eased}`;
-      el.style.filter = `brightness(${0.2 + 0.8 * eased})`;
-
-      // Glow sweep peaks in the middle
-      const glowIntensity = clamped > 0.15 && clamped < 0.85
-        ? (1 - Math.abs(clamped - 0.5) / 0.5) * 0.6
-        : 0;
-      el.style.setProperty('--glow-opacity', `${glowIntensity}`);
+        const glowIntensity = clamped > 0.15 && clamped < 0.85
+          ? (1 - Math.abs(clamped - 0.5) / 0.5) * 0.6
+          : 0;
+        el.style.setProperty('--glow-opacity', `${glowIntensity}`);
+      });
     };
 
     window.addEventListener('line-progress', handler);

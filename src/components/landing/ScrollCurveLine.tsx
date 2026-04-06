@@ -18,50 +18,57 @@ export function ScrollCurveLine() {
     const path = pathRef.current;
     if (!path) return;
 
-    let ticking = false;
+    let rafId = 0;
     let lastReached = false;
 
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
         const container = containerRef.current;
-        if (!container) { ticking = false; return; }
+        if (!container) return;
+
+        // Batch all DOM reads together before any writes
         const rect = container.getBoundingClientRect();
         const vh = window.innerHeight;
+        const containerHeight = rect.height;
+        const containerTop = rect.top;
 
         const startTrigger = vh;
         const endTrigger = vh * 0.45;
-        const totalRange = rect.height + vh - endTrigger;
-        const traveled = startTrigger - rect.top;
+        const totalRange = containerHeight + vh - endTrigger;
+        const traveled = startTrigger - containerTop;
         const pct = Math.max(0, Math.min(1, traveled / totalRange));
-        
-        path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
 
         const tipSVG = path.getPointAtLength(pathLen * pct);
         const svgHeight = 8200;
-        const tipViewportY = rect.top + (tipSVG.y / svgHeight) * rect.height;
+        const tipViewportY = containerTop + (tipSVG.y / svgHeight) * containerHeight;
 
+        // Globe calculation (pure math, no DOM)
+        const globeCX = 500, globeCY = 4600, globeR = 1200;
+        const dist = Math.hypot(tipSVG.x - globeCX, tipSVG.y - globeCY);
+        const reached = dist <= globeR && pct > 0.3;
+
+        // Now batch all DOM writes
+        path.style.strokeDashoffset = `${pathLen * (1 - pct)}`;
         document.documentElement.style.setProperty('--line-progress', `${pct}`);
         window.dispatchEvent(new CustomEvent('line-progress', { 
           detail: { pct, tipViewportY } 
         }));
-        
-        // Globe
-        const globeCX = 500, globeCY = 4600, globeR = 1200;
-        const dist = Math.hypot(tipSVG.x - globeCX, tipSVG.y - globeCY);
-        const reached = dist <= globeR && pct > 0.3;
+
         if (reached !== lastReached) {
           lastReached = reached;
           window.dispatchEvent(new CustomEvent('line-reached-globe', { detail: { reached } }));
         }
-        ticking = false;
       });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const curvePath = `M 500 0 
