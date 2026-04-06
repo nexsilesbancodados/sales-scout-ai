@@ -49,6 +49,7 @@ const SDRAgentPage = lazy(() => import("./pages/SDRAgent"));
 const BillingPage = lazy(() => import("./pages/Billing"));
 const APIReferencePage = lazy(() => import("./pages/APIReference"));
 const SocialExtractorPage = lazy(() => import("./pages/SocialExtractor"));
+const ColdReactivationPage = lazy(() => import("./pages/ColdReactivation"));
 const CRMLayout = lazy(() => import("./components/crm/CRMLayout"));
 const CRMPipelinePage = lazy(() => import("./pages/crm/CRMPipeline"));
 const CRMContactsPage = lazy(() => import("./pages/crm/CRMContacts"));
@@ -116,6 +117,7 @@ const App = () => (
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
                   <Route path="/scheduled-prospecting" element={<Navigate to="/meetings" replace />} />
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
+                  <Route path="/cold-reactivation" element={<ProtectedRoute><ColdReactivationPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
 
                   {/* Ferramentas */}
