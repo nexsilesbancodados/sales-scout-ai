@@ -2,16 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import avatar1 from '@/assets/avatars/avatar-1.jpg';
-import avatar2 from '@/assets/avatars/avatar-2.jpg';
-import avatar3 from '@/assets/avatars/avatar-3.jpg';
-import avatar4 from '@/assets/avatars/avatar-4.jpg';
-import avatar5 from '@/assets/avatars/avatar-5.jpg';
-import avatar6 from '@/assets/avatars/avatar-6.jpg';
-import avatar7 from '@/assets/avatars/avatar-7.jpg';
-import avatar8 from '@/assets/avatars/avatar-8.jpg';
-import avatar9 from '@/assets/avatars/avatar-9.jpg';
-import avatar10 from '@/assets/avatars/avatar-10.jpg';
+import avatar1 from '@/assets/avatars/avatar-1.webp';
+import avatar2 from '@/assets/avatars/avatar-2.webp';
+import avatar3 from '@/assets/avatars/avatar-3.webp';
+import avatar4 from '@/assets/avatars/avatar-4.webp';
+import avatar5 from '@/assets/avatars/avatar-5.webp';
+import avatar6 from '@/assets/avatars/avatar-6.webp';
+import avatar7 from '@/assets/avatars/avatar-7.webp';
+import avatar8 from '@/assets/avatars/avatar-8.webp';
+import avatar9 from '@/assets/avatars/avatar-9.webp';
+import avatar10 from '@/assets/avatars/avatar-10.webp';
 
 const TESTIMONIALS = [
   { name: 'Rafael S.', role: 'Agência Digital', text: 'Fechei 8 clientes em 14 dias. A IA personaliza cada mensagem — parece que eu escrevi uma por uma.', avatar: avatar1, gradient: 'from-violet-500 to-fuchsia-500' },
