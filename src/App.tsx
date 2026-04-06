@@ -23,7 +23,6 @@ const ProspectingPage = lazy(() => import("./pages/Prospecting"));
 const CampaignsPage = lazy(() => import("./pages/Campaigns"));
 
 const MassSendPage = lazy(() => import("./pages/MassSend"));
-const ScheduledProspectingPage = lazy(() => import("./pages/ScheduledProspecting"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
 const ABTestingPage = lazy(() => import("./pages/ABTesting"));
@@ -95,7 +94,7 @@ const App = () => (
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
                   
                   <Route path="/mass-send" element={<ProtectedRoute><MassSendPage /></ProtectedRoute>} />
-                  <Route path="/scheduled-prospecting" element={<ProtectedRoute><ScheduledProspectingPage /></ProtectedRoute>} />
+                  
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
                   <Route path="/prospecting-history" element={<ProtectedRoute><ProspectingHistoryPage /></ProtectedRoute>} />
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
@@ -114,6 +113,7 @@ const App = () => (
 
                   {/* Engajamento */}
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
+                  <Route path="/scheduled-prospecting" element={<Navigate to="/meetings" replace />} />
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
 
