@@ -10,9 +10,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLeads } from '@/hooks/use-leads';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
   Search,
@@ -26,9 +28,13 @@ import {
   Calendar,
   Users,
   Globe,
-  ExternalLink,
   Briefcase,
   Hash,
+  Radar,
+  FileSpreadsheet,
+  ArrowRight,
+  Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 
 const ESTADOS_BR = [
@@ -38,8 +44,8 @@ const ESTADOS_BR = [
 
 const PORTES = [
   { value: 'MEI', label: 'MEI' },
-  { value: 'ME', label: 'ME - Microempresa' },
-  { value: 'EPP', label: 'EPP - Empresa de Pequeno Porte' },
+  { value: 'ME', label: 'ME — Microempresa' },
+  { value: 'EPP', label: 'EPP — Pequeno Porte' },
   { value: 'DEMAIS', label: 'Demais' },
 ];
 
@@ -83,6 +89,13 @@ function cleanPhone(ddd_phone: string): string {
 }
 
 type TabType = 'individual' | 'massa';
+
+const fadeSlide = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+  transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+};
 
 export function CNPJRadarTab() {
   const { createLead, leads } = useLeads();
@@ -282,355 +295,467 @@ export function CNPJRadarTab() {
     return existingPhones.has(phone);
   };
 
-  const tabs: { id: TabType; icon: typeof Search; label: string }[] = [
-    { id: 'individual', icon: Search, label: 'Consulta por CNPJ' },
-    { id: 'massa', icon: Users, label: 'Busca em Massa' },
-  ];
+  const withPhone = massResults.filter(r => r.ddd_telefone_1?.replace(/\D/g, ''));
+  const withEmail = massResults.filter(r => r.email);
+  const alreadyImported = massResults.filter(isAlreadyImported);
 
   return (
     <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="flex items-center gap-1.5">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const TabIcon = tab.icon;
-          return (
-            <Button
-              key={tab.id}
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "h-9 px-4 text-xs gap-2 rounded-lg transition-all duration-200",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 hover:text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <TabIcon className="h-3.5 w-3.5" />
-              {tab.label}
-            </Button>
-          );
-        })}
-      </div>
+      {/* Header */}
+      <motion.div {...fadeSlide} className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
+            <Radar className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold tracking-tight">Radar CNPJ</h2>
+            <p className="text-xs text-muted-foreground">Encontre e importe empresas brasileiras direto para seu CRM</p>
+          </div>
+        </div>
 
-      {/* Individual Lookup */}
-      {activeTab === 'individual' && (
-        <div className="space-y-5 animate-fade-in">
-          <Card className="border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-            <CardContent className="p-0">
-              <div className="px-6 pt-6 pb-4 border-b border-border/30">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="p-2.5 rounded-xl bg-primary/10 ring-2 ring-primary/20">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-base">Consultar CNPJ</h3>
-                    <p className="text-xs text-muted-foreground">Digite o CNPJ para consultar dados da empresa</p>
-                  </div>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="w-full sm:w-auto">
+          <TabsList className="grid grid-cols-2 h-9 w-full sm:w-[280px]">
+            <TabsTrigger value="individual" className="text-xs gap-1.5">
+              <Search className="h-3.5 w-3.5" />
+              Consulta CNPJ
+            </TabsTrigger>
+            <TabsTrigger value="massa" className="text-xs gap-1.5">
+              <Users className="h-3.5 w-3.5" />
+              Busca em Massa
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        {/* ─── Individual Lookup ─── */}
+        {activeTab === 'individual' && (
+          <motion.div key="individual" {...fadeSlide} className="space-y-5">
+            <Card className="border-border/40 shadow-sm">
+              <CardContent className="p-5 sm:p-6">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold">Consultar CNPJ</h3>
                 </div>
-              </div>
 
-              <div className="p-6 space-y-5">
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Input
-                    placeholder="XX.XXX.XXX/XXXX-XX"
+                    placeholder="00.000.000/0000-00"
                     value={cnpjInput}
                     onChange={(e) => setCnpjInput(formatCNPJ(e.target.value))}
-                    className="max-w-sm h-11"
+                    className="sm:max-w-xs h-10 font-mono text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && handleSingleLookup()}
                   />
                   <Button
                     onClick={handleSingleLookup}
                     disabled={singleLoading}
-                    className="h-11 gap-2 px-6 gradient-primary shadow-sm"
+                    className="h-10 gap-2 px-5"
                   >
                     {singleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                     Consultar
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
 
-                {singleResult && (
-                  <Card className="border-primary/20 bg-primary/5 overflow-hidden animate-fade-in">
-                    <CardContent className="p-6 space-y-5">
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <h3 className="text-lg font-bold truncate">
-                            {singleResult.nome_fantasia || singleResult.razao_social}
-                          </h3>
-                          <p className="text-sm text-muted-foreground truncate">{singleResult.razao_social}</p>
-                          <p className="text-xs text-muted-foreground mt-1 font-mono">CNPJ: {formatCNPJ(singleResult.cnpj)}</p>
-                        </div>
-                        <Badge
-                          variant={singleResult.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'destructive'}
-                          className="shrink-0"
-                        >
-                          {singleResult.situacao_cadastral || 'Desconhecido'}
-                        </Badge>
-                      </div>
-
-                      {/* Info Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <InfoRow icon={Briefcase} label="Atividade" value={singleResult.cnae_fiscal_descricao} />
-                        <InfoRow icon={MapPin} label="Cidade" value={`${singleResult.municipio} - ${singleResult.uf}`} />
-                        <InfoRow icon={Phone} label="Telefone" value={cleanPhone(singleResult.ddd_telefone_1) || 'Sem telefone'} />
-                        <InfoRow icon={Mail} label="Email" value={singleResult.email || 'Sem email'} />
-                        <InfoRow icon={Calendar} label="Abertura" value={singleResult.data_inicio_atividade} />
-                        <InfoRow icon={Building2} label="Porte" value={singleResult.porte} />
-                      </div>
-
-                      {/* Address */}
-                      <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
-                        <p className="text-xs text-muted-foreground flex items-start gap-2">
-                          <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                          {`${singleResult.descricao_tipo_de_logradouro} ${singleResult.logradouro}, ${singleResult.numero} ${singleResult.complemento} - ${singleResult.bairro}, ${singleResult.municipio}/${singleResult.uf} - CEP ${singleResult.cep}`}
+            {/* Single Result */}
+            {singleResult && (
+              <motion.div {...fadeSlide}>
+                <Card className="border-primary/20 shadow-md overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                  <CardContent className="p-5 sm:p-6 space-y-5">
+                    {/* Company header */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 space-y-1">
+                        <h3 className="text-base font-bold leading-tight truncate">
+                          {singleResult.nome_fantasia || singleResult.razao_social}
+                        </h3>
+                        {singleResult.nome_fantasia && (
+                          <p className="text-xs text-muted-foreground truncate">{singleResult.razao_social}</p>
+                        )}
+                        <p className="text-[11px] text-muted-foreground font-mono">
+                          CNPJ {formatCNPJ(singleResult.cnpj)}
                         </p>
                       </div>
-
-                      <Button onClick={() => addAsLead(singleResult)} className="w-full h-11 gap-2 gradient-primary shadow-sm">
-                        <Plus className="h-4 w-4" />
-                        Adicionar como Lead
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {!singleResult && !singleLoading && (
-                  <div className="text-center py-16 text-muted-foreground">
-                    <Search className="h-12 w-12 mx-auto mb-3 opacity-15" />
-                    <p className="text-sm">Digite um CNPJ acima para consultar</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Mass Search */}
-      {activeTab === 'massa' && (
-        <div className="space-y-5 animate-fade-in">
-          <Card className="border border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden">
-            <CardContent className="p-0">
-              <div className="px-6 pt-6 pb-4 border-b border-border/30">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="p-2.5 rounded-xl bg-primary/10 ring-2 ring-primary/20">
-                      <Globe className="h-5 w-5 text-primary" />
+                      <Badge
+                        variant={singleResult.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'destructive'}
+                        className="shrink-0 text-[10px]"
+                      >
+                        {singleResult.situacao_cadastral || 'Desconhecido'}
+                      </Badge>
                     </div>
-                    <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card animate-pulse" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-base">Busca em Massa</h3>
-                    <p className="text-xs text-muted-foreground">Encontre empresas por estado, cidade, CNAE e porte</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="p-6 space-y-5">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin className="h-3 w-3" /> Estado
-                    </Label>
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                      <InfoRow icon={Briefcase} label="Atividade" value={singleResult.cnae_fiscal_descricao} />
+                      <InfoRow icon={MapPin} label="Cidade" value={`${singleResult.municipio} — ${singleResult.uf}`} />
+                      <InfoRow icon={Phone} label="Telefone" value={cleanPhone(singleResult.ddd_telefone_1) || 'Não informado'} />
+                      <InfoRow icon={Mail} label="Email" value={singleResult.email || 'Não informado'} />
+                      <InfoRow icon={Calendar} label="Abertura" value={singleResult.data_inicio_atividade || '—'} />
+                      <InfoRow icon={Building2} label="Porte" value={singleResult.porte || '—'} />
+                    </div>
+
+                    {/* Address */}
+                    <div className="p-3 rounded-lg bg-muted/30 border border-border/40">
+                      <p className="text-xs text-muted-foreground flex items-start gap-2 leading-relaxed">
+                        <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary/60" />
+                        {`${singleResult.descricao_tipo_de_logradouro} ${singleResult.logradouro}, ${singleResult.numero} ${singleResult.complemento} — ${singleResult.bairro}, ${singleResult.municipio}/${singleResult.uf} — CEP ${singleResult.cep}`}
+                      </p>
+                    </div>
+
+                    <Button onClick={() => addAsLead(singleResult)} className="w-full h-10 gap-2">
+                      <Plus className="h-4 w-4" />
+                      Adicionar como Lead
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Empty */}
+            {!singleResult && !singleLoading && (
+              <EmptyPlaceholder
+                icon={Search}
+                text="Digite um CNPJ acima para consultar os dados da empresa"
+              />
+            )}
+
+            {singleLoading && <LoadingSkeleton rows={1} height="h-48" />}
+          </motion.div>
+        )}
+
+        {/* ─── Mass Search ─── */}
+        {activeTab === 'massa' && (
+          <motion.div key="massa" {...fadeSlide} className="space-y-5">
+            {/* Filters */}
+            <Card className="border-border/40 shadow-sm">
+              <CardContent className="p-5 sm:p-6 space-y-5">
+                <div className="flex items-center gap-2.5">
+                  <Globe className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold">Filtros de Busca</h3>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <FilterField label="Estado" icon={MapPin} required>
                     <Select value={estado} onValueChange={setEstado}>
-                      <SelectTrigger className="h-10"><SelectValue placeholder="UF" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
                       <SelectContent>
                         {ESTADOS_BR.map(uf => (
                           <SelectItem key={uf} value={uf}>{uf}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Building2 className="h-3 w-3" /> Cidade
-                    </Label>
-                    <Input placeholder="Ex: São Paulo" value={cidade} onChange={e => setCidade(e.target.value)} className="h-10" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Hash className="h-3 w-3" /> CNAE
-                    </Label>
-                    <Input placeholder="Ex: 4712100" value={cnae} onChange={e => setCnae(e.target.value)} className="h-10" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Briefcase className="h-3 w-3" /> Porte
-                    </Label>
+                  </FilterField>
+
+                  <FilterField label="Cidade" icon={Building2}>
+                    <Input
+                      placeholder="Ex: São Paulo"
+                      value={cidade}
+                      onChange={e => setCidade(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </FilterField>
+
+                  <FilterField label="CNAE" icon={Hash}>
+                    <Input
+                      placeholder="Ex: 4712100"
+                      value={cnae}
+                      onChange={e => setCnae(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </FilterField>
+
+                  <FilterField label="Porte" icon={Briefcase}>
                     <Select value={porte} onValueChange={setPorte}>
-                      <SelectTrigger className="h-10"><SelectValue placeholder="Todos" /></SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Todos" />
+                      </SelectTrigger>
                       <SelectContent>
                         {PORTES.map(p => (
                           <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </FilterField>
                 </div>
 
-                <div className="space-y-3 p-4 rounded-xl bg-muted/20 border border-border/50">
+                {/* Quantity slider */}
+                <div className="p-4 rounded-xl bg-muted/20 border border-border/40 space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Quantidade de empresas</Label>
-                    <Badge variant="secondary" className="tabular-nums">{quantidade[0]}</Badge>
+                    <span className="text-sm font-bold text-primary tabular-nums">{quantidade[0]}</span>
                   </div>
                   <Slider value={quantidade} onValueChange={setQuantidade} min={10} max={200} step={10} />
-                  <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>10</span>
-                    <span>200</span>
+                  <div className="flex justify-between text-[10px] text-muted-foreground/60">
+                    <span>10</span><span>50</span><span>100</span><span>150</span><span>200</span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleMassSearch}
                   disabled={massLoading || !estado}
-                  className={cn(
-                    "w-full h-12 gap-2.5 text-sm font-semibold rounded-xl transition-all duration-300",
-                    estado && !massLoading
-                      ? "gradient-primary shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.01]"
-                      : ""
-                  )}
+                  className="w-full h-11 gap-2 text-sm font-semibold"
+                  size="lg"
                 >
                   {massLoading ? (
-                    <><Loader2 className="h-5 w-5 animate-spin" /> Buscando...</>
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Buscando empresas...</>
                   ) : (
-                    <><Search className="h-5 w-5" /> Buscar Empresas</>
+                    <><Search className="h-4 w-4" /> Buscar Empresas <ArrowRight className="h-4 w-4 ml-1" /></>
                   )}
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Loading */}
-          {massLoading && (
-            <Card className="border-border/50">
-              <CardContent className="pt-6 space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
-                ))}
               </CardContent>
             </Card>
-          )}
 
-          {/* Empty State */}
-          {!massLoading && massResults.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground">
-              <Building2 className="h-12 w-12 mx-auto mb-3 opacity-15" />
-              <p className="text-sm">{estado ? 'Nenhuma empresa encontrada com esses filtros' : 'Selecione um estado para iniciar a busca'}</p>
-            </div>
-          )}
+            {/* KPI Stats (shown when results exist) */}
+            {massResults.length > 0 && (
+              <motion.div {...fadeSlide} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <MiniKPI icon={Building2} label="Empresas" value={massResults.length} color="text-primary" />
+                <MiniKPI icon={Phone} label="Com Telefone" value={withPhone.length} color="text-emerald-500" />
+                <MiniKPI icon={Mail} label="Com Email" value={withEmail.length} color="text-blue-500" />
+                <MiniKPI icon={CheckCircle2} label="Já Importados" value={alreadyImported.length} color="text-amber-500" />
+              </motion.div>
+            )}
 
-          {/* Results Table */}
-          {massResults.length > 0 && (
-            <Card className="border-border/50 overflow-hidden">
-              <div className="px-6 py-4 border-b border-border/30 bg-muted/20">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="tabular-nums">{massResults.length}</Badge>
-                    <span className="text-sm font-medium">empresas encontradas</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 h-8 text-xs">
-                      <Download className="h-3.5 w-3.5" />
-                      CSV
-                    </Button>
-                    {selectedIds.size > 0 && (
-                      <Button size="sm" onClick={importSelected} className="gap-1.5 h-8 text-xs gradient-primary">
-                        <Plus className="h-3.5 w-3.5" />
-                        Importar {selectedIds.size}
+            {/* Loading */}
+            {massLoading && <LoadingSkeleton rows={6} />}
+
+            {/* Empty */}
+            {!massLoading && massResults.length === 0 && (
+              <EmptyPlaceholder
+                icon={Radar}
+                text={estado ? 'Nenhuma empresa encontrada com esses filtros' : 'Configure os filtros acima e clique em Buscar'}
+              />
+            )}
+
+            {/* Results Table */}
+            {massResults.length > 0 && (
+              <motion.div {...fadeSlide}>
+                <Card className="border-border/40 shadow-sm overflow-hidden">
+                  {/* Toolbar */}
+                  <div className="px-5 py-3 border-b border-border/40 bg-muted/10 flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant="secondary" className="tabular-nums font-bold">
+                        {massResults.length}
+                      </Badge>
+                      <span className="text-muted-foreground">empresas encontradas</span>
+                      {selectedIds.size > 0 && (
+                        <span className="text-primary font-medium">
+                          · {selectedIds.size} selecionadas
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 h-8 text-xs">
+                        <FileSpreadsheet className="h-3.5 w-3.5" />
+                        Exportar CSV
                       </Button>
-                    )}
+                      {selectedIds.size > 0 && (
+                        <Button size="sm" onClick={importSelected} className="gap-1.5 h-8 text-xs">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Importar {selectedIds.size} leads
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-              <CardContent className="p-0">
-                <ScrollArea className="h-[500px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-10">
-                          <Checkbox
-                            checked={selectedIds.size === massResults.length && massResults.length > 0}
-                            onCheckedChange={toggleAll}
-                          />
-                        </TableHead>
-                        <TableHead>Empresa</TableHead>
-                        <TableHead>CNAE</TableHead>
-                        <TableHead>Cidade/UF</TableHead>
-                        <TableHead>Situação</TableHead>
-                        <TableHead>Telefone</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {massResults.map((item) => {
-                        const imported = isAlreadyImported(item);
-                        return (
-                          <TableRow key={item.cnpj} className={cn(imported && "opacity-50")}>
-                            <TableCell>
-                              <Checkbox
-                                checked={selectedIds.has(item.cnpj)}
-                                onCheckedChange={() => toggleSelect(item.cnpj)}
-                                disabled={imported}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div className="font-medium text-sm">{item.nome_fantasia || item.razao_social}</div>
-                              <div className="text-[10px] text-muted-foreground font-mono">{formatCNPJ(item.cnpj)}</div>
-                            </TableCell>
-                            <TableCell className="text-xs text-muted-foreground max-w-[180px] truncate">
-                              {item.cnae_fiscal_descricao}
-                            </TableCell>
-                            <TableCell className="text-sm">{item.municipio}/{item.uf}</TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={item.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'secondary'}
-                                className="text-[10px] px-1.5 py-0"
-                              >
-                                {item.situacao_cadastral || '—'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-xs tabular-nums">{cleanPhone(item.ddd_telefone_1) || '—'}</TableCell>
-                            <TableCell className="text-xs truncate max-w-[140px]">{item.email || '—'}</TableCell>
-                            <TableCell className="text-right">
-                              {imported ? (
-                                <Badge variant="secondary" className="text-[10px] gap-1">
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  Importado
-                                </Badge>
-                              ) : (
-                                <Button size="sm" variant="ghost" onClick={() => addAsLead(item)} className="h-7 w-7 p-0">
-                                  <Plus className="h-4 w-4" />
-                                </Button>
+
+                  {/* Table */}
+                  <ScrollArea className="h-[480px]">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent bg-muted/5">
+                          <TableHead className="w-10 pl-4">
+                            <Checkbox
+                              checked={selectedIds.size === massResults.length && massResults.length > 0}
+                              onCheckedChange={toggleAll}
+                            />
+                          </TableHead>
+                          <TableHead className="text-xs font-semibold">Empresa</TableHead>
+                          <TableHead className="text-xs font-semibold hidden lg:table-cell">CNAE</TableHead>
+                          <TableHead className="text-xs font-semibold">Cidade/UF</TableHead>
+                          <TableHead className="text-xs font-semibold hidden sm:table-cell">Situação</TableHead>
+                          <TableHead className="text-xs font-semibold">Telefone</TableHead>
+                          <TableHead className="text-xs font-semibold hidden md:table-cell">Email</TableHead>
+                          <TableHead className="text-xs font-semibold text-right pr-4">Ação</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {massResults.map((item, idx) => {
+                          const imported = isAlreadyImported(item);
+                          const hasPhone = !!item.ddd_telefone_1?.replace(/\D/g, '');
+                          return (
+                            <TableRow
+                              key={item.cnpj}
+                              className={cn(
+                                "transition-colors",
+                                imported && "opacity-50",
+                                selectedIds.has(item.cnpj) && "bg-primary/5"
                               )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+                            >
+                              <TableCell className="pl-4">
+                                <Checkbox
+                                  checked={selectedIds.has(item.cnpj)}
+                                  onCheckedChange={() => toggleSelect(item.cnpj)}
+                                  disabled={imported}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <div className="space-y-0.5">
+                                  <p className="text-sm font-medium leading-tight truncate max-w-[200px]">
+                                    {item.nome_fantasia || item.razao_social}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground font-mono">
+                                    {formatCNPJ(item.cnpj)}
+                                  </p>
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden lg:table-cell">
+                                <p className="text-xs text-muted-foreground truncate max-w-[160px]">
+                                  {item.cnae_fiscal_descricao || '—'}
+                                </p>
+                              </TableCell>
+                              <TableCell>
+                                <p className="text-xs whitespace-nowrap">{item.municipio}/{item.uf}</p>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell">
+                                <Badge
+                                  variant={item.situacao_cadastral?.toLowerCase().includes('ativa') ? 'default' : 'secondary'}
+                                  className="text-[10px] px-1.5 py-0"
+                                >
+                                  {item.situacao_cadastral || '—'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <span className={cn(
+                                  "text-xs tabular-nums",
+                                  !hasPhone && "text-muted-foreground/50"
+                                )}>
+                                  {cleanPhone(item.ddd_telefone_1) || '—'}
+                                </span>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                <p className="text-xs truncate max-w-[130px] text-muted-foreground">
+                                  {item.email || '—'}
+                                </p>
+                              </TableCell>
+                              <TableCell className="text-right pr-4">
+                                {imported ? (
+                                  <Badge variant="secondary" className="text-[10px] gap-1">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Importado
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => addAsLead(item)}
+                                    className="h-7 px-2 text-xs gap-1 hover:text-primary"
+                                    disabled={!hasPhone}
+                                  >
+                                    <Plus className="h-3.5 w-3.5" />
+                                    <span className="hidden sm:inline">Importar</span>
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </ScrollArea>
+                </Card>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+/* ─── Sub-components ─── */
+
 function InfoRow({ icon: Icon, label, value }: { icon: typeof Building2; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/20 border border-border/30">
-      <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+    <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/15 border border-border/30">
+      <Icon className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
       <div className="min-w-0">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className="text-sm font-medium truncate">{value}</p>
+        <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider leading-none mb-0.5">{label}</p>
+        <p className="text-xs font-medium truncate leading-tight">{value}</p>
       </div>
     </div>
+  );
+}
+
+function FilterField({
+  label,
+  icon: Icon,
+  required,
+  children,
+}: {
+  label: string;
+  icon: typeof MapPin;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+        <Icon className="h-3 w-3" />
+        {label}
+        {required && <span className="text-destructive">*</span>}
+      </Label>
+      {children}
+    </div>
+  );
+}
+
+function MiniKPI({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: typeof Building2;
+  label: string;
+  value: number;
+  color: string;
+}) {
+  return (
+    <Card className="border-border/30 shadow-sm">
+      <CardContent className="p-3 flex items-center gap-3">
+        <div className={cn("p-2 rounded-lg bg-muted/30", color)}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div>
+          <p className="text-lg font-bold tabular-nums leading-none">{value}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EmptyPlaceholder({ icon: Icon, text }: { icon: typeof Search; text: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="p-4 rounded-2xl bg-muted/20 mb-4">
+        <Icon className="h-8 w-8 text-muted-foreground/30" />
+      </div>
+      <p className="text-sm text-muted-foreground max-w-xs">{text}</p>
+    </div>
+  );
+}
+
+function LoadingSkeleton({ rows = 5, height = 'h-12' }: { rows?: number; height?: string }) {
+  return (
+    <Card className="border-border/30">
+      <CardContent className="p-5 space-y-2.5">
+        {Array.from({ length: rows }).map((_, i) => (
+          <Skeleton key={i} className={cn(height, 'w-full rounded-lg')} />
+        ))}
+      </CardContent>
+    </Card>
   );
 }
