@@ -24,7 +24,6 @@ const CampaignsPage = lazy(() => import("./pages/Campaigns"));
 
 const MassSendPage = lazy(() => import("./pages/MassSend"));
 const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
-const EmailFinderPage = lazy(() => import("./pages/EmailFinder"));
 const ProspectingHistoryPage = lazy(() => import("./pages/ProspectingHistory"));
 const ABTestingPage = lazy(() => import("./pages/ABTesting"));
 const MeetingsPage = lazy(() => import("./pages/Meetings"));
