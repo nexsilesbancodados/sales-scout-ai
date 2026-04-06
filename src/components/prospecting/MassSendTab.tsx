@@ -282,7 +282,7 @@ export function MassSendTab() {
       />
 
       {/* Unified two-column layout */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+      <div className="space-y-4">
         <LeadSelector
           pendingLeads={pendingLeads}
           sentLeads={sentLeads}
