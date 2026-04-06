@@ -63,15 +63,6 @@ export function InstagramExtractorTab() {
   const [profiles, setProfiles] = useState<InstagramProfile[]>([]);
   const [imported, setImported] = useState<Set<string>>(new Set());
 
-  const handleSaveToken = () => {
-    if (!apifyToken.trim()) {
-      toast({ title: 'Token vazio', variant: 'destructive' });
-      return;
-    }
-    updateSettings({ apify_token: apifyToken } as any);
-    toast({ title: 'Token Apify salvo com sucesso!' });
-  };
-
   const handleSearch = async () => {
     if (!niche.trim()) {
       toast({ title: 'Digite um nicho ou hashtag', variant: 'destructive' });
