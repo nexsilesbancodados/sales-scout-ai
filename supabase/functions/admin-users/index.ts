@@ -56,13 +56,20 @@ serve(async (req) => {
       });
     }
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get("action") || req.headers.get("x-action") || "list";
+    let action = "list";
+    let body: any = {};
+    
+    try {
+      body = await req.json();
+      action = body.action || "list";
+    } catch {
+      // No body = default to list
+    }
 
     // LIST USERS
     if (action === "list") {
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const perPage = parseInt(url.searchParams.get("per_page") || "50");
+      const page = 1;
+      const perPage = 50;
 
       const {
         data: { users },
