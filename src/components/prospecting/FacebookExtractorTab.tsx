@@ -56,7 +56,7 @@ export function FacebookExtractorTab() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [imported, setImported] = useState<Set<number>>(new Set());
 
-  const hasSerperKey = !!(settings?.serper_api_key || (settings as any)?.serpapi_api_key);
+  const canSearch = true; // Uses free DuckDuckGo search
 
   const handleSearch = async () => {
     if (!niche.trim() || !location.trim()) return;
@@ -135,14 +135,6 @@ export function FacebookExtractorTab() {
 
   return (
     <div className="space-y-6">
-      {!hasSerperKey && (
-        <Alert variant="destructive" className="border-destructive/40 bg-destructive/10">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Configure a Serper API Key em <strong>Configurações → APIs</strong> para usar o extrator do Facebook.
-          </AlertDescription>
-        </Alert>
-      )}
 
       {/* Search Form */}
       <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
@@ -204,7 +196,7 @@ export function FacebookExtractorTab() {
           <div className="flex items-center gap-3 pt-1">
             <Button
               onClick={handleSearch}
-              disabled={isLoading || !niche.trim() || !location.trim() || !hasSerperKey}
+              disabled={isLoading || !niche.trim() || !location.trim()}
               className="gap-2 px-5"
             >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
