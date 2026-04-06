@@ -57,6 +57,7 @@ import {
   Moon,
   Sun,
   Headphones,
+  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,6 +88,7 @@ const engageItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send', section: 'engage' },
   { title: 'Reuniões', icon: Calendar, path: '/meetings', section: 'engage' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up', section: 'engage' },
+  { title: 'Reativação', icon: Flame, path: '/cold-reactivation', section: 'engage' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates', section: 'engage' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban', section: 'engage' },
 ];
