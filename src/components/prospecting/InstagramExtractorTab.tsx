@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { useLeads } from '@/hooks/use-leads';
 import { useToast } from '@/hooks/use-toast';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Globe,
@@ -50,7 +49,6 @@ function formatFollowers(count: number): string {
 
 export function InstagramExtractorTab() {
   const { createLead } = useLeads();
-  const { settings, updateSettings } = useUserSettings();
   const { toast } = useToast();
 
   const [niche, setNiche] = useState('');
