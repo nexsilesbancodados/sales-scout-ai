@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Loader2, ArrowRight, Mail, User, Eye, EyeOff, Shield, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
-import logoImg from '@/assets/logo.png';
+import logoImg from '@/assets/logo.webp';
 
 export default function AuthPage() {
   const navigate = useNavigate();
