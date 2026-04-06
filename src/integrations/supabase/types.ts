@@ -52,6 +52,36 @@ export type Database = {
           },
         ]
       }
+      admin_notifications: {
+        Row: {
+          admin_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_escalations: {
         Row: {
           context: string | null
@@ -257,6 +287,30 @@ export type Database = {
           status?: string
           total_items?: number | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      blocked_users: {
+        Row: {
+          blocked_by: string
+          created_at: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_by: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_by?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1756,6 +1810,68 @@ export type Database = {
           plan?: string
           started_at?: string | null
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          sender_type?: string
+          ticket_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          sender_type?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          subject?: string
           updated_at?: string
           user_id?: string
         }
