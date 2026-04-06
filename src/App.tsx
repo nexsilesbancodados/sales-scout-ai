@@ -94,7 +94,7 @@ const App = () => (
                   <Route path="/prospecting" element={<ProtectedRoute><ProspectingPage /></ProtectedRoute>} />
                   
                   <Route path="/mass-send" element={<ProtectedRoute><MassSendPage /></ProtectedRoute>} />
-                  <Route path="/scheduled-prospecting" element={<Navigate to="/meetings" replace />} />
+                  
                   <Route path="/email-finder" element={<ProtectedRoute><EmailFinderPage /></ProtectedRoute>} />
                   <Route path="/prospecting-history" element={<ProtectedRoute><ProspectingHistoryPage /></ProtectedRoute>} />
                   <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
@@ -113,7 +113,7 @@ const App = () => (
 
                   {/* Engajamento */}
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
-                  <Route path="/scheduled-prospecting" element={<Navigate to="/meetings?tab=scheduled" replace />} />
+                  <Route path="/scheduled-prospecting" element={<Navigate to="/meetings" replace />} />
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
 
