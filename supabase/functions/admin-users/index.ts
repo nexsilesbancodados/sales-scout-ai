@@ -90,8 +90,8 @@ serve(async (req) => {
         .select("*")
         .in("user_id", userIds);
 
-      // Count leads per user
-      const { data: leadCounts } = await supabase.rpc("admin_lead_counts_placeholder").catch(() => ({ data: null }));
+      // Lead counts - skip RPC that doesn't exist
+      const leadCounts = null;
 
       const enrichedUsers = users.map((u: any) => {
         const profile = profiles?.find((p: any) => p.user_id === u.id);
