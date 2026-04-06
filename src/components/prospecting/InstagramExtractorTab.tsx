@@ -55,7 +55,6 @@ export function InstagramExtractorTab() {
   const { settings, updateSettings } = useUserSettings();
   const { toast } = useToast();
 
-  const [apifyToken, setApifyToken] = useState('');
   const [niche, setNiche] = useState('');
   const [location, setLocation] = useState('');
   const [quantity, setQuantity] = useState([30]);
@@ -63,8 +62,6 @@ export function InstagramExtractorTab() {
   const [loading, setLoading] = useState(false);
   const [profiles, setProfiles] = useState<InstagramProfile[]>([]);
   const [imported, setImported] = useState<Set<string>>(new Set());
-
-  const hasToken = !!(settings as any)?.apify_token;
 
   const handleSaveToken = () => {
     if (!apifyToken.trim()) {
