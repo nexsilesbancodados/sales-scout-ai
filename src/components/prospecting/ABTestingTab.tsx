@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTemplates } from '@/hooks/use-templates';
 import { useABTests } from '@/hooks/use-ab-tests';
+import { useToast } from '@/hooks/use-toast';
 import {
   FlaskConical,
   Plus,
