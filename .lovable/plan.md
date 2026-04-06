@@ -1,31 +1,26 @@
 
-# 🚀 Plano de Melhorias — NexaProspect
+# Plano: Corrigir Funcionalidades Incompletas
 
-## Fase 1: Páginas internas — Design e UX
-- **Leads** — Melhorar visual da tabela, filtros e paginação
-- **Conversations** — Polir chat, empty states, layout responsivo
-- **Prospecting** — Melhorar interface de busca e resultados
-- **Billing** — Polir cards de planos e status da assinatura
+## Fase 1 — Scrapers sem Apify (Instagram/Facebook/Social)
+- Substituir dependência do Apify por scraping via DuckDuckGo (padrão já usado no sistema)
+- Instagram Scraper: usar DuckDuckGo para buscar perfis + extrair dados
+- Facebook Scraper: usar DuckDuckGo + scraping de páginas públicas
+- Remover necessidade de APIFY_TOKEN
 
-## Fase 2: CRM e Pipeline
-- **Pipeline Kanban** — Melhorar visual dos cards e drag
-- **Contatos** — Polir detalhes e abas
-- **Analytics CRM** — Gráficos e métricas mais informativos
+## Fase 2 — UI Faltando
+- Export Data: Adicionar botões de exportação CSV/PDF no Dashboard e CRM
+- Cold Reactivation: Criar interface de configuração e ativação
+- Webhook Config: Adicionar botão de teste do webhook
 
-## Fase 3: Ferramentas e Configurações
-- **Anti-Ban** — Dashboard mais claro com indicadores visuais
-- **Templates** — Interface de criação mais intuitiva
-- **Settings** — Polir todas as abas de configuração
+## Fase 3 — Lógica de Backend
+- A/B Testing: Implementar rastreamento real de variantes e cálculo de vencedores
+- Campanhas: Criar edge function para execução automática de campanhas
+- Scheduled Prospecting: Configurar pg_cron job
 
-## Fase 4: Edge Functions — Análise e Deploy
-- Auditar e deployar todas as edge functions não deployadas
-- Testar endpoints críticos (whatsapp-send, ai-prospecting, job-processor)
-- Corrigir erros encontrados nos logs
+## Fase 4 — Meta Ads & SDR
+- Meta Ads: Substituir placeholder por guia de configuração com token manual
+- SDR Agent: Garantir que o fluxo autônomo funciona com cron + WhatsApp
 
-## Fase 5: Segurança e Performance
-- Rodar scan de segurança no banco
-- Corrigir políticas RLS faltantes
-- Otimizar queries e componentes pesados
-
----
-**Vou começar pela Fase 1** — melhorando as páginas internas mais importantes.
+## Fase 5 — Infraestrutura
+- PWA/Push: Adicionar geração de VAPID keys e configuração
+- Billing: Verificar e corrigir links de checkout Cakto
