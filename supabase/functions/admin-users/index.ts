@@ -56,18 +56,21 @@ serve(async (req) => {
       });
     }
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get("action") || req.headers.get("x-action") || "list";
+    // Parse body once
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      // No body
+    }
+    const action = body.action || "list";
 
     // LIST USERS
     if (action === "list") {
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const perPage = parseInt(url.searchParams.get("per_page") || "50");
-
       const {
         data: { users },
         error,
-      } = await supabase.auth.admin.listUsers({ page, perPage });
+      } = await supabase.auth.admin.listUsers({ page: 1, perPage: 50 });
 
       if (error) throw error;
 
@@ -75,7 +78,7 @@ serve(async (req) => {
 
       const [profilesRes, settingsRes, rolesRes, blockedRes] = await Promise.all([
         supabase.from("profiles").select("*").in("user_id", userIds),
-        supabase.from("user_settings").select("user_id, whatsapp_connected, whatsapp_instance_id, auto_prospecting_enabled, created_at").in("user_id", userIds),
+        supabase.from("user_settings").select("user_id, whatsapp_connected, auto_prospecting_enabled").in("user_id", userIds),
         supabase.from("user_roles").select("*").in("user_id", userIds),
         supabase.from("blocked_users").select("user_id").in("user_id", userIds),
       ]);
@@ -111,18 +114,15 @@ serve(async (req) => {
 
     // DELETE USER
     if (action === "delete") {
-      const body = await req.json();
       const targetUserId = body.user_id;
       if (!targetUserId) {
         return new Response(JSON.stringify({ error: "user_id required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (targetUserId === user.id) {
         return new Response(JSON.stringify({ error: "Cannot delete yourself" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const { error } = await supabase.auth.admin.deleteUser(targetUserId);
@@ -134,25 +134,24 @@ serve(async (req) => {
 
     // BLOCK USER
     if (action === "block") {
-      const body = await req.json();
       const { user_id: targetUserId, reason } = body;
       if (!targetUserId) {
         return new Response(JSON.stringify({ error: "user_id required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (targetUserId === user.id) {
         return new Response(JSON.stringify({ error: "Cannot block yourself" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { error } = await supabase.from("blocked_users").upsert({
+      // Delete existing then insert to avoid unique constraint issues
+      await supabase.from("blocked_users").delete().eq("user_id", targetUserId);
+      const { error } = await supabase.from("blocked_users").insert({
         user_id: targetUserId,
         blocked_by: user.id,
         reason: reason || "Bloqueado pelo administrador",
-      }, { onConflict: "user_id" });
+      });
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -161,12 +160,10 @@ serve(async (req) => {
 
     // UNBLOCK USER
     if (action === "unblock") {
-      const body = await req.json();
       const { user_id: targetUserId } = body;
       if (!targetUserId) {
         return new Response(JSON.stringify({ error: "user_id required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const { error } = await supabase.from("blocked_users").delete().eq("user_id", targetUserId);
@@ -178,12 +175,10 @@ serve(async (req) => {
 
     // SEND NOTIFICATION TO USER
     if (action === "send-notification") {
-      const body = await req.json();
       const { user_id: targetUserId, title, message } = body;
       if (!targetUserId || !title || !message) {
         return new Response(JSON.stringify({ error: "user_id, title, and message required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const { error } = await supabase.from("admin_notifications").insert({
@@ -198,28 +193,28 @@ serve(async (req) => {
       });
     }
 
-    // GET SUPPORT TICKETS (admin)
+    // GET SUPPORT TICKETS
     if (action === "support-tickets") {
       const { data: tickets, error } = await supabase
         .from("support_tickets")
-        .select(`
-          *,
-          support_messages(id, content, sender_type, sender_id, created_at)
-        `)
+        .select(`*, support_messages(id, content, sender_type, sender_id, created_at)`)
         .order("updated_at", { ascending: false });
       if (error) throw error;
 
-      // Enrich with user info
       const ticketUserIds = [...new Set((tickets || []).map((t: any) => t.user_id))];
-      const { data: ticketProfiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email")
-        .in("user_id", ticketUserIds);
+      let ticketProfiles: any[] = [];
+      if (ticketUserIds.length > 0) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, email")
+          .in("user_id", ticketUserIds);
+        ticketProfiles = data || [];
+      }
 
       const enrichedTickets = (tickets || []).map((t: any) => ({
         ...t,
-        user_name: ticketProfiles?.find((p: any) => p.user_id === t.user_id)?.full_name || null,
-        user_email: ticketProfiles?.find((p: any) => p.user_id === t.user_id)?.email || null,
+        user_name: ticketProfiles.find((p: any) => p.user_id === t.user_id)?.full_name || null,
+        user_email: ticketProfiles.find((p: any) => p.user_id === t.user_id)?.email || null,
       }));
 
       return new Response(JSON.stringify({ tickets: enrichedTickets }), {
@@ -227,14 +222,12 @@ serve(async (req) => {
       });
     }
 
-    // REPLY TO SUPPORT TICKET (admin)
+    // REPLY TO SUPPORT TICKET
     if (action === "reply-ticket") {
-      const body = await req.json();
       const { ticket_id, content } = body;
       if (!ticket_id || !content) {
         return new Response(JSON.stringify({ error: "ticket_id and content required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const { error } = await supabase.from("support_messages").insert({
@@ -244,10 +237,7 @@ serve(async (req) => {
         content,
       });
       if (error) throw error;
-
-      // Update ticket timestamp
       await supabase.from("support_tickets").update({ updated_at: new Date().toISOString() }).eq("id", ticket_id);
-
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -255,12 +245,10 @@ serve(async (req) => {
 
     // CLOSE TICKET
     if (action === "close-ticket") {
-      const body = await req.json();
       const { ticket_id } = body;
       if (!ticket_id) {
         return new Response(JSON.stringify({ error: "ticket_id required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const { error } = await supabase.from("support_tickets").update({ status: "closed" }).eq("id", ticket_id);
@@ -270,7 +258,7 @@ serve(async (req) => {
       });
     }
 
-    // GET USER STATS
+    // GET STATS
     if (action === "stats") {
       const [usersRes, whatsappRes, leadsRes, messagesRes] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
