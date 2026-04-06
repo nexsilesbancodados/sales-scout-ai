@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_tests: {
+        Row: {
+          completed_at: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          min_sample_size: number
+          name: string
+          niche: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          variant_a_content: string
+          variant_a_conversions: number
+          variant_a_name: string
+          variant_a_responses: number
+          variant_a_sent: number
+          variant_a_template_id: string | null
+          variant_b_content: string
+          variant_b_conversions: number
+          variant_b_name: string
+          variant_b_responses: number
+          variant_b_sent: number
+          variant_b_template_id: string | null
+          winner: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          min_sample_size?: number
+          name: string
+          niche?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          variant_a_content: string
+          variant_a_conversions?: number
+          variant_a_name: string
+          variant_a_responses?: number
+          variant_a_sent?: number
+          variant_a_template_id?: string | null
+          variant_b_content: string
+          variant_b_conversions?: number
+          variant_b_name: string
+          variant_b_responses?: number
+          variant_b_sent?: number
+          variant_b_template_id?: string | null
+          winner?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          min_sample_size?: number
+          name?: string
+          niche?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          variant_a_content?: string
+          variant_a_conversions?: number
+          variant_a_name?: string
+          variant_a_responses?: number
+          variant_a_sent?: number
+          variant_a_template_id?: string | null
+          variant_b_content?: string
+          variant_b_conversions?: number
+          variant_b_name?: string
+          variant_b_responses?: number
+          variant_b_sent?: number
+          variant_b_template_id?: string | null
+          winner?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_tests_variant_a_template_id_fkey"
+            columns: ["variant_a_template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ab_tests_variant_b_template_id_fkey"
+            columns: ["variant_b_template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_log: {
         Row: {
           activity_type: string
