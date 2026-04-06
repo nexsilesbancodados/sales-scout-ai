@@ -326,24 +326,20 @@ export function CampaignsTab() {
       return;
     }
     updateCampaign({ id: campaign.id, status: 'running', started_at: new Date().toISOString() });
+    toast({ title: '🚀 Campanha iniciada', description: 'Prospecção e envio em andamento em segundo plano.' });
     try {
-      const response = await supabase.functions.invoke('hunter', {
-        headers: { Authorization: `Bearer ${settings?.hunter_api_token}` },
-        body: { niches: campaign.niches || [], locations: campaign.locations || [] },
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+      
+      const response = await supabase.functions.invoke('campaign-executor', {
+        body: { campaign_id: campaign.id, user_id: user.id },
       });
       if (response.error) throw response.error;
       const result = response.data;
-      updateCampaign({
-        id: campaign.id,
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        leads_found: result.leads_created || 0,
-        leads_contacted: result.leads_created || 0,
-      });
-      toast({ title: '✅ Campanha concluída', description: `${result.leads_created || 0} leads prospectados!` });
+      toast({ title: '✅ Campanha concluída', description: `${result.leads_found || 0} encontrados, ${result.leads_contacted || 0} contactados!` });
     } catch (error: any) {
       updateCampaign({ id: campaign.id, status: 'failed' });
-      toast({ title: 'Erro na campanha', description: error.message || 'Erro ao executar prospecção', variant: 'destructive' });
+      toast({ title: 'Erro na campanha', description: error.message || 'Erro ao executar campanha', variant: 'destructive' });
     }
   };
 

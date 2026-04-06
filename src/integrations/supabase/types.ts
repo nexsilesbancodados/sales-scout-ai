@@ -2139,6 +2139,7 @@ export type Database = {
           message_interval_max: number | null
           message_interval_seconds: number | null
           message_variations: Json | null
+          meta_access_token: string | null
           objection_handling: string | null
           onboarding_completed: boolean | null
           onboarding_niche: string | null
@@ -2214,6 +2215,7 @@ export type Database = {
           message_interval_max?: number | null
           message_interval_seconds?: number | null
           message_variations?: Json | null
+          meta_access_token?: string | null
           objection_handling?: string | null
           onboarding_completed?: boolean | null
           onboarding_niche?: string | null
@@ -2289,6 +2291,7 @@ export type Database = {
           message_interval_max?: number | null
           message_interval_seconds?: number | null
           message_variations?: Json | null
+          meta_access_token?: string | null
           objection_handling?: string | null
           onboarding_completed?: boolean | null
           onboarding_niche?: string | null
