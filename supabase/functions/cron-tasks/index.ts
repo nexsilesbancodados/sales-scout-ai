@@ -126,6 +126,80 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Task 8: Auto-complete A/B tests with statistical significance
+    if (!task || task === "check_ab_tests") {
+      const { data: runningTests } = await supabase
+        .from("ab_tests")
+        .select("*")
+        .eq("status", "running");
+
+      let completed = 0;
+      for (const test of runningTests || []) {
+        const totalSent = test.variant_a_sent + test.variant_b_sent;
+        if (totalSent < test.min_sample_size * 2) continue;
+
+        const rateA = test.variant_a_sent > 0 ? test.variant_a_responses / test.variant_a_sent : 0;
+        const rateB = test.variant_b_sent > 0 ? test.variant_b_responses / test.variant_b_sent : 0;
+        const pooledRate = (test.variant_a_responses + test.variant_b_responses) / totalSent;
+        if (pooledRate === 0 || pooledRate === 1) continue;
+
+        const se = Math.sqrt(pooledRate * (1 - pooledRate) * (1 / test.variant_a_sent + 1 / test.variant_b_sent));
+        if (se === 0) continue;
+        const z = Math.abs(rateA - rateB) / se;
+
+        if (z >= 1.96) {
+          const winner = rateA > rateB ? "variant_a" : "variant_b";
+          const confidence = z >= 2.576 ? 99 : z >= 1.96 ? 95 : 90;
+          await supabase.from("ab_tests").update({
+            status: "completed",
+            winner,
+            confidence,
+            completed_at: new Date().toISOString(),
+          }).eq("id", test.id);
+          completed++;
+        }
+      }
+      results.ab_tests_completed = completed;
+    }
+
+    // Task 9: SDR Agent - auto-reply to pending conversations
+    if (!task || task === "sdr_agent") {
+      const { data: sdrUsers } = await supabase
+        .from("user_settings")
+        .select("user_id, auto_start_hour, auto_end_hour")
+        .eq("sdr_agent_enabled", true);
+
+      const currentHour = new Date().getUTCHours();
+      let sdrProcessed = 0;
+
+      for (const u of sdrUsers || []) {
+        const startH = (u.auto_start_hour ?? 9) + 3; // BRT to UTC
+        const endH = (u.auto_end_hour ?? 18) + 3;
+        if (currentHour < startH || currentHour >= endH) continue;
+
+        // Find leads with unanswered messages from leads
+        const { data: unanswered } = await supabase
+          .from("leads")
+          .select("id, phone, business_name")
+          .eq("user_id", u.user_id)
+          .not("last_response_at", "is", null)
+          .gt("last_response_at", "last_contact_at")
+          .limit(5);
+
+        for (const lead of unanswered || []) {
+          try {
+            await supabase.functions.invoke("whatsapp-ai-reply", {
+              body: { user_id: u.user_id, lead_id: lead.id },
+            });
+            sdrProcessed++;
+          } catch (e) {
+            console.error(`SDR error for lead ${lead.id}:`, e);
+          }
+        }
+      }
+      results.sdr_processed = sdrProcessed;
+    }
+
     // Task 5: Send daily reports
     if (!task || task === "send_reports") {
       const now = new Date();

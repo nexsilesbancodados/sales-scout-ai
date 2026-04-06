@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTemplates } from '@/hooks/use-templates';
 import { useABTests } from '@/hooks/use-ab-tests';
+import { useToast } from '@/hooks/use-toast';
 import {
   FlaskConical,
   Plus,
@@ -32,6 +33,7 @@ import {
 export function ABTestingTab() {
   const { templates } = useTemplates();
   const { tests, isLoading, createTest, updateTest, deleteTest, isCreating } = useABTests();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
 
@@ -275,6 +277,26 @@ export function ABTestingTab() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {significance >= 90 && totalSent >= test.min_sample_size * 2 && (
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => {
+                            const winner = aLeading ? 'variant_a' : 'variant_b';
+                            updateTest({
+                              id: test.id,
+                              status: 'completed',
+                              winner,
+                              confidence: significance,
+                              completed_at: new Date().toISOString(),
+                            });
+                            toast({ title: '🏆 Teste concluído!', description: `Vencedor: ${aLeading ? test.variant_a_name : test.variant_b_name}` });
+                          }}
+                        >
+                          <Trophy className="h-4 w-4 mr-1" />
+                          Declarar Vencedor
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" onClick={() => updateTest({ id: test.id, status: 'paused' })}>
                         <Pause className="h-4 w-4" />
                       </Button>
