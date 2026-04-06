@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMeetings } from '@/hooks/use-meetings';
+import { ScheduledProspectingTab } from '@/components/prospecting/ScheduledProspectingTab';
 import {
   Calendar,
   Clock,
@@ -19,6 +20,7 @@ import {
   History,
   CalendarDays,
   Trash2,
+  CalendarClock,
 } from 'lucide-react';
 import { format, isToday, isTomorrow, isThisWeek, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -162,132 +164,138 @@ export default function MeetingsPage() {
   const successRate = totalHistory > 0 ? Math.round((completedCount / totalHistory) * 100) : 0;
 
   return (
-    <DashboardLayout title="Agendamentos" description="Gerencie suas reuniões com leads">
+    <DashboardLayout title="Reuniões e Agendamentos" description="Gerencie reuniões com leads e prospecção agendada">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Carregando reuniões...</p>
-            </div>
-          </div>
-        ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="upcoming" className="gap-2">
-                <CalendarDays className="h-4 w-4" />
-                Próximas
-                {upcomingMeetings.length > 0 && <Badge variant="secondary" className="ml-1">{upcomingMeetings.length}</Badge>}
-              </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2">
-                <History className="h-4 w-4" />
-                Histórico
-                {historyMeetings.length > 0 && <Badge variant="secondary" className="ml-1">{historyMeetings.length}</Badge>}
-              </TabsTrigger>
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="upcoming" className="gap-2">
+              <CalendarDays className="h-4 w-4" />
+              Próximas
+              {upcomingMeetings.length > 0 && <Badge variant="secondary" className="ml-1">{upcomingMeetings.length}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="history" className="gap-2">
+              <History className="h-4 w-4" />
+              Histórico
+              {historyMeetings.length > 0 && <Badge variant="secondary" className="ml-1">{historyMeetings.length}</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="scheduled" className="gap-2">
+              <CalendarClock className="h-4 w-4" />
+              Prospecção Agendada
+            </TabsTrigger>
+          </TabsList>
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
-                <TabsContent value="upcoming" forceMount={activeTab === 'upcoming' ? true : undefined} className={activeTab !== 'upcoming' ? 'hidden' : ''}>
-                  {upcomingMeetings.length === 0 ? (
-                    <Card className="overflow-hidden">
-                      <CardContent className="p-0">
-                        <EmptyState
-                          icon={Calendar}
-                          title="Nenhuma reunião agendada"
-                          description="Quando o agente agendar reuniões com leads, elas aparecerão aqui"
-                          action={{ label: "Capturar Leads", onClick: () => window.location.href = '/prospecting?tab=capture', icon: CalendarPlus }}
-                          className="py-16"
-                        />
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <>
-                      {groupedMeetings.overdue.length > 0 && (
-                        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="mb-6 p-4 bg-warning/10 border border-warning/30 rounded-xl">
-                          <div className="flex items-center gap-2 text-warning mb-2">
-                            <AlertCircle className="h-5 w-5" />
-                            <span className="font-semibold">{groupedMeetings.overdue.length} reunião(ões) pendente(s)</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">Marque como concluída, não compareceu ou cancelada.</p>
-                        </motion.div>
-                      )}
-                      {renderSection('Pendentes', groupedMeetings.overdue)}
-                      {renderSection('Hoje', groupedMeetings.today)}
-                      {renderSection('Amanhã', groupedMeetings.tomorrow)}
-                      {renderSection('Esta Semana', groupedMeetings.thisWeek)}
-                      {renderSection('Próximas', groupedMeetings.later)}
-                    </>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="history" forceMount={activeTab === 'history' ? true : undefined} className={activeTab !== 'history' ? 'hidden' : ''}>
-                  {historyMeetings.length === 0 ? (
-                    <Card className="overflow-hidden">
-                      <CardContent className="p-0">
-                        <EmptyState icon={History} title="Nenhum histórico ainda" description="Quando você concluir ou cancelar reuniões, elas aparecerão aqui" className="py-16" />
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <>
-                      <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                        {[
-                          { label: 'Total', value: totalHistory, color: '' },
-                          { label: 'Realizadas', value: completedCount, color: 'text-success' },
-                          { label: 'Não Realizadas', value: missedCount, color: 'text-warning' },
-                          { label: 'Taxa de Sucesso', value: `${successRate}%`, color: 'text-primary' },
-                        ].map((stat) => (
-                          <motion.div key={stat.label} variants={fadeUp}>
-                            <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
-                              <CardContent className="p-4 text-center">
-                                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                                <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ))}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TabsContent value="upcoming" forceMount={activeTab === 'upcoming' ? true : undefined} className={activeTab !== 'upcoming' ? 'hidden' : ''}>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground">Carregando reuniões...</p>
+                    </div>
+                  </div>
+                ) : upcomingMeetings.length === 0 ? (
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <EmptyState
+                        icon={Calendar}
+                        title="Nenhuma reunião agendada"
+                        description="Quando o agente agendar reuniões com leads, elas aparecerão aqui"
+                        action={{ label: "Capturar Leads", onClick: () => window.location.href = '/prospecting?tab=capture', icon: CalendarPlus }}
+                        className="py-16"
+                      />
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
+                    {groupedMeetings.overdue.length > 0 && (
+                      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="mb-6 p-4 bg-warning/10 border border-warning/30 rounded-xl">
+                        <div className="flex items-center gap-2 text-warning mb-2">
+                          <AlertCircle className="h-5 w-5" />
+                          <span className="font-semibold">{groupedMeetings.overdue.length} reunião(ões) pendente(s)</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Marque como concluída, não compareceu ou cancelada.</p>
                       </motion.div>
+                    )}
+                    {renderSection('Pendentes', groupedMeetings.overdue)}
+                    {renderSection('Hoje', groupedMeetings.today)}
+                    {renderSection('Amanhã', groupedMeetings.tomorrow)}
+                    {renderSection('Esta Semana', groupedMeetings.thisWeek)}
+                    {renderSection('Próximas', groupedMeetings.later)}
+                  </>
+                )}
+              </TabsContent>
 
-                      {completedMeetings.length > 0 && (
-                        <div className="mb-8">
-                          <div className="flex items-center gap-2 mb-4">
-                            <CheckCircle2 className="h-5 w-5 text-success" />
-                            <h3 className="text-lg font-semibold">Reuniões Realizadas ({completedCount})</h3>
-                          </div>
-                          <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
-                            {completedMeetings
-                              .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime())
-                              .map((m, i) => renderMeetingCard(m, i, false))}
-                          </motion.div>
-                        </div>
-                      )}
+              <TabsContent value="history" forceMount={activeTab === 'history' ? true : undefined} className={activeTab !== 'history' ? 'hidden' : ''}>
+                {historyMeetings.length === 0 ? (
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <EmptyState icon={History} title="Nenhum histórico ainda" description="Quando você concluir ou cancelar reuniões, elas aparecerão aqui" className="py-16" />
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
+                    <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                      {[
+                        { label: 'Total', value: totalHistory, color: '' },
+                        { label: 'Realizadas', value: completedCount, color: 'text-success' },
+                        { label: 'Não Realizadas', value: missedCount, color: 'text-warning' },
+                        { label: 'Taxa de Sucesso', value: `${successRate}%`, color: 'text-primary' },
+                      ].map((stat) => (
+                        <motion.div key={stat.label} variants={fadeUp}>
+                          <Card className="border-border/40 group hover:border-primary/20 transition-all duration-300">
+                            <CardContent className="p-4 text-center">
+                              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                              <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </motion.div>
 
-                      {missedMeetings.length > 0 && (
-                        <div className="mb-8">
-                          <div className="flex items-center gap-2 mb-4">
-                            <XCircle className="h-5 w-5 text-warning" />
-                            <h3 className="text-lg font-semibold">Não Realizadas ({missedCount})</h3>
-                          </div>
-                          <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 opacity-70">
-                            {missedMeetings
-                              .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime())
-                              .map((m, i) => renderMeetingCard(m, i, false))}
-                          </motion.div>
+                    {completedMeetings.length > 0 && (
+                      <div className="mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                          <CheckCircle2 className="h-5 w-5 text-success" />
+                          <h3 className="text-lg font-semibold">Reuniões Realizadas ({completedCount})</h3>
                         </div>
-                      )}
-                    </>
-                  )}
-                </TabsContent>
-              </motion.div>
-            </AnimatePresence>
-          </Tabs>
-        )}
+                        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
+                          {completedMeetings
+                            .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime())
+                            .map((m, i) => renderMeetingCard(m, i, false))}
+                        </motion.div>
+                      </div>
+                    )}
+
+                    {missedMeetings.length > 0 && (
+                      <div className="mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                          <XCircle className="h-5 w-5 text-warning" />
+                          <h3 className="text-lg font-semibold">Não Realizadas ({missedCount})</h3>
+                        </div>
+                        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4 opacity-70">
+                          {missedMeetings
+                            .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime())
+                            .map((m, i) => renderMeetingCard(m, i, false))}
+                        </motion.div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </TabsContent>
+
+              <TabsContent value="scheduled" forceMount={activeTab === 'scheduled' ? true : undefined} className={activeTab !== 'scheduled' ? 'hidden' : ''}>
+                <ScheduledProspectingTab />
+              </TabsContent>
+            </motion.div>
+          </AnimatePresence>
+        </Tabs>
       </motion.div>
     </DashboardLayout>
   );

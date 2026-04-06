@@ -79,12 +79,12 @@ const prospectItems = [
   { title: 'Buscar Leads', icon: Search, path: '/prospecting', badge: 'IA', section: 'prospect' },
   { title: 'Campanhas', icon: Rocket, path: '/campaigns', section: 'prospect' },
   { title: 'Radar CNPJ', icon: Building2, path: '/cnpj-radar', section: 'prospect' },
-  { title: 'Agendamentos', icon: Calendar, path: '/scheduled-prospecting', section: 'prospect' },
 ];
 
 // ─── ENGAJAMENTO ────────────────────────────────────────
 const engageItems = [
   { title: 'Disparo em Massa', icon: Send, path: '/mass-send', section: 'engage' },
+  { title: 'Reuniões', icon: Calendar, path: '/meetings', section: 'engage' },
   { title: 'Follow-up', icon: RefreshCw, path: '/follow-up', section: 'engage' },
   { title: 'Templates', icon: MessageSquareText, path: '/templates', section: 'engage' },
   { title: 'Anti-Ban', icon: Shield, path: '/antiban', section: 'engage' },
@@ -106,7 +106,6 @@ const toolItems = [
   { title: 'Agente SDR', icon: Bot, path: '/sdr-agent', badge: 'IA', section: 'tools' },
   { title: 'Email Finder', icon: Mail, path: '/email-finder', section: 'tools' },
   { title: 'Extrator Social', icon: Globe, path: '/social-extractor', section: 'tools' },
-  { title: 'Reuniões', icon: Calendar, path: '/meetings', section: 'tools' },
 ];
 
 type NavItem = { title: string; icon: React.ComponentType<{ className?: string }>; path: string; badge?: string; section?: string };

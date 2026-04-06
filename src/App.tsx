@@ -114,6 +114,7 @@ const App = () => (
 
                   {/* Engajamento */}
                   <Route path="/meetings" element={<ProtectedRoute><MeetingsPage /></ProtectedRoute>} />
+                  <Route path="/scheduled-prospecting" element={<Navigate to="/meetings?tab=scheduled" replace />} />
                   <Route path="/follow-up" element={<ProtectedRoute><FollowUpPage /></ProtectedRoute>} />
                   <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
 
