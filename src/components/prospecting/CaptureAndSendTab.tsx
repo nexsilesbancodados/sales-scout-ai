@@ -409,7 +409,7 @@ export function CaptureAndSendTab() {
         processStatus={processStatus}
       />
 
-      <LeadSendQueue processStatus={processStatus} hasLeads={capturedLeads.length > 0} />
+      
     </div>
   );
 }
