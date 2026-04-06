@@ -318,6 +318,7 @@ export function AppSidebar() {
 
         <SidebarMenu className="space-y-0.5">
           {[
+            { title: 'Suporte', icon: Settings, path: '/support' },
             { title: 'Configurações', icon: Settings, path: '/settings' },
             { title: 'Planos', icon: CreditCard, path: '/billing' },
           ].map((item) => {
