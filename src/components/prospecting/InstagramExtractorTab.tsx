@@ -167,47 +167,6 @@ export function InstagramExtractorTab() {
 
   return (
     <div className="space-y-6">
-      {/* Apify Token Setup */}
-      {!hasToken && (
-        <Card className="border-primary/30 bg-primary/5 overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0 mt-0.5">
-                <Key className="h-5 w-5" />
-              </div>
-              <div className="flex-1 space-y-3">
-                <div>
-                  <h3 className="font-semibold text-foreground">Configure seu Apify Token para usar os extratores</h3>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    Plano gratuito inclui $5/mês em créditos (~500 páginas)
-                  </p>
-                </div>
-                <div className="flex gap-2 max-w-lg">
-                  <Input
-                    type="password"
-                    placeholder="Cole seu Apify Token aqui"
-                    value={apifyToken}
-                    onChange={e => setApifyToken(e.target.value)}
-                    className="bg-background/60 border-border/50"
-                  />
-                  <Button onClick={handleSaveToken} className="shrink-0">
-                    Salvar
-                  </Button>
-                </div>
-                <a
-                  href="https://apify.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  Criar conta gratuita no Apify
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Search Form */}
       <Card className="border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
