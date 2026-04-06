@@ -210,38 +210,6 @@ export function SocialExtractorTab() {
 
   return (
     <div className="space-y-6">
-      {/* Setup Banner */}
-      {!hasApifyToken && showSetup && (
-        <Alert className="border-yellow-500/30 bg-yellow-500/5">
-          <Key className="h-4 w-4 text-yellow-500" />
-          <AlertDescription className="space-y-3">
-            <p className="font-medium text-foreground">Configure seu Apify Token para usar os extratores</p>
-            <p className="text-sm text-muted-foreground">
-              Plano gratuito inclui $5/mês em créditos (~500 páginas)
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="password"
-                placeholder="Cole seu Apify Token aqui"
-                value={apifyTokenInput}
-                onChange={(e) => setApifyTokenInput(e.target.value)}
-                className="max-w-sm"
-              />
-              <Button onClick={handleSaveToken} disabled={isUpdating || !apifyTokenInput.trim()}>
-                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Salvar'}
-              </Button>
-            </div>
-            <a
-              href="https://apify.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-            >
-              Criar conta gratuita no Apify <ExternalLink className="h-3 w-3" />
-            </a>
-          </AlertDescription>
-        </Alert>
-      )}
 
       <Tabs defaultValue="instagram" className="space-y-4">
         <TabsList>
