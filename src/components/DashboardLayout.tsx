@@ -97,10 +97,11 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
         <AppSidebar />
         <SidebarInset className={`flex flex-col min-h-screen overflow-y-auto ${!isOnline ? 'mt-8' : ''}`}>
           {/* Clean minimal header */}
-          <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center border-b border-border/30 bg-background/80 backdrop-blur-xl">
+          <header className="sticky top-0 z-20 flex h-13 shrink-0 items-center border-b border-border/20 bg-background/70 backdrop-blur-2xl">
             <div className="flex items-center gap-3 flex-1 px-4 sm:px-6">
-              <SidebarTrigger className="-ml-1 text-muted-foreground/50 hover:text-foreground transition-colors" />
-              <span className="text-sm font-semibold truncate">{title}</span>
+              <SidebarTrigger className="-ml-1 text-muted-foreground/40 hover:text-foreground transition-colors duration-200" />
+              <div className="h-4 w-px bg-border/30" />
+              <span className="text-sm font-bold truncate">{title}</span>
               <div className="flex-1" />
 
               {/* Right actions */}
@@ -151,7 +152,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
             </div>
           </header>
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gradient-to-b from-background to-background/95">
             {description && (
               <p className="text-muted-foreground/60 mb-6 text-sm">{description}</p>
             )}

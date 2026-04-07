@@ -15,10 +15,10 @@ interface KPICardProps {
 }
 
 const gradientMap: Record<string, string> = {
-  'bg-primary/8': 'from-blue-100/80 via-blue-50/40 to-transparent dark:from-blue-950/30 dark:via-blue-950/10 dark:to-transparent',
-  'bg-info/8': 'from-amber-100/80 via-amber-50/40 to-transparent dark:from-amber-950/30 dark:via-amber-950/10 dark:to-transparent',
-  'bg-success/8': 'from-emerald-100/80 via-emerald-50/40 to-transparent dark:from-emerald-950/30 dark:via-emerald-950/10 dark:to-transparent',
-  'bg-warning/8': 'from-violet-100/80 via-violet-50/40 to-transparent dark:from-violet-950/30 dark:via-violet-950/10 dark:to-transparent',
+  'bg-primary/8': 'from-primary/10 via-primary/5 to-transparent',
+  'bg-info/8': 'from-info/10 via-info/5 to-transparent',
+  'bg-success/8': 'from-success/10 via-success/5 to-transparent',
+  'bg-warning/8': 'from-warning/10 via-warning/5 to-transparent',
 };
 
 function useCountUp(target: number, duration = 1200, delay = 0) {
@@ -52,37 +52,38 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
   const animatedValue = useCountUp(isNumeric ? value : 0, 1200, delay + 200);
   const formattedValue = isNumeric ? animatedValue.toLocaleString('pt-BR') : value;
 
-  const gradient = gradientMap[iconBg] || 'from-primary/10 via-primary/5 to-transparent dark:from-primary/10 dark:via-primary/5 dark:to-transparent';
+  const gradient = gradientMap[iconBg] || 'from-primary/10 via-primary/5 to-transparent';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: delay / 1000 }}
-      whileHover={{ y: -6, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: delay / 1000 }}
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
       whileTap={{ scale: 0.98 }}
-      className="group relative overflow-hidden"
+      className="group relative"
     >
-    <Card
-      className="border-border/20 hover:border-primary/20 transition-colors duration-300 h-full"
-    >
+    <Card className="border-border/20 hover:border-primary/25 transition-all duration-300 h-full overflow-hidden hover:shadow-xl hover:shadow-primary/[0.06]">
       {/* Colored gradient background */}
-      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-100 pointer-events-none", gradient)} />
+      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60 pointer-events-none", gradient)} />
 
       {/* Shimmer on hover */}
-      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/[0.06] to-transparent pointer-events-none" />
+
+      {/* Accent line top */}
+      <div className={cn("absolute top-0 left-4 right-4 h-[2px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500", iconBg.replace('/8', '/40'))} />
 
       <CardContent className="p-5 sm:p-6 relative">
         <div className="flex items-center justify-between mb-4">
           <div className={cn(
-            "p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-md",
+            "p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg",
             iconBg
           )}>
             {icon}
           </div>
           {change !== undefined && (
             <span className={cn(
-              "flex items-center gap-0.5 text-[11px] font-semibold px-2 py-1 rounded-lg transition-all duration-300 group-hover:scale-105",
+              "flex items-center gap-0.5 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all duration-300",
               isPositive ? "text-success bg-success/10" : "text-destructive bg-destructive/10"
             )}>
               {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
@@ -90,12 +91,12 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
             </span>
           )}
         </div>
-        <p className="text-2xl font-bold tracking-tight tabular-nums transition-colors duration-300 group-hover:text-primary">
+        <p className="text-2xl sm:text-[28px] font-extrabold tracking-tight tabular-nums transition-colors duration-300 group-hover:text-primary">
           {formattedValue}
         </p>
-        <p className="text-xs text-muted-foreground mt-1 font-medium">{label}</p>
+        <p className="text-xs text-muted-foreground/70 mt-1.5 font-semibold">{label}</p>
         {changeLabel && (
-          <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">{changeLabel}</p>
+          <p className="text-[10px] text-muted-foreground/50 mt-2 font-medium">{changeLabel}</p>
         )}
       </CardContent>
     </Card>

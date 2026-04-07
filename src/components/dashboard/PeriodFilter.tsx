@@ -14,16 +14,16 @@ interface PeriodFilterProps {
 
 export function PeriodFilter({ value, onChange }: PeriodFilterProps) {
   return (
-    <div className="flex items-center gap-1 bg-muted/40 rounded-lg p-0.5">
+    <div className="flex items-center gap-0.5 bg-muted/40 rounded-xl p-1 border border-border/20">
       {periods.map((period) => (
         <button
           key={period.value}
           onClick={() => onChange(period.value)}
           className={cn(
-            "px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200",
+            "relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300",
             value === period.value
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-background text-foreground shadow-sm shadow-black/5"
+              : "text-muted-foreground/60 hover:text-foreground hover:bg-background/50"
           )}
         >
           {period.label}

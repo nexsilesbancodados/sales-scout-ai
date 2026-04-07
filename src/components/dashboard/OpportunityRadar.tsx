@@ -53,18 +53,23 @@ export function OpportunityRadar({ leads }: OpportunityRadarProps) {
 
   if (topOpportunities.length === 0) {
     return (
-      <Card className="border-border/40">
-        <CardHeader className="pb-1">
-          <div className="flex items-center gap-2">
-            <Radar className="h-4 w-4 text-primary" />
-            <CardTitle className="text-sm font-semibold">Radar de Oportunidades</CardTitle>
+      <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent pointer-events-none" />
+        <CardHeader className="pb-1 relative">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <Radar className="h-4 w-4 text-primary" />
+            </div>
+            <CardTitle className="text-sm font-bold">Radar de Oportunidades</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-2">
-          <div className="text-center py-8 text-muted-foreground">
-            <Zap className="h-8 w-8 mx-auto mb-3 opacity-20" />
-            <p className="text-xs font-medium">Sem oportunidades ainda</p>
-            <p className="text-[10px] mt-1 text-muted-foreground/50">Leads quentes aparecerão aqui</p>
+        <CardContent className="pt-2 relative">
+          <div className="text-center py-10 text-muted-foreground">
+            <div className="inline-flex p-4 rounded-2xl bg-muted/30 mb-4">
+              <Zap className="h-8 w-8 opacity-25" />
+            </div>
+            <p className="text-xs font-semibold">Sem oportunidades ainda</p>
+            <p className="text-[10px] mt-1.5 text-muted-foreground/40">Leads quentes aparecerão aqui</p>
           </div>
         </CardContent>
       </Card>
@@ -72,20 +77,23 @@ export function OpportunityRadar({ leads }: OpportunityRadarProps) {
   }
 
   return (
-    <Card className="border-border/40">
-      <CardHeader className="pb-1">
+    <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent pointer-events-none" />
+      <CardHeader className="pb-1 relative">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Radar className="h-4 w-4 text-primary" />
-            <CardTitle className="text-sm font-semibold">Radar de Oportunidades</CardTitle>
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <Radar className="h-4 w-4 text-primary" />
+            </div>
+            <CardTitle className="text-sm font-bold">Radar de Oportunidades</CardTitle>
           </div>
-          <Badge variant="outline" className="text-[9px] h-5 px-1.5 text-primary border-primary/20">
+          <Badge variant="outline" className="text-[9px] h-5 px-2 font-bold text-primary border-primary/20 rounded-lg">
             <Zap className="h-2.5 w-2.5 mr-0.5" />
             {topOpportunities.length} quentes
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="pt-2">
+      <CardContent className="pt-2 relative">
         <AnimatePresence mode="popLayout">
           <div className="space-y-1">
             {topOpportunities.map((lead, i) => {
