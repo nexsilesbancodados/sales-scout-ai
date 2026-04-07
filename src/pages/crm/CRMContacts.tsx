@@ -98,19 +98,36 @@ export default function CRMContactsPage() {
     let result = leads;
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s));
+      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s) || l.location?.toLowerCase().includes(s));
     }
     if (stageFilter !== 'all') result = result.filter(l => l.stage === stageFilter);
     if (tempFilter !== 'all') result = result.filter(l => l.temperature === tempFilter);
     if (tagFilter !== 'all') result = result.filter(l => l.tags?.includes(tagFilter));
     if (scoreFilter !== 'all') {
-      if (scoreFilter === 'high') result = result.filter(l => l.lead_score >= 60);
-      else if (scoreFilter === 'medium') result = result.filter(l => l.lead_score >= 30 && l.lead_score < 60);
-      else if (scoreFilter === 'low') result = result.filter(l => l.lead_score < 30);
+      if (scoreFilter === 'high') result = result.filter(l => (l.lead_score ?? 0) >= 60);
+      else if (scoreFilter === 'medium') result = result.filter(l => (l.lead_score ?? 0) >= 30 && (l.lead_score ?? 0) < 60);
+      else if (scoreFilter === 'low') result = result.filter(l => (l.lead_score ?? 0) < 30);
     }
     if (sourceFilter !== 'all') result = result.filter(l => l.source === sourceFilter);
+    if (nicheFilter !== 'all') result = result.filter(l => l.niche === nicheFilter);
+    if (locationFilter !== 'all') result = result.filter(l => l.location === locationFilter);
+    if (hasWebsite === 'yes') result = result.filter(l => !!l.website);
+    else if (hasWebsite === 'no') result = result.filter(l => !l.website);
+    if (hasEmail === 'yes') result = result.filter(l => !!l.email);
+    else if (hasEmail === 'no') result = result.filter(l => !l.email);
+    if (messageSentFilter === 'yes') result = result.filter(l => l.message_sent);
+    else if (messageSentFilter === 'no') result = result.filter(l => !l.message_sent);
+    if (dateRange !== 'all') {
+      const now = new Date();
+      let cutoff: Date;
+      if (dateRange === 'today') cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      else if (dateRange === '7d') cutoff = new Date(now.getTime() - 7 * 86400000);
+      else if (dateRange === '30d') cutoff = new Date(now.getTime() - 30 * 86400000);
+      else cutoff = new Date(now.getTime() - 90 * 86400000);
+      result = result.filter(l => new Date(l.created_at) >= cutoff);
+    }
     return result;
-  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter]);
+  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter, nicheFilter, locationFilter, hasWebsite, hasEmail, messageSentFilter, dateRange]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
