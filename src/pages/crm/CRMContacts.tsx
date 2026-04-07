@@ -23,7 +23,7 @@ import {
   MessageCircle, Eye, Flame, ThermometerSun, Snowflake, Trash2,
   Tag, MoreHorizontal, Move, Thermometer, Plus, X,
   ChevronDown, Users, DollarSign, TrendingUp, Filter,
-  Globe, Mail, Building2, Zap,
+  Globe, Mail, Building2, Zap, MapPin, Calendar,
 } from 'lucide-react';
 
 function hashColor(name: string) {
@@ -55,6 +55,12 @@ export default function CRMContactsPage() {
   const [tagFilter, setTagFilter] = useState<string>('all');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [nicheFilter, setNicheFilter] = useState<string>('all');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [hasWebsite, setHasWebsite] = useState<string>('all');
+  const [hasEmail, setHasEmail] = useState<string>('all');
+  const [messageSentFilter, setMessageSentFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [newTagInput, setNewTagInput] = useState('');
@@ -67,32 +73,61 @@ export default function CRMContactsPage() {
     return Array.from(tagSet).sort();
   }, [leads]);
 
-  // Unique sources
+  // Unique sources, niches, locations
   const allSources = useMemo(() => {
     const s = new Set<string>();
     leads.forEach(l => l.source && s.add(l.source));
     return Array.from(s).sort();
   }, [leads]);
 
-  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter].filter(f => f !== 'all').length;
+  const allNiches = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.niche && s.add(l.niche));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const allLocations = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.location && s.add(l.location));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter, nicheFilter, locationFilter, hasWebsite, hasEmail, messageSentFilter, dateRange].filter(f => f !== 'all').length;
 
   const filtered = useMemo(() => {
     let result = leads;
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s));
+      result = result.filter(l => l.business_name.toLowerCase().includes(s) || l.phone.includes(s) || l.niche?.toLowerCase().includes(s) || l.email?.toLowerCase().includes(s) || l.location?.toLowerCase().includes(s));
     }
     if (stageFilter !== 'all') result = result.filter(l => l.stage === stageFilter);
     if (tempFilter !== 'all') result = result.filter(l => l.temperature === tempFilter);
     if (tagFilter !== 'all') result = result.filter(l => l.tags?.includes(tagFilter));
     if (scoreFilter !== 'all') {
-      if (scoreFilter === 'high') result = result.filter(l => l.lead_score >= 60);
-      else if (scoreFilter === 'medium') result = result.filter(l => l.lead_score >= 30 && l.lead_score < 60);
-      else if (scoreFilter === 'low') result = result.filter(l => l.lead_score < 30);
+      if (scoreFilter === 'high') result = result.filter(l => (l.lead_score ?? 0) >= 60);
+      else if (scoreFilter === 'medium') result = result.filter(l => (l.lead_score ?? 0) >= 30 && (l.lead_score ?? 0) < 60);
+      else if (scoreFilter === 'low') result = result.filter(l => (l.lead_score ?? 0) < 30);
     }
     if (sourceFilter !== 'all') result = result.filter(l => l.source === sourceFilter);
+    if (nicheFilter !== 'all') result = result.filter(l => l.niche === nicheFilter);
+    if (locationFilter !== 'all') result = result.filter(l => l.location === locationFilter);
+    if (hasWebsite === 'yes') result = result.filter(l => !!l.website);
+    else if (hasWebsite === 'no') result = result.filter(l => !l.website);
+    if (hasEmail === 'yes') result = result.filter(l => !!l.email);
+    else if (hasEmail === 'no') result = result.filter(l => !l.email);
+    if (messageSentFilter === 'yes') result = result.filter(l => l.message_sent);
+    else if (messageSentFilter === 'no') result = result.filter(l => !l.message_sent);
+    if (dateRange !== 'all') {
+      const now = new Date();
+      let cutoff: Date;
+      if (dateRange === 'today') cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      else if (dateRange === '7d') cutoff = new Date(now.getTime() - 7 * 86400000);
+      else if (dateRange === '30d') cutoff = new Date(now.getTime() - 30 * 86400000);
+      else cutoff = new Date(now.getTime() - 90 * 86400000);
+      result = result.filter(l => new Date(l.created_at) >= cutoff);
+    }
     return result;
-  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter]);
+  }, [leads, search, stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter, nicheFilter, locationFilter, hasWebsite, hasEmail, messageSentFilter, dateRange]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selected);
@@ -263,40 +298,109 @@ export default function CRMContactsPage() {
 
       {/* Advanced filters */}
       {showAdvancedFilters && (
-        <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl bg-muted/20 border border-border/30 animate-fade-in">
-          <Select value={scoreFilter} onValueChange={setScoreFilter}>
-            <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue placeholder="Score" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos scores</SelectItem>
-              <SelectItem value="high">🟢 Alto (60+)</SelectItem>
-              <SelectItem value="medium">🟡 Médio (30-59)</SelectItem>
-              <SelectItem value="low">🔴 Baixo (&lt;30)</SelectItem>
-            </SelectContent>
-          </Select>
-          {allSources.length > 0 && (
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder="Fonte" /></SelectTrigger>
+        <div className="mb-4 p-4 rounded-xl bg-muted/20 border border-border/30 animate-fade-in space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Filtros Avançados</p>
+            {activeFilterCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs gap-1 text-muted-foreground hover:text-destructive"
+                onClick={() => {
+                  setStageFilter('all'); setTempFilter('all'); setTagFilter('all');
+                  setScoreFilter('all'); setSourceFilter('all'); setNicheFilter('all');
+                  setLocationFilter('all'); setHasWebsite('all'); setHasEmail('all');
+                  setMessageSentFilter('all'); setDateRange('all');
+                }}
+              >
+                <X className="h-3 w-3" /> Limpar tudo ({activeFilterCount})
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+            <Select value={scoreFilter} onValueChange={setScoreFilter}>
+              <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Score" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas fontes</SelectItem>
-                {allSources.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                <SelectItem value="all">Todos scores</SelectItem>
+                <SelectItem value="high">🟢 Alto (60+)</SelectItem>
+                <SelectItem value="medium">🟡 Médio (30-59)</SelectItem>
+                <SelectItem value="low">🔴 Baixo (&lt;30)</SelectItem>
               </SelectContent>
             </Select>
-          )}
+            {allSources.length > 0 && (
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Fonte" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas fontes</SelectItem>
+                  {allSources.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+            {allNiches.length > 0 && (
+              <Select value={nicheFilter} onValueChange={setNicheFilter}>
+                <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Nicho" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos nichos</SelectItem>
+                  {allNiches.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+            {allLocations.length > 0 && (
+              <Select value={locationFilter} onValueChange={setLocationFilter}>
+                <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Localização" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas localizações</SelectItem>
+                  {allLocations.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+            <Select value={hasWebsite} onValueChange={setHasWebsite}>
+              <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Website" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Website: Todos</SelectItem>
+                <SelectItem value="yes">✅ Com site</SelectItem>
+                <SelectItem value="no">❌ Sem site</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={hasEmail} onValueChange={setHasEmail}>
+              <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Email" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Email: Todos</SelectItem>
+                <SelectItem value="yes">✅ Com email</SelectItem>
+                <SelectItem value="no">❌ Sem email</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={messageSentFilter} onValueChange={setMessageSentFilter}>
+              <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Mensagem" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Mensagem: Todos</SelectItem>
+                <SelectItem value="yes">📤 Enviada</SelectItem>
+                <SelectItem value="no">📭 Não enviada</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="h-8 text-xs rounded-lg"><SelectValue placeholder="Período" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo período</SelectItem>
+                <SelectItem value="today">Hoje</SelectItem>
+                <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Active filter chips */}
           {activeFilterCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 text-xs gap-1 text-muted-foreground"
-              onClick={() => {
-                setStageFilter('all');
-                setTempFilter('all');
-                setTagFilter('all');
-                setScoreFilter('all');
-                setSourceFilter('all');
-              }}
-            >
-              <X className="h-3 w-3" /> Limpar filtros
-            </Button>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {scoreFilter !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">Score: {scoreFilter === 'high' ? 'Alto' : scoreFilter === 'medium' ? 'Médio' : 'Baixo'}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setScoreFilter('all')} /></Badge>}
+              {sourceFilter !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">Fonte: {sourceFilter}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setSourceFilter('all')} /></Badge>}
+              {nicheFilter !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">Nicho: {nicheFilter}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setNicheFilter('all')} /></Badge>}
+              {locationFilter !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">Local: {locationFilter}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setLocationFilter('all')} /></Badge>}
+              {hasWebsite !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">{hasWebsite === 'yes' ? 'Com site' : 'Sem site'}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setHasWebsite('all')} /></Badge>}
+              {hasEmail !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">{hasEmail === 'yes' ? 'Com email' : 'Sem email'}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setHasEmail('all')} /></Badge>}
+              {messageSentFilter !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">{messageSentFilter === 'yes' ? 'Msg enviada' : 'Msg não enviada'}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setMessageSentFilter('all')} /></Badge>}
+              {dateRange !== 'all' && <Badge variant="secondary" className="gap-1 text-[10px] h-5">Período: {dateRange === 'today' ? 'Hoje' : dateRange === '7d' ? '7 dias' : dateRange === '30d' ? '30 dias' : '90 dias'}<X className="h-2.5 w-2.5 cursor-pointer" onClick={() => setDateRange('all')} /></Badge>}
+            </div>
           )}
         </div>
       )}
