@@ -38,10 +38,19 @@ export const AVAILABLE_SERVICES = [
 ];
 
 export const CAPTURE_FILTERS = [
-  { id: 'all', label: 'Todos', description: 'Sem filtro' },
-  { id: 'no_website', label: 'Sem Site', description: 'Empresas sem website' },
-  { id: 'low_rating', label: 'Avaliação Baixa', description: '< 4 estrelas' },
-  { id: 'few_reviews', label: 'Poucos Reviews', description: '< 10 avaliações' },
-  { id: 'small_business', label: 'Pequenos Negócios', description: 'Microempresas' },
-  { id: 'premium', label: 'Premium', description: 'Alta avaliação + reviews' },
+  { id: 'all', label: 'Todos', description: 'Sem filtro', icon: '📋' },
+  { id: 'no_website', label: 'Sem Site', description: 'Empresas sem website', icon: '🌐' },
+  { id: 'low_rating', label: 'Avaliação Baixa', description: '< 4 estrelas', icon: '⭐' },
+  { id: 'few_reviews', label: 'Poucos Reviews', description: '< 10 avaliações', icon: '💬' },
+  { id: 'small_business', label: 'Pequenos Negócios', description: 'Microempresas', icon: '🏪' },
+  { id: 'premium', label: 'Premium', description: 'Alta avaliação + reviews', icon: '👑' },
+  { id: 'no_social', label: 'Sem Redes Sociais', description: 'Sem Instagram/Facebook', icon: '📱' },
+  { id: 'new_business', label: 'Negócios Novos', description: 'Poucos reviews recentes', icon: '🆕' },
+];
+
+export const SORT_OPTIONS = [
+  { id: 'relevance', label: 'Relevância', description: 'Padrão do Google' },
+  { id: 'rating_desc', label: 'Melhor Avaliação', description: 'Maior rating primeiro' },
+  { id: 'reviews_desc', label: 'Mais Reviews', description: 'Mais avaliações primeiro' },
+  { id: 'quality_desc', label: 'Maior Qualidade', description: 'Score de qualidade' },
 ];
