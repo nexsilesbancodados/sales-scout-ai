@@ -256,7 +256,7 @@ export default function DashboardPage() {
 
         <div className="space-y-4">
           {/* Temperature */}
-          <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+          <Card className="border-border/50 hover:border-border/70 transition-colors duration-300 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-destructive/[0.02] to-transparent pointer-events-none" />
             <CardHeader className="pb-1 relative">
               <div className="flex items-center gap-2.5">
@@ -295,17 +295,17 @@ function ROIMetricCard({ icon: Icon, iconColor, iconBg, label, value, sub }: {
 }) {
   return (
     <motion.div variants={fadeUp}>
-      <Card className="border-border/20 group hover:border-primary/20 transition-all duration-300 overflow-hidden relative hover:shadow-lg hover:shadow-primary/[0.04]">
+      <Card className="border-border/50 group hover:border-primary/30 transition-all duration-300 overflow-hidden relative hover:shadow-lg hover:shadow-primary/[0.06]">
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
         <CardContent className="p-4 relative">
           <div className="flex items-center gap-2.5 mb-2.5">
             <div className={cn("p-2 rounded-xl transition-all duration-300 group-hover:scale-110", iconBg)}>
               <Icon className={cn("h-3.5 w-3.5", iconColor)} />
             </div>
-            <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.12em]">{label}</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.12em]">{label}</span>
           </div>
           <p className="text-xl font-extrabold tabular-nums group-hover:text-primary transition-colors duration-300">{value}</p>
-          <p className="text-[10px] text-muted-foreground/50 mt-1 font-medium">{sub}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 font-medium">{sub}</p>
         </CardContent>
       </Card>
     </motion.div>
@@ -325,10 +325,10 @@ function TempBar({ icon: Icon, label, count, total, color, textColor }: { icon: 
         </span>
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold tabular-nums">{count}</span>
-          <span className="text-[10px] text-muted-foreground/30 tabular-nums font-semibold bg-muted/30 px-1.5 py-0.5 rounded-md">{pct.toFixed(0)}%</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums font-semibold bg-muted/50 px-1.5 py-0.5 rounded-md">{pct.toFixed(0)}%</span>
         </div>
       </div>
-      <div className="h-2 rounded-full bg-muted/30 overflow-hidden">
+      <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
         <motion.div
           className={cn('h-full rounded-full', color)}
           initial={{ width: 0 }}

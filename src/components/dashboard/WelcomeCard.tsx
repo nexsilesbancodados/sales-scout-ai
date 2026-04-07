@@ -47,13 +47,13 @@ export function WelcomeCard({ userName, totalLeads, whatsappConnected }: Welcome
         <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-xs font-semibold text-muted-foreground/50 uppercase tracking-[0.15em]">{greeting}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.15em]">{greeting}</p>
               <Sparkles className="h-3 w-3 text-primary/40" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Olá, <span className="text-gradient">{displayName}</span> 👋
             </h1>
-            <p className="text-sm text-muted-foreground/70 mt-1.5">
+            <p className="text-sm text-muted-foreground mt-1.5">
               {totalLeads === 0
                 ? 'Comece capturando seus primeiros leads hoje.'
                 : `${totalLeads.toLocaleString('pt-BR')} leads na sua base • Vamos crescer!`}

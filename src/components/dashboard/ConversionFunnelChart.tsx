@@ -21,7 +21,7 @@ interface ConversionFunnelChartProps {
 
 export function ConversionFunnelChart({ stages, totalLeads }: ConversionFunnelChartProps) {
   return (
-    <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+    <Card className="border-border/50 hover:border-border/70 transition-colors duration-300 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-chart-4/[0.02] to-transparent pointer-events-none" />
       
       <CardHeader className="pb-1 relative">
@@ -57,7 +57,7 @@ export function ConversionFunnelChart({ stages, totalLeads }: ConversionFunnelCh
                       </span>
                     </div>
                   </div>
-                  <div className="h-2 rounded-full bg-muted/30 overflow-hidden">
+                  <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
                     <motion.div
                       className={cn("h-full rounded-full", config.color)}
                       initial={{ width: 0 }}
@@ -73,7 +73,7 @@ export function ConversionFunnelChart({ stages, totalLeads }: ConversionFunnelCh
           <div className="text-center py-12 text-muted-foreground">
             <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-15" />
             <p className="text-xs font-semibold">Sem dados no funil</p>
-            <p className="text-[10px] mt-1 text-muted-foreground/50">Capture leads para ver o funil</p>
+            <p className="text-[10px] mt-1 text-muted-foreground">Capture leads para ver o funil</p>
           </div>
         )}
       </CardContent>
