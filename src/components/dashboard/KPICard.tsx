@@ -63,7 +63,7 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
       whileTap={{ scale: 0.98 }}
       className="group relative"
     >
-    <Card className="border-border/20 hover:border-primary/25 transition-all duration-300 h-full overflow-hidden hover:shadow-xl hover:shadow-primary/[0.06]">
+    <Card className="border-border/50 hover:border-primary/40 transition-all duration-300 h-full overflow-hidden hover:shadow-xl hover:shadow-primary/[0.08]">
       {/* Colored gradient background */}
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60 pointer-events-none", gradient)} />
 
@@ -94,9 +94,9 @@ export function KPICard({ icon, label, value, change, changeLabel, iconBg, delay
         <p className="text-2xl sm:text-[28px] font-extrabold tracking-tight tabular-nums transition-colors duration-300 group-hover:text-primary">
           {formattedValue}
         </p>
-        <p className="text-xs text-muted-foreground/70 mt-1.5 font-semibold">{label}</p>
+        <p className="text-xs text-muted-foreground mt-1.5 font-semibold">{label}</p>
         {changeLabel && (
-          <p className="text-[10px] text-muted-foreground/50 mt-2 font-medium">{changeLabel}</p>
+          <p className="text-[10px] text-muted-foreground mt-2 font-medium">{changeLabel}</p>
         )}
       </CardContent>
     </Card>

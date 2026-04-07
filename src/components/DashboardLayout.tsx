@@ -97,9 +97,9 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
         <AppSidebar />
         <SidebarInset className={`flex flex-col min-h-screen overflow-y-auto ${!isOnline ? 'mt-8' : ''}`}>
           {/* Clean minimal header */}
-          <header className="sticky top-0 z-20 flex h-13 shrink-0 items-center border-b border-border/20 bg-background/70 backdrop-blur-2xl">
+          <header className="sticky top-0 z-20 flex h-13 shrink-0 items-center border-b border-border/50 bg-background/80 backdrop-blur-2xl">
             <div className="flex items-center gap-3 flex-1 px-4 sm:px-6">
-              <SidebarTrigger className="-ml-1 text-muted-foreground/40 hover:text-foreground transition-colors duration-200" />
+              <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors duration-200" />
               <div className="h-4 w-px bg-border/30" />
               <span className="text-sm font-bold truncate">{title}</span>
               <div className="flex-1" />
@@ -112,7 +112,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                       variant="ghost"
                       size="sm"
                       onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-                      className="h-8 gap-1.5 text-muted-foreground/50 hover:text-foreground hidden sm:flex"
+                      className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hidden sm:flex"
                       aria-label="Busca rápida"
                     >
                       <Search className="h-3.5 w-3.5" />
@@ -125,7 +125,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 <BackgroundJobsMonitor />
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/50 hover:text-foreground" aria-label="Notificações">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Notificações">
                       <Bell className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -133,7 +133,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleNavigationMode} className="h-8 w-8 hidden sm:flex text-muted-foreground/50 hover:text-foreground" aria-label="Menu no topo">
+                    <Button variant="ghost" size="icon" onClick={toggleNavigationMode} className="h-8 w-8 hidden sm:flex text-muted-foreground hover:text-foreground" aria-label="Menu no topo">
                       <PanelTop className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -141,7 +141,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8 text-muted-foreground/50 hover:text-foreground" aria-label="Alternar tema">
+                    <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Alternar tema">
                       <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                       <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     </Button>
@@ -154,7 +154,7 @@ export function DashboardLayout({ children, title, description, actions }: Dashb
 
           <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gradient-to-b from-background to-background/95">
             {description && (
-              <p className="text-muted-foreground/60 mb-6 text-sm">{description}</p>
+              <p className="text-muted-foreground mb-6 text-sm">{description}</p>
             )}
             <AnimatePresence mode="wait">
               <motion.div
