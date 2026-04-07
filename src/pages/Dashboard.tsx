@@ -256,14 +256,17 @@ export default function DashboardPage() {
 
         <div className="space-y-4">
           {/* Temperature */}
-          <Card className="border-border/40">
-            <CardHeader className="pb-1">
-              <div className="flex items-center gap-2">
-                <ThermometerSun className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm font-semibold">Temperatura dos Leads</CardTitle>
+          <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-destructive/[0.02] to-transparent pointer-events-none" />
+            <CardHeader className="pb-1 relative">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-warning/10">
+                  <ThermometerSun className="h-4 w-4 text-warning" />
+                </div>
+                <CardTitle className="text-sm font-bold">Temperatura dos Leads</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="pt-2 space-y-4">
+            <CardContent className="pt-3 space-y-4 relative">
               <TempBar icon={Flame} label="Quente" count={metrics?.hotLeads || 0} total={metrics?.totalLeads || 1} color="bg-destructive" textColor="text-destructive" />
               <TempBar icon={ThermometerSun} label="Morno" count={metrics?.warmLeads || 0} total={metrics?.totalLeads || 1} color="bg-warning" textColor="text-warning" />
               <TempBar icon={Snowflake} label="Frio" count={metrics?.coldLeads || 0} total={metrics?.totalLeads || 1} color="bg-info" textColor="text-info" />
@@ -271,11 +274,11 @@ export default function DashboardPage() {
           </Card>
 
           {/* Quick actions */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button asChild size="sm" className="gradient-primary h-10 text-xs font-semibold shadow-sm shadow-primary/15">
+          <div className="grid grid-cols-2 gap-2.5">
+            <Button asChild size="sm" className="gradient-primary h-11 text-xs font-bold shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/25 transition-shadow rounded-xl">
               <Link to="/prospecting"><Target className="mr-1.5 h-3.5 w-3.5" />Prospectar</Link>
             </Button>
-            <Button asChild variant="outline" size="sm" className="h-10 text-xs font-semibold border-border/50">
+            <Button asChild variant="outline" size="sm" className="h-11 text-xs font-bold border-border/40 hover:border-primary/30 rounded-xl">
               <Link to="/crm/contacts"><Users className="mr-1.5 h-3.5 w-3.5" />Ver Leads</Link>
             </Button>
           </div>
