@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { ArrowRight, Star, Check, Menu, X, Sparkles, CreditCard, Zap, BarChart3, HelpCircle, ChevronDown, TrendingUp, Search, MessageSquare, CalendarCheck, Users, Target, Clock, Rocket } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import heroVideo from '@/assets/hero-video.mp4';
 import logoImg from '@/assets/logo.webp';
 import heroPhonesImg from '@/assets/hero-phones-clean.webp';
@@ -187,7 +187,7 @@ export default function Landing() {
       {/* ═══ 2. HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" preload="metadata" />
+          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" preload="none" loading="lazy" />
           <div className="absolute inset-0 hero-energy-overlay" />
         </div>
         {/* Bottom gradient fade — replaces hard edge */}
