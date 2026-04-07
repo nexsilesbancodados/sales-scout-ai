@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { WhatsAppConnection } from '@/components/WhatsAppConnection';
 import { MultiChipSettings } from '@/components/settings/MultiChipSettings';
 import { useUserSettings } from '@/hooks/use-user-settings';
-import { MessageSquare, Loader2, Wifi, WifiOff, CreditCard, Copy } from 'lucide-react';
+import { MessageSquare, Loader2, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
