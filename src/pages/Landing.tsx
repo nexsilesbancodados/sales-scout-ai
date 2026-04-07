@@ -278,7 +278,7 @@ export default function Landing() {
                 >
                   {/* FRONT */}
                   <div
-                    className="absolute inset-0 border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm overflow-hidden"
+                    className="absolute inset-0 border border-white/[0.06] rounded-2xl p-6 bg-white/[0.03] overflow-hidden"
                     style={{ backfaceVisibility: 'hidden' }}
                   >
                     {/* Sweep effect bar */}
@@ -365,7 +365,7 @@ export default function Landing() {
           <div className="max-w-[900px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             {STATS.map((stat, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 40, rotateX: 15 }} whileInView={{ opacity: 1, y: 0, rotateX: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }} className="group">
-                <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.02] backdrop-blur-sm text-center hover:border-white/[0.12] transition-all duration-500 overflow-hidden">
+                <div className="relative border border-white/[0.06] rounded-2xl p-6 bg-white/[0.03] text-center hover:border-white/[0.12] transition-all duration-500 overflow-hidden">
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${stat.color}12, transparent 70%)` }} />
                   <div className="relative z-10">
                     <stat.icon className="h-5 w-5 mx-auto mb-3 opacity-50" style={{ color: stat.color }} />
@@ -420,7 +420,7 @@ export default function Landing() {
           <SectionHeader tag="Tire suas dúvidas" title={<>Tudo que você precisa <span className="text-white/50">saber.</span></>} />
           <div className="max-w-2xl mx-auto space-y-2">
             {FAQ_DATA.map((item, i) => (
-              <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02] backdrop-blur-sm">
+              <div key={i} className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.03]">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
                   <span className="text-sm font-semibold text-white/80">{item.q}</span>
                   <ChevronDown className={`h-4 w-4 text-white/50 transition-transform shrink-0 ml-3 ${openFaq === i ? 'rotate-180' : ''}`} />
