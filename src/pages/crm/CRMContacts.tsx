@@ -55,6 +55,12 @@ export default function CRMContactsPage() {
   const [tagFilter, setTagFilter] = useState<string>('all');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [nicheFilter, setNicheFilter] = useState<string>('all');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [hasWebsite, setHasWebsite] = useState<string>('all');
+  const [hasEmail, setHasEmail] = useState<string>('all');
+  const [messageSentFilter, setMessageSentFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [newTagInput, setNewTagInput] = useState('');
