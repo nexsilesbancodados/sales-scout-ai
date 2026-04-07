@@ -158,7 +158,7 @@ export function AppSidebar() {
           "relative h-9 rounded-xl transition-all duration-200 group/item overflow-hidden",
           active
             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
-            : "hover:bg-accent text-muted-foreground hover:text-foreground"
+            : "hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground"
         )}
       >
         <Link to={item.path} className="flex items-center gap-3 px-3">
@@ -232,7 +232,7 @@ export function AppSidebar() {
     return (
       <div className="px-4 pt-5 pb-1.5 flex items-center gap-2">
         <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColor, "bg-current")} />
-        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.16em]">
+        <p className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-[0.16em]">
           {children}
         </p>
         <div className="flex-1 h-px bg-border/30" />
