@@ -23,7 +23,7 @@ import {
   MessageCircle, Eye, Flame, ThermometerSun, Snowflake, Trash2,
   Tag, MoreHorizontal, Move, Thermometer, Plus, X,
   ChevronDown, Users, DollarSign, TrendingUp, Filter,
-  Globe, Mail, Building2, Zap,
+  Globe, Mail, Building2, Zap, MapPin, Calendar,
 } from 'lucide-react';
 
 function hashColor(name: string) {
