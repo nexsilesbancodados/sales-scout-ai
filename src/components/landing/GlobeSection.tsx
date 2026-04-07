@@ -33,23 +33,15 @@ export function GlobeSection() {
     return () => window.removeEventListener('line-reached-globe', handler);
   }, []);
 
-  // Track visibility for lazy-loading the globe
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const rect = el.getBoundingClientRect();
-        setIsVisible(rect.top < window.innerHeight + 200 && rect.bottom > -200);
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    const obs = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '200px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   return (
