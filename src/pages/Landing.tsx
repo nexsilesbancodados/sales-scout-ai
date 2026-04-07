@@ -187,7 +187,7 @@ export default function Landing() {
       {/* ═══ 2. HERO ═══ */}
       <section className="hero-section min-h-screen relative overflow-hidden flex items-center">
         <div className="absolute inset-0 pointer-events-none">
-          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" preload="none" loading="lazy" />
+          <video src={heroVideo} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40" preload="none" />
           <div className="absolute inset-0 hero-energy-overlay" />
         </div>
         {/* Bottom gradient fade — replaces hard edge */}
