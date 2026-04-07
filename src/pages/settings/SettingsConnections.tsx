@@ -86,4 +86,6 @@ export default function SettingsConnections() {
       {/* Multi-Chip */}
       <MultiChipSettings />
 
-
+    </div>
+  );
+}
