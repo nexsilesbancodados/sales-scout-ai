@@ -69,13 +69,13 @@
     --stage-lost: 0 72% 45%;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 30% 10%;
-    --sidebar-primary: 239 84% 67%;
+    --sidebar-background: 230 25% 97%;
+    --sidebar-foreground: 220 30% 15%;
+    --sidebar-primary: 239 84% 61%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 239 60% 96%;
-    --sidebar-accent-foreground: 239 84% 50%;
-    --sidebar-border: 220 13% 92%;
+    --sidebar-accent: 239 60% 93%;
+    --sidebar-accent-foreground: 239 84% 45%;
+    --sidebar-border: 220 13% 88%;
     --sidebar-ring: 239 84% 67%;
 
     /* Charts */

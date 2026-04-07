@@ -241,7 +241,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border/40 bg-sidebar dark:glass">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/60 bg-sidebar dark:glass">
       <SidebarHeader className="p-4 pb-5">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
           <div className="relative">
