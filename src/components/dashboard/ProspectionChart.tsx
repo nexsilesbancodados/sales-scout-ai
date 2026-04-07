@@ -13,7 +13,7 @@ function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-border/60 bg-popover/95 backdrop-blur-sm px-4 py-2.5 shadow-xl text-xs">
-      <p className="text-muted-foreground/70 mb-0.5 font-medium">{label}</p>
+      <p className="text-muted-foreground mb-0.5 font-medium">{label}</p>
       <p className="font-bold text-foreground text-sm">{payload[0].value} <span className="text-muted-foreground font-medium text-xs">leads</span></p>
     </div>
   );
@@ -29,7 +29,7 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
   }, [data]);
 
   return (
-    <Card className="border-border/30 hover:border-border/50 transition-colors duration-300 overflow-hidden">
+    <Card className="border-border/50 hover:border-border/70 transition-colors duration-300 overflow-hidden">
       {/* Subtle gradient bg */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent pointer-events-none" />
       
@@ -43,7 +43,7 @@ export function ProspectionChart({ data }: ProspectionChartProps) {
           </div>
           <div className="flex items-baseline gap-1">
             <p className="text-xl font-extrabold tabular-nums text-primary">{totalLeads.toLocaleString('pt-BR')}</p>
-            <span className="text-[10px] text-muted-foreground/50 font-medium">total</span>
+            <span className="text-[10px] text-muted-foreground font-medium">total</span>
           </div>
         </div>
       </CardHeader>
