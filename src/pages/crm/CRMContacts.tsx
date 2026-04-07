@@ -73,14 +73,26 @@ export default function CRMContactsPage() {
     return Array.from(tagSet).sort();
   }, [leads]);
 
-  // Unique sources
+  // Unique sources, niches, locations
   const allSources = useMemo(() => {
     const s = new Set<string>();
     leads.forEach(l => l.source && s.add(l.source));
     return Array.from(s).sort();
   }, [leads]);
 
-  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter].filter(f => f !== 'all').length;
+  const allNiches = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.niche && s.add(l.niche));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const allLocations = useMemo(() => {
+    const s = new Set<string>();
+    leads.forEach(l => l.location && s.add(l.location));
+    return Array.from(s).sort();
+  }, [leads]);
+
+  const activeFilterCount = [stageFilter, tempFilter, tagFilter, scoreFilter, sourceFilter, nicheFilter, locationFilter, hasWebsite, hasEmail, messageSentFilter, dateRange].filter(f => f !== 'all').length;
 
   const filtered = useMemo(() => {
     let result = leads;
